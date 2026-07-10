@@ -5,6 +5,7 @@ import { getProjects } from "@/lib/actions/projects";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { DashboardBreadcrumbs } from "@/components/dashboard/DashboardBreadcrumbs";
 import {
   Sidebar,
   SidebarContent,
@@ -97,7 +98,7 @@ export default async function DashboardLayout({
             <div className="flex items-center gap-2">
               <SidebarTrigger className="h-9 w-9" />
               <Separator orientation="vertical" className="h-4" />
-              <div className="text-sm font-medium text-muted-foreground">Workspace Shell</div>
+              <DashboardBreadcrumbs />
             </div>
             <div className="flex items-center gap-3">
               <Link href="/" passHref>
