@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import type { Route } from "next";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { ChevronRight, ChevronsUpDown } from "lucide-react";
@@ -19,6 +20,26 @@ interface ProjectItem {
 
 interface DashboardBreadcrumbsProps {
   projects?: ProjectItem[];
+}
+
+type ProjectTab = "canvas" | "endpoints" | "settings";
+type BreadcrumbItem = {
+  label: string;
+  href: Route;
+  isProject: boolean;
+};
+
+function normalizeTab(tab: string | undefined): ProjectTab {
+  if (tab === "endpoints" || tab === "settings") {
+    return tab;
+  }
+
+  return "canvas";
+}
+
+function getProjectTabHref(slug: string, tab: string | undefined): Route {
+  const normalizedTab = normalizeTab(tab);
+  return `/projects/${slug}/${normalizedTab}` as Route;
 }
 
 /**
@@ -40,12 +61,12 @@ export function DashboardBreadcrumbs({ projects = [] }: DashboardBreadcrumbsProp
     );
   }
 
-  const breadcrumbs = [];
+  const breadcrumbs: BreadcrumbItem[] = [];
 
   // Base "Workspaces" breadcrumb
   breadcrumbs.push({
     label: "Workspaces",
-    href: "/",
+    href: "/dashboard",
     isProject: false,
   });
 
@@ -64,16 +85,16 @@ export function DashboardBreadcrumbs({ projects = [] }: DashboardBreadcrumbsProp
 
     breadcrumbs.push({
       label: projectLabel,
-      href: `/projects/${projectSlug}/canvas`,
+      href: getProjectTabHref(projectSlug, "canvas"),
       isProject: true,
     });
 
     if (segments[2]) {
-      const activeTab = segments[2];
+      const activeTab = normalizeTab(segments[2]);
       const capitalizedTab = activeTab.charAt(0).toUpperCase() + activeTab.slice(1);
       breadcrumbs.push({
         label: capitalizedTab,
-        href: `/projects/${projectSlug}/${activeTab}`,
+        href: getProjectTabHref(projectSlug, activeTab),
         isProject: false,
       });
     }
@@ -103,7 +124,7 @@ export function DashboardBreadcrumbs({ projects = [] }: DashboardBreadcrumbsProp
                           className={`w-full flex items-center justify-between cursor-pointer text-sm py-1.5 ${
                             isActive ? "font-semibold text-primary bg-accent/40" : ""
                           }`}
-                          onClick={() => router.push(`/projects/${p.slug}/${segments[2] || "canvas"}` as any)}
+                          onClick={() => router.push(getProjectTabHref(p.slug, segments[2]))}
                         >
                           <span className="truncate">{p.name}</span>
                           {isActive && <span className="h-1.5 w-1.5 rounded-full bg-primary shrink-0" />}
@@ -132,7 +153,7 @@ export function DashboardBreadcrumbs({ projects = [] }: DashboardBreadcrumbsProp
                         className={`w-full flex items-center justify-between cursor-pointer text-sm py-1.5 ${
                           isActive ? "font-semibold text-primary bg-accent/40" : ""
                         }`}
-                        onClick={() => router.push(`/projects/${p.slug}/${segments[2] || "canvas"}` as any)}
+                        onClick={() => router.push(getProjectTabHref(p.slug, segments[2]))}
                       >
                         <span className="truncate">{p.name}</span>
                         {isActive && <span className="h-1.5 w-1.5 rounded-full bg-primary shrink-0" />}
@@ -142,10 +163,7 @@ export function DashboardBreadcrumbs({ projects = [] }: DashboardBreadcrumbsProp
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Link
-                href={crumb.href as any}
-                className="hover:text-foreground transition-colors truncate max-w-[120px] font-normal"
-              >
+              <Link href={crumb.href} className="hover:text-foreground transition-colors truncate max-w-[120px] font-normal">
                 {crumb.label}
               </Link>
             )}

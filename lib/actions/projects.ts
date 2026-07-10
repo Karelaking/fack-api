@@ -13,9 +13,21 @@ import {
 } from "@/lib/validators";
 
 export async function getProjects() {
-  return db.query.projects.findMany({
-    orderBy: (projects, { desc }) => [desc(projects.updatedAt)],
-  });
+  try {
+    return await db.query.projects.findMany({
+      orderBy: (projects, { desc }) => [desc(projects.updatedAt)],
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "";
+    if (message.includes("no such table: projects")) {
+      console.warn(
+        '[fack-api] Database schema is not initialized. Run "pnpm db:push" to create the required tables.'
+      );
+      return [];
+    }
+
+    throw error;
+  }
 }
 
 export async function getProjectBySlug(slug: string) {

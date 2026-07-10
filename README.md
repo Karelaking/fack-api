@@ -107,7 +107,7 @@ Configure paths, namespaces, and manage safe workspace deletions using type-to-c
    ```bash
    pnpm dev
    ```
-5. Open [http://localhost:3000](http://localhost:3000) in your browser.
+5. Open [http://localhost:3000](http://localhost:3000) in your browser, then navigate to `/dashboard` to manage workspaces.
 
 ---
 
