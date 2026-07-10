@@ -60,9 +60,11 @@ export function proxy(request: NextRequest) {
     const url = request.nextUrl.clone();
     url.pathname = `/api${pathname}`;
 
-    // Add anti-buffering header for reverse proxy compatibility (Nginx, Traefik)
     const response = NextResponse.rewrite(url);
     response.headers.set("X-Accel-Buffering", "no");
+    response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+    response.headers.set("Pragma", "no-cache");
+    response.headers.set("Expires", "0");
     return response;
   }
 

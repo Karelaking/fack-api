@@ -50,6 +50,7 @@ interface JsonSchemaProperty {
   required?: string[];
   items?: JsonSchemaProperty;
   "x-faker"?: string;
+  faker?: string;
   format?: string;
 }
 
@@ -98,13 +99,14 @@ export function synthesizeSchema(fields: SchemaField[]): JsonSchema {
   const required: string[] = [];
 
   for (const field of fields) {
-    if (!field.name.trim()) continue;
+    const trimmedName = field.name.trim();
+    if (!trimmedName) continue;
 
-    properties[field.name] = synthesizeField(field);
+    properties[trimmedName] = synthesizeField(field);
 
     // Non-nullable fields are required
     if (!field.nullable) {
-      required.push(field.name);
+      required.push(trimmedName);
     }
   }
 
@@ -127,6 +129,7 @@ function synthesizeField(field: SchemaField): JsonSchemaProperty {
   // Attach Faker.js provider annotation
   if (field.fakerProvider) {
     property["x-faker"] = field.fakerProvider;
+    property["faker"] = field.fakerProvider;
   }
 
   // Handle UUID format shorthand
@@ -170,6 +173,7 @@ function synthesizeArrayItems(field: SchemaField): JsonSchemaProperty {
   const items: JsonSchemaProperty = { type: itemType };
   if (field.arrayItemFakerProvider) {
     items["x-faker"] = field.arrayItemFakerProvider;
+    items["faker"] = field.arrayItemFakerProvider;
   }
 
   return items;
@@ -199,7 +203,7 @@ export function parseSchemaToFields(schema: JsonSchema): SchemaField[] {
       name,
       type: baseType ?? "string",
       nullable: isNullable || !requiredSet.has(name),
-      fakerProvider: prop["x-faker"],
+      fakerProvider: prop["faker"] || prop["x-faker"],
     };
 
     // Parse nested object children
@@ -226,7 +230,7 @@ export function parseSchemaToFields(schema: JsonSchema): SchemaField[] {
           required: prop.items.required ?? [],
         });
       } else {
-        field.arrayItemFakerProvider = prop.items["x-faker"];
+        field.arrayItemFakerProvider = prop.items["faker"] || prop.items["x-faker"];
       }
     }
 

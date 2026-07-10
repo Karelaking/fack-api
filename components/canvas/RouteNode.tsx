@@ -42,16 +42,11 @@ export function RouteNode({ data, selected }: RouteNodeProps) {
     data.onToggleEnabled(data.id, checked);
   };
 
-  const handleSelect = () => {
-    data.onSelectRoute(data.id);
-  };
-
   const hasLatency = (data.latencyMin ?? 0) > 0 || (data.latencyMax ?? 0) > 0;
   const hasErrors = (data.errorRate ?? 0) > 0;
 
   return (
     <div
-      onClick={handleSelect}
       className={cn(
         "flex flex-col bg-card border rounded-lg shadow-sm w-72 transition-all cursor-pointer hover:border-muted-foreground/30",
         selected ? "border-primary ring-2 ring-primary/20 shadow-md scale-[1.01]" : "border-border",

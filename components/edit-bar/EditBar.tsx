@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Network, Activity, Settings2, Code, Save, Loader2, FileJson } from "lucide-react";
+import { Network, Activity, Settings2, Code, Save, Loader2, FileJson, Copy } from "lucide-react";
 import { toast } from "sonner";
 import { updateRoute } from "@/lib/actions/routes";
 import { SchemaStoreProvider, useSchemaStore } from "@/stores/store-provider";
@@ -10,7 +10,7 @@ import { FieldTree } from "./FieldTree";
 import { ChaosConfig } from "./ChaosConfig";
 import { HeadersEditor, type HeaderRow } from "./HeadersEditor";
 import { TypeScriptPreview } from "./TypeScriptPreview";
-import type { Route } from "@/db/schema";
+import type { Route, Endpoint } from "@/db/schema";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,8 @@ import { Switch } from "@/components/ui/switch";
 
 interface EditBarProps {
   route: Route;
+  projectSlug: string;
+  endpoints: Endpoint[];
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onRouteUpdated: (updatedRoute: Route) => void;
@@ -29,10 +31,14 @@ interface EditBarProps {
  */
 function EditBarInner({
   route,
+  projectSlug,
+  endpoints,
   onOpenChange,
   onRouteUpdated,
 }: {
   route: Route;
+  projectSlug: string;
+  endpoints: Endpoint[];
   onOpenChange: (open: boolean) => void;
   onRouteUpdated: (updatedRoute: Route) => void;
 }) {
@@ -116,9 +122,25 @@ function EditBarInner({
     return JSON.stringify(synthesizeSchema(fields), null, 2);
   }, [fields]);
 
+  const parentEndpoint = React.useMemo(() => {
+    return endpoints.find((ep) => ep.id === route.endpointId);
+  }, [endpoints, route.endpointId]);
+
+  const basePath = parentEndpoint?.basePath || "";
+
+  const [origin, setOrigin] = React.useState("");
+
+  React.useEffect(() => {
+    if (typeof window !== "undefined") {
+      setOrigin(window.location.origin);
+    }
+  }, []);
+
+  const fullMockUrl = `${origin}/mock/${projectSlug}${basePath}${route.path}`;
+
   return (
     <div className="flex flex-col h-full overflow-hidden relative">
-      <SheetHeader className="pb-4 border-b border-border shrink-0">
+      <SheetHeader className="pb-3 border-b border-border shrink-0">
         <SheetTitle className="text-lg flex items-center gap-2">
           <Settings2 className="h-5 w-5 text-primary" />
           <span>Edit Route Config</span>
@@ -127,6 +149,34 @@ function EditBarInner({
           Simulate status codes, headers, delays, and configure response payloads.
         </SheetDescription>
       </SheetHeader>
+
+      {/* Copyable Mock URL Input bar */}
+      <div className="mt-4 flex flex-col gap-1.5 p-3 rounded-lg border border-border bg-muted/30 shrink-0">
+        <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+          Mock Endpoint URL
+        </label>
+        <div className="flex items-center gap-1.5">
+          <span className="font-mono text-xs text-foreground select-all truncate flex-1 bg-card border border-border px-2.5 py-1 rounded h-8 flex items-center">
+            {fullMockUrl}
+          </span>
+          <Button
+            type="button"
+            size="icon"
+            variant="outline"
+            className="h-8 w-8 shrink-0 hover:bg-primary/5"
+            onClick={async () => {
+              try {
+                await navigator.clipboard.writeText(fullMockUrl);
+                toast.success("Mock URL copied to clipboard!");
+              } catch {
+                toast.error("Failed to copy URL");
+              }
+            }}
+          >
+            <Copy className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
 
       <Tabs defaultValue="schema" className="flex-1 flex flex-col min-h-0 min-w-0 mt-4">
         <TabsList className="grid grid-cols-4 shrink-0 bg-muted">
@@ -199,6 +249,8 @@ function EditBarInner({
  */
 export function EditBar({
   route,
+  projectSlug,
+  endpoints,
   open,
   onOpenChange,
   onRouteUpdated,
@@ -219,6 +271,8 @@ export function EditBar({
         <SchemaStoreProvider initialFields={initialFields}>
           <EditBarInner
             route={route}
+            projectSlug={projectSlug}
+            endpoints={endpoints}
             onOpenChange={onOpenChange}
             onRouteUpdated={onRouteUpdated}
           />

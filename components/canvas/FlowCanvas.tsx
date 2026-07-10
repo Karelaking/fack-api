@@ -33,6 +33,7 @@ const nodeTypes = {
 
 interface FlowCanvasInnerProps {
   projectId: string;
+  projectSlug: string;
   endpoints: (Endpoint & { routes: Route[] })[];
   routes: Route[];
   initialState?: {
@@ -49,6 +50,7 @@ interface FlowCanvasInnerProps {
  */
 function FlowCanvasInner({
   projectId,
+  projectSlug,
   endpoints,
   routes,
   initialState,
@@ -232,6 +234,15 @@ function FlowCanvasInner({
     toast.success("Node added to canvas viewport");
   };
 
+  const handleNodeClick = React.useCallback(
+    (_event: React.MouseEvent, node: Node) => {
+      if (node.type === "routeNode") {
+        onSelectRoute(node.id);
+      }
+    },
+    [onSelectRoute]
+  );
+
   return (
     <div className="w-full h-full relative border border-border rounded-xl bg-card overflow-hidden">
       <ReactFlow
@@ -240,6 +251,7 @@ function FlowCanvasInner({
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
+        onNodeClick={handleNodeClick}
         nodeTypes={nodeTypes}
         fitView
         colorMode="system"

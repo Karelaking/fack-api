@@ -8,6 +8,7 @@ import { parseSchemaToFields } from "@/lib/schema-synthesizer";
 
 interface CanvasContainerProps {
   projectId: string;
+  projectSlug: string;
   endpoints: (Endpoint & { routes: Route[] })[];
   routes: Route[];
   initialState?: {
@@ -23,6 +24,7 @@ interface CanvasContainerProps {
  */
 export function CanvasContainer({
   projectId,
+  projectSlug,
   endpoints,
   routes,
   initialState,
@@ -55,6 +57,7 @@ export function CanvasContainer({
       <div className="flex-1 min-h-0 min-w-0 relative">
         <FlowCanvas
           projectId={projectId}
+          projectSlug={projectSlug}
           endpoints={endpoints}
           routes={activeRoutes}
           initialState={initialState}
@@ -66,6 +69,8 @@ export function CanvasContainer({
       {selectedRoute && (
         <EditBar
           route={selectedRoute}
+          projectSlug={projectSlug}
+          endpoints={endpoints}
           open={!!selectedRouteId}
           onOpenChange={(open) => {
             if (!open) setSelectedRouteId(null);

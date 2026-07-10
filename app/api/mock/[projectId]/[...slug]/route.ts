@@ -37,6 +37,8 @@ import {
   buildErrorResponse,
 } from "@/lib/mock-engine";
 
+export const dynamic = "force-dynamic";
+
 // ─── Route Handler Exports ───────────────────────────────────────────────────
 
 /**

@@ -29,6 +29,7 @@ export default async function CanvasPage({ params }: CanvasPageProps) {
   return (
     <CanvasContainer
       projectId={project.id}
+      projectSlug={project.slug}
       endpoints={endpointsList}
       routes={routesList}
       initialState={

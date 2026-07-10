@@ -71,11 +71,34 @@ export type CustomHeaders = Record<string, string>;
  * // → { id: "a1b2c3d4-...", name: "John Smith", age: 34 }
  * ```
  */
+/**
+ * Recursively maps any "x-faker" properties in a JSON Schema to "faker".
+ * This ensures backwards compatibility with older schemas in the database.
+ */
+function mapXFakerToFaker(obj: any): any {
+  if (typeof obj !== "object" || obj === null) return obj;
+
+  if (Array.isArray(obj)) {
+    return obj.map(mapXFakerToFaker);
+  }
+
+  const result: any = {};
+  for (const [key, value] of Object.entries(obj)) {
+    if (key === "x-faker") {
+      result["faker"] = value;
+    } else {
+      result[key] = mapXFakerToFaker(value);
+    }
+  }
+  return result;
+}
+
 export async function generatePayload(
   schema: Record<string, unknown>
 ): Promise<unknown> {
   try {
-    const result = await generate(schema as Parameters<typeof generate>[0], {
+    const transformedSchema = mapXFakerToFaker(schema);
+    const result = await generate(transformedSchema as Parameters<typeof generate>[0], {
       alwaysFakeOptionals: true,
       useDefaultValue: true,
       minItems: 1,
@@ -170,6 +193,9 @@ export function buildResponse(
     "Content-Type": "application/json",
     "X-Powered-By": "Fack API's",
     "X-Accel-Buffering": "no", // Prevents reverse proxy buffering
+    "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+    "Pragma": "no-cache",
+    "Expires": "0",
     ...CORS_HEADERS,
     ...customHeaders,
   });
