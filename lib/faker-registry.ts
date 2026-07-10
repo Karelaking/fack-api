@@ -38,7 +38,10 @@ const ignoredMethods = new Set([
   "urlLoremFlickr",
   "urlPicsum",
   "urlUnsplash",
-  "avatarLoremFlickr"
+  "avatarLoremFlickr",
+  "avatar",
+  "avatarGitHub",
+  "personPortrait"
 ]);
 
 /**
