@@ -5,6 +5,8 @@ import { DashboardBreadcrumbs } from "@/components/dashboard/DashboardBreadcrumb
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { HeaderNewProjectButton } from "@/components/dashboard/HeaderNewProjectButton";
 import { HeaderNamespaceBadge } from "@/components/dashboard/HeaderNamespaceBadge";
+import { HeaderAddRouteButton } from "@/components/dashboard/HeaderAddRouteButton";
+import { HeaderCanvasControls } from "@/components/dashboard/HeaderCanvasControls";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 
 /**
@@ -35,6 +37,8 @@ export default async function DashboardLayout({
             </div>
             <div className="flex items-center gap-3">
               <HeaderNamespaceBadge />
+              <HeaderCanvasControls />
+              <HeaderAddRouteButton />
               <HeaderNewProjectButton />
             </div>
           </header>

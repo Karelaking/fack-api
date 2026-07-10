@@ -14,6 +14,7 @@ import {
   type Connection,
   useReactFlow,
   ReactFlowProvider,
+  BackgroundVariant,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { toast } from "sonner";
@@ -21,7 +22,6 @@ import { saveCanvasState } from "@/lib/actions/canvas";
 import { updateRoute } from "@/lib/actions/routes";
 import { RouteNode } from "./RouteNode";
 import { EndpointGroupNode } from "./EndpointGroupNode";
-import { CanvasToolbar } from "./CanvasToolbar";
 import { AddRouteDialog } from "./AddRouteDialog";
 import type { Endpoint, Route } from "@/db/schema";
 
@@ -59,6 +59,22 @@ function FlowCanvasInner({
   const reactFlowInstance = useReactFlow();
   const [isSaving, setIsSaving] = React.useState(false);
   const [dialogOpen, setDialogOpen] = React.useState(false);
+
+  // Listen for global open-add-route event and query params
+  React.useEffect(() => {
+    const handleOpen = () => setDialogOpen(true);
+    window.addEventListener("open-add-route-dialog", handleOpen);
+
+    // Check if newRoute query parameter is present to open the dialog
+    if (typeof window !== "undefined" && window.location.search.includes("newRoute=true")) {
+      setDialogOpen(true);
+      const url = new URL(window.location.href);
+      url.searchParams.delete("newRoute");
+      window.history.replaceState({}, "", url.pathname + url.search);
+    }
+
+    return () => window.removeEventListener("open-add-route-dialog", handleOpen);
+  }, []);
 
   // Parse initial coordinates and reconcile with database reality
   const initialNodes: Node[] = React.useMemo(() => {
@@ -171,11 +187,15 @@ function FlowCanvasInner({
       }
     }
     
-    // Discard stale edges connecting deleted routes
+    // Discard stale edges connecting deleted routes and style active ones
     const activeRouteIds = new Set(routes.map((r) => r.id));
-    return savedEdges.filter(
-      (edge) => activeRouteIds.has(edge.source) && activeRouteIds.has(edge.target)
-    );
+    return savedEdges
+      .filter((edge) => activeRouteIds.has(edge.source) && activeRouteIds.has(edge.target))
+      .map((edge) => ({
+        ...edge,
+        animated: true,
+        style: { stroke: "#6366f1", strokeWidth: 2.5, strokeDasharray: "6 4" },
+      }));
   }, [initialState, routes]);
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
@@ -207,12 +227,23 @@ function FlowCanvasInner({
   }, [routes, setNodes]);
 
   const onConnect = React.useCallback(
-    (params: Connection) => setEdges((eds) => addEdge(params, eds)),
+    (params: Connection) =>
+      setEdges((eds) =>
+        addEdge(
+          {
+            ...params,
+            animated: true,
+            style: { stroke: "#6366f1", strokeWidth: 2.5, strokeDasharray: "6 4" },
+          },
+          eds
+        )
+      ),
     [setEdges]
   );
 
   const handleSave = React.useCallback(async () => {
     setIsSaving(true);
+    window.dispatchEvent(new CustomEvent("canvas-save-start"));
     try {
       const flow = reactFlowInstance.toObject();
       await saveCanvasState({
@@ -227,8 +258,29 @@ function FlowCanvasInner({
       console.error(err);
     } finally {
       setIsSaving(false);
+      window.dispatchEvent(new CustomEvent("canvas-save-end"));
     }
   }, [reactFlowInstance, projectId]);
+
+  // Listen for global canvas top bar actions
+  React.useEffect(() => {
+    const handleZoomIn = () => reactFlowInstance.zoomIn();
+    const handleZoomOut = () => reactFlowInstance.zoomOut();
+    const handleFitView = () => reactFlowInstance.fitView();
+    const handleSaveTrigger = () => handleSave();
+
+    window.addEventListener("canvas-zoom-in", handleZoomIn);
+    window.addEventListener("canvas-zoom-out", handleZoomOut);
+    window.addEventListener("canvas-fit-view", handleFitView);
+    window.addEventListener("canvas-save", handleSaveTrigger);
+
+    return () => {
+      window.removeEventListener("canvas-zoom-in", handleZoomIn);
+      window.removeEventListener("canvas-zoom-out", handleZoomOut);
+      window.removeEventListener("canvas-fit-view", handleFitView);
+      window.removeEventListener("canvas-save", handleSaveTrigger);
+    };
+  }, [reactFlowInstance, handleSave]);
 
   const handleRouteAdded = (newRoute: Route) => {
     // Determine the group node parent
@@ -297,20 +349,10 @@ function FlowCanvasInner({
         fitView
         colorMode="system"
       >
-        <Background gap={12} size={1} />
-        <Controls />
-        <MiniMap />
+        <Background variant={BackgroundVariant.Lines} gap={16} size={1} className="opacity-60" />
+        <Controls className="!bg-card !border-border" />
+        <MiniMap zoomable pannable className="!bg-card !border-border" />
       </ReactFlow>
-
-      {/* Floating Canvas Toolbar controls */}
-      <CanvasToolbar
-        onAddRoute={() => setDialogOpen(true)}
-        onFitView={() => reactFlowInstance.fitView()}
-        onZoomIn={() => reactFlowInstance.zoomIn()}
-        onZoomOut={() => reactFlowInstance.zoomOut()}
-        onSave={handleSave}
-        isSaving={isSaving}
-      />
 
       <AddRouteDialog
         open={dialogOpen}
