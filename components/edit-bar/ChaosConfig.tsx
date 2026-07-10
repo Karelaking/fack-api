@@ -52,23 +52,23 @@ export function ChaosConfig({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Latency Section */}
-      <div className="space-y-4">
+      <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Clock className="h-4 w-4 text-amber-500" />
-            <h3 className="text-sm font-semibold">Simulated Latency</h3>
+          <div className="flex items-center gap-1.5">
+            <Clock className="h-3.5 w-3.5 text-amber-500" />
+            <h3 className="text-xs font-semibold">Simulated Latency</h3>
           </div>
-          <span className="text-xs font-mono font-medium bg-muted px-2 py-0.5 rounded border border-border">
+          <span className="text-[11px] font-mono font-medium bg-muted px-1.5 py-0.5 rounded border border-border">
             {latencyMin === latencyMax ? `${latencyMin} ms` : `${latencyMin} - ${latencyMax} ms`}
           </span>
         </div>
 
-        <div className="space-y-5">
+        <div className="space-y-3">
           {/* Min Latency */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between text-xs text-muted-foreground font-medium">
+          <div className="space-y-1">
+            <div className="flex items-center justify-between text-[11px] text-muted-foreground font-medium">
               <span>Minimum Delay</span>
               <span>{latencyMin} ms</span>
             </div>
@@ -78,13 +78,13 @@ export function ChaosConfig({
               min={0}
               max={10000}
               step={50}
-              className="py-1.5"
+              className="py-1"
             />
           </div>
 
           {/* Max Latency */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between text-xs text-muted-foreground font-medium">
+          <div className="space-y-1">
+            <div className="flex items-center justify-between text-[11px] text-muted-foreground font-medium">
               <span>Maximum Delay</span>
               <span>{latencyMax} ms</span>
             </div>
@@ -94,32 +94,29 @@ export function ChaosConfig({
               min={0}
               max={10000}
               step={50}
-              className="py-1.5"
+              className="py-1"
             />
           </div>
         </div>
-        <p className="text-[10px] text-muted-foreground leading-normal mt-1 italic">
-          Delays execution thread using async setTimeout promises before responding.
-        </p>
       </div>
 
       {/* Error Rate Section */}
-      <div className="space-y-4 pt-4 border-t border-border">
+      <div className="space-y-3 pt-3 border-t border-border">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <AlertTriangle className="h-4 w-4 text-destructive" />
-            <h3 className="text-sm font-semibold">Probabilistic Failures</h3>
+          <div className="flex items-center gap-1.5">
+            <AlertTriangle className="h-3.5 w-3.5 text-destructive" />
+            <h3 className="text-xs font-semibold">Probabilistic Failures</h3>
           </div>
-          <span className="text-xs font-mono font-medium bg-muted px-2 py-0.5 rounded border border-border">
+          <span className="text-[11px] font-mono font-medium bg-muted px-1.5 py-0.5 rounded border border-border">
             {errorRate}% chance
           </span>
         </div>
 
-        <div className="grid gap-2">
-          <label htmlFor="err-percentage" className="text-xs text-muted-foreground font-medium">
+        <div className="grid gap-1.5">
+          <label htmlFor="err-percentage" className="text-[11px] text-muted-foreground font-medium">
             Failure Rate (Percentage)
           </label>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
             <Input
               id="err-percentage"
               type="number"
@@ -128,13 +125,13 @@ export function ChaosConfig({
               step={1}
               value={errorRate || ""}
               onChange={handleErrorRate}
-              className="w-24 h-9"
+              className="w-20 h-8 text-xs font-medium"
               placeholder="0"
             />
-            <span className="text-xs text-muted-foreground">
+            <span className="text-[11px] text-muted-foreground leading-normal">
               {errorRate > 0
-                ? `Approximately ${errorRate} out of 100 requests will fail with 500 error.`
-                : "No simulated request failures."}
+                ? `${errorRate}% of requests fail with a 500 error.`
+                : "No simulated failures."}
             </span>
           </div>
         </div>

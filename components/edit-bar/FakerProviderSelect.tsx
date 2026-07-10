@@ -46,7 +46,7 @@ export function FakerProviderSelect({
             role="combobox"
             aria-expanded={open}
             disabled={disabled}
-            className="w-full justify-between h-9 text-xs border-muted-foreground/20 hover:bg-accent"
+            className="w-full justify-between h-7 px-2 text-xs border-muted-foreground/20 hover:bg-accent"
           />
         }
       >

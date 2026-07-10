@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Network, Activity, Settings2, Code, Save, Loader2, FileJson, Copy, Trash2, ChevronDown } from "lucide-react";
+import { Settings2, Code, Save, Loader2, FileJson, Copy, Trash2, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 import { updateRoute, deleteRoute } from "@/lib/actions/routes";
 import { SchemaStoreProvider, useSchemaStore } from "@/stores/store-provider";
@@ -14,8 +14,6 @@ import type { Route, Endpoint } from "@/db/schema";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
 
 interface EditBarProps {
   route: Route;
@@ -74,7 +72,7 @@ function EditBarInner({
       const parsed = JSON.parse(route.responseSchema ?? "{}");
       const list = parseSchemaToFields(parsed);
       setSchema(list);
-    } catch (e) {
+    } catch (e: unknown) {
       setSchema([]);
     }
   }, [route, setSchema]);
@@ -153,7 +151,7 @@ function EditBarInner({
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
-      <SheetHeader className="shrink-0 border-b border-border pb-2">
+      <SheetHeader className="shrink-0 border-b border-border pb-1.5">
         <SheetTitle className="flex items-center gap-1.5 text-base">
           <Settings2 className="h-4 w-4 text-primary" />
           <span>Edit Route Config</span>
@@ -164,7 +162,7 @@ function EditBarInner({
       </SheetHeader>
 
       {/* Copyable Mock URL Input bar */}
-      <div className="mt-3 flex shrink-0 flex-col gap-1 rounded-md border border-border bg-muted/30 p-2">
+      <div className="mt-2.5 flex shrink-0 flex-col gap-1 rounded-md border border-border bg-muted/30 p-2">
         <label className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
           Mock Endpoint URL
         </label>
@@ -191,12 +189,12 @@ function EditBarInner({
         </div>
 
         {/* Collapsible Default RESTful Query Endpoints */}
-        <details className="group mt-1.5 border-t border-border/50 pt-2 text-xs">
+        <details className="group mt-1 border-t border-border/50 pt-1.5 text-xs">
           <summary className="flex cursor-pointer list-none items-center justify-between text-[9px] font-bold uppercase tracking-wider text-muted-foreground select-none transition-colors hover:text-foreground">
             <span>Query & Pagination Endpoints</span>
             <ChevronDown className="h-3.5 w-3.5 transition-transform group-open:rotate-180 shrink-0 text-muted-foreground" />
           </summary>
-          <div className="mt-2 max-h-[120px] space-y-1.5 overflow-y-auto pb-1 pr-1 pt-0.5">
+          <div className="mt-1.5 max-h-27.5 space-y-1 overflow-y-auto pb-1 pr-1 pt-0.5">
             {[
               {
                 label: "Limit Items (limit)",
@@ -231,7 +229,7 @@ function EditBarInner({
             ].map((opt, oIdx) => {
               const optUrl = `${fullMockUrl}${opt.suffix}`;
               return (
-                <div key={oIdx} className="flex flex-col gap-1 rounded border border-border/30 bg-muted/20 p-1.5">
+                <div key={oIdx} className="flex flex-col gap-0.5 rounded border border-border/30 bg-muted/20 p-1.5">
                   <div className="flex items-center justify-between gap-2">
                     <span className="font-semibold text-[11px] text-foreground">{opt.label}</span>
                     <Button
@@ -265,7 +263,7 @@ function EditBarInner({
         </details>
       </div>
 
-      <Tabs defaultValue="schema" className="mt-3 flex min-h-0 min-w-0 flex-1 flex-col">
+      <Tabs defaultValue="schema" className="mt-2.5 flex min-h-0 min-w-0 flex-1 flex-col">
         <TabsList className="grid h-8 shrink-0 grid-cols-4 bg-muted">
           <TabsTrigger value="schema" className="px-1.5 text-[11px] font-semibold">Schema</TabsTrigger>
           <TabsTrigger value="behavior" className="px-1.5 text-[11px] font-semibold">Chaos</TabsTrigger>
@@ -273,7 +271,7 @@ function EditBarInner({
           <TabsTrigger value="preview" className="px-1.5 text-[11px] font-semibold">Preview</TabsTrigger>
         </TabsList>
 
-        <div className="min-h-0 min-w-0 flex-1 overflow-auto py-3">
+        <div className="min-h-0 min-w-0 flex-1 overflow-auto py-2">
           {/* Schema Fields Builder Tab */}
           <TabsContent value="schema" className="m-0 h-full">
             <FieldTree />
@@ -297,7 +295,7 @@ function EditBarInner({
           </TabsContent>
 
           {/* JSON Schema Live Preview & TS Export Tab */}
-          <TabsContent value="preview" className="m-0 flex h-full flex-col space-y-2.5">
+          <TabsContent value="preview" className="m-0 flex h-full flex-col space-y-2">
             <div className="flex shrink-0 items-center justify-between border-b border-border pb-1.5">
               <span className="flex items-center gap-1 text-xs font-semibold text-muted-foreground">
                 <FileJson className="h-4 w-4" />
@@ -308,7 +306,7 @@ function EditBarInner({
                 <span>Generate types</span>
               </Button>
             </div>
-            <div className="min-h-0 flex-1 overflow-auto rounded-md border bg-muted p-2.5 font-mono text-[10px]">
+            <div className="min-h-0 flex-1 overflow-auto rounded-md border bg-muted p-2 font-mono text-[10px]">
               <pre>{schemaPreview}</pre>
             </div>
           </TabsContent>
@@ -316,17 +314,17 @@ function EditBarInner({
       </Tabs>
 
       {/* Save panel footer triggers */}
-      <div className="mt-auto flex shrink-0 items-center justify-between border-t border-border bg-card pt-3">
-        <Button variant="destructive" size="sm" onClick={handleDelete} disabled={loading} className="gap-1 text-xs font-semibold">
+      <div className="mt-auto flex shrink-0 items-center justify-between border-t border-border bg-card pt-2.5">
+        <Button variant="destructive" size="sm" onClick={handleDelete} disabled={loading} className="gap-1 text-xs font-semibold h-8">
           {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
           <span>Delete</span>
         </Button>
 
         <div className="flex gap-1.5">
-          <Button variant="outline" size="sm" onClick={() => onOpenChange(false)} disabled={loading} className="text-xs font-semibold">
+          <Button variant="outline" size="sm" onClick={() => onOpenChange(false)} disabled={loading} className="text-xs font-semibold h-8">
             Cancel
           </Button>
-          <Button size="sm" onClick={handleSave} disabled={loading} className="gap-1 text-xs font-semibold">
+          <Button size="sm" onClick={handleSave} disabled={loading} className="gap-1 text-xs font-semibold h-8">
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             <span>Save</span>
           </Button>
@@ -362,7 +360,7 @@ export function EditBar({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="flex h-full w-full flex-col overflow-hidden p-4 sm:max-w-[460px]">
+      <SheetContent className="flex h-full w-full flex-col overflow-hidden p-3.5 sm:max-w-135">
         <SchemaStoreProvider initialFields={initialFields}>
           <EditBarInner
             route={route}

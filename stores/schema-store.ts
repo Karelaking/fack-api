@@ -23,6 +23,8 @@ export interface SchemaActions {
   resetSchema: () => void;
   /** Moves a field up or down within its sibling array context */
   moveField: (id: string, direction: "up" | "down") => void;
+  /** Reorders fields by dragging one sibling field onto another sibling field */
+  reorderField: (draggedId: string, targetId: string) => void;
 }
 
 export type SchemaStore = SchemaState & SchemaActions;
@@ -170,6 +172,41 @@ export const createSchemaStore = (initialFields: SchemaField[] = []) => {
           };
 
           moveInArray(state.fields);
+        }),
+
+      reorderField: (draggedId, targetId) =>
+        set((state) => {
+          if (draggedId === targetId) return;
+
+          const findContainingArray = (array: SchemaField[], id: string): SchemaField[] | null => {
+            const index = array.findIndex((field) => field.id === id);
+            if (index !== -1) return array;
+
+            for (const field of array) {
+              if (field.children) {
+                const foundInChildren = findContainingArray(field.children, id);
+                if (foundInChildren) return foundInChildren;
+              }
+              if (field.arrayItemChildren) {
+                const foundInArrayItems = findContainingArray(field.arrayItemChildren, id);
+                if (foundInArrayItems) return foundInArrayItems;
+              }
+            }
+
+            return null;
+          };
+
+          const sourceArray = findContainingArray(state.fields, draggedId);
+          const targetArray = findContainingArray(state.fields, targetId);
+          if (!sourceArray || !targetArray || sourceArray !== targetArray) return;
+
+          const fromIndex = sourceArray.findIndex((field) => field.id === draggedId);
+          const toIndex = targetArray.findIndex((field) => field.id === targetId);
+          if (fromIndex === -1 || toIndex === -1 || fromIndex === toIndex) return;
+
+          const [draggedField] = sourceArray.splice(fromIndex, 1);
+          const adjustedIndex = fromIndex < toIndex ? toIndex - 1 : toIndex;
+          sourceArray.splice(adjustedIndex, 0, draggedField);
         }),
     }))
   );

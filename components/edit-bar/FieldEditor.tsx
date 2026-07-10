@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Plus, Trash2, ChevronRight, CornerDownRight, ToggleLeft, ArrowUp, ArrowDown } from "lucide-react";
+import { Plus, Trash2, CornerDownRight, ArrowUp, ArrowDown, GripVertical } from "lucide-react";
 import { useSchemaStore } from "@/stores/store-provider";
 import { FakerProviderSelect } from "./FakerProviderSelect";
 import type { SchemaField } from "@/lib/schema-synthesizer";
@@ -16,6 +16,19 @@ interface FieldEditorProps {
   depth: number;
 }
 
+const FIELD_TYPES = ["string", "number", "integer", "boolean", "object", "array"] as const;
+const ARRAY_ITEM_TYPES = ["string", "number", "integer", "boolean", "object"] as const;
+
+function isFieldType(value: string): value is SchemaField["type"] {
+  return FIELD_TYPES.includes(value as (typeof FIELD_TYPES)[number]);
+}
+
+function isArrayItemType(value: string): value is SchemaField["arrayItemType"] {
+  return ARRAY_ITEM_TYPES.includes(value as (typeof ARRAY_ITEM_TYPES)[number]);
+}
+
+let activeDraggedFieldId: string | null = null;
+
 /**
  * Recursive field row editor in the JSON Schema Builder tree.
  * Automatically displays conditional selectors based on data types.
@@ -25,6 +38,8 @@ export function FieldEditor({ field, depth }: FieldEditorProps) {
   const removeField = useSchemaStore((state) => state.removeField);
   const addField = useSchemaStore((state) => state.addField);
   const moveField = useSchemaStore((state) => state.moveField);
+  const reorderField = useSchemaStore((state) => state.reorderField);
+  const [isDragOver, setIsDragOver] = React.useState(false);
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     updateField(field.id, { name: e.target.value });
@@ -54,31 +69,77 @@ export function FieldEditor({ field, depth }: FieldEditorProps) {
   const isArray = field.type === "array";
   const isPrimitive = !isObject && !isArray;
 
+  const handleDragStart = (event: React.DragEvent<HTMLElement>) => {
+    activeDraggedFieldId = field.id;
+    event.dataTransfer.setData("application/x-fack-field-id", field.id);
+    event.dataTransfer.effectAllowed = "move";
+  };
+
+  const handleDragEnd = () => {
+    activeDraggedFieldId = null;
+    setIsDragOver(false);
+  };
+
+  const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
+    if (!activeDraggedFieldId || activeDraggedFieldId === field.id) return;
+    event.preventDefault();
+    if (!isDragOver) setIsDragOver(true);
+  };
+
+  const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    const draggedId = activeDraggedFieldId ?? event.dataTransfer.getData("application/x-fack-field-id");
+    setIsDragOver(false);
+    if (!draggedId || draggedId === field.id) return;
+    reorderField(draggedId, field.id);
+    activeDraggedFieldId = null;
+  };
+
   return (
-    <div className="space-y-2">
+    <div className="space-y-1.5">
       {/* Field Row */}
       <div
         className={cn(
-          "flex flex-wrap items-center gap-2 py-2 px-2.5 rounded-lg border border-border bg-card/65 relative transition-all hover:border-muted-foreground/15",
-          depth > 0 && "ml-4"
+          "flex flex-wrap items-center gap-1.5 py-1.5 px-2 rounded-md border border-border bg-card/65 relative transition-all hover:border-muted-foreground/15",
+          isDragOver && "border-primary/60 bg-primary/5",
+          depth > 0 && "ml-3",
         )}
+        onDragOver={handleDragOver}
+        onDragLeave={() => setIsDragOver(false)}
+        onDrop={handleDrop}
       >
         {/* Nesting Indicator */}
         {depth > 0 && (
-          <CornerDownRight className="absolute left-[-16px] top-4 h-3.5 w-3.5 text-muted-foreground/60" />
+          <CornerDownRight className="absolute -left-3 top-3 h-3 w-3 text-muted-foreground/60" />
         )}
+
+        {/* Drag Handle */}
+        <span
+          draggable
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+          className="inline-flex h-7 w-5 cursor-grab items-center justify-center text-muted-foreground/70 active:cursor-grabbing"
+          title="Drag to reorder"
+        >
+          <GripVertical className="h-3.5 w-3.5" />
+        </span>
 
         {/* Field Name */}
         <Input
           value={field.name}
           onChange={handleNameChange}
           placeholder="Field key"
-          className="h-8 text-xs font-semibold w-[140px] shrink-0 font-mono"
+          className="h-7 text-xs font-semibold w-30 shrink-0 font-mono"
         />
 
         {/* Field Type */}
-        <Select value={field.type} onValueChange={(val) => val && handleTypeChange(val as any)}>
-          <SelectTrigger className="h-8 text-xs w-[90px] shrink-0 font-medium">
+        <Select
+          value={field.type}
+          onValueChange={(val) => {
+            if (isFieldType(val as string)) handleTypeChange(val as SchemaField["type"]);
+          }}
+        >
+          <SelectTrigger className="h-7 text-xs w-20 shrink-0 font-medium">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -92,28 +153,40 @@ export function FieldEditor({ field, depth }: FieldEditorProps) {
         </Select>
 
         {/* Nullable Switch */}
-        <div className="flex items-center gap-1.5 shrink-0 px-1">
+        <div className="flex items-center gap-1 shrink-0 px-0.5">
           <Switch
             checked={field.nullable}
             onCheckedChange={handleNullableChange}
-            className="scale-[0.7] h-5"
+            className="scale-[0.65] h-4"
           />
-          <span className="text-[10px] text-muted-foreground font-semibold uppercase">Null</span>
+          <span className="text-[9px] text-muted-foreground font-semibold uppercase">
+            Null
+          </span>
         </div>
 
         {/* Faker.js Provider Select (Primitives only) */}
         {isPrimitive && (
-          <div className="flex-1 min-w-[150px]">
-            <FakerProviderSelect value={field.fakerProvider} onValueChange={handleFakerChange} />
+          <div className="flex-1 min-w-30">
+            <FakerProviderSelect
+              value={field.fakerProvider}
+              onValueChange={handleFakerChange}
+            />
           </div>
         )}
 
         {/* Array Options */}
         {isArray && (
-          <div className="flex items-center gap-2 flex-1 min-w-[200px]">
-            <span className="text-[10px] text-muted-foreground font-bold uppercase shrink-0">Items:</span>
-            <Select value={field.arrayItemType || "string"} onValueChange={(val) => val && handleArrayItemTypeChange(val as any)}>
-              <SelectTrigger className="h-8 text-xs w-[90px] shrink-0 font-medium">
+          <div className="flex items-center gap-1.5 flex-1 min-w-37.5">
+            <span className="text-[9px] text-muted-foreground font-bold uppercase shrink-0">
+              Items:
+            </span>
+            <Select
+              value={field.arrayItemType || "string"}
+              onValueChange={(val) => {
+                if (isArrayItemType(val as string)) handleArrayItemTypeChange(val as SchemaField["arrayItemType"]);
+              }}
+            >
+              <SelectTrigger className="h-7 text-xs w-20 shrink-0 font-medium">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -126,7 +199,7 @@ export function FieldEditor({ field, depth }: FieldEditorProps) {
             </Select>
 
             {field.arrayItemType !== "object" && (
-              <div className="flex-1">
+              <div className="flex-1 min-w-25">
                 <FakerProviderSelect
                   value={field.arrayItemFakerProvider}
                   onValueChange={handleArrayItemFakerChange}
@@ -137,27 +210,27 @@ export function FieldEditor({ field, depth }: FieldEditorProps) {
         )}
 
         {/* Action Controls */}
-        <div className="flex items-center gap-1 shrink-0 ml-auto">
+        <div className="flex items-center gap-0.5 shrink-0 ml-auto">
           {/* Reorder Buttons */}
           <Button
             type="button"
             size="icon"
             variant="ghost"
-            className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted"
+            className="h-7 w-7 text-muted-foreground hover:text-foreground hover:bg-muted"
             title="Move Up"
             onClick={() => moveField(field.id, "up")}
           >
-            <ArrowUp className="h-4 w-4" />
+            <ArrowUp className="h-3.5 w-3.5" />
           </Button>
           <Button
             type="button"
             size="icon"
             variant="ghost"
-            className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted"
+            className="h-7 w-7 text-muted-foreground hover:text-foreground hover:bg-muted"
             title="Move Down"
             onClick={() => moveField(field.id, "down")}
           >
-            <ArrowDown className="h-4 w-4" />
+            <ArrowDown className="h-3.5 w-3.5" />
           </Button>
 
           {/* Add Child Button (Only for Object type, or Array items of type Object) */}
@@ -166,27 +239,27 @@ export function FieldEditor({ field, depth }: FieldEditorProps) {
               type="button"
               size="icon"
               variant="outline"
-              className="h-8 w-8 hover:bg-primary/5"
+              className="h-7 w-7 hover:bg-primary/5"
               onClick={() => addField(field.id)}
             >
-              <Plus className="h-4 w-4" />
+              <Plus className="h-3.5 w-3.5" />
             </Button>
           )}
           <Button
             type="button"
             size="icon"
             variant="ghost"
-            className="h-8 w-8 text-destructive hover:bg-destructive/10"
+            className="h-7 w-7 text-destructive hover:bg-destructive/10"
             onClick={() => removeField(field.id)}
           >
-            <Trash2 className="h-4 w-4" />
+            <Trash2 className="h-3.5 w-3.5" />
           </Button>
         </div>
       </div>
 
       {/* Recursive Children (Object Children) */}
       {isObject && field.children && field.children.length > 0 && (
-        <div className="border-l border-border/80 pl-2 mt-1">
+        <div className="border-l border-border/80 pl-2 mt-1 space-y-1.5">
           {field.children.map((child) => (
             <FieldEditor key={child.id} field={child} depth={depth + 1} />
           ))}
@@ -194,13 +267,16 @@ export function FieldEditor({ field, depth }: FieldEditorProps) {
       )}
 
       {/* Recursive Children (Array Item Object Children) */}
-      {isArray && field.arrayItemType === "object" && field.arrayItemChildren && field.arrayItemChildren.length > 0 && (
-        <div className="border-l border-border/80 pl-2 mt-1">
-          {field.arrayItemChildren.map((child) => (
-            <FieldEditor key={child.id} field={child} depth={depth + 1} />
-          ))}
-        </div>
-      )}
+      {isArray &&
+        field.arrayItemType === "object" &&
+        field.arrayItemChildren &&
+        field.arrayItemChildren.length > 0 && (
+          <div className="border-l border-border/80 pl-2 mt-1 space-y-1.5">
+            {field.arrayItemChildren.map((child) => (
+              <FieldEditor key={child.id} field={child} depth={depth + 1} />
+            ))}
+          </div>
+        )}
     </div>
   );
 }
