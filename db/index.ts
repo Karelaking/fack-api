@@ -1,27 +1,35 @@
-import { drizzle } from "drizzle-orm/better-sqlite3";
-import Database from "better-sqlite3";
+import { drizzle } from "drizzle-orm/libsql";
+import { createClient } from "@libsql/client";
 import path from "node:path";
 import fs from "node:fs";
 import * as schema from "./schema";
 
-const DATABASE_URL = process.env.DATABASE_URL ?? "./data/fack.db";
+// Standardize database URL. If it's a local path, prefix it with "file:" for @libsql/client
+let url = process.env.DATABASE_URL ?? "file:./data/fack.db";
+if (!url.includes("://") && !url.startsWith("file:")) {
+  url = `file:${url}`;
+}
+
+const DATABASE_URL = url;
+const DATABASE_AUTH_TOKEN = process.env.DATABASE_AUTH_TOKEN;
 
 function createDatabase() {
-  const dbPath = path.resolve(DATABASE_URL);
-  const dbDir = path.dirname(dbPath);
+  // Ensure the local data directory exists if using a local file URL
+  if (DATABASE_URL.startsWith("file:")) {
+    const dbPath = path.resolve(DATABASE_URL.replace("file:", ""));
+    const dbDir = path.dirname(dbPath);
 
-  // Ensure the data directory exists
-  if (!fs.existsSync(dbDir)) {
-    fs.mkdirSync(dbDir, { recursive: true });
+    if (!fs.existsSync(dbDir)) {
+      fs.mkdirSync(dbDir, { recursive: true });
+    }
   }
 
-  const sqlite = new Database(dbPath);
+  const client = createClient({
+    url: DATABASE_URL,
+    authToken: DATABASE_AUTH_TOKEN,
+  });
 
-  // Enable WAL mode for better concurrent read performance
-  sqlite.pragma("journal_mode = WAL");
-  sqlite.pragma("foreign_keys = ON");
-
-  return drizzle(sqlite, { schema });
+  return drizzle(client, { schema });
 }
 
 // Singleton pattern — reuse across hot reloads in development

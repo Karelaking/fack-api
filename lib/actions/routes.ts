@@ -45,6 +45,7 @@ export async function createRoute(input: CreateRouteInput) {
       method: parsed.method,
       path: parsed.path,
       statusCode: parsed.statusCode,
+      responseSchema: parsed.responseSchema || "{}",
     })
     .returning();
 

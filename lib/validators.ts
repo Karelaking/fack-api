@@ -77,6 +77,7 @@ export const createRouteSchema = z.object({
     .min(1, "Route path is required")
     .max(500, "Route path must be 500 characters or fewer"),
   statusCode: z.number().int().min(100).max(599).default(200),
+  responseSchema: z.string().optional(),
 });
 
 export const updateRouteSchema = z.object({

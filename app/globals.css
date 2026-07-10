@@ -128,3 +128,8 @@
     @apply font-sans;
   }
 }
+
+body::-webkit-scrollbar{
+  display: none;
+  width: 0;
+}

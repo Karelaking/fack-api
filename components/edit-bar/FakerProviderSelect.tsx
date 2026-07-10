@@ -57,10 +57,10 @@ export function FakerProviderSelect({
         </span>
         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
       </PopoverTrigger>
-      <PopoverContent className="w-[300px] p-0" align="start">
+      <PopoverContent className="w-75 p-0" align="start">
         <Command>
           <CommandInput placeholder="Search mock data provider..." className="h-9 text-xs" />
-          <CommandList className="max-h-[300px]">
+          <CommandList className="max-h-75 overflow-y-auto">
             <CommandEmpty className="py-3 text-center text-xs text-muted-foreground">
               No data provider found.
             </CommandEmpty>
@@ -78,7 +78,7 @@ export function FakerProviderSelect({
                   >
                     <div className="flex flex-col">
                       <span className="font-medium text-foreground">{provider.label}</span>
-                      <span className="text-[10px] text-muted-foreground truncate max-w-[220px]">
+                      <span className="text-[10px] text-muted-foreground truncate max-w-55">
                         Example: {provider.example}
                       </span>
                     </div>

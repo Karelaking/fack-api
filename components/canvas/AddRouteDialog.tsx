@@ -7,6 +7,7 @@ import { createRoute } from "@/lib/actions/routes";
 import type { Endpoint } from "@/db/schema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Dialog,
@@ -40,6 +41,7 @@ export function AddRouteDialog({
   const [method, setMethod] = React.useState<"GET" | "POST" | "PUT" | "DELETE" | "PATCH">("GET");
   const [path, setPath] = React.useState("");
   const [statusCode, setStatusCode] = React.useState("200");
+  const [includeDefaults, setIncludeDefaults] = React.useState(true);
 
   React.useEffect(() => {
     if (open && endpoints.length > 0) {
@@ -68,18 +70,33 @@ export function AddRouteDialog({
 
     setLoading(true);
     try {
-      const created = await createRoute({
+      let responseSchema = "{}";
+      if (includeDefaults) {
+        responseSchema = JSON.stringify({
+          type: "object",
+          properties: {
+            id: { type: "string", faker: "string.uuid", "x-faker": "string.uuid" },
+            createdAt: { type: "string", faker: "date.past", "x-faker": "date.past" },
+            updatedAt: { type: "string", faker: "date.recent", "x-faker": "date.recent" }
+          },
+          required: ["id", "createdAt", "updatedAt"]
+        });
+      }
+
+      const newRoute = await createRoute({
         endpointId,
         method,
         path: cleanPath,
         statusCode: code,
+        responseSchema,
       });
 
-      toast.success(`${method} ${cleanPath} added successfully.`);
-      onRouteAdded(created);
-      onOpenChange(false);
+      toast.success("Route node created!");
+      onRouteAdded(newRoute);
       setPath("");
       setStatusCode("200");
+      setIncludeDefaults(true);
+      onOpenChange(false);
     } catch (err) {
       toast.error("Failed to create route");
       console.error(err);
@@ -166,6 +183,19 @@ export function AddRouteDialog({
                 placeholder="200"
                 min={100}
                 max={599}
+                disabled={loading || endpoints.length === 0}
+              />
+            </div>
+            <div className="flex items-center justify-between rounded-lg border border-border p-3 bg-muted/20">
+              <div className="flex flex-col gap-0.5">
+                <span className="text-xs font-semibold">Default Fields</span>
+                <span className="text-[10px] text-muted-foreground leading-normal">
+                  Pre-populate schema with id, createdAt, and updatedAt.
+                </span>
+              </div>
+              <Switch
+                checked={includeDefaults}
+                onCheckedChange={setIncludeDefaults}
                 disabled={loading || endpoints.length === 0}
               />
             </div>

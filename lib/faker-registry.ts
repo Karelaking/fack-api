@@ -53,10 +53,16 @@ const providerDefinitions: FakerProvider[] = [
 
   // Location
   { value: "location.streetAddress", label: "Street Address", example: "123 Main St", category: "Location" },
+  { value: "location.street", label: "Street Name", example: "Broadway", category: "Location" },
+  { value: "location.buildingNumber", label: "Building Number", example: "45A", category: "Location" },
   { value: "location.city", label: "City", example: "San Francisco", category: "Location" },
+  { value: "location.county", label: "County", example: "Orange County", category: "Location" },
   { value: "location.state", label: "State", example: "California", category: "Location" },
+  { value: "location.stateAbbr", label: "State Abbreviation", example: "NY", category: "Location" },
   { value: "location.zipCode", label: "Zip Code", example: "94102", category: "Location" },
   { value: "location.country", label: "Country", example: "United States", category: "Location" },
+  { value: "location.countryCode", label: "Country Code (ISO 2-letter)", example: "US", category: "Location" },
+  { value: "location.timeZone", label: "Timezone", example: "Europe/London", category: "Location" },
   { value: "location.latitude", label: "Latitude", example: "37.7749", category: "Location" },
   { value: "location.longitude", label: "Longitude", example: "-122.4194", category: "Location" },
 
@@ -77,6 +83,7 @@ const providerDefinitions: FakerProvider[] = [
   { value: "date.future", label: "Future Date", example: "2027-03-22T...", category: "Date" },
   { value: "date.recent", label: "Recent Date", example: "2026-07-08T...", category: "Date" },
   { value: "date.birthdate", label: "Birthdate", example: "1990-05-12T...", category: "Date" },
+  { value: "date.anytime", label: "Random Date", example: "2025-11-12T...", category: "Date" },
 
   // Lorem / Text
   { value: "lorem.word", label: "Word", example: "lorem", category: "Text" },
