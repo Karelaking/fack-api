@@ -2,7 +2,6 @@ import * as React from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getProjectBySlug } from "@/lib/actions/projects";
-import { PageTabs } from "@/components/dashboard/PageTabs";
 
 interface ProjectLayoutProps {
   children: React.ReactNode;

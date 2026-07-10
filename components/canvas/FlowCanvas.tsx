@@ -20,6 +20,7 @@ import "@xyflow/react/dist/style.css";
 import { toast } from "sonner";
 import { saveCanvasState } from "@/lib/actions/canvas";
 import { updateRoute } from "@/lib/actions/routes";
+import { useRouter } from "next/navigation";
 import { RouteNode } from "./RouteNode";
 import { EndpointGroupNode } from "./EndpointGroupNode";
 import { AddRouteDialog } from "./AddRouteDialog";
@@ -57,6 +58,7 @@ function FlowCanvasInner({
   onSelectRoute,
 }: FlowCanvasInnerProps) {
   const reactFlowInstance = useReactFlow();
+  const router = useRouter();
   const [isSaving, setIsSaving] = React.useState(false);
   const [dialogOpen, setDialogOpen] = React.useState(false);
 
@@ -201,30 +203,94 @@ function FlowCanvasInner({
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
-  // Sync route data updates dynamically (for instance after editing in the sidebar EditBar)
+  // Reconcile and sync nodes state when routes or endpoints props change (ensures correct group sizes and node placements)
   React.useEffect(() => {
-    setNodes((prevNodes) =>
-      prevNodes.map((node) => {
-        if (node.type !== "routeNode") return node;
-        const matchingRoute = routes.find((r) => r.id === node.id);
-        if (!matchingRoute) return node;
+    setNodes((prevNodes) => {
+      const reconciled: Node[] = [];
+      const dbEndpointsMap = new Map(endpoints.map((ep) => [ep.id, ep]));
 
-        return {
-          ...node,
-          data: {
-            ...node.data,
-            method: matchingRoute.method,
-            path: matchingRoute.path,
-            statusCode: matchingRoute.statusCode,
-            isEnabled: matchingRoute.isEnabled,
-            latencyMin: matchingRoute.latencyMin ?? 0,
-            latencyMax: matchingRoute.latencyMax ?? 0,
-            errorRate: matchingRoute.errorRate ?? 0,
+      // 1. Reconcile Group Nodes (Endpoints)
+      endpoints.forEach((ep, epIdx) => {
+        const groupId = `group-${ep.id}`;
+        const existingGroupNode = prevNodes.find((n) => n.id === groupId);
+        
+        const groupWidth = 300;
+        const groupHeight = 110 + ep.routes.length * 96;
+
+        if (existingGroupNode) {
+          reconciled.push({
+            ...existingGroupNode,
+            data: { label: ep.name, basePath: ep.basePath },
+            style: { ...existingGroupNode.style, width: groupWidth, height: groupHeight },
+          });
+        } else {
+          // Horizontal layout offset for new groups
+          reconciled.push({
+            id: groupId,
+            type: "endpointGroup",
+            data: { label: ep.name, basePath: ep.basePath },
+            position: { x: 40 + epIdx * 400, y: 40 },
+            style: { width: groupWidth, height: groupHeight },
+          });
+        }
+      });
+
+      // 2. Reconcile Route Nodes
+      routes.forEach((route) => {
+        const groupId = `group-${route.endpointId}`;
+        if (!dbEndpointsMap.has(route.endpointId)) return;
+
+        const existingRouteNode = prevNodes.find((n) => n.id === route.id);
+
+        const routeData = {
+          id: route.id,
+          method: route.method,
+          path: route.path,
+          statusCode: route.statusCode,
+          isEnabled: route.isEnabled,
+          latencyMin: route.latencyMin ?? 0,
+          latencyMax: route.latencyMax ?? 0,
+          errorRate: route.errorRate ?? 0,
+          responseSchema: route.responseSchema ?? "{}",
+          customHeaders: route.customHeaders ?? "{}",
+          onToggleEnabled: async (id: string, isEnabled: boolean) => {
+            try {
+              await updateRoute({ id, isEnabled });
+              toast.success("Route status updated!");
+            } catch {
+              toast.error("Failed to toggle route status");
+            }
           },
+          onSelectRoute,
         };
-      })
-    );
-  }, [routes, setNodes]);
+
+        if (existingRouteNode) {
+          reconciled.push({
+            ...existingRouteNode,
+            parentId: groupId,
+            extent: "parent",
+            data: routeData,
+          });
+        } else {
+          // Place newly added route at the correct vertical offset
+          const siblingCount = reconciled.filter(
+            (n) => n.parentId === groupId && n.type === "routeNode"
+          ).length;
+
+          reconciled.push({
+            id: route.id,
+            type: "routeNode",
+            parentId: groupId,
+            extent: "parent",
+            position: { x: 30, y: 56 + siblingCount * 96 },
+            data: routeData,
+          });
+        }
+      });
+
+      return reconciled;
+    });
+  }, [endpoints, routes, onSelectRoute, setNodes]);
 
   const onConnect = React.useCallback(
     (params: Connection) =>
@@ -283,47 +349,7 @@ function FlowCanvasInner({
   }, [reactFlowInstance, handleSave]);
 
   const handleRouteAdded = (newRoute: Route) => {
-    // Determine the group node parent
-    const groupId = `group-${newRoute.endpointId}`;
-    const groupNode = nodes.find((n) => n.id === groupId);
-
-    let x = 30;
-    let y = 56;
-
-    if (groupNode) {
-      // Offset position inside parent box
-      const existingChildrenCount = nodes.filter((n) => n.parentId === groupId).length;
-      y = 56 + existingChildrenCount * 96;
-    }
-
-    const newNode: Node = {
-      id: newRoute.id,
-      type: "routeNode",
-      parentId: groupNode ? groupId : undefined,
-      extent: groupNode ? "parent" : undefined,
-      data: {
-        id: newRoute.id,
-        method: newRoute.method,
-        path: newRoute.path,
-        statusCode: newRoute.statusCode,
-        isEnabled: newRoute.isEnabled,
-        latencyMin: newRoute.latencyMin ?? 0,
-        latencyMax: newRoute.latencyMax ?? 0,
-        errorRate: newRoute.errorRate ?? 0,
-        onToggleEnabled: async (id: string, isEnabled: boolean) => {
-          try {
-            await updateRoute({ id, isEnabled });
-            toast.success("Route status updated!");
-          } catch {
-            toast.error("Failed to toggle route status");
-          }
-        },
-        onSelectRoute,
-      },
-      position: { x, y },
-    };
-
-    setNodes((nds) => [...nds, newNode]);
+    router.refresh();
     toast.success("Node added to canvas viewport");
   };
 
@@ -348,6 +374,7 @@ function FlowCanvasInner({
         nodeTypes={nodeTypes}
         fitView
         colorMode="system"
+        deleteKeyCode={null}
       >
         <Background variant={BackgroundVariant.Lines} gap={16} size={1} className="opacity-60" />
         <Controls className="!bg-card !border-border" />

@@ -3,10 +3,7 @@ import { getProjects } from "@/lib/actions/projects";
 import { Separator } from "@/components/ui/separator";
 import { DashboardBreadcrumbs } from "@/components/dashboard/DashboardBreadcrumbs";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
-import { HeaderNewProjectButton } from "@/components/dashboard/HeaderNewProjectButton";
-import { HeaderNamespaceBadge } from "@/components/dashboard/HeaderNamespaceBadge";
-import { HeaderAddRouteButton } from "@/components/dashboard/HeaderAddRouteButton";
-import { HeaderCanvasControls } from "@/components/dashboard/HeaderCanvasControls";
+import { HeaderActions } from "@/components/dashboard/HeaderActions";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 
 /**
@@ -35,12 +32,7 @@ export default async function DashboardLayout({
               <Separator orientation="vertical" className="h-4" />
               <DashboardBreadcrumbs projects={projects} />
             </div>
-            <div className="flex items-center gap-3">
-              <HeaderNamespaceBadge />
-              <HeaderCanvasControls />
-              <HeaderAddRouteButton />
-              <HeaderNewProjectButton />
-            </div>
+            <HeaderActions />
           </header>
           <div className="flex-1 overflow-auto bg-background">
             {children}
