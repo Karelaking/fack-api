@@ -98,8 +98,8 @@ function FlowCanvasInner({
       const groupId = `group-${ep.id}`;
       const savedGroupNode = savedNodes.find((n) => n.id === groupId);
 
-      const groupWidth = 340;
-      const groupHeight = 180 + ep.routes.length * 110;
+      const groupWidth = 300;
+      const groupHeight = 110 + ep.routes.length * 96;
 
       if (savedGroupNode) {
         // Keep position but update size and label
@@ -165,7 +165,7 @@ function FlowCanvasInner({
           type: "routeNode",
           parentId: groupId,
           extent: "parent",
-          position: { x: 30, y: 70 + siblingRoutesCount * 120 },
+          position: { x: 30, y: 56 + siblingRoutesCount * 96 },
           data: routeData,
         });
       }
@@ -288,12 +288,12 @@ function FlowCanvasInner({
     const groupNode = nodes.find((n) => n.id === groupId);
 
     let x = 30;
-    let y = 70;
+    let y = 56;
 
     if (groupNode) {
       // Offset position inside parent box
       const existingChildrenCount = nodes.filter((n) => n.parentId === groupId).length;
-      y = 70 + existingChildrenCount * 120;
+      y = 56 + existingChildrenCount * 96;
     }
 
     const newNode: Node = {

@@ -10,9 +10,6 @@ export function HeaderCanvasControls() {
   const pathname = usePathname();
   const [isSaving, setIsSaving] = React.useState(false);
 
-  // Only render on the canvas page
-  if (!pathname.endsWith("/canvas")) return null;
-
   React.useEffect(() => {
     const handleSaveStart = () => setIsSaving(true);
     const handleSaveEnd = () => setIsSaving(false);
@@ -29,6 +26,9 @@ export function HeaderCanvasControls() {
   const triggerAction = (action: string) => {
     window.dispatchEvent(new CustomEvent(action));
   };
+
+  // Only render on the canvas page (placed after all hook calls to respect Rules of Hooks)
+  if (!pathname.endsWith("/canvas")) return null;
 
   return (
     <div className="flex items-center gap-1 border-r border-border pr-2 mr-1 shrink-0">

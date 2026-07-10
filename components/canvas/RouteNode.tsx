@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { Handle, Position } from "@xyflow/react";
-import { AlertOctagon, Clock, Activity, CheckCircle, ShieldAlert, Zap } from "lucide-react";
+import { AlertOctagon, Clock, Activity, CheckCircle, ShieldAlert, Zap, Code, SlidersHorizontal } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
@@ -16,6 +16,8 @@ interface RouteNodeData {
   latencyMin: number;
   latencyMax: number;
   errorRate: number;
+  responseSchema?: string;
+  customHeaders?: string;
   onToggleEnabled: (id: string, isEnabled: boolean) => void;
   onSelectRoute: (id: string) => void;
 }
@@ -26,8 +28,8 @@ interface RouteNodeProps {
 }
 
 /**
- * Premium Custom Node representing a Mock API route.
- * Employs HTTP method-specific color systems, glows, glassmorphism, and status-driven badges.
+ * Highly Compact Custom Node representing a Mock API route.
+ * Space-optimized HTTP color schemes, glassmorphism, status badges, and micro-controls.
  */
 export function RouteNode({ data, selected }: RouteNodeProps) {
   const method = data.method.toUpperCase();
@@ -110,6 +112,25 @@ export function RouteNode({ data, selected }: RouteNodeProps) {
     StatusIcon = ShieldAlert;
   }
 
+  // Calculate configuration counts for Schema and Custom Headers
+  const schemaKeysCount = React.useMemo(() => {
+    try {
+      const parsed = JSON.parse(data.responseSchema || "{}");
+      return Object.keys(parsed).length;
+    } catch {
+      return 0;
+    }
+  }, [data.responseSchema]);
+
+  const headersKeysCount = React.useMemo(() => {
+    try {
+      const parsed = JSON.parse(data.customHeaders || "{}");
+      return Object.keys(parsed).length;
+    } catch {
+      return 0;
+    }
+  }, [data.customHeaders]);
+
   const handleToggle = (checked: boolean) => {
     data.onToggleEnabled(data.id, checked);
   };
@@ -121,12 +142,12 @@ export function RouteNode({ data, selected }: RouteNodeProps) {
     <div
       onClick={() => data.onSelectRoute(data.id)}
       className={cn(
-        "flex flex-col bg-background/80 backdrop-blur-md border border-border/80 border-l-4 rounded-xl shadow-md w-72 transition-all duration-300 cursor-pointer select-none",
+        "flex flex-col bg-background/80 backdrop-blur-md border border-border/80 border-l-4 rounded-lg shadow-sm w-60 transition-all duration-200 cursor-pointer select-none",
         theme.border,
         theme.glow,
         selected
-          ? "border-primary ring-2 ring-primary/20 shadow-xl shadow-primary/5 -translate-y-0.5 scale-[1.01]"
-          : "hover:-translate-y-0.5 hover:shadow-lg",
+          ? "border-primary ring-2 ring-primary/20 shadow-md shadow-primary/5 -translate-y-0.5 scale-[1.01]"
+          : "hover:-translate-y-0.5 hover:shadow-md",
         !data.isEnabled && "opacity-50 grayscale-[20%]"
       )}
     >
@@ -135,47 +156,65 @@ export function RouteNode({ data, selected }: RouteNodeProps) {
         type="target"
         position={Position.Left}
         className={cn(
-          "w-3 h-3 !bg-background border-2 transition-colors duration-200 !-left-[7px]",
+          "w-2.5 h-2.5 !bg-background border-2 transition-colors duration-200 !-left-[6px]",
           selected ? "border-primary scale-110" : "border-muted-foreground/50 hover:border-primary"
         )}
       />
 
       {/* Main header block */}
-      <div className="flex items-center justify-between px-3.5 py-2.5 border-b border-border/60">
-        <div className="flex items-center gap-2">
+      <div className="flex items-center justify-between px-2.5 py-1.5 border-b border-border/60">
+        <div className="flex items-center gap-1.5">
           {/* Method Badge with glowing indicator dot */}
-          <Badge variant="outline" className={cn("font-extrabold tracking-wider text-[10px] py-0 px-2 flex items-center gap-1.5", theme.badge)}>
-            <span className={cn("h-1.5 w-1.5 rounded-full shrink-0 animate-ping absolute", theme.dot)} />
-            <span className={cn("h-1.5 w-1.5 rounded-full shrink-0 relative", theme.dot)} />
+          <Badge variant="outline" className={cn("font-extrabold tracking-wider text-[9px] py-0 px-1.5 flex items-center gap-1 shrink-0", theme.badge)}>
+            <span className={cn("h-1 w-1 rounded-full shrink-0 animate-ping absolute", theme.dot)} />
+            <span className={cn("h-1 w-1 rounded-full shrink-0 relative", theme.dot)} />
             {method}
           </Badge>
 
           {/* Status code selector view */}
-          <span className={cn("text-[10px] font-mono font-bold px-2 py-0.5 rounded-md border flex items-center gap-1 shrink-0", statusBadgeClass)}>
-            <StatusIcon className="h-3 w-3 shrink-0" />
+          <span className={cn("text-[9px] font-mono font-bold px-1.5 py-0.25 rounded border flex items-center gap-0.5 shrink-0", statusBadgeClass)}>
+            <StatusIcon className="h-2.5 w-2.5 shrink-0" />
             {data.statusCode}
           </span>
         </div>
 
         {/* Toggle Switch */}
         <div className="flex items-center" onClick={(e) => e.stopPropagation()}>
-          <Switch checked={data.isEnabled} onCheckedChange={handleToggle} className="scale-[0.8]" />
+          <Switch checked={data.isEnabled} onCheckedChange={handleToggle} className="scale-[0.7] -mr-1.5" />
         </div>
       </div>
 
-      {/* Path Display */}
-      <div className="px-3.5 py-3 flex-1 flex items-center bg-muted/15 min-h-[44px]">
-        <span className="font-mono text-xs font-semibold text-foreground break-all line-clamp-2 leading-relaxed">
+      {/* Path & Config Display */}
+      <div className="px-2.5 py-2 flex-1 flex flex-col justify-between bg-muted/15 min-h-[48px] gap-1.5">
+        <span className="font-mono text-[10px] font-semibold text-foreground break-all line-clamp-1 leading-normal">
           {data.path}
         </span>
+        
+        {/* Info indicators */}
+        {(schemaKeysCount > 0 || headersKeysCount > 0) && (
+          <div className="flex flex-wrap gap-1">
+            {schemaKeysCount > 0 && (
+              <span className="inline-flex items-center gap-0.5 text-[8px] font-semibold bg-primary/10 text-primary border border-primary/10 px-1 py-0.2 rounded">
+                <Code className="h-2.5 w-2.5 shrink-0" />
+                <span>JSON ({schemaKeysCount})</span>
+              </span>
+            )}
+            {headersKeysCount > 0 && (
+              <span className="inline-flex items-center gap-0.5 text-[8px] font-semibold bg-violet-500/10 text-violet-600 dark:text-violet-400 border border-violet-500/10 px-1 py-0.2 rounded">
+                <SlidersHorizontal className="h-2.5 w-2.5 shrink-0" />
+                <span>Headers ({headersKeysCount})</span>
+              </span>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Node Footer indicators */}
       {(hasLatency || hasErrors) && (
-        <div className="flex items-center gap-3 px-3.5 py-2 bg-muted/40 border-t border-border/50 rounded-b-xl text-[10px] text-muted-foreground font-semibold">
+        <div className="flex items-center gap-2.5 px-2.5 py-1 bg-muted/40 border-t border-border/50 rounded-b-lg text-[9px] text-muted-foreground font-semibold">
           {hasLatency && (
-            <div className="flex items-center gap-1">
-              <Clock className="h-3.5 w-3.5 text-amber-500" />
+            <div className="flex items-center gap-0.5">
+              <Clock className="h-3 w-3 text-amber-500 shrink-0" />
               <span>
                 {data.latencyMin === data.latencyMax
                   ? `${data.latencyMin}ms`
@@ -184,9 +223,9 @@ export function RouteNode({ data, selected }: RouteNodeProps) {
             </div>
           )}
           {hasErrors && (
-            <div className="flex items-center gap-1">
-              <AlertOctagon className="h-3.5 w-3.5 text-rose-500 animate-bounce" />
-              <span>{data.errorRate}% Errors</span>
+            <div className="flex items-center gap-0.5">
+              <AlertOctagon className="h-3 w-3 text-rose-500 shrink-0 animate-bounce" />
+              <span>{data.errorRate}% Err</span>
             </div>
           )}
         </div>
@@ -196,7 +235,7 @@ export function RouteNode({ data, selected }: RouteNodeProps) {
         type="source"
         position={Position.Right}
         className={cn(
-          "w-3 h-3 !bg-background border-2 transition-colors duration-200 !-right-[7px]",
+          "w-2.5 h-2.5 !bg-background border-2 transition-colors duration-200 !-right-[6px]",
           selected ? "border-primary scale-110" : "border-muted-foreground/50 hover:border-primary"
         )}
       />

@@ -16,6 +16,13 @@ export async function getProjects() {
   try {
     return await db.query.projects.findMany({
       orderBy: (projects, { desc }) => [desc(projects.updatedAt)],
+      with: {
+        endpoints: {
+          with: {
+            routes: true,
+          },
+        },
+      },
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "";
