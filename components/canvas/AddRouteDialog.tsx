@@ -4,7 +4,7 @@ import * as React from "react";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { createRoute } from "@/lib/actions/routes";
-import type { Endpoint } from "@/db/schema";
+import type { Endpoint, Route } from "@/db/schema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -22,7 +22,7 @@ interface AddRouteDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   endpoints: Endpoint[];
-  onRouteAdded: (newRoute: any) => void;
+  onRouteAdded: (newRoute: Route) => void;
 }
 
 /**
@@ -148,7 +148,7 @@ export function AddRouteDialog({
             <div className="grid grid-cols-3 gap-2">
               <div className="flex flex-col gap-2 col-span-1">
                 <label className="text-sm font-semibold">Method</label>
-                <Select value={method} onValueChange={(val) => val && setMethod(val as any)} disabled={loading || endpoints.length === 0}>
+                <Select value={method} onValueChange={(val) => { if (val === "GET" || val === "POST" || val === "PUT" || val === "DELETE" || val === "PATCH") setMethod(val); }} disabled={loading || endpoints.length === 0}>
                   <SelectTrigger className="w-full">
                     <span data-slot="select-value">{method}</span>
                   </SelectTrigger>

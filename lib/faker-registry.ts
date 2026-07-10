@@ -49,7 +49,7 @@ function buildDynamicProviders(): FakerProvider[] {
 
   // Find all category keys on the faker object
   const categories = Object.keys(faker).filter((key) => {
-    const val = (faker as any)[key];
+    const val = (faker as unknown as Record<string, unknown>)[key];
     return (
       val &&
       typeof val === "object" &&
@@ -59,7 +59,7 @@ function buildDynamicProviders(): FakerProvider[] {
   });
 
   for (const cat of categories) {
-    const catObj = (faker as any)[cat];
+    const catObj = (faker as unknown as Record<string, unknown>)[cat] as Record<string, unknown>;
     const methods = Object.keys(catObj).filter((method) => {
       const val = catObj[method];
       return typeof val === "function" && !ignoredMethods.has(method) && !method.startsWith("_");
@@ -72,7 +72,7 @@ function buildDynamicProviders(): FakerProvider[] {
 
       try {
         // Run the faker generator once to get a real life example for the UI
-        const exampleVal = catObj[method]();
+        const exampleVal = (catObj[method] as () => unknown)();
         let exampleStr = "";
 
         if (typeof exampleVal === "object" && exampleVal !== null) {
@@ -91,7 +91,7 @@ function buildDynamicProviders(): FakerProvider[] {
             category,
           });
         }
-      } catch (e) {
+      } catch {
         // Skip any helper/generator that requires custom arguments and throws an error
       }
     }

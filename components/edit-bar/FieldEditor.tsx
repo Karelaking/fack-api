@@ -19,12 +19,12 @@ interface FieldEditorProps {
 const FIELD_TYPES = ["string", "number", "integer", "boolean", "object", "array"] as const;
 const ARRAY_ITEM_TYPES = ["string", "number", "integer", "boolean", "object"] as const;
 
-function isFieldType(value: string): value is SchemaField["type"] {
-  return FIELD_TYPES.includes(value as (typeof FIELD_TYPES)[number]);
+function isFieldType(value: unknown): value is SchemaField["type"] {
+  return typeof value === "string" && (FIELD_TYPES as readonly string[]).includes(value);
 }
 
-function isArrayItemType(value: string): value is SchemaField["arrayItemType"] {
-  return ARRAY_ITEM_TYPES.includes(value as (typeof ARRAY_ITEM_TYPES)[number]);
+function isArrayItemType(value: unknown): value is Exclude<SchemaField["arrayItemType"], undefined> {
+  return typeof value === "string" && (ARRAY_ITEM_TYPES as readonly string[]).includes(value);
 }
 
 let activeDraggedFieldId: string | null = null;
@@ -136,7 +136,7 @@ export function FieldEditor({ field, depth }: FieldEditorProps) {
         <Select
           value={field.type}
           onValueChange={(val) => {
-            if (isFieldType(val as string)) handleTypeChange(val as SchemaField["type"]);
+            if (isFieldType(val)) handleTypeChange(val);
           }}
         >
           <SelectTrigger className="h-7 text-xs w-20 shrink-0 font-medium">
@@ -168,7 +168,7 @@ export function FieldEditor({ field, depth }: FieldEditorProps) {
         {isPrimitive && (
           <div className="flex-1 min-w-30">
             <FakerProviderSelect
-              value={field.fakerProvider}
+              value={field.fakerProvider || undefined}
               onValueChange={handleFakerChange}
             />
           </div>
@@ -183,7 +183,7 @@ export function FieldEditor({ field, depth }: FieldEditorProps) {
             <Select
               value={field.arrayItemType || "string"}
               onValueChange={(val) => {
-                if (isArrayItemType(val as string)) handleArrayItemTypeChange(val as SchemaField["arrayItemType"]);
+                if (isArrayItemType(val)) handleArrayItemTypeChange(val);
               }}
             >
               <SelectTrigger className="h-7 text-xs w-20 shrink-0 font-medium">
@@ -201,7 +201,7 @@ export function FieldEditor({ field, depth }: FieldEditorProps) {
             {field.arrayItemType !== "object" && (
               <div className="flex-1 min-w-25">
                 <FakerProviderSelect
-                  value={field.arrayItemFakerProvider}
+                  value={field.arrayItemFakerProvider || undefined}
                   onValueChange={handleArrayItemFakerChange}
                 />
               </div>

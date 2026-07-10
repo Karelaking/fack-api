@@ -78,7 +78,7 @@ export function TypeScriptPreview({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] flex flex-col h-[80vh] max-h-[600px]">
+      <DialogContent className="sm:max-w-150 flex flex-col h-[80vh] max-h-150">
         <DialogHeader className="shrink-0">
           <DialogTitle className="flex items-center gap-2">
             <Code className="h-5 w-5 text-primary" />

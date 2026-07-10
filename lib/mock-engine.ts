@@ -75,15 +75,15 @@ export type CustomHeaders = Record<string, string>;
  * Recursively maps any "x-faker" properties in a JSON Schema to "faker".
  * This ensures backwards compatibility with older schemas in the database.
  */
-function mapXFakerToFaker(obj: any): any {
+function mapXFakerToFaker(obj: unknown): unknown {
   if (typeof obj !== "object" || obj === null) return obj;
 
   if (Array.isArray(obj)) {
     return obj.map(mapXFakerToFaker);
   }
 
-  const result: any = {};
-  for (const [key, value] of Object.entries(obj)) {
+  const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(obj as Record<string, unknown>)) {
     if (key === "x-faker") {
       result["faker"] = value;
     } else {
@@ -251,12 +251,12 @@ export function buildErrorResponse(
  * Implements filtering, sorting, pagination, and global search (?q=...).
  */
 export function processQueryParameters(
-  payload: any,
+  payload: unknown,
   searchParams: URLSearchParams
-): any {
+): unknown {
   if (!payload) return payload;
 
-  const processArray = (items: any[]) => {
+  const processArray = (items: unknown[]): unknown[] => {
     if (!Array.isArray(items) || items.length === 0) return items;
 
     let result = [...items];
@@ -280,10 +280,13 @@ export function processQueryParameters(
       if (specialKeys.has(key)) continue;
 
       result = result.filter((item) => {
-        if (item && typeof item === "object" && key in item) {
-          const itemVal = item[key];
-          if (itemVal === undefined || itemVal === null) return false;
-          return itemVal.toString().toLowerCase() === value.toLowerCase();
+        if (item && typeof item === "object") {
+          const itemObj = item as Record<string, unknown>;
+          if (key in itemObj) {
+            const itemVal = itemObj[key];
+            if (itemVal === undefined || itemVal === null) return false;
+            return itemVal.toString().toLowerCase() === value.toLowerCase();
+          }
         }
         return true;
       });
@@ -295,7 +298,7 @@ export function processQueryParameters(
       const lowerQuery = query.toLowerCase();
       result = result.filter((item) => {
         if (!item || typeof item !== "object") return false;
-        return Object.values(item).some(
+        return Object.values(item as Record<string, unknown>).some(
           (val) => val !== null && val !== undefined && val.toString().toLowerCase().includes(lowerQuery)
         );
       });
@@ -306,8 +309,8 @@ export function processQueryParameters(
     if (sortBy) {
       const order = (searchParams.get("order") || searchParams.get("_order") || "asc").toLowerCase();
       result.sort((a, b) => {
-        const valA = a && typeof a === "object" ? a[sortBy] : undefined;
-        const valB = b && typeof b === "object" ? b[sortBy] : undefined;
+        const valA = a && typeof a === "object" ? (a as Record<string, unknown>)[sortBy] : undefined;
+        const valB = b && typeof b === "object" ? (b as Record<string, unknown>)[sortBy] : undefined;
 
         if (valA === undefined || valA === null) return 1;
         if (valB === undefined || valB === null) return -1;
@@ -348,8 +351,8 @@ export function processQueryParameters(
 
   // If the payload is an object, process any array properties inside it
   if (typeof payload === "object" && payload !== null) {
-    const result: any = {};
-    for (const [key, value] of Object.entries(payload)) {
+    const result: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(payload as Record<string, unknown>)) {
       if (Array.isArray(value)) {
         result[key] = processArray(value);
       } else {
