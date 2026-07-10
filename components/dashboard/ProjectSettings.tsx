@@ -32,6 +32,7 @@ export function ProjectSettings({ project }: ProjectSettingsProps) {
   const router = useRouter();
   const [loading, setLoading] = React.useState(false);
   const [deleteOpen, setDeleteOpen] = React.useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = React.useState("");
   const [deleteLoading, setDeleteLoading] = React.useState(false);
 
   // Form states
@@ -73,11 +74,16 @@ export function ProjectSettings({ project }: ProjectSettingsProps) {
   };
 
   const handleDelete = async () => {
+    if (deleteConfirmText !== project.name) {
+      toast.error("Please type the project name correctly to confirm.");
+      return;
+    }
     setDeleteLoading(true);
     try {
       await deleteProject(project.id);
       toast.success(`Project "${project.name}" deleted successfully.`);
       setDeleteOpen(false);
+      setDeleteConfirmText("");
       router.push("/");
     } catch (err) {
       toast.error("Failed to delete workspace");
@@ -169,7 +175,15 @@ export function ProjectSettings({ project }: ProjectSettingsProps) {
         </CardHeader>
         <CardFooter className="border-t border-destructive/10 pt-4 flex justify-between items-center bg-destructive/10">
           <span className="text-xs font-medium text-destructive">This action is not reversible.</span>
-          <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+          <Dialog
+            open={deleteOpen}
+            onOpenChange={(open) => {
+              setDeleteOpen(open);
+              if (!open) {
+                setDeleteConfirmText("");
+              }
+            }}
+          >
             <DialogTrigger render={<Button variant="destructive" className="gap-1.5" />}>
               <Trash2 className="h-4 w-4" />
               <span>Delete Workspace</span>
@@ -184,11 +198,39 @@ export function ProjectSettings({ project }: ProjectSettingsProps) {
                   Are you absolutely sure you want to delete project **{project.name}**? This will delete all endpoints, mock schema synthesis pipelines, and coordinates. This action cannot be undone.
                 </DialogDescription>
               </DialogHeader>
-              <DialogFooter className="gap-2 sm:gap-0 mt-4">
-                <Button type="button" variant="outline" onClick={() => setDeleteOpen(false)} disabled={deleteLoading}>
+              <div className="grid gap-2 my-2 text-left">
+                <label htmlFor="confirm-text" className="text-xs font-semibold text-muted-foreground">
+                  To confirm, type <span className="font-mono font-bold text-foreground selection:bg-primary/20">"{project.name}"</span> below:
+                </label>
+                <Input
+                  id="confirm-text"
+                  value={deleteConfirmText}
+                  onChange={(e) => setDeleteConfirmText(e.target.value)}
+                  placeholder={project.name}
+                  className="font-mono text-sm"
+                  disabled={deleteLoading}
+                  autoComplete="off"
+                />
+              </div>
+              <DialogFooter className="gap-2 sm:gap-0 mt-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setDeleteOpen(false);
+                    setDeleteConfirmText("");
+                  }}
+                  disabled={deleteLoading}
+                >
                   Cancel
                 </Button>
-                <Button type="button" variant="destructive" onClick={handleDelete} disabled={deleteLoading} className="gap-1.5">
+                <Button
+                  type="button"
+                  variant="destructive"
+                  onClick={handleDelete}
+                  disabled={deleteLoading || deleteConfirmText !== project.name}
+                  className="gap-1.5"
+                >
                   {deleteLoading && <Loader2 className="h-4 w-4 animate-spin" />}
                   <span>Permanently Delete</span>
                 </Button>

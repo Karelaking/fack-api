@@ -3,9 +3,9 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FolderPlus, Terminal, Calendar, ArrowRight, Search, Loader2 } from "lucide-react";
+import { FolderPlus, Terminal, Calendar, ArrowRight, Search, Loader2, Trash2, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
-import { createProject } from "@/lib/actions/projects";
+import { createProject, deleteProject } from "@/lib/actions/projects";
 import { formatRelativeTime } from "@/lib/utils";
 import type { Project } from "@/db/schema";
 import { Button } from "@/components/ui/button";
@@ -38,6 +38,11 @@ export function ProjectGrid({ initialProjects }: ProjectGridProps) {
   const [name, setName] = React.useState("");
   const [description, setDescription] = React.useState("");
 
+  // Deletion states
+  const [deleteProj, setDeleteProj] = React.useState<Project | null>(null);
+  const [deleteConfirmText, setDeleteConfirmText] = React.useState("");
+  const [deleteLoading, setDeleteLoading] = React.useState(false);
+
   const filteredProjects = React.useMemo(() => {
     return projects.filter(
       (p) =>
@@ -67,6 +72,28 @@ export function ProjectGrid({ initialProjects }: ProjectGridProps) {
       console.error(err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDeleteProject = async () => {
+    if (!deleteProj) return;
+    if (deleteConfirmText !== deleteProj.name) {
+      toast.error("Please type the project name correctly to confirm.");
+      return;
+    }
+    setDeleteLoading(true);
+    try {
+      await deleteProject(deleteProj.id);
+      toast.success(`Project "${deleteProj.name}" deleted successfully.`);
+      setProjects((prev) => prev.filter((p) => p.id !== deleteProj.id));
+      setDeleteProj(null);
+      setDeleteConfirmText("");
+      router.refresh();
+    } catch (err) {
+      toast.error("Failed to delete workspace");
+      console.error(err);
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
@@ -168,11 +195,25 @@ export function ProjectGrid({ initialProjects }: ProjectGridProps) {
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {filteredProjects.map((proj) => (
-            <Card key={proj.id} className="hover:shadow-md transition-shadow group flex flex-col justify-between">
+            <Card key={proj.id} className="hover:shadow-md transition-shadow group flex flex-col justify-between relative">
               <CardHeader>
-                <div className="flex items-center gap-2 text-primary font-mono text-xs mb-1.5 uppercase font-semibold">
-                  <Terminal className="h-3.5 w-3.5" />
-                  <span>Workspace</span>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-primary font-mono text-xs mb-1.5 uppercase font-semibold">
+                    <Terminal className="h-3.5 w-3.5" />
+                    <span>Workspace</span>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10 opacity-0 group-hover:opacity-100 transition-opacity"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setDeleteProj(proj);
+                    }}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 </div>
                 <CardTitle className="line-clamp-1 group-hover:text-primary transition-colors">
                   {proj.name}
@@ -199,6 +240,66 @@ export function ProjectGrid({ initialProjects }: ProjectGridProps) {
           ))}
         </div>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog
+        open={!!deleteProj}
+        onOpenChange={(open) => {
+          if (!open) {
+            setDeleteProj(null);
+            setDeleteConfirmText("");
+          }
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="text-destructive flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5" />
+              <span>Confirm Deletion</span>
+            </DialogTitle>
+            <DialogDescription>
+              Are you absolutely sure you want to delete project **{deleteProj?.name}**? This will delete all endpoints, mock schema pipelines, and coordinate states. This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-2 my-2">
+            <label htmlFor="confirm-text" className="text-xs font-semibold text-muted-foreground">
+              To confirm, type <span className="font-mono font-bold text-foreground selection:bg-primary/20">"{deleteProj?.name}"</span> below:
+            </label>
+            <Input
+              id="confirm-text"
+              value={deleteConfirmText}
+              onChange={(e) => setDeleteConfirmText(e.target.value)}
+              placeholder={deleteProj?.name}
+              className="font-mono text-sm"
+              disabled={deleteLoading}
+              autoComplete="off"
+            />
+          </div>
+          <DialogFooter className="gap-2 sm:gap-0 mt-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setDeleteProj(null);
+                setDeleteConfirmText("");
+              }}
+              disabled={deleteLoading}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={handleDeleteProject}
+              disabled={deleteLoading || deleteConfirmText !== deleteProj?.name}
+              className="gap-1.5"
+            >
+              {deleteLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+              <span>Permanently Delete</span>
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
