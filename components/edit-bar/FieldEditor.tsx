@@ -69,6 +69,52 @@ export function FieldEditor({ field, depth }: FieldEditorProps) {
   const isArray = field.type === "array";
   const isPrimitive = !isObject && !isArray;
 
+  const isCustomImage = isPrimitive && (
+    field.fakerProvider === "image.customCategory" ||
+    (field.fakerProvider?.startsWith("image.customCategory:") ?? false)
+  );
+
+  const isCustomArrayItemImage = isArray && field.arrayItemType === "string" && (
+    field.arrayItemFakerProvider === "image.customCategory" ||
+    (field.arrayItemFakerProvider?.startsWith("image.customCategory:") ?? false)
+  );
+
+  const customCategoryName = React.useMemo(() => {
+    if (isCustomImage) {
+      if (field.fakerProvider?.startsWith("image.customCategory:")) {
+        return field.fakerProvider.slice("image.customCategory:".length);
+      }
+    }
+    return "";
+  }, [isCustomImage, field.fakerProvider]);
+
+  const customArrayItemCategoryName = React.useMemo(() => {
+    if (isCustomArrayItemImage) {
+      if (field.arrayItemFakerProvider?.startsWith("image.customCategory:")) {
+        return field.arrayItemFakerProvider.slice("image.customCategory:".length);
+      }
+    }
+    return "";
+  }, [isCustomArrayItemImage, field.arrayItemFakerProvider]);
+
+  const handleCustomCategoryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    if (val) {
+      updateField(field.id, { fakerProvider: `image.customCategory:${val}` });
+    } else {
+      updateField(field.id, { fakerProvider: "image.customCategory" });
+    }
+  };
+
+  const handleCustomArrayItemCategoryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    if (val) {
+      updateField(field.id, { arrayItemFakerProvider: `image.customCategory:${val}` });
+    } else {
+      updateField(field.id, { arrayItemFakerProvider: "image.customCategory" });
+    }
+  };
+
   const handleDragStart = (event: React.DragEvent<HTMLElement>) => {
     activeDraggedFieldId = field.id;
     event.dataTransfer.setData("application/x-fack-field-id", field.id);
@@ -256,6 +302,35 @@ export function FieldEditor({ field, depth }: FieldEditorProps) {
           </Button>
         </div>
       </div>
+
+      {/* Custom Category Image Parameter Inputs */}
+      {isCustomImage && (
+        <div className="flex items-center gap-2 pl-7 pb-1 text-xs">
+          <span className="text-[9px] text-muted-foreground font-bold uppercase shrink-0">
+            Category Name:
+          </span>
+          <Input
+            value={customCategoryName}
+            onChange={handleCustomCategoryChange}
+            placeholder="e.g. puppy, nature, architecture"
+            className="h-6 text-xs w-48 shrink-0 font-medium px-2 py-0.5"
+          />
+        </div>
+      )}
+
+      {isCustomArrayItemImage && (
+        <div className="flex items-center gap-2 pl-7 pb-1 text-xs">
+          <span className="text-[9px] text-muted-foreground font-bold uppercase shrink-0">
+            Array Item Category:
+          </span>
+          <Input
+            value={customArrayItemCategoryName}
+            onChange={handleCustomArrayItemCategoryChange}
+            placeholder="e.g. puppy, nature, architecture"
+            className="h-6 text-xs w-48 shrink-0 font-medium px-2 py-0.5"
+          />
+        </div>
+      )}
 
       {/* Recursive Children (Object Children) */}
       {isObject && field.children && field.children.length > 0 && (

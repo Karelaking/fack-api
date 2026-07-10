@@ -102,13 +102,51 @@ export async function generatePayload(
     const minItems = limit !== undefined ? limit : 1;
     const maxItems = limit !== undefined ? limit : 1;
 
+    const extendedFaker = {
+      ...faker,
+      image: new Proxy(
+        {
+          ...faker.image,
+          sports: () => `https://loremflickr.com/640/480/sports?lock=${Math.floor(Math.random() * 100000)}`,
+          animals: () => `https://loremflickr.com/640/480/animals?lock=${Math.floor(Math.random() * 100000)}`,
+          business: () => `https://loremflickr.com/640/480/business?lock=${Math.floor(Math.random() * 100000)}`,
+          cats: () => `https://loremflickr.com/640/480/cats?lock=${Math.floor(Math.random() * 100000)}`,
+          city: () => `https://loremflickr.com/640/480/city?lock=${Math.floor(Math.random() * 100000)}`,
+          fashion: () => `https://loremflickr.com/640/480/fashion?lock=${Math.floor(Math.random() * 100000)}`,
+          food: () => `https://loremflickr.com/640/480/food?lock=${Math.floor(Math.random() * 100000)}`,
+          nature: () => `https://loremflickr.com/640/480/nature?lock=${Math.floor(Math.random() * 100000)}`,
+          technics: () => `https://loremflickr.com/640/480/technics?lock=${Math.floor(Math.random() * 100000)}`,
+          transport: () => `https://loremflickr.com/640/480/transport?lock=${Math.floor(Math.random() * 100000)}`,
+          abstract: () => `https://loremflickr.com/640/480/abstract?lock=${Math.floor(Math.random() * 100000)}`,
+          people: () => `https://loremflickr.com/640/480/people?lock=${Math.floor(Math.random() * 100000)}`,
+          nightlife: () => `https://loremflickr.com/640/480/nightlife?lock=${Math.floor(Math.random() * 100000)}`,
+          urlSquare: () => `https://picsum.photos/200/200?random=${Math.floor(Math.random() * 100000)}`,
+          urlThumbnail: () => `https://picsum.photos/150/150?random=${Math.floor(Math.random() * 100000)}`,
+          urlHD: () => `https://picsum.photos/1280/720?random=${Math.floor(Math.random() * 100000)}`,
+          urlFullHD: () => `https://picsum.photos/1920/1080?random=${Math.floor(Math.random() * 100000)}`,
+        },
+        {
+          get(target, prop) {
+            if (typeof prop === "string" && prop.startsWith("customCategory:")) {
+              const category = prop.slice("customCategory:".length) || "random";
+              return () => `https://loremflickr.com/640/480/${category}?lock=${Math.floor(Math.random() * 100000)}`;
+            }
+            if (prop === "customCategory") {
+              return () => `https://loremflickr.com/640/480/random?lock=${Math.floor(Math.random() * 100000)}`;
+            }
+            return Reflect.get(target, prop);
+          },
+        }
+      ),
+    };
+
     const result = await generate(transformedSchema as Parameters<typeof generate>[0], {
       alwaysFakeOptionals: true,
       useDefaultValue: true,
       minItems,
       maxItems,
       extensions: {
-        faker,
+        faker: extendedFaker as any,
       },
     });
     return result;

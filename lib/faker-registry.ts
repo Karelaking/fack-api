@@ -34,7 +34,11 @@ const ignoredMethods = new Set([
   "unique",
   "slugify",
   "seed",
-  "setDefaultRefDate"
+  "setDefaultRefDate",
+  "urlLoremFlickr",
+  "urlPicsum",
+  "urlUnsplash",
+  "avatarLoremFlickr"
 ]);
 
 /**
@@ -97,6 +101,73 @@ function buildDynamicProviders(): FakerProvider[] {
     }
   }
 
+  // Add custom parameterized/category image providers
+  const imageCategories = [
+    "sports",
+    "animals",
+    "business",
+    "cats",
+    "city",
+    "fashion",
+    "food",
+    "nature",
+    "technics",
+    "transport",
+    "abstract",
+    "people",
+    "nightlife",
+  ];
+  imageCategories.forEach((cat) => {
+    const cap = cat.charAt(0).toUpperCase() + cat.slice(1);
+    list.push({
+      value: `image.${cat}`,
+      label: `Image (${cap})`,
+      example: `https://loremflickr.com/640/480/${cat}?lock=42`,
+      category: "Image",
+    });
+  });
+
+  // Add custom sizes
+  const sizes = [
+    { name: "urlSquare", label: "Image (Square 200x200)", size: "200/200" },
+    { name: "urlThumbnail", label: "Image (Thumbnail 150x150)", size: "150/150" },
+    { name: "urlHD", label: "Image (HD 1280x720)", size: "1280/720" },
+    { name: "urlFullHD", label: "Image (Full HD 1920x1080)", size: "1920/1080" },
+  ];
+  sizes.forEach((s) => {
+    list.push({
+      value: `image.${s.name}`,
+      label: s.label,
+      example: `https://picsum.photos/${s.size}?random=1`,
+      category: "Image",
+    });
+  });
+
+  // Add avatars and portraits
+  list.push({
+    value: "image.avatar",
+    label: "Avatar (Random)",
+    example: "https://cloudflare-ipfs.com/ipfs/Qmd3W5D2g8nStYA7pQQWvWM27C2cZGUrkwwK7v1TRacg7L/avatar/89.jpg",
+    category: "Image",
+  });
+  list.push({
+    value: "image.avatarGitHub",
+    label: "Avatar (GitHub Style)",
+    example: "https://avatars.githubusercontent.com/u/10001",
+    category: "Image",
+  });
+  list.push({
+    value: "image.personPortrait",
+    label: "Portrait (Person)",
+    example: "https://cloudflare-ipfs.com/ipfs/Qmd3W5D2g8nStYA7pQQWvWM27C2cZGUrkwwK7v1TRacg7L/avatar/22.jpg",
+    category: "Image",
+  });
+  list.push({
+    value: "image.customCategory",
+    label: "Image (Custom Category...)",
+    example: "https://loremflickr.com/640/480/dog?lock=10",
+    category: "Image",
+  });
   // Sort by category first, then by label to make it clean
   return list.sort((a, b) => {
     const catCompare = a.category.localeCompare(b.category);
