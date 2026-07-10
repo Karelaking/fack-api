@@ -60,82 +60,123 @@ function FlowCanvasInner({
   const [isSaving, setIsSaving] = React.useState(false);
   const [dialogOpen, setDialogOpen] = React.useState(false);
 
-  // Parse initial coordinates or generate default layout grid
+  // Parse initial coordinates and reconcile with database reality
   const initialNodes: Node[] = React.useMemo(() => {
+    let savedNodes: Node[] = [];
     if (initialState?.nodes) {
       try {
         const parsed = JSON.parse(initialState.nodes);
-        if (parsed.length > 0) return parsed;
+        if (Array.isArray(parsed)) {
+          savedNodes = parsed;
+        }
       } catch (e) {
         console.error("Failed to parse canvas nodes:", e);
       }
     }
 
-    // Default layout generation if canvas state is empty
-    const nodesList: Node[] = [];
-    let xOffset = 40;
-    let yOffset = 40;
+    const reconciledNodes: Node[] = [];
+    const dbEndpointsMap = new Map(endpoints.map((ep) => [ep.id, ep]));
 
+    // 1. Reconcile Group Nodes (Endpoints)
     endpoints.forEach((ep, epIdx) => {
-      // Group bounding container
+      const groupId = `group-${ep.id}`;
+      const savedGroupNode = savedNodes.find((n) => n.id === groupId);
+
       const groupWidth = 340;
       const groupHeight = 180 + ep.routes.length * 110;
-      const groupId = `group-${ep.id}`;
 
-      nodesList.push({
-        id: groupId,
-        type: "endpointGroup",
-        data: { label: ep.name, basePath: ep.basePath },
-        position: { x: xOffset, y: yOffset },
-        style: { width: groupWidth, height: groupHeight },
-      });
+      if (savedGroupNode) {
+        // Keep position but update size and label
+        reconciledNodes.push({
+          ...savedGroupNode,
+          data: { label: ep.name, basePath: ep.basePath },
+          style: { ...savedGroupNode.style, width: groupWidth, height: groupHeight },
+        });
+      } else {
+        // Position new groups horizontally offset
+        reconciledNodes.push({
+          id: groupId,
+          type: "endpointGroup",
+          data: { label: ep.name, basePath: ep.basePath },
+          position: { x: 40 + epIdx * 400, y: 40 },
+          style: { width: groupWidth, height: groupHeight },
+        });
+      }
+    });
 
-      // Individual sub-routes inside the bounding container
-      ep.routes.forEach((route, rIdx) => {
-        nodesList.push({
+    // 2. Reconcile Route Nodes
+    routes.forEach((route) => {
+      const groupId = `group-${route.endpointId}`;
+      if (!dbEndpointsMap.has(route.endpointId)) return;
+
+      const savedRouteNode = savedNodes.find((n) => n.id === route.id);
+
+      const routeData = {
+        id: route.id,
+        method: route.method,
+        path: route.path,
+        statusCode: route.statusCode,
+        isEnabled: route.isEnabled,
+        latencyMin: route.latencyMin ?? 0,
+        latencyMax: route.latencyMax ?? 0,
+        errorRate: route.errorRate ?? 0,
+        onToggleEnabled: async (id: string, isEnabled: boolean) => {
+          try {
+            await updateRoute({ id, isEnabled });
+            toast.success(`Route status updated!`);
+          } catch {
+            toast.error("Failed to toggle route status");
+          }
+        },
+        onSelectRoute,
+      };
+
+      if (savedRouteNode) {
+        reconciledNodes.push({
+          ...savedRouteNode,
+          parentId: groupId,
+          extent: "parent",
+          data: routeData,
+        });
+      } else {
+        // Offset vertically within parent group container based on existing children
+        const siblingRoutesCount = reconciledNodes.filter(
+          (n) => n.parentId === groupId && n.type === "routeNode"
+        ).length;
+
+        reconciledNodes.push({
           id: route.id,
           type: "routeNode",
           parentId: groupId,
           extent: "parent",
-          data: {
-            id: route.id,
-            method: route.method,
-            path: route.path,
-            statusCode: route.statusCode,
-            isEnabled: route.isEnabled,
-            latencyMin: route.latencyMin ?? 0,
-            latencyMax: route.latencyMax ?? 0,
-            errorRate: route.errorRate ?? 0,
-            onToggleEnabled: async (id: string, isEnabled: boolean) => {
-              try {
-                await updateRoute({ id, isEnabled });
-                toast.success(`Route status updated!`);
-              } catch {
-                toast.error("Failed to toggle route status");
-              }
-            },
-            onSelectRoute,
-          },
-          position: { x: 30, y: 70 + rIdx * 120 },
+          position: { x: 30, y: 70 + siblingRoutesCount * 120 },
+          data: routeData,
         });
-      });
-
-      xOffset += 400; // shift next group horizontally
+      }
     });
 
-    return nodesList;
-  }, [endpoints, initialState, onSelectRoute]);
+    return reconciledNodes;
+  }, [endpoints, routes, initialState, onSelectRoute]);
 
   const initialEdges: Edge[] = React.useMemo(() => {
+    let savedEdges: Edge[] = [];
     if (initialState?.edges) {
       try {
-        return JSON.parse(initialState.edges);
+        const parsed = JSON.parse(initialState.edges);
+        if (Array.isArray(parsed)) {
+          savedEdges = parsed;
+        }
       } catch (e) {
         console.error("Failed to parse canvas edges:", e);
       }
     }
-    return [];
-  }, [initialState]);
+    
+    // Discard stale edges connecting deleted routes
+    const activeRouteIds = new Set(routes.map((r) => r.id));
+    return savedEdges.filter(
+      (edge) => activeRouteIds.has(edge.source) && activeRouteIds.has(edge.target)
+    );
+  }, [initialState, routes]);
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);

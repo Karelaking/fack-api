@@ -176,6 +176,17 @@ async function handleMockRequest(
       console.warn(`[fack-api] Invalid JSON schema for route ${route.id}`);
     }
 
+    // Parse limit parameters from query string (e.g. ?limit=10, ?_limit=10, ?count=10)
+    const searchParams = request.nextUrl.searchParams;
+    const limitParam = searchParams.get("limit") || searchParams.get("_limit") || searchParams.get("count");
+    let limitValue: number | undefined = undefined;
+    if (limitParam) {
+      const parsed = parseInt(limitParam, 10);
+      if (!isNaN(parsed) && parsed > 0) {
+        limitValue = parsed;
+      }
+    }
+
     // Inject extracted path parameters into the schema context
     // This allows generated data to reference URL params
     const payload = await generatePayload({
@@ -186,7 +197,7 @@ async function handleMockRequest(
           ...(schema.properties as Record<string, unknown> | undefined),
         },
       }),
-    });
+    }, limitValue);
 
     // ── 8. Parse Custom Headers ──────────────────────────────────────────
     let customHeaders: Record<string, string> = {};

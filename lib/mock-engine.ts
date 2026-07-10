@@ -94,15 +94,19 @@ function mapXFakerToFaker(obj: any): any {
 }
 
 export async function generatePayload(
-  schema: Record<string, unknown>
+  schema: Record<string, unknown>,
+  limit?: number
 ): Promise<unknown> {
   try {
     const transformedSchema = mapXFakerToFaker(schema);
+    const minItems = limit !== undefined ? limit : 1;
+    const maxItems = limit !== undefined ? limit : 1;
+
     const result = await generate(transformedSchema as Parameters<typeof generate>[0], {
       alwaysFakeOptionals: true,
       useDefaultValue: true,
-      minItems: 1,
-      maxItems: 5,
+      minItems,
+      maxItems,
       extensions: {
         faker,
       },
