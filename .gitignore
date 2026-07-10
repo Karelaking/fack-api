@@ -40,9 +40,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# local databases and data directory (commented out to allow committing SQLite database to Git for Vercel)
-# /data/
-# *.db
+# local databases and data directory
+/data/
+*.db
 *.db-journal
 *.db-wal
 

@@ -98,7 +98,7 @@ export default async function DashboardLayout({
             <div className="flex items-center gap-2">
               <SidebarTrigger className="h-9 w-9" />
               <Separator orientation="vertical" className="h-4" />
-              <DashboardBreadcrumbs />
+              <DashboardBreadcrumbs projects={projects} />
             </div>
             <div className="flex items-center gap-3">
               <Link href="/" passHref>
