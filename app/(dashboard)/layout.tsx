@@ -38,8 +38,8 @@ export default async function DashboardLayout({
         {/* Sidebar component */}
         <Sidebar className="border-r border-border bg-card">
           <SidebarHeader className="flex flex-row items-center justify-between px-4 py-3">
-            <Link href="/" className="flex items-center gap-2 font-bold text-lg tracking-tight">
-              <Terminal className="h-5 w-5 text-primary" />
+            <Link href="/" className="flex items-center gap-2.5 font-bold text-lg tracking-tight">
+              <img src="/logo.png" alt="Fack API's Logo" className="h-6 w-6 rounded-md object-cover" />
               <span>Fack API&apos;s</span>
             </Link>
           </SidebarHeader>

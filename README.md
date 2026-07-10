@@ -1,6 +1,28 @@
+<p align="center">
+  <img src="./public/logo.png" alt="Fack API's Logo" width="120" height="120" style="border-radius: 24px;" />
+</p>
+
 # 🛠️ Fack API's — Open-Source Node-Based Mock API Platform
 
 Fack API's is a self-hostable, zero-configuration mock API platform designed for modern frontend and backend decoupled workflows. It serves as a drop-in replacement for actual backend systems, enabling engineering teams to build projects, design routes graphically on a node canvas, synthesize deeply nested payload structures via visual schema builders, simulate network latency or errors, and generate client-side TypeScript definitions dynamically.
+
+---
+
+## 📸 Screenshots
+
+To help you visualize the platform's power, here are actual screenshots of the Fack API's dashboard and editor:
+
+### 1. 🗂️ Workspaces Dashboard
+Manage all your isolated project workspaces, filter namespaces, and create projects.
+![Workspaces Dashboard](./public/screenshots/dashboard.png)
+
+### 2. 🎨 Node-Based Canvas Designer
+Graphically orchestrate endpoint groups, HTTP methods, status codes, and active states.
+![Node-Based Canvas Designer](./public/screenshots/canvas.png)
+
+### 3. ⚙️ Workspace Settings & Safe Deletion
+Configure paths, namespaces, and manage safe workspace deletions using type-to-confirm validation.
+![Workspace Settings](./public/screenshots/settings.png)
 
 ---
 
@@ -57,7 +79,7 @@ Fack API's is a self-hostable, zero-configuration mock API platform designed for
 | **UI Components** | shadcn/ui (Radix UI + Tailwind CSS v4) | Interactive dashboard interface |
 | **State Manager** | Zustand + Immer | Deeply nested state modifications |
 | **ORM** | Drizzle ORM | High-performance type-safe SQLite query layer |
-| **Database** | SQLite (better-sqlite3) | Portable single-file data persistence |
+| **Database** | SQLite & LibSQL (@libsql/client) | Portable file & Cloud distributed SQLite (Turso) |
 | **Data Synthesizer**| json-schema-faker + Faker.js | Declarative mock payload generation |
 | **Matcher** | path-to-regexp | Express-like route pattern matching |
 | **Type Generator** | json-schema-to-typescript | Programmatic `.d.ts` compilation |
