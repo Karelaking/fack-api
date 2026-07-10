@@ -1,9 +1,9 @@
 "use client";
 
 import * as React from "react";
-import { Network, Activity, Settings2, Code, Save, Loader2, FileJson, Copy } from "lucide-react";
+import { Network, Activity, Settings2, Code, Save, Loader2, FileJson, Copy, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import { updateRoute } from "@/lib/actions/routes";
+import { updateRoute, deleteRoute } from "@/lib/actions/routes";
 import { SchemaStoreProvider, useSchemaStore } from "@/stores/store-provider";
 import { parseSchemaToFields, synthesizeSchema } from "@/lib/schema-synthesizer";
 import { FieldTree } from "./FieldTree";
@@ -24,6 +24,7 @@ interface EditBarProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onRouteUpdated: (updatedRoute: Route) => void;
+  onRouteDeleted: (routeId: string) => void;
 }
 
 /**
@@ -35,15 +36,33 @@ function EditBarInner({
   endpoints,
   onOpenChange,
   onRouteUpdated,
+  onRouteDeleted,
 }: {
   route: Route;
   projectSlug: string;
   endpoints: Endpoint[];
   onOpenChange: (open: boolean) => void;
   onRouteUpdated: (updatedRoute: Route) => void;
+  onRouteDeleted: (routeId: string) => void;
 }) {
   const [loading, setLoading] = React.useState(false);
   const [tsOpen, setTsOpen] = React.useState(false);
+
+  const handleDelete = async () => {
+    const confirmed = window.confirm("Are you sure you want to delete this route? This cannot be undone.");
+    if (!confirmed) return;
+
+    setLoading(true);
+    try {
+      await deleteRoute(route.id);
+      toast.success("Route deleted successfully");
+      onRouteDeleted(route.id);
+    } catch {
+      toast.error("Failed to delete route");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Zustand state triggers
   const fields = useSchemaStore((state) => state.fields);
@@ -229,14 +248,21 @@ function EditBarInner({
       </Tabs>
 
       {/* Save panel footer triggers */}
-      <div className="border-t border-border pt-4 mt-auto shrink-0 flex justify-end gap-2 bg-card">
-        <Button variant="outline" size="sm" onClick={() => onOpenChange(false)} disabled={loading} className="text-xs font-semibold">
-          Cancel
+      <div className="border-t border-border pt-4 mt-auto shrink-0 flex justify-between items-center bg-card">
+        <Button variant="destructive" size="sm" onClick={handleDelete} disabled={loading} className="gap-1.5 text-xs font-semibold">
+          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+          <span>Delete Route</span>
         </Button>
-        <Button size="sm" onClick={handleSave} disabled={loading} className="gap-1.5 text-xs font-semibold">
-          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-          <span>Save Configuration</span>
-        </Button>
+
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={() => onOpenChange(false)} disabled={loading} className="text-xs font-semibold">
+            Cancel
+          </Button>
+          <Button size="sm" onClick={handleSave} disabled={loading} className="gap-1.5 text-xs font-semibold">
+            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+            <span>Save Configuration</span>
+          </Button>
+        </div>
       </div>
 
       <TypeScriptPreview routeId={route.id} open={tsOpen} onOpenChange={setTsOpen} />
@@ -254,6 +280,7 @@ export function EditBar({
   open,
   onOpenChange,
   onRouteUpdated,
+  onRouteDeleted,
 }: EditBarProps) {
   // Parse initial fields array to populate Zustand provider
   const initialFields = React.useMemo(() => {
@@ -275,6 +302,7 @@ export function EditBar({
             endpoints={endpoints}
             onOpenChange={onOpenChange}
             onRouteUpdated={onRouteUpdated}
+            onRouteDeleted={onRouteDeleted}
           />
         </SchemaStoreProvider>
       </SheetContent>

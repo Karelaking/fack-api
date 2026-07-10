@@ -52,6 +52,11 @@ export function CanvasContainer({
     );
   };
 
+  const handleRouteDeleted = (routeId: string) => {
+    setActiveRoutes((prev) => prev.filter((r) => r.id !== routeId));
+    setSelectedRouteId(null);
+  };
+
   return (
     <div className="w-full h-[calc(100vh-12rem)] relative flex gap-4 min-h-0 min-w-0">
       <div className="flex-1 min-h-0 min-w-0 relative">
@@ -76,6 +81,7 @@ export function CanvasContainer({
             if (!open) setSelectedRouteId(null);
           }}
           onRouteUpdated={handleRouteUpdated}
+          onRouteDeleted={handleRouteDeleted}
         />
       )}
     </div>
