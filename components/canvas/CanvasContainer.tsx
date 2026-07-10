@@ -58,7 +58,7 @@ export function CanvasContainer({
   };
 
   return (
-    <div className="w-full h-[calc(100vh-7.5rem)] relative flex gap-4 min-h-0 min-w-0">
+    <div className="w-full h-[calc(100vh-3.5rem)] relative flex gap-4 min-h-0 min-w-0">
       <div className="flex-1 min-h-0 min-w-0 relative">
         <FlowCanvas
           projectId={projectId}

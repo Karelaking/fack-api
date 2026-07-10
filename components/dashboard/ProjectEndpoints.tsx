@@ -148,7 +148,7 @@ export function ProjectEndpoints({ projectId, initialEndpoints }: ProjectEndpoin
   };
 
   return (
-    <div className="space-y-6">
+    <div className="p-4 md:p-6 space-y-6">
       {/* Top action header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-border pb-4">
         <div>

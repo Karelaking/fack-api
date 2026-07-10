@@ -3,14 +3,14 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FolderPlus, Terminal, Calendar, ArrowRight, Search, Loader2, Trash2, AlertTriangle, Settings } from "lucide-react";
+import { Terminal, Calendar, ArrowRight, Search, Loader2, Trash2, AlertTriangle, Settings, Plus } from "lucide-react";
 import { toast } from "sonner";
-import { createProject, deleteProject, updateProject } from "@/lib/actions/projects";
+import { deleteProject, updateProject } from "@/lib/actions/projects";
 import { formatRelativeTime } from "@/lib/utils";
 import type { Project } from "@/db/schema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+import { Card, CardTitle, CardDescription } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -18,7 +18,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 
 interface ProjectGridProps {
@@ -26,18 +25,12 @@ interface ProjectGridProps {
 }
 
 /**
- * Client component to display a searchable grid of projects.
- * Includes a dialog to trigger project creation via Server Actions.
+ * Client component to display a compact, searchable grid of project workspaces.
  */
 export function ProjectGrid({ initialProjects }: ProjectGridProps) {
   const router = useRouter();
   const [projects, setProjects] = React.useState<Project[]>(initialProjects);
   const [search, setSearch] = React.useState("");
-  const [open, setOpen] = React.useState(false);
-  const [loading, setLoading] = React.useState(false);
-  const [name, setName] = React.useState("");
-  const [slug, setSlug] = React.useState("");
-  const [description, setDescription] = React.useState("");
 
   // Deletion states
   const [deleteProj, setDeleteProj] = React.useState<Project | null>(null);
@@ -50,6 +43,22 @@ export function ProjectGrid({ initialProjects }: ProjectGridProps) {
   const [editSlug, setEditSlug] = React.useState("");
   const [editDescription, setEditDescription] = React.useState("");
   const [editLoading, setEditLoading] = React.useState(false);
+
+  // Sync initial projects
+  React.useEffect(() => {
+    setProjects(initialProjects);
+  }, [initialProjects]);
+
+  // Check URL parameter to trigger global open dialog
+  React.useEffect(() => {
+    if (typeof window !== "undefined" && window.location.search.includes("new=true")) {
+      window.dispatchEvent(new CustomEvent("open-new-project-dialog"));
+      // Clean up URL search parameter
+      const url = new URL(window.location.href);
+      url.searchParams.delete("new");
+      window.history.replaceState({}, "", url.pathname + url.search);
+    }
+  }, []);
 
   React.useEffect(() => {
     if (editProj) {
@@ -67,35 +76,6 @@ export function ProjectGrid({ initialProjects }: ProjectGridProps) {
         p.slug.toLowerCase().includes(search.toLowerCase())
     );
   }, [projects, search]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name.trim()) {
-      toast.error("Project name is required");
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const newProj = await createProject({
-        name: name.trim(),
-        description: description.trim(),
-        slug: slug.trim() || undefined,
-      });
-      toast.success(`Project "${newProj.name}" created successfully!`);
-      setProjects([newProj, ...projects]);
-      setOpen(false);
-      setName("");
-      setSlug("");
-      setDescription("");
-      router.push(`/projects/${newProj.slug}/canvas`);
-    } catch (err) {
-      toast.error("Failed to create project");
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleEditSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -151,179 +131,111 @@ export function ProjectGrid({ initialProjects }: ProjectGridProps) {
     }
   };
 
+  const triggerCreateProject = () => {
+    window.dispatchEvent(new CustomEvent("open-new-project-dialog"));
+  };
+
   return (
-    <div className="space-y-6 max-w-6xl mx-auto">
+    <div className="p-4 md:p-6 space-y-4 max-w-5xl mx-auto">
       {/* Upper header section */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Projects</h1>
-          <p className="text-muted-foreground mt-1">
-            Manage your mock API workspaces and simulate endpoints.
+          <h1 className="text-xl font-bold tracking-tight">Workspaces</h1>
+          <p className="text-xs text-muted-foreground">
+            Mock API workspace namespaces and configurations.
           </p>
         </div>
 
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger render={<Button className="gap-2 shrink-0" />}>
-            <FolderPlus className="h-4 w-4" />
-            <span>Create Project</span>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
-            <form onSubmit={handleSubmit}>
-              <DialogHeader>
-                <DialogTitle>New Workspace</DialogTitle>
-                <DialogDescription>
-                  Create a new isolated project namespace for your mock routes.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="flex flex-col gap-2">
-                  <label htmlFor="name" className="text-sm font-medium">
-                    Name
-                  </label>
-                  <Input
-                    id="name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="e.g., Billing Service"
-                    maxLength={100}
-                    disabled={loading}
-                    autoFocus
-                  />
-                </div>
-                <div className="flex flex-col gap-2">
-                  <label htmlFor="slug" className="text-sm font-medium">
-                    Namespace Slug
-                  </label>
-                  <Input
-                    id="slug"
-                    value={slug}
-                    onChange={(e) => setSlug(e.target.value)}
-                    placeholder="e.g., billing-service"
-                    maxLength={100}
-                    disabled={loading}
-                  />
-                  <span className="text-[10px] text-muted-foreground">
-                    Determines mock base URL: `/mock/{slug || "slug-derived-from-name"}`. Must be lowercase alphanumeric with hyphens.
-                  </span>
-                </div>
-                <div className="flex flex-col gap-2">
-                  <label htmlFor="description" className="text-sm font-medium">
-                    Description
-                  </label>
-                  <Input
-                    id="description"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    placeholder="e.g., Mocking stripe endpoints for dev"
-                    maxLength={500}
-                    disabled={loading}
-                  />
-                </div>
-              </div>
-              <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setOpen(false)} disabled={loading}>
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={loading} className="gap-1.5">
-                  {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-                  <span>Create Workspace</span>
-                </Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
+        <Button onClick={triggerCreateProject} className="h-8 gap-1.5 text-xs font-semibold shrink-0">
+          <Plus className="h-3.5 w-3.5" />
+          <span>New Project</span>
+        </Button>
       </div>
 
       {/* Search Input */}
-      <div className="relative max-w-md">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+      <div className="relative max-w-sm">
+        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
         <Input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search projects by name or namespace..."
-          className="pl-9"
+          placeholder="Search projects..."
+          className="pl-8 h-8 text-xs max-w-xs"
         />
       </div>
 
       {/* Grid listing */}
       {filteredProjects.length === 0 ? (
-        <Card className="flex flex-col items-center justify-center p-12 text-center border-dashed">
-          <Terminal className="h-10 w-10 text-muted-foreground stroke-1 mb-4" />
-          <CardTitle className="text-xl">No projects found</CardTitle>
-          <CardDescription className="max-w-sm mt-1">
+        <Card className="flex flex-col items-center justify-center p-8 text-center border-dashed">
+          <Terminal className="h-8 w-8 text-muted-foreground/60 stroke-1 mb-2" />
+          <CardTitle className="text-sm font-semibold">No projects found</CardTitle>
+          <CardDescription className="max-w-xs text-[11px] leading-normal mt-1">
             {search
               ? "No workspaces match your search keyword. Try something else."
               : "Get started by creating your first mock API workspace project."}
           </CardDescription>
           {!search && (
-            <Button onClick={() => setOpen(true)} className="mt-6 gap-2">
-              <FolderPlus className="h-4 w-4" />
+            <Button onClick={triggerCreateProject} className="mt-4 h-8 gap-1.5 text-xs font-semibold">
+              <Plus className="h-3.5 w-3.5" />
               <span>Create Project</span>
             </Button>
           )}
         </Card>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-2">
           {filteredProjects.map((proj) => (
-            <Card key={proj.id} className="hover:shadow-md transition-shadow group flex flex-col justify-between relative">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-primary font-mono text-xs mb-1.5 uppercase font-semibold">
-                    <Terminal className="h-3.5 w-3.5" />
-                    <span>Workspace</span>
-                  </div>
-                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-7 w-7 text-muted-foreground hover:text-primary hover:bg-accent"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        setEditProj(proj);
-                      }}
-                    >
-                      <Settings className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        setDeleteProj(proj);
-                      }}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
+            <Card key={proj.id} className="hover:border-primary/30 transition-all group flex items-center justify-between p-2.5 px-3.5 gap-4">
+              <div className="flex items-center gap-3 min-w-0 flex-1">
+                <div className="h-8 w-8 rounded bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                  <Terminal className="h-4 w-4" />
                 </div>
-                <CardTitle className="line-clamp-1 group-hover:text-primary transition-colors">
-                  {proj.name}
-                </CardTitle>
-                <CardDescription className="line-clamp-2 min-h-[2.5rem] mt-1.5">
-                  {proj.description || "No description provided."}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium">
-                  <Calendar className="h-3.5 w-3.5" />
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-baseline gap-2 flex-wrap">
+                    <Link href={`/projects/${proj.slug}/canvas`} className="font-semibold text-sm hover:text-primary transition-colors truncate">
+                      {proj.name}
+                    </Link>
+                    <span className="text-[9px] font-mono text-muted-foreground bg-muted px-1.5 py-0.5 rounded border border-border/40 shrink-0">
+                      /mock/{proj.slug}
+                    </span>
+                  </div>
+                  {proj.description && (
+                    <p className="text-xs text-muted-foreground truncate mt-0.5 max-w-[500px]">
+                      {proj.description}
+                    </p>
+                  )}
+                </div>
+              </div>
+              <div className="flex items-center gap-4 shrink-0">
+                <span className="text-xs text-muted-foreground font-medium hidden sm:inline flex items-center gap-1">
+                  <Calendar className="h-3 w-3" />
                   <span>Updated {formatRelativeTime(proj.updatedAt)}</span>
-                </div>
-                <div className="flex items-center gap-1.5 text-xs font-mono bg-muted/60 px-2 py-1 rounded border border-border/50 w-fit max-w-full truncate">
-                  <span className="text-muted-foreground font-sans">Namespace:</span>
-                  <span className="font-semibold text-foreground truncate">/mock/{proj.slug}</span>
-                </div>
-              </CardContent>
-              <CardFooter className="border-t border-border pt-4 mt-2">
-                <Link href={`/projects/${proj.slug}/canvas`} className="w-full">
-                  <Button variant="ghost" className="w-full justify-between hover:bg-primary/5 group/btn">
-                    <span>Enter Workspace</span>
-                    <ArrowRight className="h-4 w-4 transition-transform group-hover/btn:translate-x-1" />
+                </span>
+                <div className="flex items-center gap-0.5">
+                  <Link href={`/projects/${proj.slug}/canvas`}>
+                    <Button variant="ghost" size="sm" className="h-7 text-xs font-semibold gap-1 hover:bg-primary/5 hover:text-primary px-2">
+                      <span>Enter</span>
+                      <ArrowRight className="h-3 w-3" />
+                    </Button>
+                  </Link>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 text-muted-foreground hover:text-foreground"
+                    title="Workspace Settings"
+                    onClick={() => setEditProj(proj)}
+                  >
+                    <Settings className="h-4 w-4" />
                   </Button>
-                </Link>
-              </CardFooter>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 text-destructive hover:bg-destructive/10"
+                    title="Delete Workspace"
+                    onClick={() => setDeleteProj(proj)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
             </Card>
           ))}
         </div>

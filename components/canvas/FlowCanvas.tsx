@@ -285,7 +285,7 @@ function FlowCanvasInner({
   );
 
   return (
-    <div className="w-full h-full relative border border-border rounded-xl bg-card overflow-hidden">
+    <div className="w-full h-full relative bg-card overflow-hidden">
       <ReactFlow
         nodes={nodes}
         edges={edges}
