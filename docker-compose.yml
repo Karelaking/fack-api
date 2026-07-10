@@ -1,0 +1,19 @@
+services:
+  fack-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fack-api
+    ports:
+      - "3000:3000"
+    volumes:
+      - fack-data:/data
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - DATABASE_URL=/data/fack.db
+    restart: unless-stopped
+
+volumes:
+  fack-data:
+    driver: local
