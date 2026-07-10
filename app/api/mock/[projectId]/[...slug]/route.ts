@@ -35,6 +35,7 @@ import {
   shouldError,
   buildResponse,
   buildErrorResponse,
+  processQueryParameters,
 } from "@/lib/mock-engine";
 
 export const dynamic = "force-dynamic";
@@ -176,28 +177,60 @@ async function handleMockRequest(
       console.warn(`[fack-api] Invalid JSON schema for route ${route.id}`);
     }
 
-    // Parse limit parameters from query string (e.g. ?limit=10, ?_limit=10, ?count=10)
+    // Parse pagination parameters (page, limit) to dynamically expand generated array size
     const searchParams = request.nextUrl.searchParams;
+    const pageParam = searchParams.get("page") || searchParams.get("_page");
     const limitParam = searchParams.get("limit") || searchParams.get("_limit") || searchParams.get("count");
+
     let limitValue: number | undefined = undefined;
-    if (limitParam) {
-      const parsed = parseInt(limitParam, 10);
-      if (!isNaN(parsed) && parsed > 0) {
-        limitValue = parsed;
+    let pageValue: number = 1;
+
+    if (pageParam) {
+      const parsedPage = parseInt(pageParam, 10);
+      if (!isNaN(parsedPage) && parsedPage > 0) {
+        pageValue = parsedPage;
       }
+    }
+
+    if (limitParam) {
+      const parsedLimit = parseInt(limitParam, 10);
+      if (!isNaN(parsedLimit) && parsedLimit > 0) {
+        // If we are paginating, generate at least (page * limit) items so that slicing works
+        limitValue = pageValue > 1 ? pageValue * parsedLimit : parsedLimit;
+      }
+    }
+
+    // Auto-detect list routes using RESTful conventions (no path params like :id)
+    const isListRoute = !route.path.includes(":");
+    let shouldWrapAsArray = false;
+    if (schema.type === "object") {
+      if (isListRoute || limitParam || pageParam) {
+        shouldWrapAsArray = true;
+      }
+    }
+
+    let targetSchema = schema;
+    if (shouldWrapAsArray) {
+      targetSchema = {
+        type: "array",
+        items: schema,
+      };
     }
 
     // Inject extracted path parameters into the schema context
     // This allows generated data to reference URL params
-    const payload = await generatePayload({
-      ...schema,
+    const rawPayload = await generatePayload({
+      ...targetSchema,
       // Make path params available in the generated data
       ...(Object.keys(params).length > 0 && {
         properties: {
-          ...(schema.properties as Record<string, unknown> | undefined),
+          ...(targetSchema.properties as Record<string, unknown> | undefined),
         },
       }),
     }, limitValue);
+
+    // Apply the query parameters processor (filters, searches, sorts, paginates)
+    const payload = processQueryParameters(rawPayload, searchParams);
 
     // ── 8. Parse Custom Headers ──────────────────────────────────────────
     let customHeaders: Record<string, string> = {};

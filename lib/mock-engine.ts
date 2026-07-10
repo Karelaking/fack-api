@@ -245,3 +245,119 @@ export function buildErrorResponse(
     statusCode
   );
 }
+
+/**
+ * Processes a mock payload (an array or an object containing arrays) using query parameters.
+ * Implements filtering, sorting, pagination, and global search (?q=...).
+ */
+export function processQueryParameters(
+  payload: any,
+  searchParams: URLSearchParams
+): any {
+  if (!payload) return payload;
+
+  const processArray = (items: any[]) => {
+    if (!Array.isArray(items) || items.length === 0) return items;
+
+    let result = [...items];
+
+    // Special query keywords to exclude from exact property matching
+    const specialKeys = new Set([
+      "limit",
+      "_limit",
+      "count",
+      "page",
+      "_page",
+      "sort",
+      "_sort",
+      "order",
+      "_order",
+      "q",
+    ]);
+
+    // 1. Filtering by exact matching (e.g. ?authorId=3 or ?category=tech)
+    for (const [key, value] of searchParams.entries()) {
+      if (specialKeys.has(key)) continue;
+
+      result = result.filter((item) => {
+        if (item && typeof item === "object" && key in item) {
+          const itemVal = item[key];
+          if (itemVal === undefined || itemVal === null) return false;
+          return itemVal.toString().toLowerCase() === value.toLowerCase();
+        }
+        return true;
+      });
+    }
+
+    // 2. Global search (?q=substring)
+    const query = searchParams.get("q");
+    if (query) {
+      const lowerQuery = query.toLowerCase();
+      result = result.filter((item) => {
+        if (!item || typeof item !== "object") return false;
+        return Object.values(item).some(
+          (val) => val !== null && val !== undefined && val.toString().toLowerCase().includes(lowerQuery)
+        );
+      });
+    }
+
+    // 3. Sorting (?sort=field&order=desc or ?_sort=field&_order=desc)
+    const sortBy = searchParams.get("sort") || searchParams.get("_sort");
+    if (sortBy) {
+      const order = (searchParams.get("order") || searchParams.get("_order") || "asc").toLowerCase();
+      result.sort((a, b) => {
+        const valA = a && typeof a === "object" ? a[sortBy] : undefined;
+        const valB = b && typeof b === "object" ? b[sortBy] : undefined;
+
+        if (valA === undefined || valA === null) return 1;
+        if (valB === undefined || valB === null) return -1;
+
+        if (typeof valA === "number" && typeof valB === "number") {
+          return order === "desc" ? valB - valA : valA - valB;
+        }
+
+        const strA = valA.toString().toLowerCase();
+        const strB = valB.toString().toLowerCase();
+        if (strA < strB) return order === "desc" ? 1 : -1;
+        if (strA > strB) return order === "desc" ? -1 : 1;
+        return 0;
+      });
+    }
+
+    // 4. Pagination (?page=2&limit=5 or ?_page=2&_limit=5)
+    const pageParam = searchParams.get("page") || searchParams.get("_page");
+    const limitParam = searchParams.get("limit") || searchParams.get("_limit") || searchParams.get("count");
+
+    if (pageParam && limitParam) {
+      const page = parseInt(pageParam, 10);
+      const limit = parseInt(limitParam, 10);
+      if (!isNaN(page) && page > 0 && !isNaN(limit) && limit > 0) {
+        const startIndex = (page - 1) * limit;
+        const endIndex = page * limit;
+        result = result.slice(startIndex, endIndex);
+      }
+    }
+
+    return result;
+  };
+
+  // If the payload itself is an array, process it directly
+  if (Array.isArray(payload)) {
+    return processArray(payload);
+  }
+
+  // If the payload is an object, process any array properties inside it
+  if (typeof payload === "object" && payload !== null) {
+    const result: any = {};
+    for (const [key, value] of Object.entries(payload)) {
+      if (Array.isArray(value)) {
+        result[key] = processArray(value);
+      } else {
+        result[key] = value;
+      }
+    }
+    return result;
+  }
+
+  return payload;
+}
