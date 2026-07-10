@@ -40,7 +40,7 @@ export async function getProjectById(id: string) {
 export async function createProject(input: CreateProjectInput) {
   const parsed = createProjectSchema.parse(input);
   const id = generateId();
-  const slug = slugify(parsed.name);
+  const slug = parsed.slug ? slugify(parsed.slug) : slugify(parsed.name);
 
   // Ensure slug uniqueness by appending a short suffix if needed
   const existing = await db.query.projects.findFirst({

@@ -3,9 +3,9 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FolderPlus, Terminal, Calendar, ArrowRight, Search, Loader2, Trash2, AlertTriangle } from "lucide-react";
+import { FolderPlus, Terminal, Calendar, ArrowRight, Search, Loader2, Trash2, AlertTriangle, Settings } from "lucide-react";
 import { toast } from "sonner";
-import { createProject, deleteProject } from "@/lib/actions/projects";
+import { createProject, deleteProject, updateProject } from "@/lib/actions/projects";
 import { formatRelativeTime } from "@/lib/utils";
 import type { Project } from "@/db/schema";
 import { Button } from "@/components/ui/button";
@@ -36,6 +36,7 @@ export function ProjectGrid({ initialProjects }: ProjectGridProps) {
   const [open, setOpen] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
   const [name, setName] = React.useState("");
+  const [slug, setSlug] = React.useState("");
   const [description, setDescription] = React.useState("");
 
   // Deletion states
@@ -43,11 +44,27 @@ export function ProjectGrid({ initialProjects }: ProjectGridProps) {
   const [deleteConfirmText, setDeleteConfirmText] = React.useState("");
   const [deleteLoading, setDeleteLoading] = React.useState(false);
 
+  // Edit/Settings states
+  const [editProj, setEditProj] = React.useState<Project | null>(null);
+  const [editName, setEditName] = React.useState("");
+  const [editSlug, setEditSlug] = React.useState("");
+  const [editDescription, setEditDescription] = React.useState("");
+  const [editLoading, setEditLoading] = React.useState(false);
+
+  React.useEffect(() => {
+    if (editProj) {
+      setEditName(editProj.name);
+      setEditSlug(editProj.slug);
+      setEditDescription(editProj.description ?? "");
+    }
+  }, [editProj]);
+
   const filteredProjects = React.useMemo(() => {
     return projects.filter(
       (p) =>
         p.name.toLowerCase().includes(search.toLowerCase()) ||
-        p.description?.toLowerCase().includes(search.toLowerCase())
+        p.description?.toLowerCase().includes(search.toLowerCase()) ||
+        p.slug.toLowerCase().includes(search.toLowerCase())
     );
   }, [projects, search]);
 
@@ -60,11 +77,16 @@ export function ProjectGrid({ initialProjects }: ProjectGridProps) {
 
     setLoading(true);
     try {
-      const newProj = await createProject({ name, description });
+      const newProj = await createProject({
+        name: name.trim(),
+        description: description.trim(),
+        slug: slug.trim() || undefined,
+      });
       toast.success(`Project "${newProj.name}" created successfully!`);
       setProjects([newProj, ...projects]);
       setOpen(false);
       setName("");
+      setSlug("");
       setDescription("");
       router.push(`/projects/${newProj.slug}/canvas`);
     } catch (err) {
@@ -72,6 +94,38 @@ export function ProjectGrid({ initialProjects }: ProjectGridProps) {
       console.error(err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editProj) return;
+    if (!editName.trim()) {
+      toast.error("Project name is required");
+      return;
+    }
+    if (!editSlug.trim()) {
+      toast.error("Namespace slug is required");
+      return;
+    }
+
+    setEditLoading(true);
+    try {
+      const updated = await updateProject({
+        id: editProj.id,
+        name: editName.trim(),
+        slug: editSlug.trim(),
+        description: editDescription.trim(),
+      });
+      toast.success("Workspace settings updated successfully!");
+      setProjects((prev) => prev.map((p) => (p.id === editProj.id ? updated : p)));
+      setEditProj(null);
+      router.refresh();
+    } catch (err) {
+      toast.error("Failed to update workspace settings");
+      console.error(err);
+    } finally {
+      setEditLoading(false);
     }
   };
 
@@ -137,6 +191,22 @@ export function ProjectGrid({ initialProjects }: ProjectGridProps) {
                   />
                 </div>
                 <div className="flex flex-col gap-2">
+                  <label htmlFor="slug" className="text-sm font-medium">
+                    Namespace Slug
+                  </label>
+                  <Input
+                    id="slug"
+                    value={slug}
+                    onChange={(e) => setSlug(e.target.value)}
+                    placeholder="e.g., billing-service"
+                    maxLength={100}
+                    disabled={loading}
+                  />
+                  <span className="text-[10px] text-muted-foreground">
+                    Determines mock base URL: `/mock/{slug || "slug-derived-from-name"}`. Must be lowercase alphanumeric with hyphens.
+                  </span>
+                </div>
+                <div className="flex flex-col gap-2">
                   <label htmlFor="description" className="text-sm font-medium">
                     Description
                   </label>
@@ -170,7 +240,7 @@ export function ProjectGrid({ initialProjects }: ProjectGridProps) {
         <Input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search projects by name..."
+          placeholder="Search projects by name or namespace..."
           className="pl-9"
         />
       </div>
@@ -202,18 +272,32 @@ export function ProjectGrid({ initialProjects }: ProjectGridProps) {
                     <Terminal className="h-3.5 w-3.5" />
                     <span>Workspace</span>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10 opacity-0 group-hover:opacity-100 transition-opacity"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      setDeleteProj(proj);
-                    }}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 text-muted-foreground hover:text-primary hover:bg-accent"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setEditProj(proj);
+                      }}
+                    >
+                      <Settings className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setDeleteProj(proj);
+                      }}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
                 <CardTitle className="line-clamp-1 group-hover:text-primary transition-colors">
                   {proj.name}
@@ -222,10 +306,14 @@ export function ProjectGrid({ initialProjects }: ProjectGridProps) {
                   {proj.description || "No description provided."}
                 </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="space-y-2">
                 <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium">
                   <Calendar className="h-3.5 w-3.5" />
                   <span>Updated {formatRelativeTime(proj.updatedAt)}</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-xs font-mono bg-muted/60 px-2 py-1 rounded border border-border/50 w-fit max-w-full truncate">
+                  <span className="text-muted-foreground font-sans">Namespace:</span>
+                  <span className="font-semibold text-foreground truncate">/mock/{proj.slug}</span>
                 </div>
               </CardContent>
               <CardFooter className="border-t border-border pt-4 mt-2">
@@ -240,6 +328,83 @@ export function ProjectGrid({ initialProjects }: ProjectGridProps) {
           ))}
         </div>
       )}
+
+      {/* Edit Settings Dialog */}
+      <Dialog
+        open={!!editProj}
+        onOpenChange={(open) => {
+          if (!open) {
+            setEditProj(null);
+            setEditName("");
+            setEditSlug("");
+            setEditDescription("");
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-[425px]">
+          <form onSubmit={handleEditSubmit}>
+            <DialogHeader>
+              <DialogTitle>Workspace Settings</DialogTitle>
+              <DialogDescription>
+                Modify workspace metadata and namespace configurations.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="flex flex-col gap-2">
+                <label htmlFor="edit-name" className="text-sm font-medium">
+                  Name
+                </label>
+                <Input
+                  id="edit-name"
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  placeholder="e.g., Billing Service"
+                  maxLength={100}
+                  disabled={editLoading}
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <label htmlFor="edit-slug" className="text-sm font-medium">
+                  Namespace Slug
+                </label>
+                <Input
+                  id="edit-slug"
+                  value={editSlug}
+                  onChange={(e) => setEditSlug(e.target.value)}
+                  placeholder="e.g., billing-service"
+                  maxLength={100}
+                  disabled={editLoading}
+                />
+                <span className="text-[10px] text-muted-foreground">
+                  Determines mock base URL: `/mock/{editSlug}`. Must be lowercase alphanumeric with hyphens.
+                </span>
+              </div>
+              <div className="flex flex-col gap-2">
+                <label htmlFor="edit-description" className="text-sm font-medium">
+                  Description
+                </label>
+                <Input
+                  id="edit-description"
+                  value={editDescription}
+                  onChange={(e) => setEditDescription(e.target.value)}
+                  placeholder="e.g., Mocking stripe endpoints for dev"
+                  maxLength={500}
+                  disabled={editLoading}
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setEditProj(null)} disabled={editLoading}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={editLoading} className="gap-1.5">
+                {editLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+                <span>Save Changes</span>
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       {/* Delete Confirmation Dialog */}
       <Dialog

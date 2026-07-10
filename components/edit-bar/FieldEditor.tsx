@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Plus, Trash2, ChevronRight, CornerDownRight, ToggleLeft } from "lucide-react";
+import { Plus, Trash2, ChevronRight, CornerDownRight, ToggleLeft, ArrowUp, ArrowDown } from "lucide-react";
 import { useSchemaStore } from "@/stores/store-provider";
 import { FakerProviderSelect } from "./FakerProviderSelect";
 import type { SchemaField } from "@/lib/schema-synthesizer";
@@ -24,6 +24,7 @@ export function FieldEditor({ field, depth }: FieldEditorProps) {
   const updateField = useSchemaStore((state) => state.updateField);
   const removeField = useSchemaStore((state) => state.removeField);
   const addField = useSchemaStore((state) => state.addField);
+  const moveField = useSchemaStore((state) => state.moveField);
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     updateField(field.id, { name: e.target.value });
@@ -137,6 +138,28 @@ export function FieldEditor({ field, depth }: FieldEditorProps) {
 
         {/* Action Controls */}
         <div className="flex items-center gap-1 shrink-0 ml-auto">
+          {/* Reorder Buttons */}
+          <Button
+            type="button"
+            size="icon"
+            variant="ghost"
+            className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted"
+            title="Move Up"
+            onClick={() => moveField(field.id, "up")}
+          >
+            <ArrowUp className="h-4 w-4" />
+          </Button>
+          <Button
+            type="button"
+            size="icon"
+            variant="ghost"
+            className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted"
+            title="Move Down"
+            onClick={() => moveField(field.id, "down")}
+          >
+            <ArrowDown className="h-4 w-4" />
+          </Button>
+
           {/* Add Child Button (Only for Object type, or Array items of type Object) */}
           {(isObject || (isArray && field.arrayItemType === "object")) && (
             <Button

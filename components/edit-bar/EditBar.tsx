@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Network, Activity, Settings2, Code, Save, Loader2, FileJson, Copy, Trash2 } from "lucide-react";
+import { Network, Activity, Settings2, Code, Save, Loader2, FileJson, Copy, Trash2, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 import { updateRoute, deleteRoute } from "@/lib/actions/routes";
 import { SchemaStoreProvider, useSchemaStore } from "@/stores/store-provider";
@@ -195,6 +195,80 @@ function EditBarInner({
             <Copy className="h-4 w-4" />
           </Button>
         </div>
+
+        {/* Collapsible Default RESTful Query Endpoints */}
+        <details className="mt-2 text-xs border-t border-border/50 pt-2.5 group">
+          <summary className="cursor-pointer list-none flex items-center justify-between text-[10px] font-bold text-muted-foreground uppercase tracking-wider select-none hover:text-foreground transition-colors">
+            <span>Query & Pagination Endpoints</span>
+            <ChevronDown className="h-3.5 w-3.5 transition-transform group-open:rotate-180 shrink-0 text-muted-foreground" />
+          </summary>
+          <div className="mt-2.5 space-y-2 max-h-[160px] overflow-y-auto pr-1 pt-1 pb-1">
+            {[
+              {
+                label: "Limit Items (limit)",
+                suffix: "?limit=5",
+                desc: "Limits the generated array payload to exactly N items."
+              },
+              {
+                label: "Limit Items (count)",
+                suffix: "?count=10",
+                desc: "Alternative parameter to specify the limit."
+              },
+              {
+                label: "Pagination",
+                suffix: "?page=2&limit=5",
+                desc: "Retrieves a paginated chunk of mock database items."
+              },
+              {
+                label: "Global Search",
+                suffix: "?q=search_term",
+                desc: "Searches all fields for matches containing the query."
+              },
+              {
+                label: "Sorting",
+                suffix: "?sort=createdAt&order=desc",
+                desc: "Sorts records by a specific field in asc/desc order."
+              },
+              {
+                label: "Field Filter",
+                suffix: "?id=uuid-here",
+                desc: "Filters generated array by field exact matches."
+              }
+            ].map((opt, oIdx) => {
+              const optUrl = `${fullMockUrl}${opt.suffix}`;
+              return (
+                <div key={oIdx} className="flex flex-col gap-1 p-2 rounded bg-muted/20 border border-border/30">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-semibold text-[11px] text-foreground">{opt.label}</span>
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="ghost"
+                      className="h-5 w-5 hover:bg-primary/5 text-muted-foreground hover:text-foreground shrink-0"
+                      title={`Copy URL for ${opt.label}`}
+                      onClick={async () => {
+                        try {
+                          await navigator.clipboard.writeText(optUrl);
+                          toast.success(`Copied query: ${opt.label}`);
+                        } catch {
+                          toast.error("Failed to copy URL");
+                        }
+                      }}
+                    >
+                      <Copy className="h-3 w-3" />
+                    </Button>
+                  </div>
+                  <span className="font-mono text-[9px] text-muted-foreground truncate select-all bg-card border border-border px-1.5 py-0.5 rounded">
+                    {optUrl}
+                  </span>
+                  <span className="text-[10px] text-muted-foreground/80 leading-normal">
+                    {opt.desc}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </details>
       </div>
 
       <Tabs defaultValue="schema" className="flex-1 flex flex-col min-h-0 min-w-0 mt-4">

@@ -31,10 +31,14 @@ export default async function ProjectLayout({
       <div className="flex items-center justify-between border-b border-border shrink-0 pb-1.5 gap-4">
         <PageTabs slug={project.slug} />
         
-        <div className="hidden md:flex items-center gap-1.5 font-mono text-[10px] bg-muted px-2.5 py-1 rounded border border-border mr-1.5">
-          <span className="text-muted-foreground font-sans">Namespace:</span>
-          <span className="font-semibold text-foreground">/mock/{project.slug}</span>
-        </div>
+        <Link
+          href={`/projects/${project.slug}/settings`}
+          className="hidden md:flex items-center gap-1.5 font-mono text-[10px] bg-muted hover:bg-accent px-2.5 py-1 rounded border border-border transition-all mr-1.5 group cursor-pointer"
+          title="Click to change namespace settings"
+        >
+          <span className="text-muted-foreground font-sans group-hover:text-foreground">Namespace:</span>
+          <span className="font-semibold text-foreground group-hover:text-primary">/mock/{project.slug}</span>
+        </Link>
       </div>
 
       {/* Render children subpages */}

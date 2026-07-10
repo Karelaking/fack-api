@@ -128,7 +128,11 @@ export function AddRouteDialog({
               ) : (
                 <Select value={endpointId} onValueChange={(val) => setEndpointId(val ?? "")} disabled={loading}>
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select a group..." />
+                    <span className="truncate" data-slot="select-value">
+                      {endpoints.find((ep) => ep.id === endpointId)
+                        ? `${endpoints.find((ep) => ep.id === endpointId)?.name} (${endpoints.find((ep) => ep.id === endpointId)?.basePath || "/"})`
+                        : "Select a group..."}
+                    </span>
                   </SelectTrigger>
                   <SelectContent>
                     {endpoints.map((ep) => (
@@ -146,7 +150,7 @@ export function AddRouteDialog({
                 <label className="text-sm font-semibold">Method</label>
                 <Select value={method} onValueChange={(val) => val && setMethod(val as any)} disabled={loading || endpoints.length === 0}>
                   <SelectTrigger className="w-full">
-                    <SelectValue />
+                    <span data-slot="select-value">{method}</span>
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="GET">GET</SelectItem>
@@ -159,7 +163,7 @@ export function AddRouteDialog({
               </div>
               <div className="flex flex-col gap-2 col-span-2">
                 <label htmlFor="route-path" className="text-sm font-semibold">
-                  Path Path
+                  Path
                 </label>
                 <Input
                   id="route-path"

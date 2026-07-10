@@ -21,6 +21,8 @@ export interface SchemaActions {
   updateField: (id: string, updates: Partial<Omit<SchemaField, "id">>) => void;
   /** Resets the schema to an empty array */
   resetSchema: () => void;
+  /** Moves a field up or down within its sibling array context */
+  moveField: (id: string, direction: "up" | "down") => void;
 }
 
 export type SchemaStore = SchemaState & SchemaActions;
@@ -138,6 +140,36 @@ export const createSchemaStore = (initialFields: SchemaField[] = []) => {
           };
 
           updateInTree(state.fields);
+        }),
+
+      moveField: (id, direction) =>
+        set((state) => {
+          const moveInArray = (array: SchemaField[]): boolean => {
+            const index = array.findIndex((field) => field.id === id);
+            if (index !== -1) {
+              if (direction === "up" && index > 0) {
+                const temp = array[index];
+                array[index] = array[index - 1];
+                array[index - 1] = temp;
+                return true;
+              }
+              if (direction === "down" && index < array.length - 1) {
+                const temp = array[index];
+                array[index] = array[index + 1];
+                array[index + 1] = temp;
+                return true;
+              }
+              return false;
+            }
+
+            for (const field of array) {
+              if (field.children && moveInArray(field.children)) return true;
+              if (field.arrayItemChildren && moveInArray(field.arrayItemChildren)) return true;
+            }
+            return false;
+          };
+
+          moveInArray(state.fields);
         }),
     }))
   );
