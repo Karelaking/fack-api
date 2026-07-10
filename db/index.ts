@@ -1,7 +1,7 @@
 import { drizzle } from "drizzle-orm/libsql";
 import { createClient } from "@libsql/client";
-import path from "node:path";
-import fs from "node:fs";
+// import path from "node:path";
+// import fs from "node:fs";
 import * as schema from "./schema";
 
 // Standardize database URL. If it's a local path, prefix it with "file:" for @libsql/client
@@ -15,14 +15,14 @@ const DATABASE_AUTH_TOKEN = process.env.DATABASE_AUTH_TOKEN;
 
 function createDatabase() {
   // Ensure the local data directory exists if using a local file URL
-  if (DATABASE_URL.startsWith("file:")) {
-    const dbPath = path.resolve(DATABASE_URL.replace("file:", ""));
-    const dbDir = path.dirname(dbPath);
+  // if (DATABASE_URL.startsWith("file:")) {
+  //   const dbPath = path.resolve(DATABASE_URL.replace("file:", ""));
+  //   const dbDir = path.dirname(dbPath);
 
-    if (!fs.existsSync(dbDir)) {
-      fs.mkdirSync(dbDir, { recursive: true });
-    }
-  }
+  //   if (!fs.existsSync(dbDir)) {
+  //     fs.mkdirSync(dbDir, { recursive: true });
+  //   }
+  // }
 
   const client = createClient({
     url: DATABASE_URL,
