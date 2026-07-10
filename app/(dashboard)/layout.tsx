@@ -53,7 +53,7 @@ export default async function DashboardLayout({
               <SidebarGroupContent className="mt-1.5">
                 <SidebarMenu>
                   <SidebarMenuItem>
-                    <SidebarMenuButton render={<Link href="/" />}>
+                    <SidebarMenuButton render={<Link href="/dashboard" />}>
                       <FolderKanban className="h-4 w-4 text-muted-foreground" />
                       <span>All Projects</span>
                     </SidebarMenuButton>
@@ -101,7 +101,7 @@ export default async function DashboardLayout({
               <DashboardBreadcrumbs projects={projects} />
             </div>
             <div className="flex items-center gap-3">
-              <Link href="/" passHref>
+              <Link href="/dashboard" passHref>
                 <Button size="sm" variant="outline" className="gap-1.5">
                   <Plus className="h-4 w-4" />
                   <span className="hidden sm:inline">New Project</span>

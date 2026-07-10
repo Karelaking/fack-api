@@ -84,7 +84,7 @@ export function ProjectSettings({ project }: ProjectSettingsProps) {
       toast.success(`Project "${project.name}" deleted successfully.`);
       setDeleteOpen(false);
       setDeleteConfirmText("");
-      router.push("/");
+      router.push("/dashboard");
     } catch (err) {
       toast.error("Failed to delete workspace");
       console.error(err);
@@ -200,7 +200,11 @@ export function ProjectSettings({ project }: ProjectSettingsProps) {
               </DialogHeader>
               <div className="grid gap-2 my-2 text-left">
                 <label htmlFor="confirm-text" className="text-xs font-semibold text-muted-foreground">
-                  To confirm, type <span className="font-mono font-bold text-foreground selection:bg-primary/20">"{project.name}"</span> below:
+                  To confirm, type{" "}
+                  <span className="font-mono font-bold text-foreground selection:bg-primary/20">
+                    &quot;{project.name}&quot;
+                  </span>{" "}
+                  below:
                 </label>
                 <Input
                   id="confirm-text"
