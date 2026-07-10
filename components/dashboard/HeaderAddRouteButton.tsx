@@ -27,11 +27,11 @@ export function HeaderAddRouteButton() {
       type="button"
       size="sm"
       variant="default"
-      className="gap-1.5 h-8 text-xs font-semibold shrink-0"
+      className="gap-1 h-8 text-xs font-semibold shrink-0"
       onClick={handleClick}
     >
       <Plus className="h-3.5 w-3.5" />
-      <span>Add Route</span>
+      <span className="hidden sm:inline">Add Route</span>
     </Button>
   );
 }

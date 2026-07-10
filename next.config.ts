@@ -13,6 +13,7 @@ const nextConfig: NextConfig = {
   output: "standalone",
   typedRoutes: true,
   serverExternalPackages: ["better-sqlite3"],
+  allowedDevOrigins: ['192.168.29.142'],
 };
 
 export default nextConfig;

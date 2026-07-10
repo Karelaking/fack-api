@@ -39,7 +39,7 @@ export function HeaderCanvasControls() {
               type="button"
               size="icon"
               variant="ghost"
-              className="h-7 w-7 text-muted-foreground hover:text-foreground"
+              className="h-7 w-7 text-muted-foreground hover:text-foreground hidden sm:flex"
               onClick={() => triggerAction("canvas-zoom-in")}
             />
           }
@@ -56,7 +56,7 @@ export function HeaderCanvasControls() {
               type="button"
               size="icon"
               variant="ghost"
-              className="h-7 w-7 text-muted-foreground hover:text-foreground"
+              className="h-7 w-7 text-muted-foreground hover:text-foreground hidden sm:flex"
               onClick={() => triggerAction("canvas-zoom-out")}
             />
           }
@@ -73,7 +73,7 @@ export function HeaderCanvasControls() {
               type="button"
               size="icon"
               variant="ghost"
-              className="h-7 w-7 text-muted-foreground hover:text-foreground"
+              className="h-7 w-7 text-muted-foreground hover:text-foreground hidden sm:flex"
               onClick={() => triggerAction("canvas-fit-view")}
             />
           }
@@ -101,7 +101,7 @@ export function HeaderCanvasControls() {
           ) : (
             <Save className="h-3.5 w-3.5" />
           )}
-          <span>{isSaving ? "Saving..." : "Save Layout"}</span>
+          <span className="hidden md:inline">{isSaving ? "Saving..." : "Save Layout"}</span>
         </TooltipTrigger>
         <TooltipContent side="bottom">Persist coordinates</TooltipContent>
       </Tooltip>

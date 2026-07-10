@@ -97,16 +97,53 @@ export function DashboardBreadcrumbs({ projects = [] }: DashboardBreadcrumbsProp
       <nav className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground select-none">
         {breadcrumbs.map((crumb, idx) => {
           const isLast = idx === breadcrumbs.length - 1;
+          const isFirst = idx === 0;
+          const isPrevFirst = idx === 1;
 
           return (
             <React.Fragment key={`${crumb.href}-${idx}`}>
-              {idx > 0 && <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/45 shrink-0" />}
-              {isLast ? (
-                crumb.isProject && projectsList.length > 0 ? (
+              {idx > 0 && (
+                <ChevronRight className={cn(
+                  "h-3.5 w-3.5 text-muted-foreground/45 shrink-0",
+                  isPrevFirst && "hidden sm:inline"
+                )} />
+              )}
+              <div className={cn(isFirst && "hidden sm:block")}>
+                {isLast ? (
+                  crumb.isProject && projectsList.length > 0 ? (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger className="flex items-center gap-1 hover:text-foreground transition-colors font-semibold text-foreground focus:outline-none group">
+                        <span className="truncate max-w-[150px] sm:max-w-xs">{crumb.label}</span>
+                        <ChevronsUpDown className="h-3.5 w-3.5 text-muted-foreground/60 group-hover:text-foreground transition-colors shrink-0" />
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="start" className="w-52 max-h-[300px] overflow-y-auto">
+                        {projectsList.map((p) => {
+                          const isActive = p.slug === projectSlug;
+                          return (
+                            <DropdownMenuItem
+                              key={p.id}
+                              className={`w-full flex items-center justify-between cursor-pointer text-sm py-1.5 ${
+                                isActive ? "font-semibold text-primary bg-accent/40" : ""
+                              }`}
+                              onClick={() => router.push(getProjectTabHref(p.slug, segments[2]))}
+                            >
+                              <span className="truncate">{p.name}</span>
+                              {isActive && <span className="h-1.5 w-1.5 rounded-full bg-primary shrink-0" />}
+                            </DropdownMenuItem>
+                          );
+                        })}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  ) : (
+                    <span className="text-foreground font-semibold truncate max-w-[150px] sm:max-w-xs">
+                      {crumb.label}
+                    </span>
+                  )
+                ) : crumb.isProject && projectsList.length > 0 ? (
                   <DropdownMenu>
-                    <DropdownMenuTrigger className="flex items-center gap-1 hover:text-foreground transition-colors font-semibold text-foreground focus:outline-none group">
-                      <span className="truncate max-w-[150px] sm:max-w-xs">{crumb.label}</span>
-                      <ChevronsUpDown className="h-3.5 w-3.5 text-muted-foreground/60 group-hover:text-foreground transition-colors shrink-0" />
+                    <DropdownMenuTrigger className="flex items-center gap-1 hover:text-foreground transition-colors font-normal text-muted-foreground focus:outline-none group">
+                      <span className="truncate max-w-[150px]">{crumb.label}</span>
+                      <ChevronsUpDown className="h-3 w-3 text-muted-foreground/40 group-hover:text-foreground transition-colors shrink-0" />
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="start" className="w-52 max-h-[300px] overflow-y-auto">
                       {projectsList.map((p) => {
@@ -127,46 +164,18 @@ export function DashboardBreadcrumbs({ projects = [] }: DashboardBreadcrumbsProp
                     </DropdownMenuContent>
                   </DropdownMenu>
                 ) : (
-                  <span className="text-foreground font-semibold truncate max-w-[150px] sm:max-w-xs">
+                  <Link href={crumb.href} className="hover:text-foreground transition-colors truncate max-w-[120px] font-normal">
                     {crumb.label}
-                  </span>
-                )
-              ) : crumb.isProject && projectsList.length > 0 ? (
-                <DropdownMenu>
-                  <DropdownMenuTrigger className="flex items-center gap-1 hover:text-foreground transition-colors font-normal text-muted-foreground focus:outline-none group">
-                    <span className="truncate max-w-[150px]">{crumb.label}</span>
-                    <ChevronsUpDown className="h-3 w-3 text-muted-foreground/40 group-hover:text-foreground transition-colors shrink-0" />
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start" className="w-52 max-h-[300px] overflow-y-auto">
-                    {projectsList.map((p) => {
-                      const isActive = p.slug === projectSlug;
-                      return (
-                        <DropdownMenuItem
-                          key={p.id}
-                          className={`w-full flex items-center justify-between cursor-pointer text-sm py-1.5 ${
-                            isActive ? "font-semibold text-primary bg-accent/40" : ""
-                          }`}
-                          onClick={() => router.push(getProjectTabHref(p.slug, segments[2]))}
-                        >
-                          <span className="truncate">{p.name}</span>
-                          {isActive && <span className="h-1.5 w-1.5 rounded-full bg-primary shrink-0" />}
-                        </DropdownMenuItem>
-                      );
-                    })}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              ) : (
-                <Link href={crumb.href} className="hover:text-foreground transition-colors truncate max-w-[120px] font-normal">
-                  {crumb.label}
-                </Link>
-              )}
+                  </Link>
+                )}
+              </div>
             </React.Fragment>
           );
         })}
       </nav>
 
       {isProjectPage && (
-        <div className="flex items-center gap-3">
+        <div className="hidden md:flex items-center gap-3">
           <div className="h-4 w-px bg-border shrink-0" />
           <nav className="flex items-center gap-0.5 bg-muted/65 p-0.5 rounded-lg border border-border/40" aria-label="Tabs">
             {[
@@ -181,14 +190,14 @@ export function DashboardBreadcrumbs({ projects = [] }: DashboardBreadcrumbsProp
                   key={tab.name}
                   href={tab.href as Parameters<typeof Link>[0]["href"]}
                   className={cn(
-                    "flex items-center gap-1.5 px-3 py-1 text-xs font-semibold rounded-md transition-all select-none",
+                    "flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 text-xs font-semibold rounded-md transition-all select-none",
                     isActive
                       ? "bg-background text-foreground shadow-xs border border-border/30"
                       : "text-muted-foreground hover:text-foreground border border-transparent"
                   )}
                 >
-                  <Icon className="h-3.5 w-3.5" />
-                  <span>{tab.name}</span>
+                  <Icon className="h-3.5 w-3.5 shrink-0" />
+                  <span className="hidden sm:inline">{tab.name}</span>
                 </Link>
               );
             })}
