@@ -101,7 +101,7 @@ export function DashboardSidebar({
             className="flex items-center gap-2.5 text-lg font-bold tracking-tight"
           >
             <Image
-              src="/logo.png"
+              src="/logo-v2.png"
               alt="Fack API's Logo"
               width={24}
               height={24}

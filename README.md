@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="./public/logo.png" alt="Fack API's Logo" width="120" height="120" style="border-radius: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.15);" />
+  <img src="./public/logo-v2.png" alt="Fack API's Logo" width="120" height="120" style="border-radius: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.15);" />
 </p>
 
-<h1 align="center">🛠️ Fack API's</h1>
+<h1 align="center">🛠️ FACK API'S</h1>
 
 <p align="center">
   <strong>A premium, self-hostable, node-based mock API platform for modern frontend & backend decoupled workflows.</strong>
