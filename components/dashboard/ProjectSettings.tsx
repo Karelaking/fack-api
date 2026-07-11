@@ -9,7 +9,14 @@ import type { Project } from "@/db/schema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -28,7 +35,9 @@ interface ProjectSettingsProps {
  * Client component displaying workspace settings forms.
  * Allows updating project metadata and deleting the project entirely.
  */
-export function ProjectSettings({ project }: ProjectSettingsProps) {
+export function ProjectSettings({
+  project,
+}: ProjectSettingsProps): React.JSX.Element {
   const router = useRouter();
   const [loading, setLoading] = React.useState(false);
   const [deleteOpen, setDeleteOpen] = React.useState(false);
@@ -38,7 +47,9 @@ export function ProjectSettings({ project }: ProjectSettingsProps) {
   // Form states
   const [name, setName] = React.useState(project.name);
   const [slug, setSlug] = React.useState(project.slug);
-  const [description, setDescription] = React.useState(project.description ?? "");
+  const [description, setDescription] = React.useState(
+    project.description ?? "",
+  );
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -94,7 +105,7 @@ export function ProjectSettings({ project }: ProjectSettingsProps) {
   };
 
   return (
-    <div className="p-4 md:p-6 space-y-6 max-w-4xl mx-auto">
+    <div className="mx-auto max-w-4xl space-y-6 p-4 md:p-6">
       {/* Settings Form Card */}
       <form onSubmit={handleUpdate}>
         <Card>
@@ -130,7 +141,7 @@ export function ProjectSettings({ project }: ProjectSettingsProps) {
                 maxLength={100}
                 disabled={loading}
               />
-              <span className="text-xs text-muted-foreground">
+              <span className="text-muted-foreground text-xs">
                 Determines the network mock base URL: `/mock/{slug}/...`
               </span>
             </div>
@@ -145,12 +156,16 @@ export function ProjectSettings({ project }: ProjectSettingsProps) {
                 placeholder="API virtualizer endpoints for billing tasks..."
                 maxLength={500}
                 disabled={loading}
-                className="resize-none h-24"
+                className="h-24 resize-none"
               />
             </div>
           </CardContent>
-          <CardFooter className="border-t border-border pt-4 justify-end">
-            <Button type="submit" disabled={loading || !name.trim() || !slug.trim()} className="gap-1.5">
+          <CardFooter className="border-border justify-end border-t pt-4">
+            <Button
+              type="submit"
+              disabled={loading || !name.trim() || !slug.trim()}
+              className="gap-1.5"
+            >
               {loading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
@@ -170,11 +185,14 @@ export function ProjectSettings({ project }: ProjectSettingsProps) {
             <span>Danger Zone</span>
           </CardTitle>
           <CardDescription>
-            Irreversibly delete this workspace. All endpoints, custom routes, schema layouts, and topologies will be deleted permanently.
+            Irreversibly delete this workspace. All endpoints, custom routes,
+            schema layouts, and topologies will be deleted permanently.
           </CardDescription>
         </CardHeader>
-        <CardFooter className="border-t border-destructive/10 pt-4 flex justify-between items-center bg-destructive/10">
-          <span className="text-xs font-medium text-destructive">This action is not reversible.</span>
+        <CardFooter className="border-destructive/10 bg-destructive/10 flex items-center justify-between border-t pt-4">
+          <span className="text-destructive text-xs font-medium">
+            This action is not reversible.
+          </span>
           <Dialog
             open={deleteOpen}
             onOpenChange={(open) => {
@@ -184,7 +202,9 @@ export function ProjectSettings({ project }: ProjectSettingsProps) {
               }
             }}
           >
-            <DialogTrigger render={<Button variant="destructive" className="gap-1.5" />}>
+            <DialogTrigger
+              render={<Button variant="destructive" className="gap-1.5" />}
+            >
               <Trash2 className="h-4 w-4" />
               <span>Delete Workspace</span>
             </DialogTrigger>
@@ -195,13 +215,19 @@ export function ProjectSettings({ project }: ProjectSettingsProps) {
                   <span>Confirm Deletion</span>
                 </DialogTitle>
                 <DialogDescription>
-                  Are you absolutely sure you want to delete project **{project.name}**? This will delete all endpoints, mock schema synthesis pipelines, and coordinates. This action cannot be undone.
+                  Are you absolutely sure you want to delete project **
+                  {project.name}**? This will delete all endpoints, mock schema
+                  synthesis pipelines, and coordinates. This action cannot be
+                  undone.
                 </DialogDescription>
               </DialogHeader>
-              <div className="grid gap-2 my-2 text-left">
-                <label htmlFor="confirm-text" className="text-xs font-semibold text-muted-foreground">
+              <div className="my-2 grid gap-2 text-left">
+                <label
+                  htmlFor="confirm-text"
+                  className="text-muted-foreground text-xs font-semibold"
+                >
                   To confirm, type{" "}
-                  <span className="font-mono font-bold text-foreground selection:bg-primary/20">
+                  <span className="text-foreground selection:bg-primary/20 font-mono font-bold">
                     &quot;{project.name}&quot;
                   </span>{" "}
                   below:
@@ -216,7 +242,7 @@ export function ProjectSettings({ project }: ProjectSettingsProps) {
                   autoComplete="off"
                 />
               </div>
-              <DialogFooter className="gap-2 sm:gap-0 mt-2">
+              <DialogFooter className="mt-2 gap-2 sm:gap-0">
                 <Button
                   type="button"
                   variant="outline"
@@ -235,7 +261,9 @@ export function ProjectSettings({ project }: ProjectSettingsProps) {
                   disabled={deleteLoading || deleteConfirmText !== project.name}
                   className="gap-1.5"
                 >
-                  {deleteLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+                  {deleteLoading && (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  )}
                   <span>Permanently Delete</span>
                 </Button>
               </DialogFooter>

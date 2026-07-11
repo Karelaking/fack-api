@@ -26,8 +26,8 @@
 
 import type { NextRequest } from "next/server";
 import { db } from "@/db";
-import { projects, endpoints, routes } from "@/db/schema";
-import { eq, and } from "drizzle-orm";
+import { projects, endpoints } from "@/db/schema";
+import { eq } from "drizzle-orm";
 import { findMatchingRoute } from "@/lib/route-matcher";
 import {
   generatePayload,

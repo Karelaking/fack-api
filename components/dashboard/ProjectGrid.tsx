@@ -23,7 +23,14 @@ import { formatRelativeTime } from "@/lib/utils";
 import type { Project, Endpoint, Route } from "@/db/schema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardTitle, CardDescription, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
+import {
+  Card,
+  CardTitle,
+  CardDescription,
+  CardHeader,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -47,19 +54,25 @@ interface ProjectGridProps {
  * Premium dashboard component listing workspaces in a beautiful, grid-based card layout.
  * Features workspace stats, search filters, and active mock details.
  */
-export function ProjectGrid({ initialProjects }: ProjectGridProps) {
+export function ProjectGrid({
+  initialProjects,
+}: ProjectGridProps): React.JSX.Element | null {
   const router = useRouter();
-  const [projects, setProjects] = React.useState<ProjectWithRelations[]>(initialProjects);
+  const [projects, setProjects] =
+    React.useState<ProjectWithRelations[]>(initialProjects);
   const [search, setSearch] = React.useState("");
   const [sortBy, setSortBy] = React.useState<"updated" | "name">("updated");
 
   // Deletion states
-  const [deleteProj, setDeleteProj] = React.useState<ProjectWithRelations | null>(null);
+  const [deleteProj, setDeleteProj] =
+    React.useState<ProjectWithRelations | null>(null);
   const [deleteConfirmText, setDeleteConfirmText] = React.useState("");
   const [deleteLoading, setDeleteLoading] = React.useState(false);
 
   // Edit/Settings states
-  const [editProj, setEditProj] = React.useState<ProjectWithRelations | null>(null);
+  const [editProj, setEditProj] = React.useState<ProjectWithRelations | null>(
+    null,
+  );
   const [editName, setEditName] = React.useState("");
   const [editSlug, setEditSlug] = React.useState("");
   const [editDescription, setEditDescription] = React.useState("");
@@ -67,12 +80,16 @@ export function ProjectGrid({ initialProjects }: ProjectGridProps) {
 
   // Sync initial projects
   React.useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setProjects(initialProjects);
   }, [initialProjects]);
 
   // Check URL parameter to trigger global open dialog
   React.useEffect(() => {
-    if (typeof window !== "undefined" && window.location.search.includes("new=true")) {
+    if (
+      typeof window !== "undefined" &&
+      window.location.search.includes("new=true")
+    ) {
       window.dispatchEvent(new CustomEvent("open-new-project-dialog"));
       const url = new URL(window.location.href);
       url.searchParams.delete("new");
@@ -82,20 +99,19 @@ export function ProjectGrid({ initialProjects }: ProjectGridProps) {
 
   React.useEffect(() => {
     if (editProj) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setEditName(editProj.name);
       setEditSlug(editProj.slug);
       setEditDescription(editProj.description ?? "");
     }
   }, [editProj]);
 
-
-
   const filteredProjects = React.useMemo(() => {
     const filtered = projects.filter(
       (p) =>
         p.name.toLowerCase().includes(search.toLowerCase()) ||
         p.description?.toLowerCase().includes(search.toLowerCase()) ||
-        p.slug.toLowerCase().includes(search.toLowerCase())
+        p.slug.toLowerCase().includes(search.toLowerCase()),
     );
 
     if (sortBy === "name") {
@@ -125,7 +141,9 @@ export function ProjectGrid({ initialProjects }: ProjectGridProps) {
         description: editDescription.trim(),
       });
       toast.success("Workspace settings updated successfully!");
-      setProjects((prev) => prev.map((p) => (p.id === editProj.id ? { ...p, ...updated } : p)));
+      setProjects((prev) =>
+        prev.map((p) => (p.id === editProj.id ? { ...p, ...updated } : p)),
+      );
       setEditProj(null);
       router.refresh();
     } catch (err) {
@@ -164,7 +182,9 @@ export function ProjectGrid({ initialProjects }: ProjectGridProps) {
 
   // Color theme generator based on project ID hash
   const getThemeColors = (id: string) => {
-    const hash = id.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const hash = id
+      .split("")
+      .reduce((acc, char) => acc + char.charCodeAt(0), 0);
     const themes = [
       {
         bg: "bg-indigo-500/10 text-indigo-500 dark:text-indigo-400 border-indigo-500/20",
@@ -196,42 +216,44 @@ export function ProjectGrid({ initialProjects }: ProjectGridProps) {
   };
 
   return (
-    <div className="p-4 md:p-6 space-y-6 max-w-5xl mx-auto">
+    <div className="mx-auto max-w-5xl space-y-6 p-4 md:p-6">
       {/* Upper header section */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-border/40 pb-4">
+      <div className="border-border/40 flex flex-col gap-4 border-b pb-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            Manage your isolated API namespaces and simulate response schema endpoints.
+          <p className="text-muted-foreground mt-0.5 text-xs">
+            Manage your isolated API namespaces and simulate response schema
+            endpoints.
           </p>
         </div>
 
-        <Button onClick={triggerCreateProject} className="h-9 gap-1.5 text-xs font-semibold shrink-0">
+        <Button
+          onClick={triggerCreateProject}
+          className="h-9 shrink-0 gap-1.5 text-xs font-semibold"
+        >
           <Plus className="h-4 w-4" />
           <span>New Project</span>
         </Button>
       </div>
 
-
-
       {/* Search & Sort Filters */}
-      <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
+      <div className="flex flex-col items-center justify-between gap-3 sm:flex-row">
         <div className="relative w-full sm:max-w-xs">
-          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+          <Search className="text-muted-foreground absolute top-1/2 left-2.5 h-3.5 w-3.5 -translate-y-1/2" />
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search workspaces..."
-            className="pl-8 h-8.5 text-xs"
+            className="h-8.5 pl-8 text-xs"
           />
         </div>
 
-        <div className="flex items-center gap-2 self-end sm:self-auto text-xs">
+        <div className="flex items-center gap-2 self-end text-xs sm:self-auto">
           <span className="text-muted-foreground">Sort by:</span>
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as "updated" | "name")}
-            className="bg-card border border-border rounded px-2 py-1 focus:outline-none text-foreground font-medium"
+            className="bg-card border-border text-foreground rounded border px-2 py-1 font-medium focus:outline-none"
           >
             <option value="updated">Last Updated</option>
             <option value="name">Project Name</option>
@@ -241,16 +263,21 @@ export function ProjectGrid({ initialProjects }: ProjectGridProps) {
 
       {/* Grid listing */}
       {filteredProjects.length === 0 ? (
-        <Card className="flex flex-col items-center justify-center p-12 text-center border-dashed border-2">
-          <Terminal className="h-10 w-10 text-muted-foreground/60 stroke-1 mb-3" />
-          <CardTitle className="text-base font-bold">No workspaces found</CardTitle>
-          <CardDescription className="max-w-xs text-xs mt-1.5 leading-relaxed">
+        <Card className="flex flex-col items-center justify-center border-2 border-dashed p-12 text-center">
+          <Terminal className="text-muted-foreground/60 mb-3 h-10 w-10 stroke-1" />
+          <CardTitle className="text-base font-bold">
+            No workspaces found
+          </CardTitle>
+          <CardDescription className="mt-1.5 max-w-xs text-xs leading-relaxed">
             {search
               ? "No workspaces match your search keyword. Try adjusting your query."
               : "Get started by creating your first mock API workspace namespace."}
           </CardDescription>
           {!search && (
-            <Button onClick={triggerCreateProject} className="mt-5 h-9 gap-1.5 text-xs font-semibold">
+            <Button
+              onClick={triggerCreateProject}
+              className="mt-5 h-9 gap-1.5 text-xs font-semibold"
+            >
               <Plus className="h-4 w-4" />
               <span>Create Project</span>
             </Button>
@@ -260,28 +287,36 @@ export function ProjectGrid({ initialProjects }: ProjectGridProps) {
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {filteredProjects.map((proj) => {
             const theme = getThemeColors(proj.id);
-            const routesCount = proj.endpoints?.reduce((acc, e) => acc + (e.routes?.length ?? 0), 0) ?? 0;
+            const routesCount =
+              proj.endpoints?.reduce(
+                (acc, e) => acc + (e.routes?.length ?? 0),
+                0,
+              ) ?? 0;
             const groupsCount = proj.endpoints?.length ?? 0;
 
             return (
               <Card
                 key={proj.id}
-                className="hover:shadow-lg hover:border-primary/20 transition-all duration-300 group flex flex-col justify-between overflow-hidden bg-card/65 backdrop-blur-sm relative"
+                className="hover:border-primary/20 group bg-card/65 relative flex flex-col justify-between overflow-hidden backdrop-blur-sm transition-all duration-300 hover:shadow-lg"
               >
                 {/* Visual Header Accent Gradient */}
-                <div className={`h-1.5 w-full bg-gradient-to-r ${theme.accent}`} />
+                <div
+                  className={`h-1.5 w-full bg-linear-to-r ${theme.accent}`}
+                />
 
                 <CardHeader className="p-4 pb-2">
                   <div className="flex items-center justify-between gap-2">
-                    <div className={`h-7 w-7 rounded-lg border flex items-center justify-center shrink-0 ${theme.bg}`}>
+                    <div
+                      className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border ${theme.bg}`}
+                    >
                       <Terminal className="h-3.5 w-3.5" />
                     </div>
 
-                    <div className="flex items-center gap-1 sm:opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex items-center gap-1 transition-opacity group-hover:opacity-100 sm:opacity-0">
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-6 w-6 text-muted-foreground hover:text-foreground"
+                        className="text-muted-foreground hover:text-foreground h-6 w-6"
                         title="Workspace Settings"
                         onClick={() => setEditProj(proj)}
                       >
@@ -290,7 +325,7 @@ export function ProjectGrid({ initialProjects }: ProjectGridProps) {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-6 w-6 text-destructive hover:bg-destructive/10"
+                        className="text-destructive hover:bg-destructive/10 h-6 w-6"
                         title="Delete Workspace"
                         onClick={() => setDeleteProj(proj)}
                       >
@@ -302,42 +337,52 @@ export function ProjectGrid({ initialProjects }: ProjectGridProps) {
                   <div className="mt-3 space-y-1">
                     <Link
                       href={`/projects/${proj.slug}/canvas`}
-                      className="font-bold text-sm hover:text-primary transition-colors line-clamp-1 flex items-center gap-1.5"
+                      className="hover:text-primary line-clamp-1 flex items-center gap-1.5 text-sm font-bold transition-colors"
                     >
                       <span>{proj.name}</span>
-                      <Sparkles className="h-3.5 w-3.5 text-primary opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+                      <Sparkles className="text-primary h-3.5 w-3.5 shrink-0 opacity-0 transition-opacity group-hover:opacity-100" />
                     </Link>
-                    <span className="inline-flex font-mono text-[9px] font-semibold text-muted-foreground bg-muted px-1.5 py-0.5 rounded border border-border/40 max-w-full truncate">
+                    <span className="text-muted-foreground bg-muted border-border/40 inline-flex max-w-full truncate rounded border px-1.5 py-0.5 font-mono text-[9px] font-semibold">
                       /mock/{proj.slug}
                     </span>
                   </div>
 
-                  <CardDescription className="text-xs mt-2 line-clamp-2 min-h-[2rem] leading-relaxed">
+                  <CardDescription className="mt-2 line-clamp-2 min-h-8 text-xs leading-relaxed">
                     {proj.description || "No description provided."}
                   </CardDescription>
                 </CardHeader>
 
-                <CardContent className="p-4 pt-1 pb-3.5 space-y-2">
-                  <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground font-semibold">
+                <CardContent className="space-y-2 p-4 pt-1 pb-3.5">
+                  <div className="text-muted-foreground flex items-center gap-1.5 text-[10px] font-semibold">
                     <Calendar className="h-3.5 w-3.5 shrink-0" />
                     <span>Updated {formatRelativeTime(proj.updatedAt)}</span>
                   </div>
 
-                  <div className="flex items-center gap-3 text-[10px] font-semibold border-t border-border/40 pt-2 text-muted-foreground/80">
+                  <div className="border-border/40 text-muted-foreground/80 flex items-center gap-3 border-t pt-2 text-[10px] font-semibold">
                     <div className="flex items-center gap-1">
-                      <Layers className="h-3.5 w-3.5 text-primary/80 shrink-0" />
-                      <span>{groupsCount} {groupsCount === 1 ? "group" : "groups"}</span>
+                      <Layers className="text-primary/80 h-3.5 w-3.5 shrink-0" />
+                      <span>
+                        {groupsCount} {groupsCount === 1 ? "group" : "groups"}
+                      </span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <Activity className="h-3.5 w-3.5 text-emerald-500/80 shrink-0" />
-                      <span>{routesCount} {routesCount === 1 ? "route" : "routes"}</span>
+                      <Activity className="h-3.5 w-3.5 shrink-0 text-emerald-500/80" />
+                      <span>
+                        {routesCount} {routesCount === 1 ? "route" : "routes"}
+                      </span>
                     </div>
                   </div>
                 </CardContent>
 
-                <CardFooter className="p-4 pt-0 border-t border-border/40 mt-1">
-                  <Link href={`/projects/${proj.slug}/canvas`} className="w-full">
-                    <Button variant="ghost" className="w-full justify-between h-8.5 text-xs hover:bg-primary/5 hover:text-primary px-2 font-bold group/btn">
+                <CardFooter className="border-border/40 mt-1 border-t p-4 pt-0">
+                  <Link
+                    href={`/projects/${proj.slug}/canvas`}
+                    className="w-full"
+                  >
+                    <Button
+                      variant="ghost"
+                      className="hover:bg-primary/5 hover:text-primary group/btn h-8.5 w-full justify-between px-2 text-xs font-bold"
+                    >
                       <span>Enter Workspace</span>
                       <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover/btn:translate-x-1" />
                     </Button>
@@ -361,7 +406,7 @@ export function ProjectGrid({ initialProjects }: ProjectGridProps) {
           }
         }}
       >
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-106.25">
           <form onSubmit={handleEditSubmit}>
             <DialogHeader>
               <DialogTitle>Workspace Settings</DialogTitle>
@@ -395,12 +440,16 @@ export function ProjectGrid({ initialProjects }: ProjectGridProps) {
                   maxLength={100}
                   disabled={editLoading}
                 />
-                <span className="text-[10px] text-muted-foreground">
-                  Determines mock base URL: `/mock/{editSlug}`. Must be lowercase alphanumeric with hyphens.
+                <span className="text-muted-foreground text-[10px]">
+                  Determines mock base URL: `/mock/{editSlug}`. Must be
+                  lowercase alphanumeric with hyphens.
                 </span>
               </div>
               <div className="flex flex-col gap-2">
-                <label htmlFor="edit-description" className="text-sm font-medium">
+                <label
+                  htmlFor="edit-description"
+                  className="text-sm font-medium"
+                >
                   Description
                 </label>
                 <Input
@@ -414,7 +463,12 @@ export function ProjectGrid({ initialProjects }: ProjectGridProps) {
               </div>
             </div>
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setEditProj(null)} disabled={editLoading}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setEditProj(null)}
+                disabled={editLoading}
+              >
                 Cancel
               </Button>
               <Button type="submit" disabled={editLoading} className="gap-1.5">
@@ -443,12 +497,21 @@ export function ProjectGrid({ initialProjects }: ProjectGridProps) {
               <span>Confirm Deletion</span>
             </DialogTitle>
             <DialogDescription>
-              Are you absolutely sure you want to delete project **{deleteProj?.name}**? This will delete all endpoints, mock schema pipelines, and coordinate states. This action cannot be undone.
+              Are you absolutely sure you want to delete project **
+              {deleteProj?.name}**? This will delete all endpoints, mock schema
+              pipelines, and coordinate states. This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
-          <div className="grid gap-2 my-2">
-            <label htmlFor="confirm-text" className="text-xs font-semibold text-muted-foreground">
-              To confirm, type <span className="font-mono font-bold text-foreground selection:bg-primary/20">"{deleteProj?.name}"</span> below:
+          <div className="my-2 grid gap-2">
+            <label
+              htmlFor="confirm-text"
+              className="text-muted-foreground text-xs font-semibold"
+            >
+              To confirm, type{" "}
+              <span className="text-foreground selection:bg-primary/20 font-mono font-bold">
+                &ldquo;{deleteProj?.name}&ldquo;
+              </span>{" "}
+              below:
             </label>
             <Input
               id="confirm-text"
@@ -460,7 +523,7 @@ export function ProjectGrid({ initialProjects }: ProjectGridProps) {
               autoComplete="off"
             />
           </div>
-          <DialogFooter className="gap-2 sm:gap-0 mt-2">
+          <DialogFooter className="mt-2 gap-2 sm:gap-0">
             <Button
               type="button"
               variant="outline"

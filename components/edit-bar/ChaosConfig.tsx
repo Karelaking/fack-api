@@ -24,7 +24,7 @@ export function ChaosConfig({
   onLatencyMinChange,
   onLatencyMaxChange,
   onErrorRateChange,
-}: ChaosConfigProps) {
+}: ChaosConfigProps): React.JSX.Element {
   // Sync local states
   const handleMinSlider = (value: number | readonly number[]) => {
     const val = Array.isArray(value) ? value[0] : value;
@@ -34,7 +34,7 @@ export function ChaosConfig({
     }
   };
 
-  const handleMaxSlider = (value: number | readonly number[]) => {
+  const handleMaxSlider = (value: number | readonly number[]): void => {
     const val = Array.isArray(value) ? value[0] : value;
     onLatencyMaxChange(val);
     if (latencyMin > val) {
@@ -42,7 +42,7 @@ export function ChaosConfig({
     }
   };
 
-  const handleErrorRate = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleErrorRate = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const parsed = parseFloat(e.target.value);
     if (!isNaN(parsed)) {
       onErrorRateChange(Math.max(0, Math.min(100, parsed)));
@@ -60,15 +60,17 @@ export function ChaosConfig({
             <Clock className="h-3.5 w-3.5 text-amber-500" />
             <h3 className="text-xs font-semibold">Simulated Latency</h3>
           </div>
-          <span className="text-[11px] font-mono font-medium bg-muted px-1.5 py-0.5 rounded border border-border">
-            {latencyMin === latencyMax ? `${latencyMin} ms` : `${latencyMin} - ${latencyMax} ms`}
+          <span className="bg-muted border-border rounded border px-1.5 py-0.5 font-mono text-[11px] font-medium">
+            {latencyMin === latencyMax
+              ? `${latencyMin} ms`
+              : `${latencyMin} - ${latencyMax} ms`}
           </span>
         </div>
 
         <div className="space-y-3">
           {/* Min Latency */}
           <div className="space-y-1">
-            <div className="flex items-center justify-between text-[11px] text-muted-foreground font-medium">
+            <div className="text-muted-foreground flex items-center justify-between text-[11px] font-medium">
               <span>Minimum Delay</span>
               <span>{latencyMin} ms</span>
             </div>
@@ -84,7 +86,7 @@ export function ChaosConfig({
 
           {/* Max Latency */}
           <div className="space-y-1">
-            <div className="flex items-center justify-between text-[11px] text-muted-foreground font-medium">
+            <div className="text-muted-foreground flex items-center justify-between text-[11px] font-medium">
               <span>Maximum Delay</span>
               <span>{latencyMax} ms</span>
             </div>
@@ -101,19 +103,22 @@ export function ChaosConfig({
       </div>
 
       {/* Error Rate Section */}
-      <div className="space-y-3 pt-3 border-t border-border">
+      <div className="border-border space-y-3 border-t pt-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
-            <AlertTriangle className="h-3.5 w-3.5 text-destructive" />
+            <AlertTriangle className="text-destructive h-3.5 w-3.5" />
             <h3 className="text-xs font-semibold">Probabilistic Failures</h3>
           </div>
-          <span className="text-[11px] font-mono font-medium bg-muted px-1.5 py-0.5 rounded border border-border">
+          <span className="bg-muted border-border rounded border px-1.5 py-0.5 font-mono text-[11px] font-medium">
             {errorRate}% chance
           </span>
         </div>
 
         <div className="grid gap-1.5">
-          <label htmlFor="err-percentage" className="text-[11px] text-muted-foreground font-medium">
+          <label
+            htmlFor="err-percentage"
+            className="text-muted-foreground text-[11px] font-medium"
+          >
             Failure Rate (Percentage)
           </label>
           <div className="flex items-center gap-2.5">
@@ -125,10 +130,10 @@ export function ChaosConfig({
               step={1}
               value={errorRate || ""}
               onChange={handleErrorRate}
-              className="w-20 h-8 text-xs font-medium"
+              className="h-8 w-20 text-xs font-medium"
               placeholder="0"
             />
-            <span className="text-[11px] text-muted-foreground leading-normal">
+            <span className="text-muted-foreground text-[11px] leading-normal">
               {errorRate > 0
                 ? `${errorRate}% of requests fail with a 500 error.`
                 : "No simulated failures."}

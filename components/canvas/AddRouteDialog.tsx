@@ -8,7 +8,12 @@ import type { Endpoint, Route } from "@/db/schema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -33,18 +38,21 @@ export function AddRouteDialog({
   onOpenChange,
   endpoints,
   onRouteAdded,
-}: AddRouteDialogProps) {
+}: AddRouteDialogProps): React.JSX.Element {
   const [loading, setLoading] = React.useState(false);
 
   // Form states
   const [endpointId, setEndpointId] = React.useState("");
-  const [method, setMethod] = React.useState<"GET" | "POST" | "PUT" | "DELETE" | "PATCH">("GET");
+  const [method, setMethod] = React.useState<
+    "GET" | "POST" | "PUT" | "DELETE" | "PATCH"
+  >("GET");
   const [path, setPath] = React.useState("");
   const [statusCode, setStatusCode] = React.useState("200");
   const [includeDefaults, setIncludeDefaults] = React.useState(true);
 
   React.useEffect(() => {
     if (open && endpoints.length > 0) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setEndpointId(endpoints[0].id);
     }
   }, [open, endpoints]);
@@ -60,7 +68,9 @@ export function AddRouteDialog({
       return;
     }
 
-    const cleanPath = path.trim().startsWith("/") ? path.trim() : `/${path.trim()}`;
+    const cleanPath = path.trim().startsWith("/")
+      ? path.trim()
+      : `/${path.trim()}`;
     const code = parseInt(statusCode, 10);
 
     if (isNaN(code) || code < 100 || code > 599) {
@@ -75,11 +85,23 @@ export function AddRouteDialog({
         responseSchema = JSON.stringify({
           type: "object",
           properties: {
-            id: { type: "string", faker: "string.uuid", "x-faker": "string.uuid" },
-            createdAt: { type: "string", faker: "date.past", "x-faker": "date.past" },
-            updatedAt: { type: "string", faker: "date.recent", "x-faker": "date.recent" }
+            id: {
+              type: "string",
+              faker: "string.uuid",
+              "x-faker": "string.uuid",
+            },
+            createdAt: {
+              type: "string",
+              faker: "date.past",
+              "x-faker": "date.past",
+            },
+            updatedAt: {
+              type: "string",
+              faker: "date.recent",
+              "x-faker": "date.recent",
+            },
           },
-          required: ["id", "createdAt", "updatedAt"]
+          required: ["id", "createdAt", "updatedAt"],
         });
       }
 
@@ -107,7 +129,7 @@ export function AddRouteDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-106.25">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle>Add Route Node</DialogTitle>
@@ -119,14 +141,21 @@ export function AddRouteDialog({
             <div className="flex flex-col gap-2">
               <label className="text-sm font-semibold">Endpoint Group</label>
               {endpoints.length === 0 ? (
-                <div className="text-xs text-amber-600 bg-amber-50 dark:bg-amber-950/20 dark:text-amber-400 border border-amber-200 dark:border-amber-900/30 p-3 rounded-lg flex flex-col gap-1.5">
-                  <span className="font-semibold">No Endpoint Groups found.</span>
-                  <span className="font-normal text-[10px] text-muted-foreground leading-normal">
-                    You need at least one Endpoint Group to add routes. Go to the <strong>Endpoints</strong> tab to create one.
+                <div className="flex flex-col gap-1.5 rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-600 dark:border-amber-900/30 dark:bg-amber-950/20 dark:text-amber-400">
+                  <span className="font-semibold">
+                    No Endpoint Groups found.
+                  </span>
+                  <span className="text-muted-foreground text-[10px] leading-normal font-normal">
+                    You need at least one Endpoint Group to add routes. Go to
+                    the <strong>Endpoints</strong> tab to create one.
                   </span>
                 </div>
               ) : (
-                <Select value={endpointId} onValueChange={(val) => setEndpointId(val ?? "")} disabled={loading}>
+                <Select
+                  value={endpointId}
+                  onValueChange={(val) => setEndpointId(val ?? "")}
+                  disabled={loading}
+                >
                   <SelectTrigger className="w-full">
                     <span className="truncate" data-slot="select-value">
                       {endpoints.find((ep) => ep.id === endpointId)
@@ -146,9 +175,22 @@ export function AddRouteDialog({
             </div>
 
             <div className="grid grid-cols-3 gap-2">
-              <div className="flex flex-col gap-2 col-span-1">
+              <div className="col-span-1 flex flex-col gap-2">
                 <label className="text-sm font-semibold">Method</label>
-                <Select value={method} onValueChange={(val) => { if (val === "GET" || val === "POST" || val === "PUT" || val === "DELETE" || val === "PATCH") setMethod(val); }} disabled={loading || endpoints.length === 0}>
+                <Select
+                  value={method}
+                  onValueChange={(val) => {
+                    if (
+                      val === "GET" ||
+                      val === "POST" ||
+                      val === "PUT" ||
+                      val === "DELETE" ||
+                      val === "PATCH"
+                    )
+                      setMethod(val);
+                  }}
+                  disabled={loading || endpoints.length === 0}
+                >
                   <SelectTrigger className="w-full">
                     <span data-slot="select-value">{method}</span>
                   </SelectTrigger>
@@ -161,7 +203,7 @@ export function AddRouteDialog({
                   </SelectContent>
                 </Select>
               </div>
-              <div className="flex flex-col gap-2 col-span-2">
+              <div className="col-span-2 flex flex-col gap-2">
                 <label htmlFor="route-path" className="text-sm font-semibold">
                   Path
                 </label>
@@ -190,10 +232,10 @@ export function AddRouteDialog({
                 disabled={loading || endpoints.length === 0}
               />
             </div>
-            <div className="flex items-center justify-between rounded-lg border border-border p-3 bg-muted/20">
+            <div className="border-border bg-muted/20 flex items-center justify-between rounded-lg border p-3">
               <div className="flex flex-col gap-0.5">
                 <span className="text-xs font-semibold">Default Fields</span>
-                <span className="text-[10px] text-muted-foreground leading-normal">
+                <span className="text-muted-foreground text-[10px] leading-normal">
                   Pre-populate schema with id, createdAt, and updatedAt.
                 </span>
               </div>
@@ -205,10 +247,19 @@ export function AddRouteDialog({
             </div>
           </div>
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              disabled={loading}
+            >
               Cancel
             </Button>
-            <Button type="submit" disabled={loading || endpoints.length === 0} className="gap-1.5">
+            <Button
+              type="submit"
+              disabled={loading || endpoints.length === 0}
+              className="gap-1.5"
+            >
               {loading && <Loader2 className="h-4 w-4 animate-spin" />}
               <span>Create Node</span>
             </Button>

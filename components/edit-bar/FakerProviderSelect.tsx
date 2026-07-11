@@ -13,7 +13,11 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 interface FakerProviderSelectProps {
   value?: string;
@@ -28,7 +32,7 @@ export function FakerProviderSelect({
   value,
   onValueChange,
   disabled,
-}: FakerProviderSelectProps) {
+}: FakerProviderSelectProps): React.JSX.Element {
   const [open, setOpen] = React.useState(false);
   const groupedCategories = React.useMemo(() => getGroupedProviders(), []);
 
@@ -46,7 +50,7 @@ export function FakerProviderSelect({
             role="combobox"
             aria-expanded={open}
             disabled={disabled}
-            className="w-full justify-between h-7 px-2 text-xs border-muted-foreground/20 hover:bg-accent"
+            className="border-muted-foreground/20 hover:bg-accent h-7 w-full justify-between px-2 text-xs"
           />
         }
       >
@@ -59,13 +63,20 @@ export function FakerProviderSelect({
       </PopoverTrigger>
       <PopoverContent className="w-75 p-0" align="start">
         <Command>
-          <CommandInput placeholder="Search mock data provider..." className="h-9 text-xs" />
+          <CommandInput
+            placeholder="Search mock data provider..."
+            className="h-9 text-xs"
+          />
           <CommandList className="max-h-75 overflow-y-auto">
-            <CommandEmpty className="py-3 text-center text-xs text-muted-foreground">
+            <CommandEmpty className="text-muted-foreground py-3 text-center text-xs">
               No data provider found.
             </CommandEmpty>
             {groupedCategories.map((category) => (
-              <CommandGroup key={category.name} heading={category.name} className="text-[10px] font-semibold text-muted-foreground">
+              <CommandGroup
+                key={category.name}
+                heading={category.name}
+                className="text-muted-foreground text-[10px] font-semibold"
+              >
                 {category.providers.map((provider) => (
                   <CommandItem
                     key={provider.value}
@@ -74,18 +85,20 @@ export function FakerProviderSelect({
                       onValueChange(provider.value);
                       setOpen(false);
                     }}
-                    className="text-xs flex items-center justify-between"
+                    className="flex items-center justify-between text-xs"
                   >
                     <div className="flex flex-col">
-                      <span className="font-medium text-foreground">{provider.label}</span>
-                      <span className="text-[10px] text-muted-foreground truncate max-w-55">
+                      <span className="text-foreground font-medium">
+                        {provider.label}
+                      </span>
+                      <span className="text-muted-foreground max-w-55 truncate text-[10px]">
                         Example: {provider.example}
                       </span>
                     </div>
                     <Check
                       className={cn(
-                        "h-4 w-4 text-primary shrink-0",
-                        value === provider.value ? "opacity-100" : "opacity-0"
+                        "text-primary h-4 w-4 shrink-0",
+                        value === provider.value ? "opacity-100" : "opacity-0",
                       )}
                     />
                   </CommandItem>

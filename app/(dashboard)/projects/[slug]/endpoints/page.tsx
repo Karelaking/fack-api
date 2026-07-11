@@ -10,7 +10,7 @@ interface EndpointsPageProps {
 /**
  * Server page loading endpoint definitions for a project workspace.
  */
-export default async function EndpointsPage({ params }: EndpointsPageProps) {
+export default async function EndpointsPage({ params }: EndpointsPageProps): Promise<React.JSX.Element> {
   const { slug } = await params;
   const project = await getProjectBySlug(slug);
 
@@ -21,9 +21,6 @@ export default async function EndpointsPage({ params }: EndpointsPageProps) {
   const endpointsList = await getEndpoints(project.id);
 
   return (
-    <ProjectEndpoints
-      projectId={project.id}
-      initialEndpoints={endpointsList}
-    />
+    <ProjectEndpoints projectId={project.id} initialEndpoints={endpointsList} />
   );
 }

@@ -25,7 +25,10 @@ export async function getRouteById(id: string) {
   });
 }
 
-export async function getRoutesByProjectId(projectId: string) {
+export async function getRoutesByProjectId(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _projectId: string
+) {
   return db.query.routes.findMany({
     with: {
       endpoint: true,

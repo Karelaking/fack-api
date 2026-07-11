@@ -4,9 +4,13 @@ import * as React from "react";
 import { usePathname } from "next/navigation";
 import { ZoomIn, ZoomOut, Maximize2, Save, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
-export function HeaderCanvasControls() {
+export function HeaderCanvasControls(): React.JSX.Element | null {
   const pathname = usePathname();
   const [isSaving, setIsSaving] = React.useState(false);
 
@@ -31,7 +35,7 @@ export function HeaderCanvasControls() {
   if (!pathname.endsWith("/canvas")) return null;
 
   return (
-    <div className="flex items-center gap-1 border-r border-border pr-2 mr-1 shrink-0">
+    <div className="border-border mr-1 flex shrink-0 items-center gap-1 border-r pr-2">
       <Tooltip>
         <TooltipTrigger
           render={
@@ -39,7 +43,7 @@ export function HeaderCanvasControls() {
               type="button"
               size="icon"
               variant="ghost"
-              className="h-7 w-7 text-muted-foreground hover:text-foreground hidden sm:flex"
+              className="text-muted-foreground hover:text-foreground hidden h-7 w-7 sm:flex"
               onClick={() => triggerAction("canvas-zoom-in")}
             />
           }
@@ -56,7 +60,7 @@ export function HeaderCanvasControls() {
               type="button"
               size="icon"
               variant="ghost"
-              className="h-7 w-7 text-muted-foreground hover:text-foreground hidden sm:flex"
+              className="text-muted-foreground hover:text-foreground hidden h-7 w-7 sm:flex"
               onClick={() => triggerAction("canvas-zoom-out")}
             />
           }
@@ -73,7 +77,7 @@ export function HeaderCanvasControls() {
               type="button"
               size="icon"
               variant="ghost"
-              className="h-7 w-7 text-muted-foreground hover:text-foreground hidden sm:flex"
+              className="text-muted-foreground hover:text-foreground hidden h-7 w-7 sm:flex"
               onClick={() => triggerAction("canvas-fit-view")}
             />
           }
@@ -90,7 +94,7 @@ export function HeaderCanvasControls() {
               type="button"
               size="sm"
               variant="secondary"
-              className="h-8 gap-1.5 text-xs font-semibold px-2.5 ml-1"
+              className="ml-1 h-8 gap-1.5 px-2.5 text-xs font-semibold"
               onClick={() => triggerAction("canvas-save")}
               disabled={isSaving}
             />
@@ -101,7 +105,9 @@ export function HeaderCanvasControls() {
           ) : (
             <Save className="h-3.5 w-3.5" />
           )}
-          <span className="hidden md:inline">{isSaving ? "Saving..." : "Save Layout"}</span>
+          <span className="hidden md:inline">
+            {isSaving ? "Saving..." : "Save Layout"}
+          </span>
         </TooltipTrigger>
         <TooltipContent side="bottom">Persist coordinates</TooltipContent>
       </Tooltip>

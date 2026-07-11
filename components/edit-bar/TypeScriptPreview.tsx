@@ -26,7 +26,7 @@ export function TypeScriptPreview({
   routeId,
   open,
   onOpenChange,
-}: TypeScriptPreviewProps) {
+}: TypeScriptPreviewProps): React.JSX.Element {
   const [loading, setLoading] = React.useState(false);
   const [code, setCode] = React.useState("");
   const [copied, setCopied] = React.useState(false);
@@ -48,6 +48,7 @@ export function TypeScriptPreview({
 
   React.useEffect(() => {
     if (open) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       fetchCode();
     }
   }, [open, fetchCode]);
@@ -78,34 +79,54 @@ export function TypeScriptPreview({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-150 flex flex-col h-[80vh] max-h-150">
+      <DialogContent className="flex h-[80vh] max-h-150 flex-col sm:max-w-150">
         <DialogHeader className="shrink-0">
           <DialogTitle className="flex items-center gap-2">
-            <Code className="h-5 w-5 text-primary" />
+            <Code className="text-primary h-5 w-5" />
             <span>TypeScript Definition</span>
           </DialogTitle>
           <DialogDescription>
-            Download or copy static type contracts compiled from your JSON response schema.
+            Download or copy static type contracts compiled from your JSON
+            response schema.
           </DialogDescription>
         </DialogHeader>
 
         {/* Code Viewport */}
-        <div className="flex-1 min-h-0 bg-muted border border-border rounded-lg p-4 overflow-auto font-mono text-xs text-foreground relative">
+        <div className="bg-muted border-border text-foreground relative min-h-0 flex-1 overflow-auto rounded-lg border p-4 font-mono text-xs">
           {loading ? (
-            <div className="absolute inset-0 flex items-center justify-center bg-muted/50">
-              <Loader2 className="h-6 w-6 animate-spin text-primary" />
+            <div className="bg-muted/50 absolute inset-0 flex items-center justify-center">
+              <Loader2 className="text-primary h-6 w-6 animate-spin" />
             </div>
           ) : (
-            <pre className="whitespace-pre-wrap">{code || "// Empty Schema"}</pre>
+            <pre className="whitespace-pre-wrap">
+              {code || "// Empty Schema"}
+            </pre>
           )}
         </div>
 
-        <DialogFooter className="shrink-0 pt-4 border-t border-border flex flex-row justify-end gap-2">
-          <Button type="button" variant="outline" size="sm" onClick={handleCopy} disabled={loading || !code} className="gap-1.5 text-xs font-semibold">
-            {copied ? <Check className="h-3.5 w-3.5 text-emerald-500" /> : <Copy className="h-3.5 w-3.5" />}
+        <DialogFooter className="border-border flex shrink-0 flex-row justify-end gap-2 border-t pt-4">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={handleCopy}
+            disabled={loading || !code}
+            className="gap-1.5 text-xs font-semibold"
+          >
+            {copied ? (
+              <Check className="h-3.5 w-3.5 text-emerald-500" />
+            ) : (
+              <Copy className="h-3.5 w-3.5" />
+            )}
             <span>{copied ? "Copied" : "Copy Code"}</span>
           </Button>
-          <Button type="button" size="sm" onClick={handleDownload} disabled={loading || !code} className="gap-1.5 text-xs font-semibold">
+          <Button
+            type="button"
+            size="sm"
+            onClick={handleDownload}
+            disabled={loading || !code}
+            className="gap-1.5 text-xs font-semibold"
+          >
             <Download className="h-3.5 w-3.5" />
             <span>Download .d.ts</span>
           </Button>

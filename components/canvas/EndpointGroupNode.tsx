@@ -17,18 +17,21 @@ interface EndpointGroupNodeProps {
  * Premium Custom Bounding Container Node for Endpoints.
  * Uses a grid background style, glass header, and dashed glowing border to group routes cleanly.
  */
-export function EndpointGroupNode({ data, selected }: EndpointGroupNodeProps) {
+export function EndpointGroupNode({
+  data,
+  selected,
+}: EndpointGroupNodeProps): React.JSX.Element {
   return (
     <div
       className={cn(
-        "h-full w-full rounded-2xl border-2 border-dashed p-4 transition-all duration-300 relative bg-muted/5",
+        "bg-muted/5 relative h-full w-full rounded-2xl border-2 border-dashed p-4 transition-all duration-300",
         selected
-          ? "border-primary/50 bg-muted/10 shadow-lg shadow-primary/2"
-          : "border-border/80 hover:border-muted-foreground/30"
+          ? "border-primary/50 bg-muted/10 shadow-primary/2 shadow-lg"
+          : "border-border/80 hover:border-muted-foreground/30",
       )}
     >
       {/* Dynamic Grid Background Pattern */}
-      <div className="absolute inset-0 -z-10 rounded-2xl opacity-[0.03] bg-[linear-gradient(to_right,#808080_1px,transparent_1px),linear-gradient(to_bottom,#808080_1px,transparent_1px)] bg-[size:14px_24px] dark:opacity-[0.05]" />
+      <div className="absolute inset-0 -z-10 rounded-2xl bg-[linear-gradient(to_right,#808080_1px,transparent_1px),linear-gradient(to_bottom,#808080_1px,transparent_1px)] bg-size-[14px_24px] opacity-[0.03] dark:opacity-[0.05]" />
 
       {/* NodeResizer for scaling bounding containers */}
       <NodeResizer
@@ -40,15 +43,15 @@ export function EndpointGroupNode({ data, selected }: EndpointGroupNodeProps) {
       />
 
       <div
-        className="flex items-center gap-2 text-muted-foreground border-b border-border/40 pb-2 mb-4 shrink-0"
+        className="text-muted-foreground border-border/40 mb-4 flex shrink-0 items-center gap-2 border-b pb-2"
         style={{ contentVisibility: "auto" }}
       >
-        <FolderOpen className="h-4 w-4 text-primary shrink-0 animate-pulse" />
-        <div className="flex flex-col min-w-0">
-          <span className="text-[10px] font-extrabold tracking-wider uppercase text-foreground truncate">
+        <FolderOpen className="text-primary h-4 w-4 shrink-0 animate-pulse" />
+        <div className="flex min-w-0 flex-col">
+          <span className="text-foreground truncate text-[10px] font-extrabold tracking-wider uppercase">
             {data.label}
           </span>
-          <span className="text-[9px] font-mono text-muted-foreground truncate">
+          <span className="text-muted-foreground truncate font-mono text-[9px]">
             {data.basePath || "/"}
           </span>
         </div>

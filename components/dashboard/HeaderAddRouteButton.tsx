@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-export function HeaderAddRouteButton() {
+export function HeaderAddRouteButton(): React.JSX.Element | null {
   const pathname = usePathname();
   const router = useRouter();
   const segments = pathname.split("/").filter(Boolean);
@@ -27,7 +27,7 @@ export function HeaderAddRouteButton() {
       type="button"
       size="sm"
       variant="default"
-      className="gap-1 h-8 text-xs font-semibold shrink-0"
+      className="h-8 shrink-0 gap-1 text-xs font-semibold"
       onClick={handleClick}
     >
       <Plus className="h-3.5 w-3.5" />

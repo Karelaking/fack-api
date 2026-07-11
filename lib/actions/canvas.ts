@@ -9,13 +9,25 @@ import {
   type SaveCanvasStateInput,
 } from "@/lib/validators";
 
-export async function getCanvasState(projectId: string) {
+export async function getCanvasState(projectId: string): Promise<{
+  id: string;
+  projectId: string;
+  nodes: string;
+  edges: string;
+  viewport: string;
+} | undefined> {
   return db.query.canvasStates.findFirst({
     where: eq(canvasStates.projectId, projectId),
   });
 }
 
-export async function saveCanvasState(input: SaveCanvasStateInput) {
+export async function saveCanvasState(input: SaveCanvasStateInput): Promise<{
+  id: string;
+  projectId: string;
+  nodes: string;
+  edges: string;
+  viewport: string;
+}> {
   const parsed = saveCanvasStateSchema.parse(input);
 
   const existing = await db.query.canvasStates.findFirst({

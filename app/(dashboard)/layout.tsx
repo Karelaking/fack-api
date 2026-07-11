@@ -21,13 +21,13 @@ export default async function DashboardLayout({
 
   return (
     <SidebarProvider>
-      <div className="flex h-screen w-screen overflow-hidden bg-background">
+      <div className="bg-background flex h-screen w-screen overflow-hidden">
         {/* Sidebar component */}
         <DashboardSidebar initialProjects={projects} />
 
         {/* Main Content Area */}
-        <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
-          <header className="h-14 border-b border-border flex items-center px-4 justify-between shrink-0 bg-card">
+        <main className="relative flex min-w-0 flex-1 flex-col overflow-hidden">
+          <header className="border-border bg-card flex h-14 shrink-0 items-center justify-between border-b px-4">
             <div className="flex items-center gap-2">
               <SidebarTrigger className="h-9 w-9" />
               <Separator orientation="vertical" className="h-4" />
@@ -35,7 +35,7 @@ export default async function DashboardLayout({
             </div>
             <HeaderActions />
           </header>
-          <div className="flex-1 overflow-auto bg-background pb-14 md:pb-0">
+          <div className="bg-background flex-1 overflow-auto pb-14 md:pb-0">
             {children}
           </div>
           <MobileBottomNav />

@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-export function HeaderNewProjectButton() {
+export function HeaderNewProjectButton(): React.JSX.Element | null {
   const pathname = usePathname();
   const segments = pathname.split("/").filter(Boolean);
   const isProjectPage = segments[0] === "projects" && segments[1];
@@ -18,7 +18,13 @@ export function HeaderNewProjectButton() {
   };
 
   return (
-    <Button type="button" size="sm" variant="outline" className="gap-1.5" onClick={handleClick}>
+    <Button
+      type="button"
+      size="sm"
+      variant="outline"
+      className="gap-1.5"
+      onClick={handleClick}
+    >
       <Plus className="h-4 w-4" />
       <span className="hidden sm:inline">New Project</span>
     </Button>

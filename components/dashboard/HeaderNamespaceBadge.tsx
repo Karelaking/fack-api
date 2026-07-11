@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-export function HeaderNamespaceBadge() {
+export function HeaderNamespaceBadge(): React.JSX.Element | null {
   const pathname = usePathname();
   const segments = pathname.split("/").filter(Boolean);
   const isProjectPage = segments[0] === "projects" && segments[1];
@@ -16,11 +16,15 @@ export function HeaderNamespaceBadge() {
   return (
     <Link
       href={`/projects/${slug}/settings`}
-      className="hidden sm:flex items-center gap-1.5 font-mono text-[10px] bg-muted hover:bg-accent px-2.5 py-1 rounded border border-border transition-all mr-1 group cursor-pointer shrink-0"
+      className="bg-muted hover:bg-accent border-border group mr-1 hidden shrink-0 cursor-pointer items-center gap-1.5 rounded border px-2.5 py-1 font-mono text-[10px] transition-all sm:flex"
       title="Click to change namespace settings"
     >
-      <span className="text-muted-foreground font-sans group-hover:text-foreground">Namespace:</span>
-      <span className="font-semibold text-foreground group-hover:text-primary">/mock/{slug}</span>
+      <span className="text-muted-foreground group-hover:text-foreground font-sans">
+        Namespace:
+      </span>
+      <span className="text-foreground group-hover:text-primary font-semibold">
+        /mock/{slug}
+      </span>
     </Link>
   );
 }

@@ -4,7 +4,6 @@ import * as React from "react";
 import { FlowCanvas } from "./FlowCanvas";
 import { EditBar } from "@/components/edit-bar/EditBar";
 import type { Endpoint, Route } from "@/db/schema";
-import { parseSchemaToFields } from "@/lib/schema-synthesizer";
 
 interface CanvasContainerProps {
   projectId: string;
@@ -28,8 +27,10 @@ export function CanvasContainer({
   endpoints,
   routes,
   initialState,
-}: CanvasContainerProps) {
-  const [selectedRouteId, setSelectedRouteId] = React.useState<string | null>(null);
+}: CanvasContainerProps): React.JSX.Element {
+  const [selectedRouteId, setSelectedRouteId] = React.useState<string | null>(
+    null,
+  );
   const [prevRoutes, setPrevRoutes] = React.useState<Route[]>(routes);
   const [activeRoutes, setActiveRoutes] = React.useState<Route[]>(routes);
 
@@ -48,7 +49,7 @@ export function CanvasContainer({
 
   const handleRouteUpdated = (updatedRoute: Route) => {
     setActiveRoutes((prev) =>
-      prev.map((r) => (r.id === updatedRoute.id ? updatedRoute : r))
+      prev.map((r) => (r.id === updatedRoute.id ? updatedRoute : r)),
     );
   };
 
@@ -58,8 +59,8 @@ export function CanvasContainer({
   };
 
   return (
-    <div className="w-full h-[calc(100vh-3.5rem)] relative flex gap-4 min-h-0 min-w-0">
-      <div className="flex-1 min-h-0 min-w-0 relative">
+    <div className="relative flex h-[calc(100vh-3.5rem)] min-h-0 w-full min-w-0 gap-4">
+      <div className="relative min-h-0 min-w-0 flex-1">
         <FlowCanvas
           projectId={projectId}
           projectSlug={projectSlug}

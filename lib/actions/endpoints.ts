@@ -22,7 +22,30 @@ export async function getEndpoints(projectId: string) {
   });
 }
 
-export async function getEndpointById(id: string) {
+export async function getEndpointById(id: string): Promise<{
+  id: string;
+  name: string;
+  description: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  projectId: string;
+  basePath: string;
+  routes: {
+    id: string;
+    createdAt: Date;
+    updatedAt: Date;
+    endpointId: string;
+    method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
+    path: string;
+    statusCode: number;
+    responseSchema: string | null;
+    latencyMin: number | null;
+    latencyMax: number | null;
+    errorRate: number | null;
+    customHeaders: string | null;
+    isEnabled: boolean;
+  }[];
+} | undefined> {
   return db.query.endpoints.findFirst({
     where: eq(endpoints.id, id),
     with: {
@@ -31,7 +54,7 @@ export async function getEndpointById(id: string) {
   });
 }
 
-export async function createEndpoint(input: CreateEndpointInput) {
+export async function createEndpoint(input: CreateEndpointInput): Promise<(typeof endpoints.$inferSelect)> {
   const parsed = createEndpointSchema.parse(input);
   const id = generateId();
 
@@ -50,7 +73,7 @@ export async function createEndpoint(input: CreateEndpointInput) {
   return endpoint;
 }
 
-export async function updateEndpoint(input: UpdateEndpointInput) {
+export async function updateEndpoint(input: UpdateEndpointInput): Promise<(typeof endpoints.$inferSelect)> {
   const parsed = updateEndpointSchema.parse(input);
   const { id, ...updates } = parsed;
 
@@ -64,7 +87,7 @@ export async function updateEndpoint(input: UpdateEndpointInput) {
   return endpoint;
 }
 
-export async function deleteEndpoint(id: string) {
+export async function deleteEndpoint(id: string): Promise<void> {
   await db.delete(endpoints).where(eq(endpoints.id, id));
   revalidatePath("/");
 }

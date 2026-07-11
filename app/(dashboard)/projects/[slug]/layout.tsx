@@ -1,5 +1,4 @@
 import * as React from "react";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getProjectBySlug } from "@/lib/actions/projects";
 
@@ -24,9 +23,5 @@ export default async function ProjectLayout({
     notFound();
   }
 
-  return (
-    <div className="h-full w-full flex flex-col">
-      {children}
-    </div>
-  );
+  return <div className="flex h-full w-full flex-col">{children}</div>;
 }

@@ -12,7 +12,7 @@ import {
   type UpdateProjectInput,
 } from "@/lib/validators";
 
-export async function getProjects() {
+export async function getProjects(): Promise<(typeof projects.$inferSelect)[]> {
   try {
     return await db.query.projects.findMany({
       orderBy: (projects, { desc }) => [desc(projects.updatedAt)],
@@ -37,7 +37,7 @@ export async function getProjects() {
   }
 }
 
-export async function getProjectBySlug(slug: string) {
+export async function getProjectBySlug(slug: string): Promise<(typeof projects.$inferSelect) | undefined> {
   return db.query.projects.findFirst({
     where: eq(projects.slug, slug),
     with: {
@@ -50,13 +50,13 @@ export async function getProjectBySlug(slug: string) {
   });
 }
 
-export async function getProjectById(id: string) {
+export async function getProjectById(id: string): Promise<(typeof projects.$inferSelect) | undefined> {
   return db.query.projects.findFirst({
     where: eq(projects.id, id),
   });
 }
 
-export async function createProject(input: CreateProjectInput) {
+export async function createProject(input: CreateProjectInput): Promise<(typeof projects.$inferSelect)> {
   const parsed = createProjectSchema.parse(input);
   const id = generateId();
   const slug = parsed.slug ? slugify(parsed.slug) : slugify(parsed.name);
@@ -81,7 +81,7 @@ export async function createProject(input: CreateProjectInput) {
   return project;
 }
 
-export async function updateProject(input: UpdateProjectInput) {
+export async function updateProject(input: UpdateProjectInput): Promise<(typeof projects.$inferSelect)> {
   const parsed = updateProjectSchema.parse(input);
   const { id, ...updates } = parsed;
 
@@ -95,7 +95,7 @@ export async function updateProject(input: UpdateProjectInput) {
   return project;
 }
 
-export async function deleteProject(id: string) {
+export async function deleteProject(id: string): Promise<void> {
   await db.delete(projects).where(eq(projects.id, id));
   revalidatePath("/");
 }

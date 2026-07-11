@@ -7,7 +7,7 @@ interface ProjectPageProps {
 /**
  * Default project page redirecting to the canvas subview.
  */
-export default async function ProjectPage({ params }: ProjectPageProps) {
+export default async function ProjectPage({ params }: ProjectPageProps): Promise<React.JSX.Element> {
   const { slug } = await params;
   redirect(`/projects/${slug}/canvas`);
 }

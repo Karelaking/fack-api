@@ -1,17 +1,35 @@
 "use client";
 
 import * as React from "react";
-import { Settings2, Code, Save, Loader2, FileJson, Copy, Trash2, ChevronDown } from "lucide-react";
+import {
+  Settings2,
+  Code,
+  Save,
+  Loader2,
+  FileJson,
+  Copy,
+  Trash2,
+  ChevronDown,
+} from "lucide-react";
 import { toast } from "sonner";
 import { updateRoute, deleteRoute } from "@/lib/actions/routes";
 import { SchemaStoreProvider, useSchemaStore } from "@/stores/store-provider";
-import { parseSchemaToFields, synthesizeSchema } from "@/lib/schema-synthesizer";
+import {
+  parseSchemaToFields,
+  synthesizeSchema,
+} from "@/lib/schema-synthesizer";
 import { FieldTree } from "./FieldTree";
 import { ChaosConfig } from "./ChaosConfig";
 import { HeadersEditor, type HeaderRow } from "./HeadersEditor";
 import { TypeScriptPreview } from "./TypeScriptPreview";
 import type { Route, Endpoint } from "@/db/schema";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 
@@ -42,12 +60,14 @@ function EditBarInner({
   onOpenChange: (open: boolean) => void;
   onRouteUpdated: (updatedRoute: Route) => void;
   onRouteDeleted: (routeId: string) => void;
-}) {
+}): React.JSX.Element {
   const [loading, setLoading] = React.useState(false);
   const [tsOpen, setTsOpen] = React.useState(false);
 
   const handleDelete = async () => {
-    const confirmed = window.confirm("Are you sure you want to delete this route? This cannot be undone.");
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this route? This cannot be undone.",
+    );
     if (!confirmed) return;
 
     setLoading(true);
@@ -72,16 +92,16 @@ function EditBarInner({
       const parsed = JSON.parse(route.responseSchema ?? "{}");
       const list = parseSchemaToFields(parsed);
       setSchema(list);
-    } catch (e: unknown) {
+    } catch {
       setSchema([]);
     }
   }, [route, setSchema]);
 
-  // Form states
-  const [method, setMethod] = React.useState(route.method);
-  const [path, setPath] = React.useState(route.path);
-  const [statusCode, setStatusCode] = React.useState(route.statusCode);
-  const [isEnabled, setIsEnabled] = React.useState(route.isEnabled);
+  // Form states (read-only parameters displayed in side drawer)
+  const method = route.method;
+  const path = route.path;
+  const statusCode = route.statusCode;
+  const isEnabled = route.isEnabled;
   const [latencyMin, setLatencyMin] = React.useState(route.latencyMin ?? 0);
   const [latencyMax, setLatencyMax] = React.useState(route.latencyMax ?? 0);
   const [errorRate, setErrorRate] = React.useState(route.errorRate ?? 0);
@@ -90,7 +110,10 @@ function EditBarInner({
   const [headers, setHeaders] = React.useState<HeaderRow[]>(() => {
     try {
       const parsed = JSON.parse(route.customHeaders ?? "{}");
-      return Object.entries(parsed).map(([key, value]) => ({ key, value: String(value) }));
+      return Object.entries(parsed).map(([key, value]) => ({
+        key,
+        value: String(value),
+      }));
     } catch {
       return [];
     }
@@ -151,30 +174,31 @@ function EditBarInner({
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
-      <SheetHeader className="shrink-0 border-b border-border pb-1.5">
+      <SheetHeader className="border-border shrink-0 border-b pb-1.5">
         <SheetTitle className="flex items-center gap-1.5 text-base">
-          <Settings2 className="h-4 w-4 text-primary" />
+          <Settings2 className="text-primary h-4 w-4" />
           <span>Edit Route Config</span>
         </SheetTitle>
         <SheetDescription className="text-[11px]">
-          Simulate status codes, headers, delays, and configure response payloads.
+          Simulate status codes, headers, delays, and configure response
+          payloads.
         </SheetDescription>
       </SheetHeader>
 
       {/* Copyable Mock URL Input bar */}
-      <div className="mt-2.5 flex shrink-0 flex-col gap-1 rounded-md border border-border bg-muted/30 p-2">
-        <label className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
+      <div className="border-border bg-muted/30 mt-2.5 flex shrink-0 flex-col gap-1 rounded-md border p-2">
+        <label className="text-muted-foreground text-[9px] font-bold tracking-wider uppercase">
           Mock Endpoint URL
         </label>
         <div className="flex items-center gap-1">
-          <span className="flex h-7 flex-1 items-center truncate rounded border border-border bg-card px-2 text-[11px] text-foreground select-all font-mono">
+          <span className="border-border bg-card text-foreground flex h-7 flex-1 items-center truncate rounded border px-2 font-mono text-[11px] select-all">
             {fullMockUrl}
           </span>
           <Button
             type="button"
             size="icon"
             variant="outline"
-            className="h-7 w-7 shrink-0 hover:bg-primary/5"
+            className="hover:bg-primary/5 h-7 w-7 shrink-0"
             onClick={async () => {
               try {
                 await navigator.clipboard.writeText(fullMockUrl);
@@ -189,54 +213,59 @@ function EditBarInner({
         </div>
 
         {/* Collapsible Default RESTful Query Endpoints */}
-        <details className="group mt-1 border-t border-border/50 pt-1.5 text-xs">
-          <summary className="flex cursor-pointer list-none items-center justify-between text-[9px] font-bold uppercase tracking-wider text-muted-foreground select-none transition-colors hover:text-foreground">
+        <details className="group border-border/50 mt-1 border-t pt-1.5 text-xs">
+          <summary className="text-muted-foreground hover:text-foreground flex cursor-pointer list-none items-center justify-between text-[9px] font-bold tracking-wider uppercase transition-colors select-none">
             <span>Query & Pagination Endpoints</span>
-            <ChevronDown className="h-3.5 w-3.5 transition-transform group-open:rotate-180 shrink-0 text-muted-foreground" />
+            <ChevronDown className="text-muted-foreground h-3.5 w-3.5 shrink-0 transition-transform group-open:rotate-180" />
           </summary>
-          <div className="mt-1.5 max-h-27.5 space-y-1 overflow-y-auto pb-1 pr-1 pt-0.5">
+          <div className="mt-1.5 max-h-27.5 space-y-1 overflow-y-auto pt-0.5 pr-1 pb-1">
             {[
               {
                 label: "Limit Items (limit)",
                 suffix: "?limit=5",
-                desc: "Limits the generated array payload to exactly N items."
+                desc: "Limits the generated array payload to exactly N items.",
               },
               {
                 label: "Limit Items (count)",
                 suffix: "?count=10",
-                desc: "Alternative parameter to specify the limit."
+                desc: "Alternative parameter to specify the limit.",
               },
               {
                 label: "Pagination",
                 suffix: "?page=2&limit=5",
-                desc: "Retrieves a paginated chunk of mock database items."
+                desc: "Retrieves a paginated chunk of mock database items.",
               },
               {
                 label: "Global Search",
                 suffix: "?q=search_term",
-                desc: "Searches all fields for matches containing the query."
+                desc: "Searches all fields for matches containing the query.",
               },
               {
                 label: "Sorting",
                 suffix: "?sort=createdAt&order=desc",
-                desc: "Sorts records by a specific field in asc/desc order."
+                desc: "Sorts records by a specific field in asc/desc order.",
               },
               {
                 label: "Field Filter",
                 suffix: "?id=uuid-here",
-                desc: "Filters generated array by field exact matches."
-              }
+                desc: "Filters generated array by field exact matches.",
+              },
             ].map((opt, oIdx) => {
               const optUrl = `${fullMockUrl}${opt.suffix}`;
               return (
-                <div key={oIdx} className="flex flex-col gap-0.5 rounded border border-border/30 bg-muted/20 p-1.5">
+                <div
+                  key={oIdx}
+                  className="border-border/30 bg-muted/20 flex flex-col gap-0.5 rounded border p-1.5"
+                >
                   <div className="flex items-center justify-between gap-2">
-                    <span className="font-semibold text-[11px] text-foreground">{opt.label}</span>
+                    <span className="text-foreground text-[11px] font-semibold">
+                      {opt.label}
+                    </span>
                     <Button
                       type="button"
                       size="icon"
                       variant="ghost"
-                      className="h-5 w-5 shrink-0 text-muted-foreground hover:bg-primary/5 hover:text-foreground"
+                      className="text-muted-foreground hover:bg-primary/5 hover:text-foreground h-5 w-5 shrink-0"
                       title={`Copy URL for ${opt.label}`}
                       onClick={async () => {
                         try {
@@ -250,10 +279,10 @@ function EditBarInner({
                       <Copy className="h-3 w-3" />
                     </Button>
                   </div>
-                  <span className="truncate rounded border border-border bg-card px-1.5 py-0.5 text-[9px] text-muted-foreground select-all font-mono">
+                  <span className="border-border bg-card text-muted-foreground truncate rounded border px-1.5 py-0.5 font-mono text-[9px] select-all">
                     {optUrl}
                   </span>
-                  <span className="text-[10px] text-muted-foreground/80 leading-normal">
+                  <span className="text-muted-foreground/80 text-[10px] leading-normal">
                     {opt.desc}
                   </span>
                 </div>
@@ -263,12 +292,35 @@ function EditBarInner({
         </details>
       </div>
 
-      <Tabs defaultValue="schema" className="mt-2.5 flex min-h-0 min-w-0 flex-1 flex-col">
-        <TabsList className="grid h-8 shrink-0 grid-cols-4 bg-muted">
-          <TabsTrigger value="schema" className="px-1.5 text-[11px] font-semibold">Schema</TabsTrigger>
-          <TabsTrigger value="behavior" className="px-1.5 text-[11px] font-semibold">Chaos</TabsTrigger>
-          <TabsTrigger value="headers" className="px-1.5 text-[11px] font-semibold">Headers</TabsTrigger>
-          <TabsTrigger value="preview" className="px-1.5 text-[11px] font-semibold">Preview</TabsTrigger>
+      <Tabs
+        defaultValue="schema"
+        className="mt-2.5 flex min-h-0 min-w-0 flex-1 flex-col"
+      >
+        <TabsList className="bg-muted grid h-8 shrink-0 grid-cols-4">
+          <TabsTrigger
+            value="schema"
+            className="px-1.5 text-[11px] font-semibold"
+          >
+            Schema
+          </TabsTrigger>
+          <TabsTrigger
+            value="behavior"
+            className="px-1.5 text-[11px] font-semibold"
+          >
+            Chaos
+          </TabsTrigger>
+          <TabsTrigger
+            value="headers"
+            className="px-1.5 text-[11px] font-semibold"
+          >
+            Headers
+          </TabsTrigger>
+          <TabsTrigger
+            value="preview"
+            className="px-1.5 text-[11px] font-semibold"
+          >
+            Preview
+          </TabsTrigger>
         </TabsList>
 
         <div className="min-h-0 min-w-0 flex-1 overflow-auto py-2">
@@ -295,18 +347,27 @@ function EditBarInner({
           </TabsContent>
 
           {/* JSON Schema Live Preview & TS Export Tab */}
-          <TabsContent value="preview" className="m-0 flex h-full flex-col space-y-2">
-            <div className="flex shrink-0 items-center justify-between border-b border-border pb-1.5">
-              <span className="flex items-center gap-1 text-xs font-semibold text-muted-foreground">
+          <TabsContent
+            value="preview"
+            className="m-0 flex h-full flex-col space-y-2"
+          >
+            <div className="border-border flex shrink-0 items-center justify-between border-b pb-1.5">
+              <span className="text-muted-foreground flex items-center gap-1 text-xs font-semibold">
                 <FileJson className="h-4 w-4" />
                 <span>JSON Schema Preview</span>
               </span>
-              <Button type="button" size="xs" variant="outline" onClick={() => setTsOpen(true)} className="h-7 text-[10px] px-2.5 font-bold gap-1">
+              <Button
+                type="button"
+                size="xs"
+                variant="outline"
+                onClick={() => setTsOpen(true)}
+                className="h-7 gap-1 px-2.5 text-[10px] font-bold"
+              >
                 <Code className="h-3.5 w-3.5" />
                 <span>Generate types</span>
               </Button>
             </div>
-            <div className="min-h-0 flex-1 overflow-auto rounded-md border bg-muted p-2 font-mono text-[10px]">
+            <div className="bg-muted min-h-0 flex-1 overflow-auto rounded-md border p-2 font-mono text-[10px]">
               <pre>{schemaPreview}</pre>
             </div>
           </TabsContent>
@@ -314,24 +375,53 @@ function EditBarInner({
       </Tabs>
 
       {/* Save panel footer triggers */}
-      <div className="mt-auto flex shrink-0 items-center justify-between border-t border-border bg-card pt-2.5">
-        <Button variant="destructive" size="sm" onClick={handleDelete} disabled={loading} className="gap-1 text-xs font-semibold h-8">
-          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+      <div className="border-border bg-card mt-auto flex shrink-0 items-center justify-between border-t pt-2.5">
+        <Button
+          variant="destructive"
+          size="sm"
+          onClick={handleDelete}
+          disabled={loading}
+          className="h-8 gap-1 text-xs font-semibold"
+        >
+          {loading ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Trash2 className="h-4 w-4" />
+          )}
           <span>Delete</span>
         </Button>
 
         <div className="flex gap-1.5">
-          <Button variant="outline" size="sm" onClick={() => onOpenChange(false)} disabled={loading} className="text-xs font-semibold h-8">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onOpenChange(false)}
+            disabled={loading}
+            className="h-8 text-xs font-semibold"
+          >
             Cancel
           </Button>
-          <Button size="sm" onClick={handleSave} disabled={loading} className="gap-1 text-xs font-semibold h-8">
-            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+          <Button
+            size="sm"
+            onClick={handleSave}
+            disabled={loading}
+            className="h-8 gap-1 text-xs font-semibold"
+          >
+            {loading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Save className="h-4 w-4" />
+            )}
             <span>Save</span>
           </Button>
         </div>
       </div>
 
-      <TypeScriptPreview routeId={route.id} open={tsOpen} onOpenChange={setTsOpen} />
+      <TypeScriptPreview
+        routeId={route.id}
+        open={tsOpen}
+        onOpenChange={setTsOpen}
+      />
     </div>
   );
 }

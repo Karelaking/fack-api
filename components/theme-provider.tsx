@@ -23,7 +23,9 @@ interface ThemeProviderProps {
 const ThemeContext = React.createContext<ThemeContextValue | null>(null);
 
 function getSystemTheme(): ResolvedTheme {
-  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  return window.matchMedia("(prefers-color-scheme: dark)").matches
+    ? "dark"
+    : "light";
 }
 
 function applyThemeClass(theme: ResolvedTheme) {
@@ -89,10 +91,12 @@ export function ThemeProvider({
       resolvedTheme,
       setTheme: setThemeState,
     }),
-    [resolvedTheme, theme]
+    [resolvedTheme, theme],
   );
 
-  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
+  return (
+    <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
+  );
 }
 
 export function useTheme() {

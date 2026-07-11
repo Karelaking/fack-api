@@ -51,15 +51,15 @@ interface FlowCanvasInnerProps {
  */
 function FlowCanvasInner({
   projectId,
-  projectSlug,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  projectSlug: _projectSlug,
   endpoints,
   routes,
   initialState,
   onSelectRoute,
-}: FlowCanvasInnerProps) {
+}: FlowCanvasInnerProps): React.JSX.Element {
   const reactFlowInstance = useReactFlow();
   const router = useRouter();
-  const [isSaving, setIsSaving] = React.useState(false);
   const [dialogOpen, setDialogOpen] = React.useState(false);
 
   // Listen for global open-add-route event and query params
@@ -68,14 +68,19 @@ function FlowCanvasInner({
     window.addEventListener("open-add-route-dialog", handleOpen);
 
     // Check if newRoute query parameter is present to open the dialog
-    if (typeof window !== "undefined" && window.location.search.includes("newRoute=true")) {
+    if (
+      typeof window !== "undefined" &&
+      window.location.search.includes("newRoute=true")
+    ) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setDialogOpen(true);
       const url = new URL(window.location.href);
       url.searchParams.delete("newRoute");
       window.history.replaceState({}, "", url.pathname + url.search);
     }
 
-    return () => window.removeEventListener("open-add-route-dialog", handleOpen);
+    return () =>
+      window.removeEventListener("open-add-route-dialog", handleOpen);
   }, []);
 
   // Parse initial coordinates and reconcile with database reality
@@ -108,7 +113,11 @@ function FlowCanvasInner({
         reconciledNodes.push({
           ...savedGroupNode,
           data: { label: ep.name, basePath: ep.basePath },
-          style: { ...savedGroupNode.style, width: groupWidth, height: groupHeight },
+          style: {
+            ...savedGroupNode.style,
+            width: groupWidth,
+            height: groupHeight,
+          },
         });
       } else {
         // Position new groups horizontally offset
@@ -159,7 +168,7 @@ function FlowCanvasInner({
       } else {
         // Offset vertically within parent group container based on existing children
         const siblingRoutesCount = reconciledNodes.filter(
-          (n) => n.parentId === groupId && n.type === "routeNode"
+          (n) => n.parentId === groupId && n.type === "routeNode",
         ).length;
 
         reconciledNodes.push({
@@ -188,11 +197,14 @@ function FlowCanvasInner({
         console.error("Failed to parse canvas edges:", e);
       }
     }
-    
+
     // Discard stale edges connecting deleted routes and style active ones
     const activeRouteIds = new Set(routes.map((r) => r.id));
     return savedEdges
-      .filter((edge) => activeRouteIds.has(edge.source) && activeRouteIds.has(edge.target))
+      .filter(
+        (edge) =>
+          activeRouteIds.has(edge.source) && activeRouteIds.has(edge.target),
+      )
       .map((edge) => ({
         ...edge,
         animated: true,
@@ -213,7 +225,7 @@ function FlowCanvasInner({
       endpoints.forEach((ep, epIdx) => {
         const groupId = `group-${ep.id}`;
         const existingGroupNode = prevNodes.find((n) => n.id === groupId);
-        
+
         const groupWidth = 300;
         const groupHeight = 110 + ep.routes.length * 96;
 
@@ -221,7 +233,11 @@ function FlowCanvasInner({
           reconciled.push({
             ...existingGroupNode,
             data: { label: ep.name, basePath: ep.basePath },
-            style: { ...existingGroupNode.style, width: groupWidth, height: groupHeight },
+            style: {
+              ...existingGroupNode.style,
+              width: groupWidth,
+              height: groupHeight,
+            },
           });
         } else {
           // Horizontal layout offset for new groups
@@ -274,7 +290,7 @@ function FlowCanvasInner({
         } else {
           // Place newly added route at the correct vertical offset
           const siblingCount = reconciled.filter(
-            (n) => n.parentId === groupId && n.type === "routeNode"
+            (n) => n.parentId === groupId && n.type === "routeNode",
           ).length;
 
           reconciled.push({
@@ -299,16 +315,19 @@ function FlowCanvasInner({
           {
             ...params,
             animated: true,
-            style: { stroke: "#6366f1", strokeWidth: 2.5, strokeDasharray: "6 4" },
+            style: {
+              stroke: "#6366f1",
+              strokeWidth: 2.5,
+              strokeDasharray: "6 4",
+            },
           },
-          eds
-        )
+          eds,
+        ),
       ),
-    [setEdges]
+    [setEdges],
   );
 
   const handleSave = React.useCallback(async () => {
-    setIsSaving(true);
     window.dispatchEvent(new CustomEvent("canvas-save-start"));
     try {
       const flow = reactFlowInstance.toObject();
@@ -323,7 +342,6 @@ function FlowCanvasInner({
       toast.error("Failed to save canvas coordinates");
       console.error(err);
     } finally {
-      setIsSaving(false);
       window.dispatchEvent(new CustomEvent("canvas-save-end"));
     }
   }, [reactFlowInstance, projectId]);
@@ -348,7 +366,7 @@ function FlowCanvasInner({
     };
   }, [reactFlowInstance, handleSave]);
 
-  const handleRouteAdded = (newRoute: Route) => {
+  const handleRouteAdded = () => {
     router.refresh();
     toast.success("Node added to canvas viewport");
   };
@@ -359,11 +377,11 @@ function FlowCanvasInner({
         onSelectRoute(node.id);
       }
     },
-    [onSelectRoute]
+    [onSelectRoute],
   );
 
   return (
-    <div className="w-full h-full relative bg-card overflow-hidden">
+    <div className="bg-card relative h-full w-full overflow-hidden">
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -376,9 +394,14 @@ function FlowCanvasInner({
         colorMode="system"
         deleteKeyCode={null}
       >
-        <Background variant={BackgroundVariant.Lines} gap={16} size={1} className="opacity-60" />
-        <Controls className="!bg-card !border-border" />
-        <MiniMap zoomable pannable className="!bg-card !border-border" />
+        <Background
+          variant={BackgroundVariant.Lines}
+          gap={16}
+          size={1}
+          className="opacity-60"
+        />
+        <Controls className="bg-card! border-border!" />
+        <MiniMap zoomable pannable className="bg-card! border-border!" />
       </ReactFlow>
 
       <AddRouteDialog

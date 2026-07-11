@@ -30,12 +30,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import Image from "next/image";
 
 interface DashboardSidebarProps {
   initialProjects: Project[];
 }
 
-export function DashboardSidebar({ initialProjects }: DashboardSidebarProps) {
+export function DashboardSidebar({
+  initialProjects,
+}: DashboardSidebarProps): React.JSX.Element {
   const router = useRouter();
   const pathname = usePathname();
   const [projects, setProjects] = React.useState<Project[]>(initialProjects);
@@ -47,6 +50,7 @@ export function DashboardSidebar({ initialProjects }: DashboardSidebarProps) {
 
   // Sync projects list when server list updates
   React.useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setProjects(initialProjects);
   }, [initialProjects]);
 
@@ -54,7 +58,8 @@ export function DashboardSidebar({ initialProjects }: DashboardSidebarProps) {
   React.useEffect(() => {
     const handleOpen = () => setDialogOpen(true);
     window.addEventListener("open-new-project-dialog", handleOpen);
-    return () => window.removeEventListener("open-new-project-dialog", handleOpen);
+    return () =>
+      window.removeEventListener("open-new-project-dialog", handleOpen);
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -89,22 +94,29 @@ export function DashboardSidebar({ initialProjects }: DashboardSidebarProps) {
 
   return (
     <>
-      <Sidebar className="border-r border-border bg-card">
+      <Sidebar className="border-border bg-card border-r">
         <SidebarHeader className="flex flex-row items-center justify-between px-4 py-3">
-          <Link href="/" className="flex items-center gap-2.5 font-bold text-lg tracking-tight">
-            <img src="/logo.png" alt="Fack API's Logo" className="h-6 w-6 rounded-md object-cover" />
+          <Link
+            href="/"
+            className="flex items-center gap-2.5 text-lg font-bold tracking-tight"
+          >
+            <Image
+              src="/logo.png"
+              alt="Fack API's Logo"
+              className="h-6 w-6 rounded-md object-cover"
+            />
             <span>Fack API&apos;s</span>
           </Link>
         </SidebarHeader>
 
         <SidebarContent className="px-2">
           <SidebarGroup>
-            <SidebarGroupLabel className="px-2 text-[10px] font-semibold text-muted-foreground uppercase tracking-wider flex items-center justify-between">
+            <SidebarGroupLabel className="text-muted-foreground flex items-center justify-between px-2 text-[10px] font-semibold tracking-wider uppercase">
               <span>Workspaces</span>
               <Button
                 size="icon"
                 variant="ghost"
-                className="h-5 w-5 text-muted-foreground hover:text-foreground"
+                className="text-muted-foreground hover:text-foreground h-5 w-5"
                 title="Create Workspace"
                 onClick={() => setDialogOpen(true)}
               >
@@ -118,7 +130,7 @@ export function DashboardSidebar({ initialProjects }: DashboardSidebarProps) {
                     isActive={pathname === "/dashboard"}
                     render={<Link href="/dashboard" />}
                   >
-                    <FolderKanban className="h-4 w-4 text-muted-foreground" />
+                    <FolderKanban className="text-muted-foreground h-4 w-4" />
                     <span>All Projects</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -127,23 +139,27 @@ export function DashboardSidebar({ initialProjects }: DashboardSidebarProps) {
           </SidebarGroup>
 
           <SidebarGroup className="mt-3">
-            <SidebarGroupLabel className="px-2 text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+            <SidebarGroupLabel className="text-muted-foreground px-2 text-[10px] font-semibold tracking-wider uppercase">
               Active Projects
             </SidebarGroupLabel>
             <SidebarGroupContent className="mt-1">
               {projects.length === 0 ? (
-                <div className="px-3 py-2 text-xs text-muted-foreground italic">
+                <div className="text-muted-foreground px-3 py-2 text-xs italic">
                   No projects created yet.
                 </div>
               ) : (
                 <SidebarMenu className="space-y-0.5">
                   {projects.map((proj) => {
-                    const isProjectActive = pathname.startsWith(`/projects/${proj.slug}`);
+                    const isProjectActive = pathname.startsWith(
+                      `/projects/${proj.slug}`,
+                    );
                     return (
                       <SidebarMenuItem key={proj.id}>
                         <SidebarMenuButton
                           isActive={isProjectActive}
-                          render={<Link href={`/projects/${proj.slug}/canvas`} />}
+                          render={
+                            <Link href={`/projects/${proj.slug}/canvas`} />
+                          }
                         >
                           <span className="truncate">{proj.name}</span>
                         </SidebarMenuButton>
@@ -156,15 +172,17 @@ export function DashboardSidebar({ initialProjects }: DashboardSidebarProps) {
           </SidebarGroup>
         </SidebarContent>
 
-        <SidebarFooter className="p-3 border-t border-border flex flex-row items-center justify-between gap-4">
-          <div className="text-xs text-muted-foreground font-mono truncate">v0.1.0 (SQLite)</div>
+        <SidebarFooter className="border-border flex flex-row items-center justify-between gap-4 border-t p-3">
+          <div className="text-muted-foreground truncate font-mono text-xs">
+            v0.1.0 (SQLite)
+          </div>
           <ThemeToggle />
         </SidebarFooter>
       </Sidebar>
 
       {/* New Project Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-106.25">
           <form onSubmit={handleSubmit}>
             <DialogHeader>
               <DialogTitle>New Workspace</DialogTitle>
@@ -174,7 +192,10 @@ export function DashboardSidebar({ initialProjects }: DashboardSidebarProps) {
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <div className="flex flex-col gap-2">
-                <label htmlFor="sidebar-proj-name" className="text-sm font-medium">
+                <label
+                  htmlFor="sidebar-proj-name"
+                  className="text-sm font-medium"
+                >
                   Name
                 </label>
                 <Input
@@ -188,7 +209,10 @@ export function DashboardSidebar({ initialProjects }: DashboardSidebarProps) {
                 />
               </div>
               <div className="flex flex-col gap-2">
-                <label htmlFor="sidebar-proj-slug" className="text-sm font-medium">
+                <label
+                  htmlFor="sidebar-proj-slug"
+                  className="text-sm font-medium"
+                >
                   Namespace Slug
                 </label>
                 <Input
@@ -199,12 +223,17 @@ export function DashboardSidebar({ initialProjects }: DashboardSidebarProps) {
                   maxLength={100}
                   disabled={loading}
                 />
-                <span className="text-[10px] text-muted-foreground">
-                  Determines mock base URL: `/mock/{"{slug || \"slug-derived-from-name\"}"}`. Lowercase with hyphens.
+                <span className="text-muted-foreground text-[10px]">
+                  Determines mock base URL: `/mock/
+                  {'{slug || "slug-derived-from-name"}'}`. Lowercase with
+                  hyphens.
                 </span>
               </div>
               <div className="flex flex-col gap-2">
-                <label htmlFor="sidebar-proj-description" className="text-sm font-medium">
+                <label
+                  htmlFor="sidebar-proj-description"
+                  className="text-sm font-medium"
+                >
                   Description
                 </label>
                 <Input
@@ -218,7 +247,12 @@ export function DashboardSidebar({ initialProjects }: DashboardSidebarProps) {
               </div>
             </div>
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setDialogOpen(false)} disabled={loading}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setDialogOpen(false)}
+                disabled={loading}
+              >
                 Cancel
               </Button>
               <Button type="submit" disabled={loading} className="gap-1.5">

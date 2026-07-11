@@ -146,6 +146,7 @@ export async function generatePayload(
       minItems,
       maxItems,
       extensions: {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         faker: extendedFaker as any,
       },
     });
