@@ -231,6 +231,7 @@ export function RouteNode({
           <Switch
             checked={data.isEnabled}
             onCheckedChange={handleToggle}
+            aria-label="Toggle Route Enabled"
             className="-mr-1.5 scale-[0.7]"
           />
         </div>

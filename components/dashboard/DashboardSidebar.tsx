@@ -103,6 +103,8 @@ export function DashboardSidebar({
             <Image
               src="/logo.png"
               alt="Fack API's Logo"
+              width={24}
+              height={24}
               className="h-6 w-6 rounded-md object-cover"
             />
             <span>Fack API&apos;s</span>
@@ -118,6 +120,7 @@ export function DashboardSidebar({
                 variant="ghost"
                 className="text-muted-foreground hover:text-foreground h-5 w-5"
                 title="Create Workspace"
+                aria-label="Create Workspace"
                 onClick={() => setDialogOpen(true)}
               >
                 <Plus className="h-3.5 w-3.5" />

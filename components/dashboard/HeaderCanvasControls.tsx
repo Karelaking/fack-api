@@ -43,6 +43,7 @@ export function HeaderCanvasControls(): React.JSX.Element | null {
               type="button"
               size="icon"
               variant="ghost"
+              aria-label="Zoom In"
               className="text-muted-foreground hover:text-foreground hidden h-7 w-7 sm:flex"
               onClick={() => triggerAction("canvas-zoom-in")}
             />
@@ -60,6 +61,7 @@ export function HeaderCanvasControls(): React.JSX.Element | null {
               type="button"
               size="icon"
               variant="ghost"
+              aria-label="Zoom Out"
               className="text-muted-foreground hover:text-foreground hidden h-7 w-7 sm:flex"
               onClick={() => triggerAction("canvas-zoom-out")}
             />
@@ -77,6 +79,7 @@ export function HeaderCanvasControls(): React.JSX.Element | null {
               type="button"
               size="icon"
               variant="ghost"
+              aria-label="Fit View"
               className="text-muted-foreground hover:text-foreground hidden h-7 w-7 sm:flex"
               onClick={() => triggerAction("canvas-fit-view")}
             />
