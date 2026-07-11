@@ -1,0 +1,1 @@
+ALTER TABLE `routes` ADD `conditional_rules` text DEFAULT '[]';

@@ -28,6 +28,7 @@
 
 import { generate } from "json-schema-faker";
 import { faker } from "@faker-js/faker";
+import type { NextRequest } from "next/server";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -402,4 +403,64 @@ export function processQueryParameters(
   }
 
   return payload;
+}
+
+export interface ConditionalRule {
+  id: string;
+  type: "query" | "header" | "param";
+  key: string;
+  operator: "equals" | "contains" | "exists";
+  value: string;
+  responseStatus: number;
+  responseBody: string;
+}
+
+export function evaluateRules(
+  conditionalRulesJson: string | null | undefined,
+  request: NextRequest,
+  params: Record<string, string>
+): { status: number; body: unknown } | null {
+  try {
+    const rules: ConditionalRule[] = JSON.parse(conditionalRulesJson || "[]");
+    if (!Array.isArray(rules) || rules.length === 0) return null;
+
+    for (const rule of rules) {
+      let incomingValue: string | null = null;
+
+      if (rule.type === "query") {
+        incomingValue = request.nextUrl.searchParams.get(rule.key);
+      } else if (rule.type === "header") {
+        incomingValue = request.headers.get(rule.key);
+      } else if (rule.type === "param") {
+        incomingValue = params[rule.key] || null;
+      }
+
+      let isMatch = false;
+      if (rule.operator === "exists") {
+        isMatch = incomingValue !== null;
+      } else if (incomingValue !== null) {
+        if (rule.operator === "equals") {
+          isMatch = incomingValue === rule.value;
+        } else if (rule.operator === "contains") {
+          isMatch = incomingValue.includes(rule.value);
+        }
+      }
+
+      if (isMatch) {
+        let parsedBody: unknown = rule.responseBody;
+        try {
+          parsedBody = JSON.parse(rule.responseBody);
+        } catch {
+          // fallback to raw string if it's not valid JSON
+        }
+        return {
+          status: rule.responseStatus || 200,
+          body: parsedBody,
+        };
+      }
+    }
+  } catch (error) {
+    console.error("[fack-api] Failed to evaluate conditional rules:", error);
+  }
+  return null;
 }

@@ -21,8 +21,10 @@ import {
 import { FieldTree } from "./FieldTree";
 import { ChaosConfig } from "./ChaosConfig";
 import { HeadersEditor, type HeaderRow } from "./HeadersEditor";
+import { RulesEditor } from "./RulesEditor";
 import { TypeScriptPreview } from "./TypeScriptPreview";
 import type { Route, Endpoint } from "@/db/schema";
+import type { ConditionalRule } from "@/lib/mock-engine";
 import {
   Sheet,
   SheetContent,
@@ -119,6 +121,15 @@ function EditBarInner({
     }
   });
 
+  // Parse initial rules
+  const [rules, setRules] = React.useState<ConditionalRule[]>(() => {
+    try {
+      return JSON.parse(route.conditionalRules ?? "[]");
+    } catch {
+      return [];
+    }
+  });
+
   const handleSave = async () => {
     setLoading(true);
     try {
@@ -145,6 +156,7 @@ function EditBarInner({
         errorRate,
         responseSchema: JSON.stringify(schemaDoc),
         customHeaders: JSON.stringify(headerObj),
+        conditionalRules: JSON.stringify(rules),
       });
 
       toast.success("Route details saved successfully!");
@@ -296,12 +308,18 @@ function EditBarInner({
         defaultValue="schema"
         className="mt-2.5 flex min-h-0 min-w-0 flex-1 flex-col"
       >
-        <TabsList className="bg-muted grid h-8 shrink-0 grid-cols-4">
+        <TabsList className="bg-muted grid h-8 shrink-0 grid-cols-5">
           <TabsTrigger
             value="schema"
             className="px-1.5 text-[11px] font-semibold"
           >
             Schema
+          </TabsTrigger>
+          <TabsTrigger
+            value="rules"
+            className="px-1.5 text-[11px] font-semibold"
+          >
+            Rules
           </TabsTrigger>
           <TabsTrigger
             value="behavior"
@@ -327,6 +345,11 @@ function EditBarInner({
           {/* Schema Fields Builder Tab */}
           <TabsContent value="schema" className="m-0 h-full">
             <FieldTree />
+          </TabsContent>
+
+          {/* Smart Conditional Rules Tab */}
+          <TabsContent value="rules" className="m-0 h-full">
+            <RulesEditor rules={rules} onRulesChange={setRules} />
           </TabsContent>
 
           {/* Latency & Error Chaos Tab */}

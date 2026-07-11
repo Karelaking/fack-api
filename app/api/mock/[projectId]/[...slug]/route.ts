@@ -26,7 +26,8 @@
 
 import type { NextRequest } from "next/server";
 import { db } from "@/db";
-import { projects, endpoints } from "@/db/schema";
+import { projects, endpoints, type Project } from "@/db/schema";
+import { sqlClient } from "@/db/postgres";
 import { eq } from "drizzle-orm";
 import { findMatchingRoute } from "@/lib/route-matcher";
 import {
@@ -36,6 +37,7 @@ import {
   buildResponse,
   buildErrorResponse,
   processQueryParameters,
+  evaluateRules,
 } from "@/lib/mock-engine";
 
 export const dynamic = "force-dynamic";
@@ -94,12 +96,55 @@ async function handleMockRequest(
   request: NextRequest,
   context: RouteContext<"/api/mock/[projectId]/[...slug]">
 ): Promise<Response> {
+  const startTime = Date.now();
+  let projectEntity: Project | null = null;
+  let matchedPath = "";
+  let matchedMethod = request.method;
+
+  const logRequest = async (statusCode: number, isError: boolean, payload: unknown) => {
+    if (!projectEntity) return;
+    const queryParams = JSON.stringify(Object.fromEntries(request.nextUrl.searchParams));
+    const reqHeaders = JSON.stringify(Object.fromEntries(request.headers));
+    const resPayload = typeof payload === "string" ? payload : JSON.stringify(payload).slice(0, 5000);
+
+    try {
+      if (sqlClient) {
+        await sqlClient`
+          INSERT INTO request_logs (id, project_id, timestamp, method, path, query_params, headers, status_code, latency, is_error, response_payload)
+          VALUES (${crypto.randomUUID()}, ${projectEntity.id}, ${Date.now()}, ${matchedMethod}, ${matchedPath || request.nextUrl.pathname}, ${queryParams}, ${reqHeaders}, ${statusCode}, ${Date.now() - startTime}, ${isError}, ${resPayload})
+        `;
+      } else {
+        const isErrorInt = isError ? 1 : 0;
+        await db.$client.execute({
+          sql: `INSERT INTO request_logs (id, project_id, timestamp, method, path, query_params, headers, status_code, latency, is_error, response_payload)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          args: [
+            crypto.randomUUID(),
+            projectEntity.id,
+            Date.now(),
+            matchedMethod,
+            matchedPath || request.nextUrl.pathname,
+            queryParams,
+            reqHeaders,
+            statusCode,
+            Date.now() - startTime,
+            isErrorInt,
+            resPayload
+          ]
+        });
+      }
+    } catch (e) {
+      console.error("[fack-api] Failed to save request log:", e);
+    }
+  };
+
   try {
     // ── 1. Extract Route Parameters ──────────────────────────────────────
-    // In Next.js 16, params is a Promise that must be awaited
     const { projectId, slug } = await context.params;
     const requestPath = "/" + (slug?.join("/") ?? "");
+    matchedPath = requestPath;
     const method = request.method;
+    matchedMethod = method;
 
     // ── 2. Find the Project ──────────────────────────────────────────────
     const project = await db.query.projects.findFirst({
@@ -116,6 +161,7 @@ async function handleMockRequest(
         404
       );
     }
+    projectEntity = project;
 
     // ── 3. Load All Enabled Routes for This Project ──────────────────────
     const projectEndpoints = await db.query.endpoints.findMany({
@@ -131,7 +177,6 @@ async function handleMockRequest(
         .filter((route) => route.isEnabled)
         .map((route) => ({
           ...route,
-          // Combine endpoint basePath with route path for full matching
           path: normalizePath(`${endpoint.basePath}${route.path}`),
         }))
     );
@@ -140,36 +185,50 @@ async function handleMockRequest(
     const matchResult = findMatchingRoute(allRoutes, method, requestPath);
 
     if (!matchResult) {
-      return buildResponse(
-        {
-          error: true,
-          message: `No ${method} route matches "${requestPath}"`,
-          availableRoutes: allRoutes.map((r) => ({
-            method: r.method,
-            path: r.path,
-          })),
-        },
-        404
-      );
+      const errBody = {
+        error: true,
+        message: `No ${method} route matches "${requestPath}"`,
+        availableRoutes: allRoutes.map((r) => ({
+          method: r.method,
+          path: r.path,
+        })),
+      };
+      const response = buildResponse(errBody, 404);
+      await logRequest(404, true, errBody);
+      return response;
     }
 
     const { route, params } = matchResult;
 
-    // ── 5. Chaos Engineering: Error Simulation ───────────────────────────
-    if (shouldError(route.errorRate ?? 0)) {
-      // Apply latency even to error responses for realism
+    // ── 5. Smart Conditional Rules Check ─────────────────────────────────
+    const ruleMatch = evaluateRules(route.conditionalRules, request, params);
+    if (ruleMatch) {
       await applyLatency(route.latencyMin ?? 0, route.latencyMax ?? 0);
-
-      return buildErrorResponse(
-        500,
-        `Simulated error for ${method} ${requestPath} (error rate: ${route.errorRate}%)`
-      );
+      let customHeaders: Record<string, string> = {};
+      try {
+        customHeaders = JSON.parse(route.customHeaders ?? "{}");
+      } catch {}
+      const response = buildResponse(ruleMatch.body, ruleMatch.status, customHeaders);
+      await logRequest(ruleMatch.status, ruleMatch.status >= 400, ruleMatch.body);
+      return response;
     }
 
-    // ── 6. Apply Simulated Latency ───────────────────────────────────────
+    // ── 6. Chaos Engineering: Error Simulation ───────────────────────────
+    if (shouldError(route.errorRate ?? 0)) {
+      await applyLatency(route.latencyMin ?? 0, route.latencyMax ?? 0);
+      const errBody = {
+        error: true,
+        message: `Simulated error for ${method} ${requestPath} (error rate: ${route.errorRate}%)`,
+      };
+      const response = buildErrorResponse(500, errBody.message);
+      await logRequest(500, true, errBody);
+      return response;
+    }
+
+    // ── 7. Apply Simulated Latency ───────────────────────────────────────
     await applyLatency(route.latencyMin ?? 0, route.latencyMax ?? 0);
 
-    // ── 7. Generate Mock Payload ─────────────────────────────────────────
+    // ── 8. Generate Mock Payload ─────────────────────────────────────────
     let schema: Record<string, unknown> = {};
     try {
       schema = JSON.parse(route.responseSchema ?? "{}");
@@ -195,12 +254,10 @@ async function handleMockRequest(
     if (limitParam) {
       const parsedLimit = parseInt(limitParam, 10);
       if (!isNaN(parsedLimit) && parsedLimit > 0) {
-        // If we are paginating, generate at least (page * limit) items so that slicing works
         limitValue = pageValue > 1 ? pageValue * parsedLimit : parsedLimit;
       }
     }
 
-    // Auto-detect list routes using RESTful conventions (no path params like :id)
     const isListRoute = !route.path.includes(":");
     let shouldWrapAsArray = false;
     if (schema.type === "object") {
@@ -217,11 +274,8 @@ async function handleMockRequest(
       };
     }
 
-    // Inject extracted path parameters into the schema context
-    // This allows generated data to reference URL params
     const rawPayload = await generatePayload({
       ...targetSchema,
-      // Make path params available in the generated data
       ...(Object.keys(params).length > 0 && {
         properties: {
           ...(targetSchema.properties as Record<string, unknown> | undefined),
@@ -229,10 +283,9 @@ async function handleMockRequest(
       }),
     }, limitValue);
 
-    // Apply the query parameters processor (filters, searches, sorts, paginates)
     const payload = processQueryParameters(rawPayload, searchParams);
 
-    // ── 8. Parse Custom Headers ──────────────────────────────────────────
+    // ── 9. Parse Custom Headers ──────────────────────────────────────────
     let customHeaders: Record<string, string> = {};
     try {
       customHeaders = JSON.parse(route.customHeaders ?? "{}");
@@ -240,11 +293,18 @@ async function handleMockRequest(
       console.warn(`[fack-api] Invalid custom headers for route ${route.id}`);
     }
 
-    // ── 9. Build and Return Response ─────────────────────────────────────
-    return buildResponse(payload, route.statusCode, customHeaders);
+    // ── 10. Build and Return Response ────────────────────────────────────
+    const response = buildResponse(payload, route.statusCode, customHeaders);
+    await logRequest(route.statusCode, route.statusCode >= 400, payload);
+    return response;
   } catch (error) {
     console.error("[fack-api] Mock request handler error:", error);
-    return buildErrorResponse(500, "Internal mock server error");
+    const errBody = { error: true, message: "Internal mock server error" };
+    const response = buildErrorResponse(500, errBody.message);
+    if (projectEntity) {
+      await logRequest(500, true, errBody);
+    }
+    return response;
   }
 }
 

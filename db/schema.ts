@@ -64,6 +64,7 @@ export const routes = sqliteTable("routes", {
   latencyMax: integer("latency_max").default(0),
   errorRate: real("error_rate").default(0),
   customHeaders: text("custom_headers").default("{}"),
+  conditionalRules: text("conditional_rules").default("[]"),
   isEnabled: integer("is_enabled", { mode: "boolean" }).notNull().default(true),
   createdAt: integer("created_at", { mode: "timestamp" })
     .notNull()
@@ -108,5 +109,21 @@ export type Route = typeof routes.$inferSelect;
 export type NewRoute = typeof routes.$inferInsert;
 export type CanvasState = typeof canvasStates.$inferSelect;
 export type NewCanvasState = typeof canvasStates.$inferInsert;
+
+export interface RequestLog {
+  id: string;
+  projectId: string;
+  timestamp: number;
+  method: string;
+  path: string;
+  queryParams: string | null;
+  headers: string | null;
+  statusCode: number;
+  latency: number;
+  isError: boolean;
+  responsePayload: string | null;
+}
+
+export type NewRequestLog = Omit<RequestLog, "id"> & { id?: string };
 
 export type HttpMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";

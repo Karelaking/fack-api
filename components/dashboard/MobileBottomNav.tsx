@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { RiGitBranchLine, RiPulseLine, RiSettings2Line } from "@remixicon/react";
+import { RiGitBranchLine, RiPulseLine, RiSettings2Line, RiFileHistoryLine } from "@remixicon/react";
 import type { Route } from "next";
 import { cn } from "@/lib/utils";
 
@@ -27,6 +27,11 @@ export function MobileBottomNav(): React.JSX.Element | null {
       name: "Endpoints",
       href: `/projects/${projectSlug}/endpoints` as Route,
       icon: RiPulseLine,
+    },
+    {
+      name: "Logs",
+      href: `/projects/${projectSlug}/logs` as Route,
+      icon: RiFileHistoryLine,
     },
     {
       name: "Settings",

@@ -98,6 +98,7 @@ export const updateRouteSchema = z.object({
   latencyMax: z.number().int().min(0).max(30000).optional(),
   errorRate: z.number().min(0).max(100).optional(),
   customHeaders: z.string().optional(),
+  conditionalRules: z.string().optional(),
   isEnabled: z.boolean().optional(),
 });
 

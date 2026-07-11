@@ -1,4 +1,22 @@
 services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: fack-postgres
+    environment:
+      - POSTGRES_USER=fack_user
+      - POSTGRES_PASSWORD=fack_password
+      - POSTGRES_DB=fack_logs
+    ports:
+      - "5432:5432"
+    volumes:
+      - fack-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fack_user -d fack_logs"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
   fack-api:
     build:
       context: .
@@ -12,8 +30,14 @@ services:
       - NODE_ENV=production
       - PORT=3000
       - DATABASE_URL=/data/fack.db
+      - LOGS_POSTGRES_URL=postgresql://fack_user:fack_password@postgres:5432/fack_logs
+    depends_on:
+      postgres:
+        condition: service_healthy
     restart: unless-stopped
 
 volumes:
   fack-data:
+    driver: local
+  fack-postgres-data:
     driver: local

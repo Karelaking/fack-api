@@ -30,6 +30,25 @@ function createDatabase() {
     authToken: DATABASE_AUTH_TOKEN,
   });
 
+  // Bootstrap request_logs in SQLite/Turso if it does not exist
+  client.execute(`
+    CREATE TABLE IF NOT EXISTS request_logs (
+      id TEXT PRIMARY KEY,
+      project_id TEXT NOT NULL,
+      timestamp INTEGER NOT NULL,
+      method TEXT NOT NULL,
+      path TEXT NOT NULL,
+      query_params TEXT DEFAULT '{}',
+      headers TEXT DEFAULT '{}',
+      status_code INTEGER NOT NULL,
+      latency INTEGER NOT NULL,
+      is_error INTEGER NOT NULL,
+      response_payload TEXT DEFAULT ''
+    );
+  `).catch((err) => {
+    console.error("[fack-api] Failed to bootstrap SQLite request_logs table:", err);
+  });
+
   return drizzle(client, { schema });
 }
 

@@ -10,6 +10,7 @@ import {
   RiGitBranchLine,
   RiPulseLine,
   RiSettings2Line,
+  RiFileHistoryLine,
 } from "@remixicon/react";
 import { cn } from "@/lib/utils";
 import {
@@ -230,6 +231,11 @@ export function DashboardBreadcrumbs({
                 name: "Endpoints",
                 href: `/projects/${projectSlug}/endpoints`,
                 icon: RiPulseLine,
+              },
+              {
+                name: "Logs",
+                href: `/projects/${projectSlug}/logs`,
+                icon: RiFileHistoryLine,
               },
               {
                 name: "Settings",
