@@ -13,6 +13,9 @@ export const projects = sqliteTable("projects", {
   updatedAt: integer("updated_at", { mode: "timestamp" })
     .notNull()
     .$defaultFn(() => new Date()),
+  isLoggingEnabled: integer("is_logging_enabled", { mode: "boolean" })
+    .notNull()
+    .default(true),
 });
 
 export const projectsRelations = relations(projects, ({ many, one }) => ({

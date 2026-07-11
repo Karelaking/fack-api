@@ -9,6 +9,7 @@ import type { Project } from "@/db/schema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import {
   Card,
   CardHeader,
@@ -50,6 +51,9 @@ export function ProjectSettings({
   const [description, setDescription] = React.useState(
     project.description ?? "",
   );
+  const [isLoggingEnabled, setIsLoggingEnabled] = React.useState(
+    project.isLoggingEnabled,
+  );
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,6 +73,7 @@ export function ProjectSettings({
         name,
         slug,
         description,
+        isLoggingEnabled,
       });
       toast.success("Workspace settings updated!");
       router.refresh();
@@ -157,6 +162,22 @@ export function ProjectSettings({
                 maxLength={500}
                 disabled={loading}
                 className="h-24 resize-none"
+              />
+            </div>
+            <div className="flex items-center justify-between rounded-lg border p-4 bg-muted/10">
+              <div className="space-y-0.5">
+                <label htmlFor="isLoggingEnabled" className="text-sm font-semibold block">
+                  Capture Request History
+                </label>
+                <span className="text-muted-foreground text-xs block leading-normal">
+                  When enabled, incoming mock requests are stored in the database for debugging and latency analytics.
+                </span>
+              </div>
+              <Switch
+                id="isLoggingEnabled"
+                checked={isLoggingEnabled}
+                onCheckedChange={setIsLoggingEnabled}
+                disabled={loading}
               />
             </div>
           </CardContent>

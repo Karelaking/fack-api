@@ -23,7 +23,7 @@ services:
       dockerfile: Dockerfile
     container_name: fack-api
     ports:
-      - "3000:3000"
+      - "3001:3000"
     volumes:
       - fack-data:/data
     environment:

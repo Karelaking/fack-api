@@ -15,6 +15,13 @@
       "when": 1783772328373,
       "tag": "0001_calm_james_howlett",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1783775054943,
+      "tag": "0002_mushy_mad_thinker",
+      "breakpoints": true
     }
   ]
 }

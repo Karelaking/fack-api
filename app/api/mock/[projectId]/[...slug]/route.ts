@@ -100,9 +100,8 @@ async function handleMockRequest(
   let projectEntity: Project | null = null;
   let matchedPath = "";
   let matchedMethod = request.method;
-
   const logRequest = async (statusCode: number, isError: boolean, payload: unknown) => {
-    if (!projectEntity) return;
+    if (!projectEntity || !projectEntity.isLoggingEnabled) return;
     const queryParams = JSON.stringify(Object.fromEntries(request.nextUrl.searchParams));
     const reqHeaders = JSON.stringify(Object.fromEntries(request.headers));
     const resPayload = typeof payload === "string" ? payload : JSON.stringify(payload).slice(0, 5000);

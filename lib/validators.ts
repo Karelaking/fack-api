@@ -46,6 +46,7 @@ export const updateProjectSchema = z.object({
     .string()
     .max(500, "Description must be 500 characters or fewer")
     .optional(),
+  isLoggingEnabled: z.boolean().optional(),
 });
 
 // ─── Endpoint ────────────────────────────────────────────────────────────────

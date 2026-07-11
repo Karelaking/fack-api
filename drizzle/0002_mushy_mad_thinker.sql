@@ -1,0 +1,1 @@
+ALTER TABLE `projects` ADD `is_logging_enabled` integer DEFAULT true NOT NULL;
