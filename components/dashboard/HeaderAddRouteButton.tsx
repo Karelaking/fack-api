@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { Plus } from "lucide-react";
+import { RiAddLine } from "@remixicon/react";
 import { Button } from "@/components/ui/button";
 
 export function HeaderAddRouteButton(): React.JSX.Element | null {
@@ -30,7 +30,7 @@ export function HeaderAddRouteButton(): React.JSX.Element | null {
       className="h-8 shrink-0 gap-1 text-xs font-semibold"
       onClick={handleClick}
     >
-      <Plus className="h-3.5 w-3.5" />
+      <RiAddLine className="h-3.5 w-3.5" />
       <span className="hidden sm:inline">Add Route</span>
     </Button>
   );

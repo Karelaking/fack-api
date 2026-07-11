@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Plus, Trash2 } from "lucide-react";
+import { RiAddLine, RiDeleteBin6Line } from "@remixicon/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -51,7 +51,7 @@ export function HeadersEditor({
           onClick={handleAdd}
           className="h-7 gap-1 text-xs"
         >
-          <Plus className="h-3 w-3" />
+          <RiAddLine className="h-3 w-3" />
           <span>Add Header</span>
         </Button>
       </div>
@@ -84,7 +84,7 @@ export function HeadersEditor({
                 className="text-destructive hover:bg-destructive/10 h-8 w-8 shrink-0"
                 onClick={() => handleRemove(index)}
               >
-                <Trash2 className="h-3.5 w-3.5" />
+                <RiDeleteBin6Line className="h-3.5 w-3.5" />
               </Button>
             </div>
           ))}

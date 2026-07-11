@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Check, ChevronsUpDown } from "lucide-react";
+import { RiCheckLine, RiArrowUpDownLine } from "@remixicon/react";
 import { cn } from "@/lib/utils";
 import { getGroupedProviders, getProviderByValue } from "@/lib/faker-registry";
 import { Button } from "@/components/ui/button";
@@ -59,7 +59,7 @@ export function FakerProviderSelect({
             ? `${selectedProvider.category}: ${selectedProvider.label}`
             : "Select data provider..."}
         </span>
-        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        <RiArrowUpDownLine className="ml-2 h-4 w-4 shrink-0 opacity-50" />
       </PopoverTrigger>
       <PopoverContent className="w-75 p-0" align="start">
         <Command>
@@ -95,7 +95,7 @@ export function FakerProviderSelect({
                         Example: {provider.example}
                       </span>
                     </div>
-                    <Check
+                    <RiCheckLine
                       className={cn(
                         "text-primary h-4 w-4 shrink-0",
                         value === provider.value ? "opacity-100" : "opacity-0",

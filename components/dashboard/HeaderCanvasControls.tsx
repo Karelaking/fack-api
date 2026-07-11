@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { usePathname } from "next/navigation";
-import { ZoomIn, ZoomOut, Maximize2, Save, Loader2 } from "lucide-react";
+import { RiZoomInLine, RiZoomOutLine, RiFullscreenLine, RiSaveLine, RiLoader2Line } from "@remixicon/react";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -49,7 +49,7 @@ export function HeaderCanvasControls(): React.JSX.Element | null {
             />
           }
         >
-          <ZoomIn className="h-4 w-4" />
+          <RiZoomInLine className="h-4 w-4" />
         </TooltipTrigger>
         <TooltipContent side="bottom">Zoom In</TooltipContent>
       </Tooltip>
@@ -67,7 +67,7 @@ export function HeaderCanvasControls(): React.JSX.Element | null {
             />
           }
         >
-          <ZoomOut className="h-4 w-4" />
+          <RiZoomOutLine className="h-4 w-4" />
         </TooltipTrigger>
         <TooltipContent side="bottom">Zoom Out</TooltipContent>
       </Tooltip>
@@ -85,7 +85,7 @@ export function HeaderCanvasControls(): React.JSX.Element | null {
             />
           }
         >
-          <Maximize2 className="h-4 w-4" />
+          <RiFullscreenLine className="h-4 w-4" />
         </TooltipTrigger>
         <TooltipContent side="bottom">Fit View</TooltipContent>
       </Tooltip>
@@ -104,9 +104,9 @@ export function HeaderCanvasControls(): React.JSX.Element | null {
           }
         >
           {isSaving ? (
-            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            <RiLoader2Line className="h-3.5 w-3.5 animate-spin" />
           ) : (
-            <Save className="h-3.5 w-3.5" />
+            <RiSaveLine className="h-3.5 w-3.5" />
           )}
           <span className="hidden md:inline">
             {isSaving ? "Saving..." : "Save Layout"}

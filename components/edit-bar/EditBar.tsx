@@ -2,15 +2,15 @@
 
 import * as React from "react";
 import {
-  Settings2,
-  Code,
-  Save,
-  Loader2,
-  FileJson,
-  Copy,
-  Trash2,
-  ChevronDown,
-} from "lucide-react";
+  RiSettings2Line,
+  RiCodeLine,
+  RiSaveLine,
+  RiLoader2Line,
+  RiFileCodeLine,
+  RiFileCopyLine,
+  RiDeleteBin6Line,
+  RiArrowDownSLine,
+} from "@remixicon/react";
 import { toast } from "sonner";
 import { updateRoute, deleteRoute } from "@/lib/actions/routes";
 import { SchemaStoreProvider, useSchemaStore } from "@/stores/store-provider";
@@ -176,7 +176,7 @@ function EditBarInner({
     <div className="flex h-full flex-col overflow-hidden">
       <SheetHeader className="border-border shrink-0 border-b pb-1.5">
         <SheetTitle className="flex items-center gap-1.5 text-base">
-          <Settings2 className="text-primary h-4 w-4" />
+          <RiSettings2Line className="text-primary h-4 w-4" />
           <span>Edit Route Config</span>
         </SheetTitle>
         <SheetDescription className="text-[11px]">
@@ -208,7 +208,7 @@ function EditBarInner({
               }
             }}
           >
-            <Copy className="h-4 w-4" />
+            <RiFileCopyLine className="h-4 w-4" />
           </Button>
         </div>
 
@@ -216,7 +216,7 @@ function EditBarInner({
         <details className="group border-border/50 mt-1 border-t pt-1.5 text-xs">
           <summary className="text-muted-foreground hover:text-foreground flex cursor-pointer list-none items-center justify-between text-[9px] font-bold tracking-wider uppercase transition-colors select-none">
             <span>Query & Pagination Endpoints</span>
-            <ChevronDown className="text-muted-foreground h-3.5 w-3.5 shrink-0 transition-transform group-open:rotate-180" />
+            <RiArrowDownSLine className="text-muted-foreground h-3.5 w-3.5 shrink-0 transition-transform group-open:rotate-180" />
           </summary>
           <div className="mt-1.5 max-h-27.5 space-y-1 overflow-y-auto pt-0.5 pr-1 pb-1">
             {[
@@ -276,7 +276,7 @@ function EditBarInner({
                         }
                       }}
                     >
-                      <Copy className="h-3 w-3" />
+                      <RiFileCopyLine className="h-3 w-3" />
                     </Button>
                   </div>
                   <span className="border-border bg-card text-muted-foreground truncate rounded border px-1.5 py-0.5 font-mono text-[9px] select-all">
@@ -353,7 +353,7 @@ function EditBarInner({
           >
             <div className="border-border flex shrink-0 items-center justify-between border-b pb-1.5">
               <span className="text-muted-foreground flex items-center gap-1 text-xs font-semibold">
-                <FileJson className="h-4 w-4" />
+                <RiFileCodeLine className="h-4 w-4" />
                 <span>JSON Schema Preview</span>
               </span>
               <Button
@@ -363,7 +363,7 @@ function EditBarInner({
                 onClick={() => setTsOpen(true)}
                 className="h-7 gap-1 px-2.5 text-[10px] font-bold"
               >
-                <Code className="h-3.5 w-3.5" />
+                <RiCodeLine className="h-3.5 w-3.5" />
                 <span>Generate types</span>
               </Button>
             </div>
@@ -384,9 +384,9 @@ function EditBarInner({
           className="h-8 gap-1 text-xs font-semibold"
         >
           {loading ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
+            <RiLoader2Line className="h-4 w-4 animate-spin" />
           ) : (
-            <Trash2 className="h-4 w-4" />
+            <RiDeleteBin6Line className="h-4 w-4" />
           )}
           <span>Delete</span>
         </Button>
@@ -408,9 +408,9 @@ function EditBarInner({
             className="h-8 gap-1 text-xs font-semibold"
           >
             {loading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <RiLoader2Line className="h-4 w-4 animate-spin" />
             ) : (
-              <Save className="h-4 w-4" />
+              <RiSaveLine className="h-4 w-4" />
             )}
             <span>Save</span>
           </Button>

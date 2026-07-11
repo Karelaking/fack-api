@@ -25,7 +25,7 @@ import { RouteNode } from "./RouteNode";
 import { EndpointGroupNode } from "./EndpointGroupNode";
 import { AddRouteDialog } from "./AddRouteDialog";
 import type { Endpoint, Route } from "@/db/schema";
-import { Loader2 } from "lucide-react";
+import { RiLoader2Line } from "@remixicon/react";
 
 // Custom Node Types registered on React Flow canvas
 const nodeTypes = {
@@ -422,13 +422,14 @@ export function FlowCanvas(props: FlowCanvasInnerProps) {
   const [mounted, setMounted] = React.useState(false);
 
   React.useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
   }, []);
 
   if (!mounted) {
     return (
       <div className="bg-card relative flex h-full w-full items-center justify-center">
-        <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
+        <RiLoader2Line className="text-muted-foreground h-8 w-8 animate-spin" />
       </div>
     );
   }

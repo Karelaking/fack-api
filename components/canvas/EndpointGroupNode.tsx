@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { NodeResizer } from "@xyflow/react";
-import { FolderOpen } from "lucide-react";
+import { RiFolderOpenLine } from "@remixicon/react";
 import { cn } from "@/lib/utils";
 
 interface EndpointGroupNodeProps {
@@ -46,7 +46,7 @@ export function EndpointGroupNode({
         className="text-muted-foreground border-border/40 mb-4 flex shrink-0 items-center gap-2 border-b pb-2"
         style={{ contentVisibility: "auto" }}
       >
-        <FolderOpen className="text-primary h-4 w-4 shrink-0 animate-pulse" />
+        <RiFolderOpenLine className="text-primary h-4 w-4 shrink-0 animate-pulse" />
         <div className="flex min-w-0 flex-col">
           <span className="text-foreground truncate text-[10px] font-extrabold tracking-wider uppercase">
             {data.label}

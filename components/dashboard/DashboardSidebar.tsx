@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { FolderKanban, Plus, Loader2 } from "lucide-react";
+import { RiFolderSharedLine, RiAddLine, RiLoader2Line } from "@remixicon/react";
 import { toast } from "sonner";
 import { createProject } from "@/lib/actions/projects";
 import type { Project } from "@/db/schema";
@@ -123,7 +123,7 @@ export function DashboardSidebar({
                 aria-label="Create Workspace"
                 onClick={() => setDialogOpen(true)}
               >
-                <Plus className="h-3.5 w-3.5" />
+                <RiAddLine className="h-3.5 w-3.5" />
               </Button>
             </SidebarGroupLabel>
             <SidebarGroupContent className="mt-1">
@@ -133,7 +133,7 @@ export function DashboardSidebar({
                     isActive={pathname === "/dashboard"}
                     render={<Link href="/dashboard" />}
                   >
-                    <FolderKanban className="text-muted-foreground h-4 w-4" />
+                    <RiFolderSharedLine className="text-muted-foreground h-4 w-4" />
                     <span>All Projects</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -259,7 +259,7 @@ export function DashboardSidebar({
                 Cancel
               </Button>
               <Button type="submit" disabled={loading} className="gap-1.5">
-                {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+                {loading && <RiLoader2Line className="h-4 w-4 animate-spin" />}
                 <span>Create Workspace</span>
               </Button>
             </DialogFooter>

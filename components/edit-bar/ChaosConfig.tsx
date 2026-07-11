@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Clock, AlertTriangle } from "lucide-react";
+import { RiTimeLine, RiAlertLine } from "@remixicon/react";
 import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
 
@@ -57,13 +57,13 @@ export function ChaosConfig({
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
-            <Clock className="h-3.5 w-3.5 text-amber-500" />
+            <RiTimeLine className="h-3.5 w-3.5 text-amber-500" />
             <h3 className="text-xs font-semibold">Simulated Latency</h3>
           </div>
           <span className="bg-muted border-border rounded border px-1.5 py-0.5 font-mono text-[11px] font-medium">
             {latencyMin === latencyMax
-              ? `${latencyMin} ms`
-              : `${latencyMin} - ${latencyMax} ms`}
+               ? `${latencyMin} ms`
+               : `${latencyMin} - ${latencyMax} ms`}
           </span>
         </div>
 
@@ -106,7 +106,7 @@ export function ChaosConfig({
       <div className="border-border space-y-3 border-t pt-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
-            <AlertTriangle className="text-destructive h-3.5 w-3.5" />
+            <RiAlertLine className="text-destructive h-3.5 w-3.5" />
             <h3 className="text-xs font-semibold">Probabilistic Failures</h3>
           </div>
           <span className="bg-muted border-border rounded border px-1.5 py-0.5 font-mono text-[11px] font-medium">

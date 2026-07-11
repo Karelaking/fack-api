@@ -3,15 +3,15 @@
 import * as React from "react";
 import { Handle, Position } from "@xyflow/react";
 import {
-  AlertOctagon,
-  Clock,
-  Activity,
-  CheckCircle,
-  ShieldAlert,
-  Zap,
-  Code,
-  SlidersHorizontal,
-} from "lucide-react";
+  RiAlertLine,
+  RiTimeLine,
+  RiPulseLine,
+  RiCheckboxCircleLine,
+  RiShieldCrossLine,
+  RiFlashlightLine,
+  RiCodeLine,
+  RiEqualizerLine,
+} from "@remixicon/react";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
@@ -117,24 +117,24 @@ export function RouteNode({
   // Status code colors and icons
   let statusBadgeClass =
     "bg-slate-100 text-slate-700 dark:bg-slate-900 dark:text-slate-300";
-  let StatusIcon = Activity;
+  let StatusIcon = RiPulseLine;
 
   if (data.statusCode >= 200 && data.statusCode < 300) {
     statusBadgeClass =
       "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/10";
-    StatusIcon = CheckCircle;
+    StatusIcon = RiCheckboxCircleLine;
   } else if (data.statusCode >= 300 && data.statusCode < 400) {
     statusBadgeClass =
       "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/10";
-    StatusIcon = Zap;
+    StatusIcon = RiFlashlightLine;
   } else if (data.statusCode >= 400 && data.statusCode < 500) {
     statusBadgeClass =
       "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/10";
-    StatusIcon = AlertOctagon;
+    StatusIcon = RiAlertLine;
   } else if (data.statusCode >= 500) {
     statusBadgeClass =
       "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/10 animate-pulse";
-    StatusIcon = ShieldAlert;
+    StatusIcon = RiShieldCrossLine;
   }
 
   // Calculate configuration counts for Schema and Custom Headers
@@ -248,13 +248,13 @@ export function RouteNode({
           <div className="flex flex-wrap gap-1">
             {schemaKeysCount > 0 && (
               <span className="bg-primary/10 text-primary border-primary/10 py-0.2 inline-flex items-center gap-0.5 rounded border px-1 text-[8px] font-semibold">
-                <Code className="h-2.5 w-2.5 shrink-0" />
+                <RiCodeLine className="h-2.5 w-2.5 shrink-0" />
                 <span>JSON ({schemaKeysCount})</span>
               </span>
             )}
             {headersKeysCount > 0 && (
               <span className="py-0.2 inline-flex items-center gap-0.5 rounded border border-violet-500/10 bg-violet-500/10 px-1 text-[8px] font-semibold text-violet-600 dark:text-violet-400">
-                <SlidersHorizontal className="h-2.5 w-2.5 shrink-0" />
+                <RiEqualizerLine className="h-2.5 w-2.5 shrink-0" />
                 <span>Headers ({headersKeysCount})</span>
               </span>
             )}
@@ -267,7 +267,7 @@ export function RouteNode({
         <div className="bg-muted/40 border-border/50 text-muted-foreground flex items-center gap-2.5 rounded-b-lg border-t px-2.5 py-1 text-[9px] font-semibold">
           {hasLatency && (
             <div className="flex items-center gap-0.5">
-              <Clock className="h-3 w-3 shrink-0 text-amber-500" />
+              <RiTimeLine className="h-3 w-3 shrink-0 text-amber-500" />
               <span>
                 {data.latencyMin === data.latencyMax
                   ? `${data.latencyMin}ms`
@@ -277,7 +277,7 @@ export function RouteNode({
           )}
           {hasErrors && (
             <div className="flex items-center gap-0.5">
-              <AlertOctagon className="h-3 w-3 shrink-0 animate-bounce text-rose-500" />
+              <RiAlertLine className="h-3 w-3 shrink-0 animate-bounce text-rose-500" />
               <span>{data.errorRate}% Err</span>
             </div>
           )}

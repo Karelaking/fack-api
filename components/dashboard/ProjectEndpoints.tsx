@@ -4,13 +4,13 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import {
-  Activity,
-  Plus,
-  Edit2,
-  Trash2,
-  Loader2,
-  ArrowRight,
-} from "lucide-react";
+  RiPulseLine,
+  RiAddLine,
+  RiEdit2Line,
+  RiDeleteBin6Line,
+  RiLoader2Line,
+  RiArrowRightLine,
+} from "@remixicon/react";
 import {
   createEndpoint,
   updateEndpoint,
@@ -190,7 +190,7 @@ export function ProjectEndpoints({
           <DialogTrigger
             render={<Button size="sm" className="shrink-0 gap-1.5" />}
           >
-            <Plus className="h-4 w-4" />
+            <RiAddLine className="h-4 w-4" />
             <span>Add Endpoint Group</span>
           </DialogTrigger>
           <DialogContent>
@@ -262,7 +262,7 @@ export function ProjectEndpoints({
                   Cancel
                 </Button>
                 <Button type="submit" disabled={loading} className="gap-1.5">
-                  {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+                  {loading && <RiLoader2Line className="h-4 w-4 animate-spin" />}
                   <span>Create Group</span>
                 </Button>
               </DialogFooter>
@@ -274,7 +274,7 @@ export function ProjectEndpoints({
       {/* Grid listing */}
       {endpointsList.length === 0 ? (
         <Card className="flex flex-col items-center justify-center border-dashed p-12 text-center">
-          <Activity className="text-muted-foreground mb-4 h-10 w-10 animate-pulse stroke-1" />
+          <RiPulseLine className="text-muted-foreground mb-4 h-10 w-10 animate-pulse stroke-1" />
           <CardTitle className="text-lg">No Endpoint Groups</CardTitle>
           <CardDescription className="mt-1 max-w-sm">
             Endpoint groups help catalog routes in structural namespaces. Create
@@ -285,7 +285,7 @@ export function ProjectEndpoints({
             onClick={() => setCreateOpen(true)}
             className="mt-6 gap-1.5"
           >
-            <Plus className="h-4 w-4" />
+            <RiAddLine className="h-4 w-4" />
             <span>Create Group</span>
           </Button>
         </Card>
@@ -313,7 +313,7 @@ export function ProjectEndpoints({
                       className="text-muted-foreground hover:text-foreground h-8 w-8"
                       onClick={() => handleEditInit(ep)}
                     >
-                      <Edit2 className="h-4 w-4" />
+                      <RiEdit2Line className="h-4 w-4" />
                     </Button>
                     <Button
                       size="icon"
@@ -321,7 +321,7 @@ export function ProjectEndpoints({
                       className="text-destructive hover:bg-destructive/10 h-8 w-8"
                       onClick={() => handleDeleteInit(ep)}
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <RiDeleteBin6Line className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
@@ -343,7 +343,7 @@ export function ProjectEndpoints({
                   onClick={() => router.push(`/projects/${projectId}/canvas`)}
                 >
                   <span>Open Route Canvas</span>
-                  <ArrowRight className="h-4 w-4 transition-transform group-hover/btn:translate-x-1" />
+                  <RiArrowRightLine className="h-4 w-4 transition-transform group-hover/btn:translate-x-1" />
                 </Button>
               </CardFooter>
             </Card>
@@ -414,7 +414,7 @@ export function ProjectEndpoints({
                 Cancel
               </Button>
               <Button type="submit" disabled={loading} className="gap-1.5">
-                {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+                {loading && <RiLoader2Line className="h-4 w-4 animate-spin" />}
                 <span>Save Changes</span>
               </Button>
             </DialogFooter>
@@ -451,7 +451,7 @@ export function ProjectEndpoints({
               disabled={loading}
               className="gap-1.5"
             >
-              {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+              {loading && <RiLoader2Line className="h-4 w-4 animate-spin" />}
               <span>Delete Group</span>
             </Button>
           </DialogFooter>

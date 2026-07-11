@@ -2,13 +2,13 @@
 
 import * as React from "react";
 import {
-  Plus,
-  Trash2,
-  CornerDownRight,
-  ArrowUp,
-  ArrowDown,
-  GripVertical,
-} from "lucide-react";
+  RiAddLine,
+  RiDeleteBin6Line,
+  RiCornerDownRightLine,
+  RiArrowUpLine,
+  RiArrowDownLine,
+  RiDragMove2Line,
+} from "@remixicon/react";
 import { useSchemaStore } from "@/stores/store-provider";
 import { FakerProviderSelect } from "./FakerProviderSelect";
 import type { SchemaField } from "@/lib/schema-synthesizer";
@@ -205,7 +205,7 @@ export function FieldEditor({
       >
         {/* Nesting Indicator */}
         {depth > 0 && (
-          <CornerDownRight className="text-muted-foreground/60 absolute top-3 -left-3 h-3 w-3" />
+          <RiCornerDownRightLine className="text-muted-foreground/60 absolute top-3 -left-3 h-3 w-3" />
         )}
 
         {/* Drag Handle */}
@@ -216,7 +216,7 @@ export function FieldEditor({
           className="text-muted-foreground/70 inline-flex h-7 w-5 cursor-grab items-center justify-center active:cursor-grabbing"
           title="Drag to reorder"
         >
-          <GripVertical className="h-3.5 w-3.5" />
+          <RiDragMove2Line className="h-3.5 w-3.5" />
         </span>
 
         {/* Field Name */}
@@ -315,7 +315,7 @@ export function FieldEditor({
             title="Move Up"
             onClick={() => moveField(field.id, "up")}
           >
-            <ArrowUp className="h-3.5 w-3.5" />
+            <RiArrowUpLine className="h-3.5 w-3.5" />
           </Button>
           <Button
             type="button"
@@ -325,7 +325,7 @@ export function FieldEditor({
             title="Move Down"
             onClick={() => moveField(field.id, "down")}
           >
-            <ArrowDown className="h-3.5 w-3.5" />
+            <RiArrowDownLine className="h-3.5 w-3.5" />
           </Button>
 
           {/* Add Child Button (Only for Object type, or Array items of type Object) */}
@@ -337,7 +337,7 @@ export function FieldEditor({
               className="hover:bg-primary/5 h-7 w-7"
               onClick={() => addField(field.id)}
             >
-              <Plus className="h-3.5 w-3.5" />
+              <RiAddLine className="h-3.5 w-3.5" />
             </Button>
           )}
           <Button
@@ -347,7 +347,7 @@ export function FieldEditor({
             className="text-destructive hover:bg-destructive/10 h-7 w-7"
             onClick={() => removeField(field.id)}
           >
-            <Trash2 className="h-3.5 w-3.5" />
+            <RiDeleteBin6Line className="h-3.5 w-3.5" />
           </Button>
         </div>
       </div>

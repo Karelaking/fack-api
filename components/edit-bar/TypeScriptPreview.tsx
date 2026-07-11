@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Copy, Download, Loader2, Code, Check } from "lucide-react";
+import { RiFileCopyLine, RiDownloadLine, RiLoader2Line, RiCodeLine, RiCheckLine } from "@remixicon/react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -82,7 +82,7 @@ export function TypeScriptPreview({
       <DialogContent className="flex h-[80vh] max-h-150 flex-col sm:max-w-150">
         <DialogHeader className="shrink-0">
           <DialogTitle className="flex items-center gap-2">
-            <Code className="text-primary h-5 w-5" />
+            <RiCodeLine className="text-primary h-5 w-5" />
             <span>TypeScript Definition</span>
           </DialogTitle>
           <DialogDescription>
@@ -95,7 +95,7 @@ export function TypeScriptPreview({
         <div className="bg-muted border-border text-foreground relative min-h-0 flex-1 overflow-auto rounded-lg border p-4 font-mono text-xs">
           {loading ? (
             <div className="bg-muted/50 absolute inset-0 flex items-center justify-center">
-              <Loader2 className="text-primary h-6 w-6 animate-spin" />
+              <RiLoader2Line className="text-primary h-6 w-6 animate-spin" />
             </div>
           ) : (
             <pre className="whitespace-pre-wrap">
@@ -114,9 +114,9 @@ export function TypeScriptPreview({
             className="gap-1.5 text-xs font-semibold"
           >
             {copied ? (
-              <Check className="h-3.5 w-3.5 text-emerald-500" />
+              <RiCheckLine className="h-3.5 w-3.5 text-emerald-500" />
             ) : (
-              <Copy className="h-3.5 w-3.5" />
+              <RiFileCopyLine className="h-3.5 w-3.5" />
             )}
             <span>{copied ? "Copied" : "Copy Code"}</span>
           </Button>
@@ -127,7 +127,7 @@ export function TypeScriptPreview({
             disabled={loading || !code}
             className="gap-1.5 text-xs font-semibold"
           >
-            <Download className="h-3.5 w-3.5" />
+            <RiDownloadLine className="h-3.5 w-3.5" />
             <span>Download .d.ts</span>
           </Button>
         </DialogFooter>

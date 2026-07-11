@@ -4,19 +4,19 @@ import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
-  Terminal,
-  Calendar,
-  ArrowRight,
-  Search,
-  Loader2,
-  Trash2,
-  AlertTriangle,
-  Settings,
-  Plus,
-  Layers,
-  Activity,
-  Sparkles,
-} from "lucide-react";
+  RiTerminalBoxLine,
+  RiCalendarLine,
+  RiArrowRightLine,
+  RiSearchLine,
+  RiLoader2Line,
+  RiDeleteBin6Line,
+  RiAlertLine,
+  RiSettings3Line,
+  RiAddLine,
+  RiStackLine,
+  RiPulseLine,
+  RiMagicLine,
+} from "@remixicon/react";
 import { toast } from "sonner";
 import { deleteProject, updateProject } from "@/lib/actions/projects";
 import { formatRelativeTime } from "@/lib/utils";
@@ -231,7 +231,7 @@ export function ProjectGrid({
           onClick={triggerCreateProject}
           className="h-9 shrink-0 gap-1.5 text-xs font-semibold"
         >
-          <Plus className="h-4 w-4" />
+          <RiAddLine className="h-4 w-4" />
           <span>New Project</span>
         </Button>
       </div>
@@ -239,7 +239,7 @@ export function ProjectGrid({
       {/* Search & Sort Filters */}
       <div className="flex flex-col items-center justify-between gap-3 sm:flex-row">
         <div className="relative w-full sm:max-w-xs">
-          <Search className="text-muted-foreground absolute top-1/2 left-2.5 h-3.5 w-3.5 -translate-y-1/2" />
+          <RiSearchLine className="text-muted-foreground absolute top-1/2 left-2.5 h-3.5 w-3.5 -translate-y-1/2" />
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -264,7 +264,7 @@ export function ProjectGrid({
       {/* Grid listing */}
       {filteredProjects.length === 0 ? (
         <Card className="flex flex-col items-center justify-center border-2 border-dashed p-12 text-center">
-          <Terminal className="text-muted-foreground/60 mb-3 h-10 w-10 stroke-1" />
+          <RiTerminalBoxLine className="text-muted-foreground/60 mb-3 h-10 w-10 stroke-1" />
           <CardTitle className="text-base font-bold">
             No workspaces found
           </CardTitle>
@@ -278,7 +278,7 @@ export function ProjectGrid({
               onClick={triggerCreateProject}
               className="mt-5 h-9 gap-1.5 text-xs font-semibold"
             >
-              <Plus className="h-4 w-4" />
+              <RiAddLine className="h-4 w-4" />
               <span>Create Project</span>
             </Button>
           )}
@@ -309,7 +309,7 @@ export function ProjectGrid({
                     <div
                       className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border ${theme.bg}`}
                     >
-                      <Terminal className="h-3.5 w-3.5" />
+                      <RiTerminalBoxLine className="h-3.5 w-3.5" />
                     </div>
 
                     <div className="flex items-center gap-1 transition-opacity group-hover:opacity-100 sm:opacity-0">
@@ -320,7 +320,7 @@ export function ProjectGrid({
                         title="Workspace Settings"
                         onClick={() => setEditProj(proj)}
                       >
-                        <Settings className="h-3.5 w-3.5" />
+                        <RiSettings3Line className="h-3.5 w-3.5" />
                       </Button>
                       <Button
                         variant="ghost"
@@ -329,7 +329,7 @@ export function ProjectGrid({
                         title="Delete Workspace"
                         onClick={() => setDeleteProj(proj)}
                       >
-                        <Trash2 className="h-3.5 w-3.5" />
+                        <RiDeleteBin6Line className="h-3.5 w-3.5" />
                       </Button>
                     </div>
                   </div>
@@ -340,7 +340,7 @@ export function ProjectGrid({
                       className="hover:text-primary line-clamp-1 flex items-center gap-1.5 text-sm font-bold transition-colors"
                     >
                       <span>{proj.name}</span>
-                      <Sparkles className="text-primary h-3.5 w-3.5 shrink-0 opacity-0 transition-opacity group-hover:opacity-100" />
+                      <RiMagicLine className="text-primary h-3.5 w-3.5 shrink-0 opacity-0 transition-opacity group-hover:opacity-100" />
                     </Link>
                     <span className="text-muted-foreground bg-muted border-border/40 inline-flex max-w-full truncate rounded border px-1.5 py-0.5 font-mono text-[9px] font-semibold">
                       /mock/{proj.slug}
@@ -354,19 +354,19 @@ export function ProjectGrid({
 
                 <CardContent className="space-y-2 p-4 pt-1 pb-3.5">
                   <div className="text-muted-foreground flex items-center gap-1.5 text-[10px] font-semibold">
-                    <Calendar className="h-3.5 w-3.5 shrink-0" />
+                    <RiCalendarLine className="h-3.5 w-3.5 shrink-0" />
                     <span>Updated {formatRelativeTime(proj.updatedAt)}</span>
                   </div>
 
                   <div className="border-border/40 text-muted-foreground/80 flex items-center gap-3 border-t pt-2 text-[10px] font-semibold">
                     <div className="flex items-center gap-1">
-                      <Layers className="text-primary/80 h-3.5 w-3.5 shrink-0" />
+                      <RiStackLine className="text-primary/80 h-3.5 w-3.5 shrink-0" />
                       <span>
                         {groupsCount} {groupsCount === 1 ? "group" : "groups"}
                       </span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <Activity className="h-3.5 w-3.5 shrink-0 text-emerald-500/80" />
+                      <RiPulseLine className="h-3.5 w-3.5 shrink-0 text-emerald-500/80" />
                       <span>
                         {routesCount} {routesCount === 1 ? "route" : "routes"}
                       </span>
@@ -384,7 +384,7 @@ export function ProjectGrid({
                       className="hover:bg-primary/5 hover:text-primary group/btn h-8.5 w-full justify-between px-2 text-xs font-bold"
                     >
                       <span>Enter Workspace</span>
-                      <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover/btn:translate-x-1" />
+                      <RiArrowRightLine className="h-3.5 w-3.5 transition-transform group-hover/btn:translate-x-1" />
                     </Button>
                   </Link>
                 </CardFooter>
@@ -472,7 +472,7 @@ export function ProjectGrid({
                 Cancel
               </Button>
               <Button type="submit" disabled={editLoading} className="gap-1.5">
-                {editLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+                {editLoading && <RiLoader2Line className="h-4 w-4 animate-spin" />}
                 <span>Save Changes</span>
               </Button>
             </DialogFooter>
@@ -493,7 +493,7 @@ export function ProjectGrid({
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="text-destructive flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5" />
+              <RiAlertLine className="h-5 w-5" />
               <span>Confirm Deletion</span>
             </DialogTitle>
             <DialogDescription>
@@ -542,7 +542,7 @@ export function ProjectGrid({
               disabled={deleteLoading || deleteConfirmText !== deleteProj?.name}
               className="gap-1.5"
             >
-              {deleteLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+              {deleteLoading && <RiLoader2Line className="h-4 w-4 animate-spin" />}
               <span>Permanently Delete</span>
             </Button>
           </DialogFooter>

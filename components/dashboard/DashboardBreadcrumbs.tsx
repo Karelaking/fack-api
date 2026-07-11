@@ -5,12 +5,12 @@ import type { Route } from "next";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
-  ChevronRight,
-  ChevronsUpDown,
-  Network,
-  Activity,
-  Settings2,
-} from "lucide-react";
+  RiArrowRightSLine,
+  RiArrowUpDownLine,
+  RiGitBranchLine,
+  RiPulseLine,
+  RiSettings2Line,
+} from "@remixicon/react";
 import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
@@ -111,7 +111,7 @@ export function DashboardBreadcrumbs({
           return (
             <React.Fragment key={`${crumb.href}-${idx}`}>
               {idx > 0 && (
-                <ChevronRight
+                <RiArrowRightSLine
                   className={cn(
                     "text-muted-foreground/45 h-3.5 w-3.5 shrink-0",
                     isPrevFirst && "hidden sm:inline",
@@ -126,7 +126,7 @@ export function DashboardBreadcrumbs({
                         <span className="max-w-37.5 truncate sm:max-w-xs">
                           {crumb.label}
                         </span>
-                        <ChevronsUpDown className="text-muted-foreground/60 group-hover:text-foreground h-3.5 w-3.5 shrink-0 transition-colors" />
+                        <RiArrowUpDownLine className="text-muted-foreground/60 group-hover:text-foreground h-3.5 w-3.5 shrink-0 transition-colors" />
                       </DropdownMenuTrigger>
                       <DropdownMenuContent
                         align="start"
@@ -168,7 +168,7 @@ export function DashboardBreadcrumbs({
                       <span className="max-w-37.5 truncate sm:max-w-xs">
                         {crumb.label}
                       </span>
-                      <ChevronsUpDown className="text-muted-foreground/40 group-hover:text-foreground h-3 w-3 shrink-0 transition-colors" />
+                      <RiArrowUpDownLine className="text-muted-foreground/40 group-hover:text-foreground h-3 w-3 shrink-0 transition-colors" />
                     </DropdownMenuTrigger>
                     <DropdownMenuContent
                       align="start"
@@ -224,17 +224,17 @@ export function DashboardBreadcrumbs({
               {
                 name: "Canvas",
                 href: `/projects/${projectSlug}/canvas`,
-                icon: Network,
+                icon: RiGitBranchLine,
               },
               {
                 name: "Endpoints",
                 href: `/projects/${projectSlug}/endpoints`,
-                icon: Activity,
+                icon: RiPulseLine,
               },
               {
                 name: "Settings",
                 href: `/projects/${projectSlug}/settings`,
-                icon: Settings2,
+                icon: RiSettings2Line,
               },
             ].map((tab) => {
               const Icon = tab.icon;

@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Network, Activity, Settings2 } from "lucide-react";
+import { RiGitBranchLine, RiPulseLine, RiSettings2Line } from "@remixicon/react";
 import type { Route } from "next";
 import { cn } from "@/lib/utils";
 
@@ -21,17 +21,17 @@ export function MobileBottomNav(): React.JSX.Element | null {
     {
       name: "Canvas",
       href: `/projects/${projectSlug}/canvas` as Route,
-      icon: Network,
+      icon: RiGitBranchLine,
     },
     {
       name: "Endpoints",
       href: `/projects/${projectSlug}/endpoints` as Route,
-      icon: Activity,
+      icon: RiPulseLine,
     },
     {
       name: "Settings",
       href: `/projects/${projectSlug}/settings` as Route,
-      icon: Settings2,
+      icon: RiSettings2Line,
     },
   ];
 

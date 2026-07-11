@@ -3,7 +3,7 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Loader2, Trash2, Save, AlertTriangle } from "lucide-react";
+import { RiLoader2Line, RiDeleteBin6Line, RiSaveLine, RiAlertLine } from "@remixicon/react";
 import { updateProject, deleteProject } from "@/lib/actions/projects";
 import type { Project } from "@/db/schema";
 import { Button } from "@/components/ui/button";
@@ -167,9 +167,9 @@ export function ProjectSettings({
               className="gap-1.5"
             >
               {loading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <RiLoader2Line className="h-4 w-4 animate-spin" />
               ) : (
-                <Save className="h-4 w-4" />
+                <RiSaveLine className="h-4 w-4" />
               )}
               <span>Save Changes</span>
             </Button>
@@ -181,7 +181,7 @@ export function ProjectSettings({
       <Card className="border-destructive/30 bg-destructive/5">
         <CardHeader>
           <CardTitle className="text-destructive flex items-center gap-2">
-            <AlertTriangle className="h-5 w-5" />
+            <RiAlertLine className="h-5 w-5" />
             <span>Danger Zone</span>
           </CardTitle>
           <CardDescription>
@@ -205,13 +205,13 @@ export function ProjectSettings({
             <DialogTrigger
               render={<Button variant="destructive" className="gap-1.5" />}
             >
-              <Trash2 className="h-4 w-4" />
+              <RiDeleteBin6Line className="h-4 w-4" />
               <span>Delete Workspace</span>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
                 <DialogTitle className="text-destructive flex items-center gap-2">
-                  <AlertTriangle className="h-5 w-5" />
+                  <RiAlertLine className="h-5 w-5" />
                   <span>Confirm Deletion</span>
                 </DialogTitle>
                 <DialogDescription>
@@ -262,7 +262,7 @@ export function ProjectSettings({
                   className="gap-1.5"
                 >
                   {deleteLoading && (
-                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <RiLoader2Line className="h-4 w-4 animate-spin" />
                   )}
                   <span>Permanently Delete</span>
                 </Button>

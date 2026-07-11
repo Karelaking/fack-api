@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { usePathname } from "next/navigation";
-import { Plus } from "lucide-react";
+import { RiAddLine } from "@remixicon/react";
 import { Button } from "@/components/ui/button";
 
 export function HeaderNewProjectButton(): React.JSX.Element | null {
@@ -25,7 +25,7 @@ export function HeaderNewProjectButton(): React.JSX.Element | null {
       className="gap-1.5"
       onClick={handleClick}
     >
-      <Plus className="h-4 w-4" />
+      <RiAddLine className="h-4 w-4" />
       <span className="hidden sm:inline">New Project</span>
     </Button>
   );

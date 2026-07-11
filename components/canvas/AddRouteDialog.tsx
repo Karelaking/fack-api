@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { RiLoader2Line } from "@remixicon/react";
 import { createRoute } from "@/lib/actions/routes";
 import type { Endpoint, Route } from "@/db/schema";
 import { Button } from "@/components/ui/button";
@@ -260,7 +260,7 @@ export function AddRouteDialog({
               disabled={loading || endpoints.length === 0}
               className="gap-1.5"
             >
-              {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+              {loading && <RiLoader2Line className="h-4 w-4 animate-spin" />}
               <span>Create Node</span>
             </Button>
           </DialogFooter>
