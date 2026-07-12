@@ -165,7 +165,7 @@ export function ProjectSettings({
                 disabled={loading}
               />
               <span className="text-muted-foreground text-xs">
-                Determines the network mock base URL: `/mock/{slug}/...`
+                Determines the network mock base URL: `/{slug}/...`
               </span>
             </div>
             <div className="grid gap-2">

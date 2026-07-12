@@ -240,7 +240,7 @@ export function DashboardSidebar({
                   disabled={loading}
                 />
                 <span className="text-muted-foreground text-[10px]">
-                  Determines mock base URL: `/mock/
+                  Determines mock base URL: `/
                   {'{slug || "slug-derived-from-name"}'}`. Lowercase with
                   hyphens.
                 </span>

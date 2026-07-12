@@ -48,11 +48,21 @@ export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const host = request.headers.get("host") || "";
 
+  // ── Detect System/Dashboard Paths ────────────────────────────────────────
+  const isSystemPath =
+    pathname === "/" ||
+    pathname.startsWith("/_next/") ||
+    pathname.startsWith("/dashboard") ||
+    pathname.startsWith("/projects/") ||
+    pathname.startsWith("/api/typescript/") ||
+    pathname.startsWith("/api/mock/") ||
+    pathname.match(/\.(?:svg|png|jpg|jpeg|gif|webp|css|js|ico)$/) !== null;
+
   // ── CORS Preflight ───────────────────────────────────────────────────────
   // Handle OPTIONS requests for mock API paths or custom domain endpoints
   if (
     request.method === "OPTIONS" &&
-    (pathname.startsWith("/mock/") || isCustomDomain(host))
+    (!isSystemPath || isCustomDomain(host))
   ) {
     return new NextResponse(null, {
       status: 204,
@@ -70,11 +80,7 @@ export function proxy(request: NextRequest) {
   // ── Custom Domain Handling ───────────────────────────────────────────────
   if (isCustomDomain(host)) {
     // Avoid rewriting Next.js internals, static files, and database routes
-    if (
-      !pathname.startsWith("/_next/") &&
-      !pathname.startsWith("/api/mock/by-domain/") &&
-      !pathname.match(/\.(?:svg|png|jpg|jpeg|gif|webp|css|js|ico)$/)
-    ) {
+    if (!isSystemPath) {
       const hostname = host.split(":")[0];
       const url = request.nextUrl.clone();
       url.pathname = `/api/mock/by-domain/${hostname}${pathname}`;
@@ -91,12 +97,10 @@ export function proxy(request: NextRequest) {
     }
   }
 
-  // ── Mock API Rewrite ─────────────────────────────────────────────────────
-  // Match: /mock/{projectId}/{...rest}
-  // Rewrite to: /api/mock/{projectId}/{...rest}
-  if (pathname.startsWith("/mock/")) {
+  // ── Mock API Rewrite (No Prefix /mock) ──────────────────────────────────
+  if (!isSystemPath) {
     const url = request.nextUrl.clone();
-    url.pathname = `/api${pathname}`;
+    url.pathname = `/api/mock${pathname}`;
 
     const response = NextResponse.rewrite(url);
     response.headers.set("X-Accel-Buffering", "no");

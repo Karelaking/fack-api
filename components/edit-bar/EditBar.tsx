@@ -192,7 +192,7 @@ function EditBarInner({
 
   const origin = typeof window !== "undefined" ? window.location.origin : "";
 
-  const fullMockUrl = `${origin}/mock/${projectSlug}${basePath}${route.path}`;
+  const fullMockUrl = `${origin}/${projectSlug}${basePath}${route.path}`;
 
   return (
     <div className="flex h-full flex-col overflow-hidden">

@@ -343,7 +343,7 @@ export function ProjectGrid({
                       <RiMagicLine className="text-primary h-3.5 w-3.5 shrink-0 opacity-0 transition-opacity group-hover:opacity-100" />
                     </Link>
                     <span className="text-muted-foreground bg-muted border-border/40 inline-flex max-w-full truncate rounded border px-1.5 py-0.5 font-mono text-[9px] font-semibold">
-                      /mock/{proj.slug}
+                      /{proj.slug}
                     </span>
                   </div>
 
@@ -441,7 +441,7 @@ export function ProjectGrid({
                   disabled={editLoading}
                 />
                 <span className="text-muted-foreground text-[10px]">
-                  Determines mock base URL: `/mock/{editSlug}`. Must be
+                  Determines mock base URL: `/{editSlug}`. Must be
                   lowercase alphanumeric with hyphens.
                 </span>
               </div>

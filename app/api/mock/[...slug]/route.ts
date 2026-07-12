@@ -53,10 +53,12 @@ async function handleMockRequest(
 
     for (let i = slug.length; i > 0; i--) {
       const candidateSlug = slug.slice(0, i).join("/");
+      console.log("[fack-api] Checking candidate slug:", candidateSlug);
       const foundProject = await db.query.projects.findFirst({
         where: eq(projects.slug, candidateSlug),
       });
       if (foundProject) {
+        console.log("[fack-api] Resolved project slug:", foundProject.slug);
         project = foundProject;
         requestPath = "/" + slug.slice(i).join("/");
         break;
@@ -68,7 +70,7 @@ async function handleMockRequest(
       return buildResponse(
         {
           error: true,
-          message: `Workspace namespace matching path "/mock/${fullPath}" not found`,
+          message: `Workspace namespace matching path "/${fullPath}" not found`,
           hint: "Check that your namespace slug and endpoint paths are correctly configured.",
         },
         404

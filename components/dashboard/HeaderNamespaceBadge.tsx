@@ -29,7 +29,7 @@ export function HeaderNamespaceBadge(): React.JSX.Element | null {
         Namespace:
       </span>
       <span className="text-foreground group-hover:text-primary font-semibold">
-        /mock/{slug}
+        /{slug}
       </span>
     </Link>
   );
