@@ -9,67 +9,67 @@ export const dynamic = "force-dynamic";
 
 interface RouteContext<T> {
   params: Promise<{
-    projectId: string;
+    domain: string;
     slug: string[];
   }>;
 }
 
 export async function GET(
   request: NextRequest,
-  context: RouteContext<"/api/mock/[projectId]/[...slug]">
+  context: RouteContext<"/api/mock/by-domain/[domain]/[...slug]">
 ) {
   return handleMockRequest(request, context);
 }
 
 export async function POST(
   request: NextRequest,
-  context: RouteContext<"/api/mock/[projectId]/[...slug]">
+  context: RouteContext<"/api/mock/by-domain/[domain]/[...slug]">
 ) {
   return handleMockRequest(request, context);
 }
 
 export async function PUT(
   request: NextRequest,
-  context: RouteContext<"/api/mock/[projectId]/[...slug]">
+  context: RouteContext<"/api/mock/by-domain/[domain]/[...slug]">
 ) {
   return handleMockRequest(request, context);
 }
 
 export async function DELETE(
   request: NextRequest,
-  context: RouteContext<"/api/mock/[projectId]/[...slug]">
+  context: RouteContext<"/api/mock/by-domain/[domain]/[...slug]">
 ) {
   return handleMockRequest(request, context);
 }
 
 export async function PATCH(
   request: NextRequest,
-  context: RouteContext<"/api/mock/[projectId]/[...slug]">
+  context: RouteContext<"/api/mock/by-domain/[domain]/[...slug]">
 ) {
   return handleMockRequest(request, context);
 }
 
 async function handleMockRequest(
   request: NextRequest,
-  context: RouteContext<"/api/mock/[projectId]/[...slug]">
+  context: RouteContext<"/api/mock/by-domain/[domain]/[...slug]">
 ): Promise<Response> {
   const startTime = Date.now();
 
   try {
-    const { projectId, slug } = await context.params;
+    const { domain, slug } = await context.params;
     const requestPath = "/" + (slug?.join("/") ?? "");
 
-    // ── Find the Project ──────────────────────────────────────────────
+    // ── Find the Project by Custom Domain ──────────────────────────────
     const project = await db.query.projects.findFirst({
-      where: eq(projects.slug, projectId),
+      where: eq(projects.customDomain, domain),
     });
 
     if (!project) {
       return buildResponse(
         {
           error: true,
-          message: `Project "${projectId}" not found`,
-          hint: "Check that the project slug in the URL matches an existing project.",
+          message: `Project with custom domain "${domain}" not found`,
+          hint: "Ensure the custom domain is mapped to your project in settings.",
         },
         404
       );
@@ -82,7 +82,7 @@ async function handleMockRequest(
       startTime,
     });
   } catch (error) {
-    console.error("[fack-api] Mock request handler error:", error);
+    console.error("[fack-api] Mock request handler error by domain:", error);
     return buildResponse({ error: true, message: "Internal mock server error" }, 500);
   }
 }

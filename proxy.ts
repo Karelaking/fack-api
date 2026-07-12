@@ -6,35 +6,54 @@
  * exported function must be named `proxy`.
  *
  * Responsibilities:
- * 1. Intercepts requests to `/mock/:projectId/*` paths
- * 2. Rewrites them to the internal catch-all API route handler
- * 3. Handles CORS preflight (OPTIONS) requests globally
- * 4. Skips dashboard routes, static assets, and API routes
+ * 1. Detect and handle custom domain requests by mapping them to their projects.
+ * 2. Intercepts requests to `/mock/:projectId/*` paths.
+ * 3. Rewrites them to the internal catch-all API route handler.
+ * 4. Handles CORS preflight (OPTIONS) requests globally.
+ * 5. Skips dashboard routes, static assets, and API routes.
  *
  * The proxy acts transparently — the consuming frontend application
  * never sees the internal rewrite, maintaining the illusion of a
  * real API server at the mock endpoint URL.
- *
- * @see https://nextjs.org/docs/app/api-reference/file-conventions/proxy
  */
 
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 /**
+ * Checks if the host header represents a custom domain instead of a
+ * system/dashboard domain.
+ */
+function isCustomDomain(host: string) {
+  if (!host) return false;
+  // Strip port from Host header if present
+  const hostname = host.split(":")[0];
+
+  const systemDomains = new Set(
+    [
+      "localhost",
+      "127.0.0.1",
+      "fack-api",
+      process.env.APP_DOMAIN || "",
+    ].filter(Boolean)
+  );
+
+  return !systemDomains.has(hostname);
+}
+
+/**
  * Next.js Proxy function — runs before every matched request.
- *
- * Flow:
- * 1. Check if the request is a CORS preflight → return 204 with CORS headers
- * 2. Check if the path matches `/mock/:projectId/...` → rewrite to catch-all handler
- * 3. Otherwise → pass through to Next.js (dashboard, static files, etc.)
  */
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const host = request.headers.get("host") || "";
 
   // ── CORS Preflight ───────────────────────────────────────────────────────
-  // Handle OPTIONS requests for mock API paths to prevent browser CORS errors
-  if (request.method === "OPTIONS" && pathname.startsWith("/mock/")) {
+  // Handle OPTIONS requests for mock API paths or custom domain endpoints
+  if (
+    request.method === "OPTIONS" &&
+    (pathname.startsWith("/mock/") || isCustomDomain(host))
+  ) {
     return new NextResponse(null, {
       status: 204,
       headers: {
@@ -48,21 +67,43 @@ export function proxy(request: NextRequest) {
     });
   }
 
+  // ── Custom Domain Handling ───────────────────────────────────────────────
+  if (isCustomDomain(host)) {
+    // Avoid rewriting Next.js internals, static files, and database routes
+    if (
+      !pathname.startsWith("/_next/") &&
+      !pathname.startsWith("/api/mock/by-domain/") &&
+      !pathname.match(/\.(?:svg|png|jpg|jpeg|gif|webp|css|js|ico)$/)
+    ) {
+      const hostname = host.split(":")[0];
+      const url = request.nextUrl.clone();
+      url.pathname = `/api/mock/by-domain/${hostname}${pathname}`;
+
+      const response = NextResponse.rewrite(url);
+      response.headers.set("X-Accel-Buffering", "no");
+      response.headers.set(
+        "Cache-Control",
+        "no-store, no-cache, must-revalidate, proxy-revalidate"
+      );
+      response.headers.set("Pragma", "no-cache");
+      response.headers.set("Expires", "0");
+      return response;
+    }
+  }
+
   // ── Mock API Rewrite ─────────────────────────────────────────────────────
   // Match: /mock/{projectId}/{...rest}
   // Rewrite to: /api/mock/{projectId}/{...rest}
-  //
-  // This transparent rewrite lets the frontend consume URLs like:
-  //   http://localhost:3000/mock/my-project/users/123
-  // which internally routes to:
-  //   /api/mock/my-project/users/123 (the catch-all route handler)
   if (pathname.startsWith("/mock/")) {
     const url = request.nextUrl.clone();
     url.pathname = `/api${pathname}`;
 
     const response = NextResponse.rewrite(url);
     response.headers.set("X-Accel-Buffering", "no");
-    response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+    response.headers.set(
+      "Cache-Control",
+      "no-store, no-cache, must-revalidate, proxy-revalidate"
+    );
     response.headers.set("Pragma", "no-cache");
     response.headers.set("Expires", "0");
     return response;
@@ -75,10 +116,6 @@ export function proxy(request: NextRequest) {
 
 /**
  * Proxy matcher configuration.
- *
- * Only runs the proxy function on paths that could be mock API requests
- * or dashboard pages. Excludes static assets and Next.js internals
- * for optimal performance.
  */
 export const config = {
   matcher: [

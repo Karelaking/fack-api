@@ -16,14 +16,19 @@ export const createProjectSchema = z.object({
     .string()
     .max(100)
     .regex(
-      /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
-      "Slug must be lowercase alphanumeric with hyphens"
+      /^[a-z0-9_-]+$/,
+      "Slug must be lowercase alphanumeric with hyphens or underscores"
     )
     .optional(),
   description: z
     .string()
     .max(500, "Description must be 500 characters or fewer")
     .optional(),
+  customDomain: z
+    .string()
+    .max(255)
+    .optional()
+    .nullable(),
 });
 
 export const updateProjectSchema = z.object({
@@ -38,8 +43,8 @@ export const updateProjectSchema = z.object({
     .min(1, "Slug is required")
     .max(100)
     .regex(
-      /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
-      "Slug must be lowercase alphanumeric with hyphens"
+      /^[a-z0-9_-]+$/,
+      "Slug must be lowercase alphanumeric with hyphens or underscores"
     )
     .optional(),
   description: z
@@ -47,6 +52,11 @@ export const updateProjectSchema = z.object({
     .max(500, "Description must be 500 characters or fewer")
     .optional(),
   isLoggingEnabled: z.boolean().optional(),
+  customDomain: z
+    .string()
+    .max(255)
+    .optional()
+    .nullable(),
 });
 
 // ─── Endpoint ────────────────────────────────────────────────────────────────

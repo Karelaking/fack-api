@@ -74,6 +74,7 @@ export async function createProject(input: CreateProjectInput): Promise<(typeof 
       name: parsed.name,
       slug: finalSlug,
       description: parsed.description ?? "",
+      customDomain: parsed.customDomain === "" || !parsed.customDomain ? null : parsed.customDomain,
     })
     .returning();
 
@@ -84,6 +85,10 @@ export async function createProject(input: CreateProjectInput): Promise<(typeof 
 export async function updateProject(input: UpdateProjectInput): Promise<(typeof projects.$inferSelect)> {
   const parsed = updateProjectSchema.parse(input);
   const { id, ...updates } = parsed;
+
+  if (updates.customDomain === "") {
+    updates.customDomain = null;
+  }
 
   const [project] = await db
     .update(projects)
