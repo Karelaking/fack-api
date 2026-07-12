@@ -43,6 +43,7 @@ type EndpointWithRoutes = Endpoint & { routes: Route[] };
 
 interface ProjectEndpointsProps {
   projectId: string;
+  projectSlug: string;
   initialEndpoints: EndpointWithRoutes[];
 }
 
@@ -51,6 +52,7 @@ interface ProjectEndpointsProps {
  */
 export function ProjectEndpoints({
   projectId,
+  projectSlug,
   initialEndpoints,
 }: ProjectEndpointsProps): React.JSX.Element | null {
   const router = useRouter();
@@ -340,7 +342,7 @@ export function ProjectEndpoints({
                   variant="ghost"
                   size="sm"
                   className="hover:bg-primary/5 group/btn w-full justify-between"
-                  onClick={() => router.push(`/projects/${projectId}/canvas`)}
+                  onClick={() => router.push(`/projects/${projectSlug}/canvas`)}
                 >
                   <span>Open Route Canvas</span>
                   <RiArrowRightLine className="h-4 w-4 transition-transform group-hover/btn:translate-x-1" />

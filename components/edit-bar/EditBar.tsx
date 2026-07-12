@@ -34,6 +34,8 @@ import {
 } from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Input } from "@/components/ui/input";
 
 interface EditBarProps {
   route: Route;
@@ -99,11 +101,19 @@ function EditBarInner({
     }
   }, [route, setSchema]);
 
-  // Form states (read-only parameters displayed in side drawer)
-  const method = route.method;
-  const path = route.path;
-  const statusCode = route.statusCode;
-  const isEnabled = route.isEnabled;
+  // Form states (editable parameters displayed in side drawer)
+  const [method, setMethod] = React.useState<Route["method"]>(route.method);
+  const [path, setPath] = React.useState(route.path);
+  const [statusCode, setStatusCode] = React.useState(route.statusCode);
+  const [isEnabled, setIsEnabled] = React.useState(route.isEnabled);
+
+  React.useEffect(() => {
+    setMethod(route.method);
+    setPath(route.path);
+    setStatusCode(route.statusCode);
+    setIsEnabled(route.isEnabled);
+  }, [route]);
+
   const [latencyMin, setLatencyMin] = React.useState(route.latencyMin ?? 0);
   const [latencyMax, setLatencyMax] = React.useState(route.latencyMax ?? 0);
   const [errorRate, setErrorRate] = React.useState(route.errorRate ?? 0);
@@ -302,6 +312,69 @@ function EditBarInner({
             })}
           </div>
         </details>
+      </div>
+
+      {/* Core Endpoint settings form fields (Method, Path, Status Code, Status Enabled) */}
+      <div className="mt-3.5 grid grid-cols-12 gap-3 border-b border-border pb-3.5 shrink-0">
+        <div className="col-span-3 flex flex-col gap-1.5">
+          <label htmlFor="route-method" className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+            Method
+          </label>
+          <select
+            id="route-method"
+            value={method}
+            onChange={(e) => setMethod(e.target.value as any)}
+            className="flex h-8 w-full rounded-md border border-input bg-background px-2 py-1 text-xs font-semibold shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+            disabled={loading}
+          >
+            <option value="GET">GET</option>
+            <option value="POST">POST</option>
+            <option value="PUT">PUT</option>
+            <option value="DELETE">DELETE</option>
+            <option value="PATCH">PATCH</option>
+          </select>
+        </div>
+
+        <div className="col-span-4 flex flex-col gap-1.5">
+          <label htmlFor="route-path" className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+            Route Path
+          </label>
+          <Input
+            id="route-path"
+            value={path}
+            onChange={(e) => setPath(e.target.value)}
+            className="h-8 text-xs font-mono"
+            disabled={loading}
+          />
+        </div>
+
+        <div className="col-span-3 flex flex-col gap-1.5">
+          <label htmlFor="route-status" className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+            Status Code
+          </label>
+          <Input
+            id="route-status"
+            type="number"
+            value={statusCode}
+            onChange={(e) => setStatusCode(parseInt(e.target.value) || 200)}
+            className="h-8 text-xs"
+            disabled={loading}
+            min={100}
+            max={599}
+          />
+        </div>
+
+        <div className="col-span-2 flex flex-col items-center justify-center gap-1 pt-3.5">
+          <Switch
+            id="route-enabled"
+            checked={isEnabled}
+            onCheckedChange={setIsEnabled}
+            disabled={loading}
+          />
+          <label htmlFor="route-enabled" className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider cursor-pointer">
+            Enabled
+          </label>
+        </div>
       </div>
 
       <Tabs

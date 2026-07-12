@@ -21,6 +21,6 @@ export default async function EndpointsPage({ params }: EndpointsPageProps): Pro
   const endpointsList = await getEndpoints(project.id);
 
   return (
-    <ProjectEndpoints projectId={project.id} initialEndpoints={endpointsList} />
+    <ProjectEndpoints projectId={project.id} projectSlug={project.slug} initialEndpoints={endpointsList} />
   );
 }
