@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { RiLoader2Line, RiDeleteBin6Line, RiSaveLine, RiAlertLine } from "@remixicon/react";
 import { updateProject, deleteProject } from "@/lib/actions/projects";
+import { slugify } from "@/lib/utils";
 import type { Project } from "@/db/schema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,6 +28,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+
+const slugifyInput = (val: string) => {
+  return val
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .replace(/[^\w-/]/g, "")
+    .replace(/\/+/g, "/");
+};
 
 interface ProjectSettingsProps {
   project: Project;
@@ -68,13 +77,18 @@ export function ProjectSettings({
       toast.error("Project slug is required");
       return;
     }
+    const cleanedSlug = slug.trim().replace(/^\/+|\/+$/g, "");
+    if (!/^[a-z0-9_/-]+$/.test(cleanedSlug)) {
+      toast.error("Slug must be lowercase alphanumeric with hyphens, underscores, or slashes");
+      return;
+    }
 
     setLoading(true);
     try {
       const updated = await updateProject({
         id: project.id,
         name,
-        slug,
+        slug: cleanedSlug,
         description,
         isLoggingEnabled,
         customDomain,
@@ -145,7 +159,7 @@ export function ProjectSettings({
               <Input
                 id="slug"
                 value={slug}
-                onChange={(e) => setSlug(e.target.value)}
+                onChange={(e) => setSlug(slugifyInput(e.target.value))}
                 placeholder="billing-microservice"
                 maxLength={100}
                 disabled={loading}

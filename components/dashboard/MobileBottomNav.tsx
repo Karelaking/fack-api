@@ -10,12 +10,20 @@ import { cn } from "@/lib/utils";
 export function MobileBottomNav(): React.JSX.Element | null {
   const pathname = usePathname();
   const segments = pathname.split("/").filter(Boolean);
-  const isProjectPage = segments[0] === "projects" && segments[1];
+  if (segments[0] !== "projects" || segments.length < 2) return null;
 
-  if (!isProjectPage) return null;
+  const lastSegment = segments[segments.length - 1];
+  const subpages = new Set(["canvas", "endpoints", "logs", "settings"]);
+  
+  let activeTab = "canvas";
+  let projectSlugSegments = segments.slice(1);
 
-  const projectSlug = segments[1];
-  const activeTab = segments[2] || "canvas";
+  if (subpages.has(lastSegment)) {
+    activeTab = lastSegment;
+    projectSlugSegments = segments.slice(1, -1);
+  }
+
+  const projectSlug = projectSlugSegments.join("/");
 
   const tabs = [
     {

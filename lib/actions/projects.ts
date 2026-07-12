@@ -59,7 +59,9 @@ export async function getProjectById(id: string): Promise<(typeof projects.$infe
 export async function createProject(input: CreateProjectInput): Promise<(typeof projects.$inferSelect)> {
   const parsed = createProjectSchema.parse(input);
   const id = generateId();
-  const slug = parsed.slug ? slugify(parsed.slug) : slugify(parsed.name);
+  const slug = parsed.slug
+    ? parsed.slug.split("/").map((s) => slugify(s)).join("/")
+    : slugify(parsed.name);
 
   // Ensure slug uniqueness by appending a short suffix if needed
   const existing = await db.query.projects.findFirst({
@@ -88,6 +90,10 @@ export async function updateProject(input: UpdateProjectInput): Promise<(typeof 
 
   if (updates.customDomain === "") {
     updates.customDomain = null;
+  }
+
+  if (updates.slug) {
+    updates.slug = updates.slug.split("/").map((s) => slugify(s)).join("/");
   }
 
   const [project] = await db

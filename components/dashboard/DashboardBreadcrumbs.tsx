@@ -80,9 +80,24 @@ export function DashboardBreadcrumbs({
     isProject: false,
   });
 
-  const projectSlug = segments[0] === "projects" ? segments[1] : "";
-  const isProjectPage = segments[0] === "projects" && segments[1];
-  const activeTab = segments[2] ? normalizeTab(segments[2]) : "canvas";
+  let projectSlug = "";
+  let isProjectPage = false;
+  let activeTab = "canvas";
+
+  if (segments[0] === "projects" && segments.length >= 2) {
+    isProjectPage = true;
+    const lastSegment = segments[segments.length - 1];
+    const subpages = new Set(["canvas", "endpoints", "logs", "settings"]);
+    let projectSlugSegments = segments.slice(1);
+
+    if (subpages.has(lastSegment)) {
+      activeTab = normalizeTab(lastSegment);
+      projectSlugSegments = segments.slice(1, -1);
+    } else {
+      activeTab = "canvas";
+    }
+    projectSlug = projectSlugSegments.join("/");
+  }
 
   // Check if we are inside a project path: /projects/[slug]/[tab]
   if (isProjectPage) {

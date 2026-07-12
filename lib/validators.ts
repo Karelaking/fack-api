@@ -16,8 +16,8 @@ export const createProjectSchema = z.object({
     .string()
     .max(100)
     .regex(
-      /^[a-z0-9_-]+$/,
-      "Slug must be lowercase alphanumeric with hyphens or underscores"
+      /^[a-z0-9_/-]+$/,
+      "Slug must be lowercase alphanumeric with hyphens, underscores, or slashes"
     )
     .optional(),
   description: z
@@ -43,8 +43,8 @@ export const updateProjectSchema = z.object({
     .min(1, "Slug is required")
     .max(100)
     .regex(
-      /^[a-z0-9_-]+$/,
-      "Slug must be lowercase alphanumeric with hyphens or underscores"
+      /^[a-z0-9_/-]+$/,
+      "Slug must be lowercase alphanumeric with hyphens, underscores, or slashes"
     )
     .optional(),
   description: z

@@ -32,6 +32,14 @@ import {
 } from "@/components/ui/dialog";
 import Image from "next/image";
 
+const slugifyInput = (val: string) => {
+  return val
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .replace(/[^\w-/]/g, "")
+    .replace(/\/+/g, "/");
+};
+
 interface DashboardSidebarProps {
   initialProjects: Project[];
 }
@@ -68,13 +76,18 @@ export function DashboardSidebar({
       toast.error("Project name is required");
       return;
     }
+    const cleanedSlug = slug.trim() ? slug.trim().replace(/^\/+|\/+$/g, "") : undefined;
+    if (cleanedSlug && !/^[a-z0-9_/-]+$/.test(cleanedSlug)) {
+      toast.error("Slug must be lowercase alphanumeric with hyphens, underscores, or slashes");
+      return;
+    }
 
     setLoading(true);
     try {
       const newProj = await createProject({
         name: name.trim(),
         description: description.trim(),
-        slug: slug.trim() || undefined,
+        slug: cleanedSlug,
       });
       toast.success(`Project "${newProj.name}" created successfully!`);
       setProjects([newProj, ...projects]);
@@ -221,7 +234,7 @@ export function DashboardSidebar({
                 <Input
                   id="sidebar-proj-slug"
                   value={slug}
-                  onChange={(e) => setSlug(e.target.value)}
+                  onChange={(e) => setSlug(slugifyInput(e.target.value))}
                   placeholder="e.g., billing-service"
                   maxLength={100}
                   disabled={loading}

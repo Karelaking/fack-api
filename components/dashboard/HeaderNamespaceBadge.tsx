@@ -7,11 +7,17 @@ import { usePathname } from "next/navigation";
 export function HeaderNamespaceBadge(): React.JSX.Element | null {
   const pathname = usePathname();
   const segments = pathname.split("/").filter(Boolean);
-  const isProjectPage = segments[0] === "projects" && segments[1];
+  if (segments[0] !== "projects" || segments.length < 2) return null;
 
-  if (!isProjectPage) return null;
+  const lastSegment = segments[segments.length - 1];
+  const subpages = new Set(["canvas", "endpoints", "logs", "settings"]);
+  let projectSlugSegments = segments.slice(1);
 
-  const slug = segments[1];
+  if (subpages.has(lastSegment)) {
+    projectSlugSegments = segments.slice(1, -1);
+  }
+
+  const slug = projectSlugSegments.join("/");
 
   return (
     <Link
