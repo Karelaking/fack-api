@@ -42,6 +42,39 @@ function isCustomDomain(host: string) {
 }
 
 /**
+ * Extracts the project namespace slug from the request's subdomain.
+ * e.g., "api-v2.localhost:3000" -> "api-v2"
+ * Ignores system domains and common system subdomains like www, api, dashboard, admin.
+ */
+function getProjectSlugFromSubdomain(host: string): string | null {
+  if (!host) return null;
+  const hostname = host.split(":")[0];
+
+  const systemDomains = new Set(["localhost", "127.0.0.1", "fack-api"]);
+  if (systemDomains.has(hostname)) {
+    return null;
+  }
+
+  let subdomain: string | null = null;
+  const appDomain = process.env.APP_DOMAIN || "";
+
+  if (hostname.endsWith(".localhost")) {
+    subdomain = hostname.slice(0, -".localhost".length);
+  } else if (appDomain && hostname.endsWith("." + appDomain)) {
+    subdomain = hostname.slice(0, -("." + appDomain).length);
+  }
+
+  if (!subdomain) return null;
+
+  const ignoredSubdomains = new Set(["www", "api", "dashboard", "admin"]);
+  if (ignoredSubdomains.has(subdomain)) {
+    return null;
+  }
+
+  return subdomain;
+}
+
+/**
  * Next.js Proxy function — runs before every matched request.
  */
 export function proxy(request: NextRequest) {
@@ -75,6 +108,24 @@ export function proxy(request: NextRequest) {
         "Access-Control-Max-Age": "86400",
       },
     });
+  }
+
+  // ── Subdomain Mock API Rewrite ───────────────────────────────────────────
+  const subdomainSlug = getProjectSlugFromSubdomain(host);
+  if (subdomainSlug && !isSystemPath) {
+    const projectSlug = subdomainSlug.replace(/-/g, "/");
+    const url = request.nextUrl.clone();
+    url.pathname = `/api/mock/${projectSlug}${pathname}`;
+
+    const response = NextResponse.rewrite(url);
+    response.headers.set("X-Accel-Buffering", "no");
+    response.headers.set(
+      "Cache-Control",
+      "no-store, no-cache, must-revalidate, proxy-revalidate"
+    );
+    response.headers.set("Pragma", "no-cache");
+    response.headers.set("Expires", "0");
+    return response;
   }
 
   // ── Custom Domain Handling ───────────────────────────────────────────────

@@ -40,6 +40,7 @@ import { Input } from "@/components/ui/input";
 interface EditBarProps {
   route: Route;
   projectSlug: string;
+  customDomain?: string | null;
   endpoints: Endpoint[];
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -53,6 +54,7 @@ interface EditBarProps {
 function EditBarInner({
   route,
   projectSlug,
+  customDomain,
   endpoints,
   onOpenChange,
   onRouteUpdated,
@@ -60,6 +62,7 @@ function EditBarInner({
 }: {
   route: Route;
   projectSlug: string;
+  customDomain?: string | null;
   endpoints: Endpoint[];
   onOpenChange: (open: boolean) => void;
   onRouteUpdated: (updatedRoute: Route) => void;
@@ -192,7 +195,13 @@ function EditBarInner({
 
   const origin = typeof window !== "undefined" ? window.location.origin : "";
 
-  const fullMockUrl = `${origin}/${projectSlug}${basePath}${route.path}`;
+  let fullMockUrl = "";
+  if (customDomain) {
+    const protocol = typeof window !== "undefined" ? window.location.protocol + "//" : "http://";
+    fullMockUrl = `${protocol}${customDomain}${basePath}${route.path}`;
+  } else {
+    fullMockUrl = `${origin}/${projectSlug}${basePath}${route.path}`;
+  }
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
@@ -528,6 +537,7 @@ function EditBarInner({
 export function EditBar({
   route,
   projectSlug,
+  customDomain,
   endpoints,
   open,
   onOpenChange,
@@ -551,6 +561,7 @@ export function EditBar({
           <EditBarInner
             route={route}
             projectSlug={projectSlug}
+            customDomain={customDomain}
             endpoints={endpoints}
             onOpenChange={onOpenChange}
             onRouteUpdated={onRouteUpdated}

@@ -96,7 +96,7 @@ export async function processMockRequest({
     );
 
     // ── 4. Match the Incoming Path Against Route Patterns ────────────────
-    const matchResult = findMatchingRoute(allRoutes, method, requestPath);
+    const matchResult = findMatchingRoute(allRoutes, method, normalizePath(requestPath));
 
     if (!matchResult) {
       const errBody = {

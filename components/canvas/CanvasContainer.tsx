@@ -8,6 +8,7 @@ import type { Endpoint, Route } from "@/db/schema";
 interface CanvasContainerProps {
   projectId: string;
   projectSlug: string;
+  customDomain?: string | null;
   endpoints: (Endpoint & { routes: Route[] })[];
   routes: Route[];
   initialState?: {
@@ -24,6 +25,7 @@ interface CanvasContainerProps {
 export function CanvasContainer({
   projectId,
   projectSlug,
+  customDomain,
   endpoints,
   routes,
   initialState,
@@ -76,6 +78,7 @@ export function CanvasContainer({
         <EditBar
           route={selectedRoute}
           projectSlug={projectSlug}
+          customDomain={customDomain}
           endpoints={endpoints}
           open={!!selectedRouteId}
           onOpenChange={(open) => {

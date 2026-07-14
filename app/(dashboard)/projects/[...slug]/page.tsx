@@ -62,6 +62,7 @@ export default async function UnifiedProjectPage({ params }: ProjectPageProps): 
       <CanvasContainer
         projectId={project.id}
         projectSlug={project.slug}
+        customDomain={project.customDomain}
         endpoints={endpointsList}
         routes={routesList}
         initialState={
