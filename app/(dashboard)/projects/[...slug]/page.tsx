@@ -91,7 +91,8 @@ export default async function UnifiedProjectPage({ params }: ProjectPageProps): 
     const logs = await getRequestLogs(project.id);
     content = <ProjectLogs projectId={project.id} initialLogs={logs} />;
   } else if (subpage === "settings") {
-    content = <ProjectSettings project={project} />;
+    const isLogsDbConfigured = !!process.env.LOGS_POSTGRES_URL;
+    content = <ProjectSettings project={project} isLogsDbConfigured={isLogsDbConfigured} />;
   }
 
   // Wrap in the standard layout styling

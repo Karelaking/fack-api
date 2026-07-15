@@ -40,7 +40,7 @@ export async function processMockRequest({
   let matchedMethod = request.method;
 
   const logRequest = async (statusCode: number, isError: boolean, payload: unknown) => {
-    if (!project || !project.isLoggingEnabled) return;
+    if (!project || !project.isLoggingEnabled || !process.env.LOGS_POSTGRES_URL) return;
     const queryParams = JSON.stringify(Object.fromEntries(request.nextUrl.searchParams));
     const reqHeaders = JSON.stringify(Object.fromEntries(request.headers));
     const resPayload = typeof payload === "string" ? payload : JSON.stringify(payload).slice(0, 5000);

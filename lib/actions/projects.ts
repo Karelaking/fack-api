@@ -89,6 +89,8 @@ export async function createProject(input: CreateProjectInput): Promise<(typeof 
   });
   const finalSlug = existing ? `${slug}-${generateId(4)}` : slug;
 
+  const hasLogsDb = !!process.env.LOGS_POSTGRES_URL;
+
   const [project] = await db
     .insert(projects)
     .values({
@@ -97,6 +99,7 @@ export async function createProject(input: CreateProjectInput): Promise<(typeof 
       slug: finalSlug,
       description: parsed.description ?? "",
       customDomain: parsed.customDomain === "" || !parsed.customDomain ? null : parsed.customDomain,
+      isLoggingEnabled: hasLogsDb,
     })
     .returning();
 
@@ -115,6 +118,11 @@ export async function updateProject(input: UpdateProjectInput): Promise<(typeof 
 
   if (updates.slug) {
     updates.slug = updates.slug.split("/").map((s) => slugify(s)).join("/");
+  }
+
+  const hasLogsDb = !!process.env.LOGS_POSTGRES_URL;
+  if (!hasLogsDb) {
+    updates.isLoggingEnabled = false;
   }
 
   const [project] = await db

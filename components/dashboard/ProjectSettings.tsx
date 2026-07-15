@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { RiLoader2Line, RiDeleteBin6Line, RiSaveLine, RiAlertLine } from "@remixicon/react";
 import { updateProject, deleteProject } from "@/lib/actions/projects";
-import { slugify } from "@/lib/utils";
+import { slugify, cn } from "@/lib/utils";
 import type { Project } from "@/db/schema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -39,6 +39,7 @@ const slugifyInput = (val: string) => {
 
 interface ProjectSettingsProps {
   project: Project;
+  isLogsDbConfigured: boolean;
 }
 
 /**
@@ -47,6 +48,7 @@ interface ProjectSettingsProps {
  */
 export function ProjectSettings({
   project,
+  isLogsDbConfigured,
 }: ProjectSettingsProps): React.JSX.Element {
   const router = useRouter();
   const [loading, setLoading] = React.useState(false);
@@ -61,7 +63,7 @@ export function ProjectSettings({
     project.description ?? "",
   );
   const [isLoggingEnabled, setIsLoggingEnabled] = React.useState(
-    project.isLoggingEnabled,
+    isLogsDbConfigured ? project.isLoggingEnabled : false,
   );
   const [customDomain, setCustomDomain] = React.useState(
     project.customDomain ?? "",
@@ -198,20 +200,25 @@ export function ProjectSettings({
                 className="h-24 resize-none"
               />
             </div>
-            <div className="flex items-center justify-between rounded-lg border p-4 bg-muted/10">
+            <div className={cn(
+              "flex items-center justify-between rounded-lg border p-4 bg-muted/10",
+              !isLogsDbConfigured && "border-amber-500/20 bg-amber-500/5"
+            )}>
               <div className="space-y-0.5">
                 <label htmlFor="isLoggingEnabled" className="text-sm font-semibold block">
                   Capture Request History
                 </label>
                 <span className="text-muted-foreground text-xs block leading-normal">
-                  When enabled, incoming mock requests are stored in the database for debugging and latency analytics.
+                  {isLogsDbConfigured
+                    ? "When enabled, incoming mock requests are stored in the database for debugging and latency analytics."
+                    : "Request logging is currently disabled because LOGS_POSTGRES_URL is not configured in environment variables."}
                 </span>
               </div>
               <Switch
                 id="isLoggingEnabled"
                 checked={isLoggingEnabled}
                 onCheckedChange={setIsLoggingEnabled}
-                disabled={loading}
+                disabled={loading || !isLogsDbConfigured}
               />
             </div>
           </CardContent>
