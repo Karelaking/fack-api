@@ -78,6 +78,21 @@ export function slugify(text: string): string {
 }
 
 /**
+ * Sanitizes input string to form a valid multi-segment project namespace path.
+ * Retains slashes to support nested workspaces (e.g. "api/v1/auth").
+ *
+ * @param val - The raw text input
+ * @returns Sanitized namespace path slug
+ */
+export function slugifyInput(val: string): string {
+  return val
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .replace(/[^\w-/]/g, "")
+    .replace(/\/+/g, "/");
+}
+
+/**
  * Formats a Date object into a human-readable relative time string.
  * Used in the dashboard to display "last modified" timestamps.
  *

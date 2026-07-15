@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { RiLoader2Line, RiDeleteBin6Line, RiSaveLine, RiAlertLine } from "@remixicon/react";
 import { updateProject, deleteProject } from "@/lib/actions/projects";
-import { slugify, cn } from "@/lib/utils";
+import { slugify, cn, slugifyInput } from "@/lib/utils";
 import type { Project } from "@/db/schema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,14 +28,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-
-const slugifyInput = (val: string) => {
-  return val
-    .toLowerCase()
-    .replace(/\s+/g, "-")
-    .replace(/[^\w-/]/g, "")
-    .replace(/\/+/g, "/");
-};
 
 interface ProjectSettingsProps {
   project: Project;

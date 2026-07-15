@@ -19,7 +19,7 @@ import type { Project } from "@/db/schema";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
+import { cn, slugifyInput } from "@/lib/utils";
 import {
   Sidebar,
   SidebarContent,
@@ -41,14 +41,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import Image from "next/image";
-
-const slugifyInput = (val: string) => {
-  return val
-    .toLowerCase()
-    .replace(/\s+/g, "-")
-    .replace(/[^\w-/]/g, "")
-    .replace(/\/+/g, "/");
-};
 
 interface DashboardSidebarProps {
   initialProjects: Project[];
