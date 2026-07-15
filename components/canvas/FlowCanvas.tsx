@@ -148,6 +148,9 @@ function FlowCanvasInner({
         latencyMin: route.latencyMin ?? 0,
         latencyMax: route.latencyMax ?? 0,
         errorRate: route.errorRate ?? 0,
+        responseSchema: route.responseSchema ?? "{}",
+        customHeaders: route.customHeaders ?? "{}",
+        conditionalRules: route.conditionalRules ?? "[]",
         onToggleEnabled: async (id: string, isEnabled: boolean) => {
           try {
             await updateRoute({ id, isEnabled });
@@ -270,6 +273,7 @@ function FlowCanvasInner({
           errorRate: route.errorRate ?? 0,
           responseSchema: route.responseSchema ?? "{}",
           customHeaders: route.customHeaders ?? "{}",
+          conditionalRules: route.conditionalRules ?? "[]",
           onToggleEnabled: async (id: string, isEnabled: boolean) => {
             try {
               await updateRoute({ id, isEnabled });

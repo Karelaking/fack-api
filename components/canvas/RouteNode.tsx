@@ -11,6 +11,7 @@ import {
   RiFlashlightLine,
   RiCodeLine,
   RiEqualizerLine,
+  RiGitBranchLine,
 } from "@remixicon/react";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
@@ -27,6 +28,7 @@ interface RouteNodeData {
   errorRate: number;
   responseSchema?: string;
   customHeaders?: string;
+  conditionalRules?: string;
   onToggleEnabled: (id: string, isEnabled: boolean) => void;
   onSelectRoute: (id: string) => void;
 }
@@ -37,8 +39,8 @@ interface RouteNodeProps {
 }
 
 /**
- * Highly Compact Custom Node representing a Mock API route.
- * Space-optimized HTTP color schemes, glassmorphism, status badges, and micro-controls.
+ * Premium redesigned Custom Node representing a Mock API route.
+ * Sleek card container, glowing indicators, copyable path styling, and rules indicators.
  */
 export function RouteNode({
   data,
@@ -63,7 +65,7 @@ export function RouteNode({
       text: "text-emerald-500 dark:text-emerald-400",
       bg: "bg-emerald-500/5",
       glow: "hover:shadow-emerald-500/10 hover:border-emerald-500/40",
-      dot: "bg-emerald-500",
+      dot: "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]",
       badge:
         "bg-emerald-500/10 text-emerald-500 dark:text-emerald-400 border-emerald-500/20",
     },
@@ -72,7 +74,7 @@ export function RouteNode({
       text: "text-blue-500 dark:text-blue-400",
       bg: "bg-blue-500/5",
       glow: "hover:shadow-blue-500/10 hover:border-blue-500/40",
-      dot: "bg-blue-500",
+      dot: "bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.6)]",
       badge:
         "bg-blue-500/10 text-blue-500 dark:text-blue-400 border-blue-500/20",
     },
@@ -81,7 +83,7 @@ export function RouteNode({
       text: "text-amber-500 dark:text-amber-400",
       bg: "bg-amber-500/5",
       glow: "hover:shadow-amber-500/10 hover:border-amber-500/40",
-      dot: "bg-amber-500",
+      dot: "bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.6)]",
       badge:
         "bg-amber-500/10 text-amber-500 dark:text-amber-400 border-amber-500/20",
     },
@@ -90,7 +92,7 @@ export function RouteNode({
       text: "text-rose-500 dark:text-rose-400",
       bg: "bg-rose-500/5",
       glow: "hover:shadow-rose-500/10 hover:border-rose-500/40",
-      dot: "bg-rose-500",
+      dot: "bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.6)]",
       badge:
         "bg-rose-500/10 text-rose-500 dark:text-rose-400 border-rose-500/20",
     },
@@ -99,7 +101,7 @@ export function RouteNode({
       text: "text-purple-500 dark:text-purple-400",
       bg: "bg-purple-500/5",
       glow: "hover:shadow-purple-500/10 hover:border-purple-500/40",
-      dot: "bg-purple-500",
+      dot: "bg-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.6)]",
       badge:
         "bg-purple-500/10 text-purple-500 dark:text-purple-400 border-purple-500/20",
     },
@@ -141,7 +143,10 @@ export function RouteNode({
   const schemaKeysCount = React.useMemo(() => {
     try {
       const parsed = JSON.parse(data.responseSchema || "{}");
-      return Object.keys(parsed).length;
+      if (parsed.type === "array" && parsed.items) {
+        return Object.keys(parsed.items.properties || {}).length;
+      }
+      return Object.keys(parsed.properties || {}).length || Object.keys(parsed).length;
     } catch {
       return 0;
     }
@@ -156,6 +161,15 @@ export function RouteNode({
     }
   }, [data.customHeaders]);
 
+  const rulesCount = React.useMemo(() => {
+    try {
+      const parsed = JSON.parse(data.conditionalRules || "[]");
+      return Array.isArray(parsed) ? parsed.length : 0;
+    } catch {
+      return 0;
+    }
+  }, [data.conditionalRules]);
+
   const handleToggle = (checked: boolean) => {
     data.onToggleEnabled(data.id, checked);
   };
@@ -167,16 +181,16 @@ export function RouteNode({
     <div
       onClick={() => data.onSelectRoute(data.id)}
       className={cn(
-        "bg-background/80 border-border/80 flex w-60 cursor-pointer flex-col rounded-lg border border-l-4 shadow-sm backdrop-blur-md transition-all duration-200 select-none",
+        "bg-card/90 border-border/80 flex w-64 cursor-pointer flex-col rounded-xl border border-l-4 shadow-sm backdrop-blur-md transition-all duration-300 select-none",
         theme.border,
         theme.glow,
         selected
-          ? "border-primary ring-primary/20 shadow-primary/5 -translate-y-0.5 scale-[1.01] shadow-md ring-2"
+          ? "border-primary ring-primary/20 shadow-primary/5 -translate-y-1 scale-[1.01] shadow-lg ring-2"
           : "hover:-translate-y-0.5 hover:shadow-md",
-        !data.isEnabled && "opacity-50 grayscale-20",
+        !data.isEnabled && "opacity-60 grayscale-[15%]",
       )}
     >
-      {/* Node handles for connections with animated ring */}
+      {/* Node handles for connections */}
       <Handle
         type="target"
         position={Position.Left}
@@ -189,39 +203,34 @@ export function RouteNode({
       />
 
       {/* Main header block */}
-      <div className="border-border/60 flex items-center justify-between border-b px-2.5 py-1.5">
+      <div className="border-border/40 flex items-center justify-between border-b px-3.5 py-2">
         <div className="flex items-center gap-1.5">
           {/* Method Badge with glowing indicator dot */}
           <Badge
             variant="outline"
             className={cn(
-              "flex shrink-0 items-center gap-1 px-1.5 py-0 text-[9px] font-extrabold tracking-wider",
+              "flex shrink-0 items-center gap-1 px-2 py-0 text-[10px] font-extrabold tracking-wider",
               theme.badge,
             )}
           >
             <span
               className={cn(
-                "absolute h-1 w-1 shrink-0 animate-ping rounded-full",
+                "h-1.5 w-1.5 shrink-0 rounded-full",
                 theme.dot,
-              )}
-            />
-            <span
-              className={cn(
-                "relative h-1 w-1 shrink-0 rounded-full",
-                theme.dot,
+                data.isEnabled && "animate-pulse"
               )}
             />
             {method}
           </Badge>
 
-          {/* Status code selector view */}
+          {/* Status code view */}
           <span
             className={cn(
-              "flex shrink-0 items-center gap-0.5 rounded border px-1.5 py-px font-mono text-[9px] font-bold",
+              "flex shrink-0 items-center gap-0.5 rounded px-1.5 py-0.5 font-mono text-[9px] font-bold border border-border/10",
               statusBadgeClass,
             )}
           >
-            <StatusIcon className="h-2.5 w-2.5 shrink-0" />
+            <StatusIcon className="h-3 w-3 shrink-0" />
             {data.statusCode}
           </span>
         </div>
@@ -232,30 +241,36 @@ export function RouteNode({
             checked={data.isEnabled}
             onCheckedChange={handleToggle}
             aria-label="Toggle Route Enabled"
-            className="-mr-1.5 scale-[0.7]"
+            className="-mr-1 scale-[0.7]"
           />
         </div>
       </div>
 
       {/* Path & Config Display */}
-      <div className="bg-muted/15 flex min-h-12 flex-1 flex-col justify-between gap-1.5 px-2.5 py-2">
-        <span className="text-foreground line-clamp-1 font-mono text-[10px] leading-normal font-semibold break-all">
+      <div className="flex flex-col gap-2 px-3.5 py-2.5">
+        <span className="text-foreground font-mono text-[11px] leading-normal font-bold break-all line-clamp-1 bg-muted/30 hover:bg-muted/50 rounded px-1.5 py-0.5 transition-colors border border-border/30">
           {data.path}
         </span>
 
         {/* Info indicators */}
-        {(schemaKeysCount > 0 || headersKeysCount > 0) && (
-          <div className="flex flex-wrap gap-1">
+        {(schemaKeysCount > 0 || headersKeysCount > 0 || rulesCount > 0) && (
+          <div className="flex flex-wrap gap-1 mt-1">
             {schemaKeysCount > 0 && (
-              <span className="bg-primary/10 text-primary border-primary/10 py-0.2 inline-flex items-center gap-0.5 rounded border px-1 text-[8px] font-semibold">
-                <RiCodeLine className="h-2.5 w-2.5 shrink-0" />
+              <span className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/10 py-0.5 inline-flex items-center gap-1 rounded border px-1.5 text-[9px] font-bold">
+                <RiCodeLine className="h-3.5 w-3.5 shrink-0" />
                 <span>JSON ({schemaKeysCount})</span>
               </span>
             )}
             {headersKeysCount > 0 && (
-              <span className="py-0.2 inline-flex items-center gap-0.5 rounded border border-violet-500/10 bg-violet-500/10 px-1 text-[8px] font-semibold text-violet-600 dark:text-violet-400">
-                <RiEqualizerLine className="h-2.5 w-2.5 shrink-0" />
+              <span className="py-0.5 inline-flex items-center gap-1 rounded border border-blue-500/10 bg-blue-500/10 px-1.5 text-[9px] font-bold text-blue-600 dark:text-blue-400">
+                <RiEqualizerLine className="h-3.5 w-3.5 shrink-0" />
                 <span>Headers ({headersKeysCount})</span>
+              </span>
+            )}
+            {rulesCount > 0 && (
+              <span className="py-0.5 inline-flex items-center gap-1 rounded border border-purple-500/10 bg-purple-500/10 px-1.5 text-[9px] font-bold text-purple-600 dark:text-purple-400">
+                <RiGitBranchLine className="h-3.5 w-3.5 shrink-0" />
+                <span>Rules ({rulesCount})</span>
               </span>
             )}
           </div>
@@ -264,9 +279,9 @@ export function RouteNode({
 
       {/* Node Footer indicators */}
       {(hasLatency || hasErrors) && (
-        <div className="bg-muted/40 border-border/50 text-muted-foreground flex items-center gap-2.5 rounded-b-lg border-t px-2.5 py-1 text-[9px] font-semibold">
-          {hasLatency && (
-            <div className="flex items-center gap-0.5">
+        <div className="bg-muted/30 border-border/30 text-muted-foreground flex items-center justify-between rounded-b-xl border-t px-3.5 py-1.5 text-[9px] font-bold">
+          {hasLatency ? (
+            <div className="flex items-center gap-1 bg-amber-500/5 text-amber-600 dark:text-amber-400 border border-amber-500/10 rounded px-1 py-0.5">
               <RiTimeLine className="h-3 w-3 shrink-0 text-amber-500" />
               <span>
                 {data.latencyMin === data.latencyMax
@@ -274,11 +289,13 @@ export function RouteNode({
                   : `${data.latencyMin}-${data.latencyMax}ms`}
               </span>
             </div>
+          ) : (
+            <div />
           )}
           {hasErrors && (
-            <div className="flex items-center gap-0.5">
-              <RiAlertLine className="h-3 w-3 shrink-0 animate-bounce text-rose-500" />
-              <span>{data.errorRate}% Err</span>
+            <div className="flex items-center gap-1 bg-rose-500/5 text-rose-600 dark:text-rose-400 border border-rose-500/10 rounded px-1 py-0.5">
+              <RiAlertLine className="h-3 w-3 shrink-0 animate-pulse text-rose-500" />
+              <span>{data.errorRate}% Err Rate</span>
             </div>
           )}
         </div>
