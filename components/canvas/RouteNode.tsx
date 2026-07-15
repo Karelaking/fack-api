@@ -12,10 +12,15 @@ import {
   RiCodeLine,
   RiEqualizerLine,
   RiGitBranchLine,
+  RiExternalLinkLine,
+  RiSettings2Line,
+  RiFileCopyLine,
 } from "@remixicon/react";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 
 interface RouteNodeData {
   id: string;
@@ -31,6 +36,8 @@ interface RouteNodeData {
   conditionalRules?: string;
   onToggleEnabled: (id: string, isEnabled: boolean) => void;
   onSelectRoute: (id: string) => void;
+  onOpenEdit: (id: string) => void;
+  mockUrl: string;
 }
 
 interface RouteNodeProps {
@@ -181,7 +188,7 @@ export function RouteNode({
     <div
       onClick={() => data.onSelectRoute(data.id)}
       className={cn(
-        "bg-card/90 border-border/80 flex w-64 cursor-pointer flex-col rounded-xl border border-l-4 shadow-sm backdrop-blur-md transition-all duration-300 select-none",
+        "bg-card/90 border-border/80 flex w-52 cursor-pointer flex-col rounded-lg border border-l-4 shadow-sm backdrop-blur-md transition-all duration-300 select-none",
         theme.border,
         theme.glow,
         selected
@@ -203,19 +210,19 @@ export function RouteNode({
       />
 
       {/* Main header block */}
-      <div className="border-border/40 flex items-center justify-between border-b px-3.5 py-2">
-        <div className="flex items-center gap-1.5">
+      <div className="border-border/40 flex items-center justify-between border-b px-2.5 py-1.5">
+        <div className="flex items-center gap-1">
           {/* Method Badge with glowing indicator dot */}
           <Badge
             variant="outline"
             className={cn(
-              "flex shrink-0 items-center gap-1 px-2 py-0 text-[10px] font-extrabold tracking-wider",
+              "flex shrink-0 items-center gap-0.5 px-1 py-0 text-[8.5px] font-extrabold tracking-wider",
               theme.badge,
             )}
           >
             <span
               className={cn(
-                "h-1.5 w-1.5 shrink-0 rounded-full",
+                "h-1 w-1 shrink-0 rounded-full",
                 theme.dot,
                 data.isEnabled && "animate-pulse"
               )}
@@ -226,11 +233,11 @@ export function RouteNode({
           {/* Status code view */}
           <span
             className={cn(
-              "flex shrink-0 items-center gap-0.5 rounded px-1.5 py-0.5 font-mono text-[9px] font-bold border border-border/10",
+              "flex shrink-0 items-center gap-0.5 rounded px-1 py-0.5 font-mono text-[8px] font-bold border border-border/10",
               statusBadgeClass,
             )}
           >
-            <StatusIcon className="h-3 w-3 shrink-0" />
+            <StatusIcon className="h-2.5 w-2.5 shrink-0" />
             {data.statusCode}
           </span>
         </div>
@@ -241,35 +248,35 @@ export function RouteNode({
             checked={data.isEnabled}
             onCheckedChange={handleToggle}
             aria-label="Toggle Route Enabled"
-            className="-mr-1 scale-[0.7]"
+            className="-mr-1 scale-[0.6]"
           />
         </div>
       </div>
 
       {/* Path & Config Display */}
-      <div className="flex flex-col gap-2 px-3.5 py-2.5">
-        <span className="text-foreground font-mono text-[11px] leading-normal font-bold break-all line-clamp-1 bg-muted/30 hover:bg-muted/50 rounded px-1.5 py-0.5 transition-colors border border-border/30">
+      <div className="flex flex-col gap-1.5 px-2.5 py-2">
+        <span className="text-foreground font-mono text-[10.5px] leading-normal font-bold break-all line-clamp-1 bg-muted/30 hover:bg-muted/50 rounded px-1 py-0.5 transition-colors border border-border/30">
           {data.path}
         </span>
 
         {/* Info indicators */}
         {(schemaKeysCount > 0 || headersKeysCount > 0 || rulesCount > 0) && (
-          <div className="flex flex-wrap gap-1 mt-1">
+          <div className="flex flex-wrap gap-1 mt-0.5">
             {schemaKeysCount > 0 && (
-              <span className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/10 py-0.5 inline-flex items-center gap-1 rounded border px-1.5 text-[9px] font-bold">
-                <RiCodeLine className="h-3.5 w-3.5 shrink-0" />
+              <span className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/10 py-0.5 inline-flex items-center gap-0.5 rounded border px-1 text-[8px] font-bold">
+                <RiCodeLine className="h-3 w-3 shrink-0" />
                 <span>JSON ({schemaKeysCount})</span>
               </span>
             )}
             {headersKeysCount > 0 && (
-              <span className="py-0.5 inline-flex items-center gap-1 rounded border border-blue-500/10 bg-blue-500/10 px-1.5 text-[9px] font-bold text-blue-600 dark:text-blue-400">
-                <RiEqualizerLine className="h-3.5 w-3.5 shrink-0" />
+              <span className="py-0.5 inline-flex items-center gap-0.5 rounded border border-blue-500/10 bg-blue-500/10 px-1 text-[8px] font-bold text-blue-600 dark:text-blue-400">
+                <RiEqualizerLine className="h-3 w-3 shrink-0" />
                 <span>Headers ({headersKeysCount})</span>
               </span>
             )}
             {rulesCount > 0 && (
-              <span className="py-0.5 inline-flex items-center gap-1 rounded border border-purple-500/10 bg-purple-500/10 px-1.5 text-[9px] font-bold text-purple-600 dark:text-purple-400">
-                <RiGitBranchLine className="h-3.5 w-3.5 shrink-0" />
+              <span className="py-0.5 inline-flex items-center gap-0.5 rounded border border-purple-500/10 bg-purple-500/10 px-1 text-[8px] font-bold text-purple-600 dark:text-purple-400">
+                <RiGitBranchLine className="h-3 w-3 shrink-0" />
                 <span>Rules ({rulesCount})</span>
               </span>
             )}
@@ -279,10 +286,13 @@ export function RouteNode({
 
       {/* Node Footer indicators */}
       {(hasLatency || hasErrors) && (
-        <div className="bg-muted/30 border-border/30 text-muted-foreground flex items-center justify-between rounded-b-xl border-t px-3.5 py-1.5 text-[9px] font-bold">
+        <div className={cn(
+          "bg-muted/30 border-border/30 text-muted-foreground flex items-center justify-between border-t px-2.5 py-1 text-[8px] font-bold",
+          !selected && "rounded-b-lg"
+        )}>
           {hasLatency ? (
-            <div className="flex items-center gap-1 bg-amber-500/5 text-amber-600 dark:text-amber-400 border border-amber-500/10 rounded px-1 py-0.5">
-              <RiTimeLine className="h-3 w-3 shrink-0 text-amber-500" />
+            <div className="flex items-center gap-0.5 bg-amber-500/5 text-amber-600 dark:text-amber-400 border border-amber-500/10 rounded px-1 py-0.5">
+              <RiTimeLine className="h-2.5 w-2.5 shrink-0 text-amber-500" />
               <span>
                 {data.latencyMin === data.latencyMax
                   ? `${data.latencyMin}ms`
@@ -293,11 +303,30 @@ export function RouteNode({
             <div />
           )}
           {hasErrors && (
-            <div className="flex items-center gap-1 bg-rose-500/5 text-rose-600 dark:text-rose-400 border border-rose-500/10 rounded px-1 py-0.5">
-              <RiAlertLine className="h-3 w-3 shrink-0 animate-pulse text-rose-500" />
-              <span>{data.errorRate}% Err Rate</span>
+            <div className="flex items-center gap-0.5 bg-rose-500/5 text-rose-600 dark:text-rose-400 border border-rose-500/10 rounded px-1 py-0.5">
+              <RiAlertLine className="h-2.5 w-2.5 shrink-0 animate-pulse text-rose-500" />
+              <span>{data.errorRate}% Err</span>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Node expanded actions on selection */}
+      {selected && (
+        <div className="bg-muted/40 border-border/40 flex flex-col gap-1 rounded-b-lg border-t p-1.5 bg-card/60">
+          <Button
+            type="button"
+            size="xs"
+            variant="default"
+            className="w-full gap-1 text-[9px] font-bold h-6 shadow-xs"
+            onClick={(e) => {
+              e.stopPropagation();
+              data.onOpenEdit(data.id);
+            }}
+          >
+            <RiSettings2Line className="h-3 w-3" />
+            <span>Edit Configurations</span>
+          </Button>
         </div>
       )}
 

@@ -38,6 +38,7 @@ export function CanvasContainer({
   const [prevRoutes, setPrevRoutes] = React.useState<Route[]>(routes);
   const [activeRoutes, setActiveRoutes] = React.useState<Route[]>(routes);
   const [isSaving, setIsSaving] = React.useState(false);
+  const [isEditOpen, setIsEditOpen] = React.useState(false);
 
   React.useEffect(() => {
     const handleSaveStart = () => setIsSaving(true);
@@ -69,6 +70,11 @@ export function CanvasContainer({
     setSelectedRouteId(routeId);
   };
 
+  const handleOpenEdit = (routeId: string) => {
+    setSelectedRouteId(routeId);
+    setIsEditOpen(true);
+  };
+
   const handleRouteUpdated = (updatedRoute: Route) => {
     setActiveRoutes((prev) =>
       prev.map((r) => (r.id === updatedRoute.id ? updatedRoute : r)),
@@ -78,6 +84,7 @@ export function CanvasContainer({
   const handleRouteDeleted = (routeId: string) => {
     setActiveRoutes((prev) => prev.filter((r) => r.id !== routeId));
     setSelectedRouteId(null);
+    setIsEditOpen(false);
   };
 
   return (
@@ -115,10 +122,12 @@ export function CanvasContainer({
         <FlowCanvas
           projectId={projectId}
           projectSlug={projectSlug}
+          customDomain={customDomain}
           endpoints={endpoints}
           routes={activeRoutes}
           initialState={initialState}
           onSelectRoute={handleSelectRoute}
+          onOpenEdit={handleOpenEdit}
         />
       </div>
 
@@ -129,10 +138,8 @@ export function CanvasContainer({
           projectSlug={projectSlug}
           customDomain={customDomain}
           endpoints={endpoints}
-          open={!!selectedRouteId}
-          onOpenChange={(open) => {
-            if (!open) setSelectedRouteId(null);
-          }}
+          open={isEditOpen}
+          onOpenChange={setIsEditOpen}
           onRouteUpdated={handleRouteUpdated}
           onRouteDeleted={handleRouteDeleted}
         />

@@ -36,6 +36,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 
 interface EditBarProps {
   route: Route;
@@ -187,237 +188,122 @@ function EditBarInner({
     return JSON.stringify(synthesizeSchema(fields), null, 2);
   }, [fields]);
 
-  const parentEndpoint = React.useMemo(() => {
-    return endpoints.find((ep) => ep.id === route.endpointId);
-  }, [endpoints, route.endpointId]);
-
-  const basePath = parentEndpoint?.basePath || "";
-
-  const origin = typeof window !== "undefined" ? window.location.origin : "";
-
-  let fullMockUrl = "";
-  if (customDomain) {
-    const protocol = typeof window !== "undefined" ? window.location.protocol + "//" : "http://";
-    fullMockUrl = `${protocol}${customDomain}${basePath}${route.path}`;
-  } else {
-    fullMockUrl = `${origin}/${projectSlug}${basePath}${route.path}`;
-  }
-
   return (
     <div className="flex h-full flex-col overflow-hidden">
-      <SheetHeader className="border-border shrink-0 border-b pb-1.5">
+      <SheetHeader className="border-border shrink-0 border-b pb-2">
         <SheetTitle className="flex items-center gap-1.5 text-base">
           <RiSettings2Line className="text-primary h-4 w-4" />
           <span>Edit Route Config</span>
         </SheetTitle>
         <SheetDescription className="text-[11px]">
-          Simulate status codes, headers, delays, and configure response
-          payloads.
+          Simulate status codes, headers, delays, and configure response payloads.
         </SheetDescription>
       </SheetHeader>
 
-      {/* Copyable Mock URL Input bar */}
-      <div className="border-border bg-muted/30 mt-2.5 flex shrink-0 flex-col gap-1 rounded-md border p-2">
-        <label className="text-muted-foreground text-[9px] font-bold tracking-wider uppercase">
-          Mock Endpoint URL
-        </label>
-        <div className="flex items-center gap-1">
-          <span className="border-border bg-card text-foreground flex h-7 flex-1 items-center truncate rounded border px-2 font-mono text-[11px] select-all">
-            {fullMockUrl}
-          </span>
-          <Button
-            type="button"
-            size="icon"
-            variant="outline"
-            className="hover:bg-primary/5 h-7 w-7 shrink-0"
-            onClick={async () => {
-              try {
-                await navigator.clipboard.writeText(fullMockUrl);
-                toast.success("Mock URL copied to clipboard!");
-              } catch {
-                toast.error("Failed to copy URL");
-              }
-            }}
-          >
-            <RiFileCopyLine className="h-4 w-4" />
-          </Button>
-        </div>
-
-        {/* Collapsible Default RESTful Query Endpoints */}
-        <details className="group border-border/50 mt-1 border-t pt-1.5 text-xs">
-          <summary className="text-muted-foreground hover:text-foreground flex cursor-pointer list-none items-center justify-between text-[9px] font-bold tracking-wider uppercase transition-colors select-none">
-            <span>Query & Pagination Endpoints</span>
-            <RiArrowDownSLine className="text-muted-foreground h-3.5 w-3.5 shrink-0 transition-transform group-open:rotate-180" />
-          </summary>
-          <div className="mt-1.5 max-h-27.5 space-y-1 overflow-y-auto pt-0.5 pr-1 pb-1">
-            {[
-              {
-                label: "Limit Items (limit)",
-                suffix: "?limit=5",
-                desc: "Limits the generated array payload to exactly N items.",
-              },
-              {
-                label: "Limit Items (count)",
-                suffix: "?count=10",
-                desc: "Alternative parameter to specify the limit.",
-              },
-              {
-                label: "Pagination",
-                suffix: "?page=2&limit=5",
-                desc: "Retrieves a paginated chunk of mock database items.",
-              },
-              {
-                label: "Global Search",
-                suffix: "?q=search_term",
-                desc: "Searches all fields for matches containing the query.",
-              },
-              {
-                label: "Sorting",
-                suffix: "?sort=createdAt&order=desc",
-                desc: "Sorts records by a specific field in asc/desc order.",
-              },
-              {
-                label: "Field Filter",
-                suffix: "?id=uuid-here",
-                desc: "Filters generated array by field exact matches.",
-              },
-            ].map((opt, oIdx) => {
-              const optUrl = `${fullMockUrl}${opt.suffix}`;
-              return (
-                <div
-                  key={oIdx}
-                  className="border-border/30 bg-muted/20 flex flex-col gap-0.5 rounded border p-1.5"
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-foreground text-[11px] font-semibold">
-                      {opt.label}
-                    </span>
-                    <Button
-                      type="button"
-                      size="icon"
-                      variant="ghost"
-                      className="text-muted-foreground hover:bg-primary/5 hover:text-foreground h-5 w-5 shrink-0"
-                      title={`Copy URL for ${opt.label}`}
-                      onClick={async () => {
-                        try {
-                          await navigator.clipboard.writeText(optUrl);
-                          toast.success(`Copied query: ${opt.label}`);
-                        } catch {
-                          toast.error("Failed to copy URL");
-                        }
-                      }}
-                    >
-                      <RiFileCopyLine className="h-3 w-3" />
-                    </Button>
-                  </div>
-                  <span className="border-border bg-card text-muted-foreground truncate rounded border px-1.5 py-0.5 font-mono text-[9px] select-all">
-                    {optUrl}
-                  </span>
-                  <span className="text-muted-foreground/80 text-[10px] leading-normal">
-                    {opt.desc}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        </details>
-      </div>
-
       {/* Core Endpoint settings form fields (Method, Path, Status Code, Status Enabled) */}
-      <div className="mt-3.5 grid grid-cols-12 gap-3 border-b border-border pb-3.5 shrink-0">
-        <div className="col-span-3 flex flex-col gap-1.5">
-          <label htmlFor="route-method" className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
-            Method
-          </label>
-          <select
-            id="route-method"
-            value={method}
-            onChange={(e) => setMethod(e.target.value as any)}
-            className="flex h-8 w-full rounded-md border border-input bg-background px-2 py-1 text-xs font-semibold shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-            disabled={loading}
-          >
-            <option value="GET">GET</option>
-            <option value="POST">POST</option>
-            <option value="PUT">PUT</option>
-            <option value="DELETE">DELETE</option>
-            <option value="PATCH">PATCH</option>
-          </select>
+      <div className="bg-muted/15 border-border/40 mt-3 rounded-lg border p-3.5 space-y-3 shrink-0">
+        <div className="grid grid-cols-12 gap-3">
+          {/* Method Selector */}
+          <div className="col-span-4 flex flex-col gap-1">
+            <label htmlFor="route-method" className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+              Method
+            </label>
+            <select
+              id="route-method"
+              value={method}
+              onChange={(e) => setMethod(e.target.value as any)}
+              className="flex h-8 w-full rounded border border-input bg-background px-2.5 py-1 text-xs font-bold shadow-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              disabled={loading}
+            >
+              <option value="GET">GET</option>
+              <option value="POST">POST</option>
+              <option value="PUT">PUT</option>
+              <option value="DELETE">DELETE</option>
+              <option value="PATCH">PATCH</option>
+            </select>
+          </div>
+
+          {/* Path Input */}
+          <div className="col-span-8 flex flex-col gap-1">
+            <label htmlFor="route-path" className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+              Route Path
+            </label>
+            <Input
+              id="route-path"
+              value={path}
+              onChange={(e) => setPath(e.target.value)}
+              className="h-8 text-xs font-mono font-semibold"
+              disabled={loading}
+            />
+          </div>
         </div>
 
-        <div className="col-span-4 flex flex-col gap-1.5">
-          <label htmlFor="route-path" className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
-            Route Path
-          </label>
-          <Input
-            id="route-path"
-            value={path}
-            onChange={(e) => setPath(e.target.value)}
-            className="h-8 text-xs font-mono"
-            disabled={loading}
-          />
-        </div>
+        <div className="grid grid-cols-12 gap-3 items-center">
+          {/* Status Code */}
+          <div className="col-span-6 flex flex-col gap-1">
+            <label htmlFor="route-status" className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+              Response Status Code
+            </label>
+            <Input
+              id="route-status"
+              type="number"
+              value={statusCode}
+              onChange={(e) => setStatusCode(parseInt(e.target.value) || 200)}
+              className="h-8 text-xs font-bold"
+              disabled={loading}
+              min={100}
+              max={599}
+            />
+          </div>
 
-        <div className="col-span-3 flex flex-col gap-1.5">
-          <label htmlFor="route-status" className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
-            Status Code
-          </label>
-          <Input
-            id="route-status"
-            type="number"
-            value={statusCode}
-            onChange={(e) => setStatusCode(parseInt(e.target.value) || 200)}
-            className="h-8 text-xs"
-            disabled={loading}
-            min={100}
-            max={599}
-          />
-        </div>
-
-        <div className="col-span-2 flex flex-col items-center justify-center gap-1 pt-3.5">
-          <Switch
-            id="route-enabled"
-            checked={isEnabled}
-            onCheckedChange={setIsEnabled}
-            disabled={loading}
-          />
-          <label htmlFor="route-enabled" className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider cursor-pointer">
-            Enabled
-          </label>
+          {/* Enabled Switch Row */}
+          <div className="col-span-6 flex items-center justify-between border border-dashed rounded px-3 py-1 bg-background h-8 mt-4.5">
+            <label htmlFor="route-enabled" className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider cursor-pointer">
+              Route Enabled
+            </label>
+            <Switch
+              id="route-enabled"
+              checked={isEnabled}
+              onCheckedChange={setIsEnabled}
+              disabled={loading}
+              className="scale-75"
+            />
+          </div>
         </div>
       </div>
 
       <Tabs
         defaultValue="schema"
-        className="mt-2.5 flex min-h-0 min-w-0 flex-1 flex-col"
+        className="mt-3 flex min-h-0 min-w-0 flex-1 flex-col"
       >
-        <TabsList className="bg-muted grid h-8 shrink-0 grid-cols-5">
+        <TabsList className="bg-muted grid h-8.5 shrink-0 grid-cols-5 p-1 rounded-lg">
           <TabsTrigger
             value="schema"
-            className="px-1.5 text-[11px] font-semibold"
+            className="px-1 text-[10.5px] font-bold rounded-md"
           >
             Schema
           </TabsTrigger>
           <TabsTrigger
             value="rules"
-            className="px-1.5 text-[11px] font-semibold"
+            className="px-1 text-[10.5px] font-bold rounded-md"
           >
             Rules
           </TabsTrigger>
           <TabsTrigger
             value="behavior"
-            className="px-1.5 text-[11px] font-semibold"
+            className="px-1 text-[10.5px] font-bold rounded-md"
           >
             Chaos
           </TabsTrigger>
           <TabsTrigger
             value="headers"
-            className="px-1.5 text-[11px] font-semibold"
+            className="px-1 text-[10.5px] font-bold rounded-md"
           >
             Headers
           </TabsTrigger>
           <TabsTrigger
             value="preview"
-            className="px-1.5 text-[11px] font-semibold"
+            className="px-1 text-[10.5px] font-bold rounded-md"
           >
             Preview
           </TabsTrigger>
@@ -480,13 +366,13 @@ function EditBarInner({
       </Tabs>
 
       {/* Save panel footer triggers */}
-      <div className="border-border bg-card mt-auto flex shrink-0 items-center justify-between border-t pt-2.5">
+      <div className="border-border bg-card mt-auto flex shrink-0 items-center justify-between border-t pt-3">
         <Button
           variant="destructive"
           size="sm"
           onClick={handleDelete}
           disabled={loading}
-          className="h-8 gap-1 text-xs font-semibold"
+          className="h-8 gap-1 text-xs font-bold"
         >
           {loading ? (
             <RiLoader2Line className="h-4 w-4 animate-spin" />
@@ -502,7 +388,7 @@ function EditBarInner({
             size="sm"
             onClick={() => onOpenChange(false)}
             disabled={loading}
-            className="h-8 text-xs font-semibold"
+            className="h-8 text-xs font-bold"
           >
             Cancel
           </Button>
@@ -510,7 +396,7 @@ function EditBarInner({
             size="sm"
             onClick={handleSave}
             disabled={loading}
-            className="h-8 gap-1 text-xs font-semibold"
+            className="h-8 gap-1 text-xs font-bold"
           >
             {loading ? (
               <RiLoader2Line className="h-4 w-4 animate-spin" />
@@ -556,7 +442,7 @@ export function EditBar({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="flex h-full w-full flex-col overflow-hidden p-3.5 sm:max-w-135">
+      <SheetContent className="flex h-full w-full flex-col overflow-hidden p-4 sm:max-w-135">
         <SchemaStoreProvider initialFields={initialFields}>
           <EditBarInner
             route={route}

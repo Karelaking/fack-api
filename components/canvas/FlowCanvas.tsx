@@ -43,7 +43,9 @@ interface FlowCanvasInnerProps {
     edges: string;
     viewport: string;
   };
+  customDomain?: string | null;
   onSelectRoute: (routeId: string) => void;
+  onOpenEdit: (routeId: string) => void;
 }
 
 /**
@@ -52,12 +54,13 @@ interface FlowCanvasInnerProps {
  */
 function FlowCanvasInner({
   projectId,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  projectSlug: _projectSlug,
+  projectSlug,
+  customDomain,
   endpoints,
   routes,
   initialState,
   onSelectRoute,
+  onOpenEdit,
 }: FlowCanvasInnerProps): React.JSX.Element {
   const reactFlowInstance = useReactFlow();
   const router = useRouter();
@@ -139,6 +142,17 @@ function FlowCanvasInner({
 
       const savedRouteNode = savedNodes.find((n) => n.id === route.id);
 
+      const endpoint = dbEndpointsMap.get(route.endpointId);
+      const basePath = endpoint?.basePath || "";
+      const origin = typeof window !== "undefined" ? window.location.origin : "";
+      let fullMockUrl = "";
+      if (customDomain) {
+        const protocol = typeof window !== "undefined" ? window.location.protocol + "//" : "http://";
+        fullMockUrl = `${protocol}${customDomain}${basePath}${route.path}`;
+      } else {
+        fullMockUrl = `${origin}/${projectSlug}${basePath}${route.path}`;
+      }
+
       const routeData = {
         id: route.id,
         method: route.method,
@@ -160,6 +174,8 @@ function FlowCanvasInner({
           }
         },
         onSelectRoute,
+        onOpenEdit,
+        mockUrl: fullMockUrl,
       };
 
       if (savedRouteNode) {
@@ -214,10 +230,34 @@ function FlowCanvasInner({
         animated: true,
         style: { stroke: "#6366f1", strokeWidth: 2.5, strokeDasharray: "6 4" },
       }));
-  }, [initialState, routes]);
+  }, [initialState, routes, customDomain, projectSlug, onOpenEdit, onSelectRoute]);
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+
+  // Sync selected node mock links with global dashboard sidebar
+  React.useEffect(() => {
+    const selectedRouteNode = nodes.find(
+      (n) => n.selected && n.type === "routeNode",
+    );
+    if (selectedRouteNode) {
+      const data = selectedRouteNode.data as any;
+      window.dispatchEvent(
+        new CustomEvent("route-selected", {
+          detail: {
+            id: selectedRouteNode.id,
+            path: data.path,
+            method: data.method,
+            mockUrl: data.mockUrl,
+          },
+        }),
+      );
+    } else {
+      window.dispatchEvent(
+        new CustomEvent("route-selected", { detail: null }),
+      );
+    }
+  }, [nodes]);
 
   // Reconcile and sync nodes state when routes or endpoints props change (ensures correct group sizes and node placements)
   React.useEffect(() => {
@@ -262,6 +302,17 @@ function FlowCanvasInner({
 
         const existingRouteNode = prevNodes.find((n) => n.id === route.id);
 
+        const endpoint = dbEndpointsMap.get(route.endpointId);
+        const basePath = endpoint?.basePath || "";
+        const origin = typeof window !== "undefined" ? window.location.origin : "";
+        let fullMockUrl = "";
+        if (customDomain) {
+          const protocol = typeof window !== "undefined" ? window.location.protocol + "//" : "http://";
+          fullMockUrl = `${protocol}${customDomain}${basePath}${route.path}`;
+        } else {
+          fullMockUrl = `${origin}/${projectSlug}${basePath}${route.path}`;
+        }
+
         const routeData = {
           id: route.id,
           method: route.method,
@@ -283,6 +334,8 @@ function FlowCanvasInner({
             }
           },
           onSelectRoute,
+          onOpenEdit,
+          mockUrl: fullMockUrl,
         };
 
         if (existingRouteNode) {

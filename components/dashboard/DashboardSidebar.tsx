@@ -11,6 +11,7 @@ import {
   RiPulseLine,
   RiFileHistoryLine,
   RiSettings2Line,
+  RiFileCopyLine,
 } from "@remixicon/react";
 import { toast } from "sonner";
 import { createProject } from "@/lib/actions/projects";
@@ -65,7 +66,23 @@ export function DashboardSidebar({
   const [slug, setSlug] = React.useState("");
   const [description, setDescription] = React.useState("");
 
+  const [selectedRoute, setSelectedRoute] = React.useState<{
+    id: string;
+    path: string;
+    method: string;
+    mockUrl: string;
+  } | null>(null);
+
   // Sync projects list when server list updates
+  React.useEffect(() => {
+    const handleSelected = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      setSelectedRoute(customEvent.detail);
+    };
+
+    window.addEventListener("route-selected", handleSelected);
+    return () => window.removeEventListener("route-selected", handleSelected);
+  }, []);
   React.useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setProjects(initialProjects);
@@ -221,6 +238,98 @@ export function DashboardSidebar({
               )}
             </SidebarGroupContent>
           </SidebarGroup>
+
+          {/* Dynamic Selected Route Links Section */}
+          {selectedRoute && (
+            <SidebarGroup className="mt-3 border-t border-border/60 pt-3">
+              <SidebarGroupLabel className="text-foreground/90 flex items-center justify-between px-2 text-[10px] font-bold tracking-wider uppercase">
+                <span>Selected Route Link</span>
+              </SidebarGroupLabel>
+              <div className="px-2 py-2 space-y-3.5">
+                {/* Method & Path Display */}
+                <div className="flex items-center gap-2 bg-muted/40 border border-border/40 rounded-lg p-2">
+                  <span className={cn(
+                    "px-2 py-0.5 text-[9.5px] font-extrabold rounded-md uppercase tracking-wider shrink-0",
+                    selectedRoute.method.toUpperCase() === "GET" && "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20",
+                    selectedRoute.method.toUpperCase() === "POST" && "bg-blue-500/15 text-blue-600 dark:text-blue-400 border border-blue-500/20",
+                    selectedRoute.method.toUpperCase() === "PUT" && "bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/20",
+                    selectedRoute.method.toUpperCase() === "DELETE" && "bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/20",
+                    selectedRoute.method.toUpperCase() === "PATCH" && "bg-purple-500/15 text-purple-600 dark:text-purple-400 border border-purple-500/20",
+                  )}>
+                    {selectedRoute.method}
+                  </span>
+                  <span className="text-[11px] font-mono font-bold truncate text-foreground flex-1">
+                    {selectedRoute.path}
+                  </span>
+                </div>
+
+                {/* Base Link (Copyable Input-like box) */}
+                <div className="flex flex-col gap-1">
+                  <span className="text-[8px] font-bold text-muted-foreground uppercase tracking-wider block px-0.5">Mock URL</span>
+                  <div className="flex items-center gap-1.5 bg-background border border-border/80 rounded-md p-1.5 shadow-xs">
+                    <span className="text-[11px] font-mono font-bold text-foreground truncate select-all flex-1 pl-1 leading-normal">
+                      {selectedRoute.mockUrl}
+                    </span>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-6 w-6 hover:bg-muted text-muted-foreground hover:text-foreground shrink-0 rounded"
+                      title="Copy URL"
+                      onClick={async () => {
+                        try {
+                          await navigator.clipboard.writeText(selectedRoute.mockUrl);
+                          toast.success("Mock link copied!");
+                        } catch {
+                          toast.error("Failed to copy link");
+                        }
+                      }}
+                    >
+                      <RiFileCopyLine className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Query Parameters Helper List */}
+                <div className="space-y-1.5">
+                  <span className="text-[8px] font-bold text-muted-foreground uppercase tracking-wider block px-0.5">Query Parameters</span>
+                  <div className="space-y-1 max-h-48 overflow-y-auto pr-0.5 border rounded-lg bg-muted/20 p-2 border-border/50">
+                    {[
+                      { param: "?limit=5", desc: "Limit output array items" },
+                      { param: "?q=search", desc: "Global text search" },
+                      { param: "?page=2&limit=5", desc: "Paginate mock output" },
+                      { param: "?sort=id&order=desc", desc: "Sort records" },
+                      { param: "?field=value", desc: "Exact field match" },
+                    ].map((opt, oIdx) => {
+                      const optUrl = `${selectedRoute.mockUrl}${opt.param}`;
+                      return (
+                        <div key={oIdx} className="flex items-center justify-between gap-2 px-1.5 py-1 rounded-md hover:bg-background transition-colors border border-transparent hover:border-border/30">
+                          <div className="flex flex-col min-w-0 flex-1">
+                            <span className="font-mono text-[9.5px] font-bold text-primary truncate leading-normal">{opt.param}</span>
+                            <span className="text-muted-foreground text-[8px] truncate leading-normal">{opt.desc}</span>
+                          </div>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            className="h-6 w-6 text-muted-foreground hover:text-foreground shrink-0 rounded"
+                            onClick={async () => {
+                              try {
+                                await navigator.clipboard.writeText(optUrl);
+                                toast.success(`Copied parameter URL`);
+                              } catch {
+                                toast.error("Failed to copy link");
+                              }
+                            }}
+                          >
+                            <RiFileCopyLine className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            </SidebarGroup>
+          )}
         </SidebarContent>
 
         <SidebarFooter className="border-border flex flex-row items-center justify-between gap-4 border-t p-3">
