@@ -4,6 +4,7 @@ import { projects } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { buildResponse } from "@/lib/mock-engine";
 import { processMockRequest } from "@/lib/mock-handler-core";
+import { getCachedProjectBySlug, setCachedProjectBySlug } from "@/lib/cache";
 
 export const dynamic = "force-dynamic";
 
@@ -46,22 +47,41 @@ async function handleMockRequest(
     }
 
     // ── Find the Project and Request Path ──────────────────────────────
-    // Candidate prefixes from longest to shortest
-    // e.g. for ["api", "v1", "users"], candidates are: "api/v1/users", "api/v1", "api"
     let project = null;
     let requestPath = "";
 
+    // Candidate prefixes from longest to shortest
+    const candidates: string[] = [];
     for (let i = slug.length; i > 0; i--) {
-      const candidateSlug = slug.slice(0, i).join("/");
-      console.log("[fack-api] Checking candidate slug:", candidateSlug);
-      const foundProject = await db.query.projects.findFirst({
-        where: eq(projects.slug, candidateSlug),
-      });
-      if (foundProject) {
-        console.log("[fack-api] Resolved project slug:", foundProject.slug);
-        project = foundProject;
-        requestPath = "/" + slug.slice(i).join("/");
+      candidates.push(slug.slice(0, i).join("/"));
+    }
+
+    // Try finding in cache first
+    for (const candidate of candidates) {
+      const cached = getCachedProjectBySlug(candidate);
+      if (cached) {
+        project = cached;
+        const slugCount = candidate.split("/").length;
+        requestPath = "/" + slug.slice(slugCount).join("/");
         break;
+      }
+    }
+
+    // Fallback to database query if not cached
+    if (!project) {
+      for (let i = slug.length; i > 0; i--) {
+        const candidateSlug = slug.slice(0, i).join("/");
+        console.log("[fack-api] Checking candidate slug:", candidateSlug);
+        const foundProject = await db.query.projects.findFirst({
+          where: eq(projects.slug, candidateSlug),
+        });
+        if (foundProject) {
+          console.log("[fack-api] Resolved project slug (DB):", foundProject.slug);
+          project = foundProject;
+          requestPath = "/" + slug.slice(i).join("/");
+          setCachedProjectBySlug(candidateSlug, foundProject);
+          break;
+        }
       }
     }
 

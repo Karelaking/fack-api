@@ -5,6 +5,7 @@ import { endpoints } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { generateId } from "@/lib/utils";
+import { clearCache } from "@/lib/cache";
 import {
   createEndpointSchema,
   updateEndpointSchema,
@@ -69,6 +70,7 @@ export async function createEndpoint(input: CreateEndpointInput): Promise<(typeo
     })
     .returning();
 
+  clearCache();
   revalidatePath("/");
   return endpoint;
 }
@@ -83,11 +85,13 @@ export async function updateEndpoint(input: UpdateEndpointInput): Promise<(typeo
     .where(eq(endpoints.id, id))
     .returning();
 
+  clearCache();
   revalidatePath("/");
   return endpoint;
 }
 
 export async function deleteEndpoint(id: string): Promise<void> {
   await db.delete(endpoints).where(eq(endpoints.id, id));
+  clearCache();
   revalidatePath("/");
 }

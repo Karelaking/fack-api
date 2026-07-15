@@ -4,6 +4,7 @@ import { projects } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { buildResponse } from "@/lib/mock-engine";
 import { processMockRequest } from "@/lib/mock-handler-core";
+import { getCachedProjectByDomain, setCachedProjectByDomain } from "@/lib/cache";
 
 export const dynamic = "force-dynamic";
 
@@ -60,9 +61,17 @@ async function handleMockRequest(
     const requestPath = "/" + (slug?.join("/") ?? "");
 
     // ── Find the Project by Custom Domain ──────────────────────────────
-    const project = await db.query.projects.findFirst({
-      where: eq(projects.customDomain, domain),
-    });
+    let project = getCachedProjectByDomain(domain);
+
+    if (!project) {
+      project = await db.query.projects.findFirst({
+        where: eq(projects.customDomain, domain),
+      });
+
+      if (project) {
+        setCachedProjectByDomain(domain, project);
+      }
+    }
 
     if (!project) {
       return buildResponse(

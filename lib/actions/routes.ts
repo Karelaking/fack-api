@@ -5,6 +5,7 @@ import { routes } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { generateId } from "@/lib/utils";
+import { clearCache } from "@/lib/cache";
 import {
   createRouteSchema,
   updateRouteSchema,
@@ -52,6 +53,7 @@ export async function createRoute(input: CreateRouteInput) {
     })
     .returning();
 
+  clearCache();
   revalidatePath("/");
   return route;
 }
@@ -66,11 +68,13 @@ export async function updateRoute(input: UpdateRouteInput) {
     .where(eq(routes.id, id))
     .returning();
 
+  clearCache();
   revalidatePath("/");
   return route;
 }
 
 export async function deleteRoute(id: string) {
   await db.delete(routes).where(eq(routes.id, id));
+  clearCache();
   revalidatePath("/");
 }

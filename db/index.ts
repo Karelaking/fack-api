@@ -45,8 +45,14 @@ function createDatabase() {
       is_error INTEGER NOT NULL,
       response_payload TEXT DEFAULT ''
     );
-  `).catch((err) => {
-    console.error("[fack-api] Failed to bootstrap SQLite request_logs table:", err);
+  `).then(() => {
+    // Bootstrap index for query performance
+    return client.execute(`
+      CREATE INDEX IF NOT EXISTS idx_request_logs_project_timestamp 
+      ON request_logs(project_id, timestamp DESC);
+    `);
+  }).catch((err) => {
+    console.error("[fack-api] Failed to bootstrap SQLite request_logs table/index:", err);
   });
 
   return drizzle(client, { schema });

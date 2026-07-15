@@ -6,6 +6,13 @@ import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { generateId, slugify } from "@/lib/utils";
 import {
+  getCachedProjectsList,
+  setCachedProjectsList,
+  getCachedProjectBySlug,
+  setCachedProjectBySlug,
+  clearCache,
+} from "@/lib/cache";
+import {
   createProjectSchema,
   updateProjectSchema,
   type CreateProjectInput,
@@ -13,8 +20,11 @@ import {
 } from "@/lib/validators";
 
 export async function getProjects(): Promise<(typeof projects.$inferSelect)[]> {
+  const cached = getCachedProjectsList();
+  if (cached) return cached;
+
   try {
-    return await db.query.projects.findMany({
+    const list = await db.query.projects.findMany({
       orderBy: (projects, { desc }) => [desc(projects.updatedAt)],
       with: {
         endpoints: {
@@ -24,6 +34,8 @@ export async function getProjects(): Promise<(typeof projects.$inferSelect)[]> {
         },
       },
     });
+    setCachedProjectsList(list);
+    return list;
   } catch (error) {
     const message = error instanceof Error ? error.message : "";
     if (message.includes("no such table: projects")) {
@@ -38,7 +50,10 @@ export async function getProjects(): Promise<(typeof projects.$inferSelect)[]> {
 }
 
 export async function getProjectBySlug(slug: string): Promise<(typeof projects.$inferSelect) | undefined> {
-  return db.query.projects.findFirst({
+  const cached = getCachedProjectBySlug(slug);
+  if (cached) return cached;
+
+  const project = await db.query.projects.findFirst({
     where: eq(projects.slug, slug),
     with: {
       endpoints: {
@@ -48,6 +63,11 @@ export async function getProjectBySlug(slug: string): Promise<(typeof projects.$
       },
     },
   });
+
+  if (project) {
+    setCachedProjectBySlug(slug, project);
+  }
+  return project;
 }
 
 export async function getProjectById(id: string): Promise<(typeof projects.$inferSelect) | undefined> {
@@ -80,6 +100,7 @@ export async function createProject(input: CreateProjectInput): Promise<(typeof 
     })
     .returning();
 
+  clearCache();
   revalidatePath("/");
   return project;
 }
@@ -102,11 +123,13 @@ export async function updateProject(input: UpdateProjectInput): Promise<(typeof 
     .where(eq(projects.id, id))
     .returning();
 
+  clearCache();
   revalidatePath("/");
   return project;
 }
 
 export async function deleteProject(id: string): Promise<void> {
   await db.delete(projects).where(eq(projects.id, id));
+  clearCache();
   revalidatePath("/");
 }

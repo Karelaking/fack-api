@@ -1,9 +1,11 @@
 import type { NextRequest } from "next/server";
+import { after } from "next/server";
 import { db } from "@/db";
 import { endpoints, type Project } from "@/db/schema";
 import { sqlClient } from "@/db/postgres";
 import { eq } from "drizzle-orm";
 import { findMatchingRoute } from "@/lib/route-matcher";
+import { getCachedRoutes, setCachedRoutes } from "@/lib/cache";
 import {
   generatePayload,
   applyLatency,
@@ -33,7 +35,7 @@ export async function processMockRequest({
   requestPath: string;
   request: NextRequest;
   startTime: number;
-}): Promise<Response> {
+  }): Promise<Response> {
   let matchedPath = requestPath;
   let matchedMethod = request.method;
 
@@ -77,23 +79,29 @@ export async function processMockRequest({
   try {
     const method = request.method;
 
-    // ── 3. Load All Enabled Routes for This Project ──────────────────────
-    const projectEndpoints = await db.query.endpoints.findMany({
-      where: eq(endpoints.projectId, project.id),
-      with: {
-        routes: true,
-      },
-    });
+    // ── 3. Load All Enabled Routes for This Project (with Cache) ─────────
+    let allRoutes = getCachedRoutes(project.id);
 
-    // Flatten all routes across endpoints, prepending the endpoint's basePath
-    const allRoutes = projectEndpoints.flatMap((endpoint) =>
-      endpoint.routes
-        .filter((route) => route.isEnabled)
-        .map((route) => ({
-          ...route,
-          path: normalizePath(`${endpoint.basePath}${route.path}`),
-        }))
-    );
+    if (!allRoutes) {
+      const projectEndpoints = await db.query.endpoints.findMany({
+        where: eq(endpoints.projectId, project.id),
+        with: {
+          routes: true,
+        },
+      });
+
+      // Flatten all routes across endpoints, prepending the endpoint's basePath
+      allRoutes = projectEndpoints.flatMap((endpoint) =>
+        endpoint.routes
+          .filter((route) => route.isEnabled)
+          .map((route) => ({
+            ...route,
+            path: normalizePath(`${endpoint.basePath}${route.path}`),
+          }))
+      );
+
+      setCachedRoutes(project.id, allRoutes);
+    }
 
     // ── 4. Match the Incoming Path Against Route Patterns ────────────────
     const matchResult = findMatchingRoute(allRoutes, method, normalizePath(requestPath));
@@ -108,7 +116,7 @@ export async function processMockRequest({
         })),
       };
       const response = buildResponse(errBody, 404);
-      await logRequest(404, true, errBody);
+      after(() => logRequest(404, true, errBody));
       return response;
     }
 
@@ -123,7 +131,7 @@ export async function processMockRequest({
         customHeaders = JSON.parse(route.customHeaders ?? "{}");
       } catch {}
       const response = buildResponse(ruleMatch.body, ruleMatch.status, customHeaders);
-      await logRequest(ruleMatch.status, ruleMatch.status >= 400, ruleMatch.body);
+      after(() => logRequest(ruleMatch.status, ruleMatch.status >= 400, ruleMatch.body));
       return response;
     }
 
@@ -135,7 +143,7 @@ export async function processMockRequest({
         message: `Simulated error for ${method} ${requestPath} (error rate: ${route.errorRate}%)`,
       };
       const response = buildErrorResponse(500, errBody.message);
-      await logRequest(500, true, errBody);
+      after(() => logRequest(500, true, errBody));
       return response;
     }
 
@@ -209,13 +217,13 @@ export async function processMockRequest({
 
     // ── 10. Build and Return Response ────────────────────────────────────
     const response = buildResponse(payload, route.statusCode, customHeaders);
-    await logRequest(route.statusCode, route.statusCode >= 400, payload);
+    after(() => logRequest(route.statusCode, route.statusCode >= 400, payload));
     return response;
   } catch (error) {
     console.error("[fack-api] Mock request handler error:", error);
     const errBody = { error: true, message: "Internal mock server error" };
     const response = buildErrorResponse(500, errBody.message);
-    await logRequest(500, true, errBody);
+    after(() => logRequest(500, true, errBody));
     return response;
   }
 }

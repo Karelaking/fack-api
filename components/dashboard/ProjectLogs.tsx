@@ -13,7 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { clearRequestLogs } from "@/lib/actions/logs";
+import { clearRequestLogs, getRequestLogs } from "@/lib/actions/logs";
 import type { RequestLog } from "@/db/schema";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -21,13 +21,11 @@ import { cn } from "@/lib/utils";
 interface ProjectLogsProps {
   projectId: string;
   initialLogs: RequestLog[];
-  onRefresh: () => Promise<RequestLog[]>;
 }
 
 export function ProjectLogs({
   projectId,
   initialLogs,
-  onRefresh,
 }: ProjectLogsProps): React.JSX.Element {
   const [logs, setLogs] = React.useState<RequestLog[]>(initialLogs);
   const [loading, setLoading] = React.useState(false);
@@ -38,7 +36,7 @@ export function ProjectLogs({
   const handleRefresh = async () => {
     setLoading(true);
     try {
-      const refreshed = await onRefresh();
+      const refreshed = await getRequestLogs(projectId);
       setLogs(refreshed);
       toast.success("Logs refreshed");
     } catch {

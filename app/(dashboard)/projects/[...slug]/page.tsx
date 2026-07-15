@@ -55,8 +55,10 @@ export default async function UnifiedProjectPage({ params }: ProjectPageProps): 
   // Render the appropriate component based on subpage
   let content: React.JSX.Element | null = null;
   if (subpage === "canvas") {
-    const endpointsList = await getEndpoints(project.id);
-    const canvasState = await getCanvasState(project.id);
+    const [endpointsList, canvasState] = await Promise.all([
+      getEndpoints(project.id),
+      getCanvasState(project.id),
+    ]);
     const routesList = endpointsList.flatMap((ep) => ep.routes);
     content = (
       <CanvasContainer
@@ -87,11 +89,7 @@ export default async function UnifiedProjectPage({ params }: ProjectPageProps): 
     );
   } else if (subpage === "logs") {
     const logs = await getRequestLogs(project.id);
-    const handleRefresh = async () => {
-      "use server";
-      return getRequestLogs(project.id);
-    };
-    content = <ProjectLogs projectId={project.id} initialLogs={logs} onRefresh={handleRefresh} />;
+    content = <ProjectLogs projectId={project.id} initialLogs={logs} />;
   } else if (subpage === "settings") {
     content = <ProjectSettings project={project} />;
   }
