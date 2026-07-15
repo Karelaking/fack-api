@@ -3,7 +3,7 @@ import { getProjects } from "@/lib/actions/projects";
 import { Separator } from "@/components/ui/separator";
 import { DashboardBreadcrumbs } from "@/components/dashboard/DashboardBreadcrumbs";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
-import { HeaderActions } from "@/components/dashboard/HeaderActions";
+import { HeaderNewProjectButton } from "@/components/dashboard/HeaderNewProjectButton";
 import { MobileBottomNav } from "@/components/dashboard/MobileBottomNav";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 
@@ -33,7 +33,7 @@ export default async function DashboardLayout({
               <Separator orientation="vertical" className="h-4" />
               <DashboardBreadcrumbs projects={projects} />
             </div>
-            <HeaderActions />
+            <HeaderNewProjectButton />
           </header>
           <div className="bg-background flex-1 overflow-auto pb-14 md:pb-0">
             {children}

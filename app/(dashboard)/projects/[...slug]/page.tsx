@@ -96,6 +96,6 @@ export default async function UnifiedProjectPage({ params }: ProjectPageProps): 
   }
 
   // Wrap in the standard layout styling
-  return <div className="flex h-full w-full flex-col">{content}</div>;
+  return <div className="flex h-full w-full flex-col overflow-hidden">{content}</div>;
 }
 export const dynamic = "force-dynamic";

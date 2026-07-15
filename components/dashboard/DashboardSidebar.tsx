@@ -3,13 +3,22 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { RiFolderSharedLine, RiAddLine, RiLoader2Line } from "@remixicon/react";
+import {
+  RiFolderSharedLine,
+  RiAddLine,
+  RiLoader2Line,
+  RiGitBranchLine,
+  RiPulseLine,
+  RiFileHistoryLine,
+  RiSettings2Line,
+} from "@remixicon/react";
 import { toast } from "sonner";
 import { createProject } from "@/lib/actions/projects";
 import type { Project } from "@/db/schema";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 import {
   Sidebar,
   SidebarContent,
@@ -177,8 +186,53 @@ export function DashboardSidebar({
                             <Link href={`/projects/${proj.slug}/canvas`} />
                           }
                         >
-                          <span className="truncate">{proj.name}</span>
+                          <span className="truncate font-semibold">{proj.name}</span>
                         </SidebarMenuButton>
+
+                        {isProjectActive && (
+                          <div className="ml-3.5 mt-1 border-l border-border/60 pl-2.5 space-y-1 py-1">
+                            {[
+                              {
+                                name: "Canvas",
+                                path: "canvas",
+                                icon: RiGitBranchLine,
+                              },
+                              {
+                                name: "Endpoints",
+                                path: "endpoints",
+                                icon: RiPulseLine,
+                              },
+                              {
+                                name: "Logs",
+                                path: "logs",
+                                icon: RiFileHistoryLine,
+                              },
+                              {
+                                name: "Settings",
+                                path: "settings",
+                                icon: RiSettings2Line,
+                              },
+                            ].map((subItem) => {
+                              const Icon = subItem.icon;
+                              const isSubActive = pathname.endsWith(`/${subItem.path}`);
+                              return (
+                                <Link
+                                  key={subItem.path}
+                                  href={`/projects/${proj.slug}/${subItem.path}`}
+                                  className={cn(
+                                    "flex items-center gap-2 rounded px-2.5 py-1 text-xs font-medium transition-all select-none",
+                                    isSubActive
+                                      ? "bg-primary/10 text-primary font-semibold"
+                                      : "text-muted-foreground hover:text-foreground hover:bg-accent/40"
+                                  )}
+                                >
+                                  <Icon className="h-3.5 w-3.5 shrink-0" />
+                                  <span>{subItem.name}</span>
+                                </Link>
+                              );
+                            })}
+                          </div>
+                        )}
                       </SidebarMenuItem>
                     );
                   })}

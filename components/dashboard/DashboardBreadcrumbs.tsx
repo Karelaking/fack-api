@@ -228,57 +228,6 @@ export function DashboardBreadcrumbs({
           );
         })}
       </nav>
-
-      {isProjectPage && (
-        <div className="hidden items-center gap-3 md:flex">
-          <div className="bg-border h-4 w-px shrink-0" />
-          <nav
-            className="bg-muted/65 border-border/40 flex items-center gap-0.5 rounded-lg border p-0.5"
-            aria-label="Tabs"
-          >
-            {[
-              {
-                name: "Canvas",
-                href: `/projects/${projectSlug}/canvas`,
-                icon: RiGitBranchLine,
-              },
-              {
-                name: "Endpoints",
-                href: `/projects/${projectSlug}/endpoints`,
-                icon: RiPulseLine,
-              },
-              {
-                name: "Logs",
-                href: `/projects/${projectSlug}/logs`,
-                icon: RiFileHistoryLine,
-              },
-              {
-                name: "Settings",
-                href: `/projects/${projectSlug}/settings`,
-                icon: RiSettings2Line,
-              },
-            ].map((tab) => {
-              const Icon = tab.icon;
-              const isActive = activeTab === tab.name.toLowerCase();
-              return (
-                <Link
-                  key={tab.name}
-                  href={tab.href as Parameters<typeof Link>[0]["href"]}
-                  className={cn(
-                    "flex items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold transition-all select-none sm:gap-1.5 sm:px-3",
-                    isActive
-                      ? "bg-background text-foreground border-border/30 border shadow-xs"
-                      : "text-muted-foreground hover:text-foreground border border-transparent",
-                  )}
-                >
-                  <Icon className="h-3.5 w-3.5 shrink-0" />
-                  <span className="hidden sm:inline">{tab.name}</span>
-                </Link>
-              );
-            })}
-          </nav>
-        </div>
-      )}
     </div>
   );
 }
