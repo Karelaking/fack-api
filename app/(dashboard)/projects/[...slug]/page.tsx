@@ -96,6 +96,12 @@ export default async function UnifiedProjectPage({ params }: ProjectPageProps): 
   }
 
   // Wrap in the standard layout styling
-  return <div className="flex h-full w-full flex-col overflow-hidden">{content}</div>;
+  const isCanvas = subpage === "canvas";
+
+  return (
+    <div className={`flex h-full w-full flex-col ${isCanvas ? "overflow-hidden" : "overflow-y-auto bg-background"}`}>
+      {content}
+    </div>
+  );
 }
 export const dynamic = "force-dynamic";

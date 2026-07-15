@@ -134,38 +134,19 @@ export function DashboardSidebar({
         </SidebarHeader>
 
         <SidebarContent className="px-2">
-          <SidebarGroup>
+          <SidebarGroup className="mt-1">
             <SidebarGroupLabel className="text-muted-foreground flex items-center justify-between px-2 text-[10px] font-semibold tracking-wider uppercase">
-              <span>Workspaces</span>
+              <span>Active Projects</span>
               <Button
                 size="icon"
                 variant="ghost"
                 className="text-muted-foreground hover:text-foreground h-5 w-5"
-                title="Create Workspace"
-                aria-label="Create Workspace"
+                title="Create Project"
+                aria-label="Create Project"
                 onClick={() => setDialogOpen(true)}
               >
                 <RiAddLine className="h-3.5 w-3.5" />
               </Button>
-            </SidebarGroupLabel>
-            <SidebarGroupContent className="mt-1">
-              <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    isActive={pathname === "/dashboard"}
-                    render={<Link href="/dashboard" />}
-                  >
-                    <RiFolderSharedLine className="text-muted-foreground h-4 w-4" />
-                    <span>All Projects</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-
-          <SidebarGroup className="mt-3">
-            <SidebarGroupLabel className="text-muted-foreground px-2 text-[10px] font-semibold tracking-wider uppercase">
-              Active Projects
             </SidebarGroupLabel>
             <SidebarGroupContent className="mt-1">
               {projects.length === 0 ? (
