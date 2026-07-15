@@ -459,7 +459,7 @@ function FlowCanvasInner({
           className="opacity-60"
         />
         <Controls className="bg-card! border-border!" />
-        <MiniMap zoomable pannable className="bg-card! border-border!" />
+        <MiniMap zoomable pannable className="bg-card! border-border! w-[100px]! h-[75px]! sm:w-[150px]! sm:h-[110px]! md:w-[200px]! md:h-[150px]!" />
       </ReactFlow>
 
       <AddRouteDialog
