@@ -7,25 +7,28 @@ updates:
       interval: "weekly"
       day: "monday"
     open-pull-requests-limit: 15
-    reviewers:
-      - "karel"
     labels:
       - "dependencies"
       - "pnpm"
     groups:
-      # Group all minor + patch updates into a single PR to reduce noise
       production-dependencies:
         dependency-type: "production"
         update-types:
           - "minor"
           - "patch"
+        labels:
+          - "dependencies"
+          - "pnpm"
+          - "production"
       dev-dependencies:
         dependency-type: "development"
         update-types:
           - "minor"
           - "patch"
-    # Separate PR for major version bumps (breaking changes need review)
-    # These will NOT be grouped — each major bump gets its own PR
+        labels:
+          - "dependencies"
+          - "pnpm"
+          - "dev"
 
   # ── Docker base images ──────────────────────────────────────────────────────
   - package-ecosystem: "docker"
@@ -37,10 +40,15 @@ updates:
     labels:
       - "dependencies"
       - "docker"
+      - "infrastructure"
     groups:
       docker-images:
         patterns:
           - "*"
+        labels:
+          - "dependencies"
+          - "docker"
+          - "infrastructure"
 
   # ── GitHub Actions ──────────────────────────────────────────────────────────
   - package-ecosystem: "github-actions"
@@ -52,3 +60,12 @@ updates:
     labels:
       - "dependencies"
       - "ci"
+      - "infrastructure"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+        labels:
+          - "dependencies"
+          - "ci"
+          - "infrastructure"
