@@ -1,0 +1,81 @@
+app:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "app/**"
+
+api:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "app/api/**"
+
+components:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "components/**"
+
+lib:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "lib/**"
+
+database:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "db/**"
+          - "drizzle/**"
+          - "drizzle.config.ts"
+
+types:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "types/**"
+
+stores:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "stores/**"
+
+hooks:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "hooks/**"
+
+providers:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "providers/**"
+
+docker:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "Dockerfile"
+          - "docker-compose.yml"
+          - "nginx.conf"
+
+ci:
+  - changed-files:
+      - any-glob-to-any-file:
+          - ".github/**"
+
+config:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "next.config.ts"
+          - "tsconfig.json"
+          - "postcss.config.mjs"
+          - "eslint.config.mjs"
+          - "prettier.config.ts"
+          - "components.json"
+
+dependencies:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "package.json"
+          - "pnpm-lock.yaml"
+          - "pnpm-workspace.yaml"
+
+documentation:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "**/*.md"
+          - "docs/**"
