@@ -1,16 +1,16 @@
-import type { Project } from "@/db/schema";
+import type { Project, Route } from "@/db/schema";
 
 // Singletons for in-memory cache
-const projectListCache = new Map<string, any[]>();
+const projectListCache = new Map<string, Project[]>();
 const projectBySlugCache = new Map<string, Project>();
 const projectByDomainCache = new Map<string, Project>();
-const projectRoutesCache = new Map<string, any[]>();
+const projectRoutesCache = new Map<string, Route[]>();
 
-export function getCachedProjectsList(): any[] | undefined {
+export function getCachedProjectsList(): Project[] | undefined {
   return projectListCache.get("all_projects");
 }
 
-export function setCachedProjectsList(projects: any[]) {
+export function setCachedProjectsList(projects: Project[]) {
   projectListCache.set("all_projects", projects);
 }
 
@@ -30,11 +30,11 @@ export function setCachedProjectByDomain(domain: string, project: Project) {
   projectByDomainCache.set(domain, project);
 }
 
-export function getCachedRoutes(projectId: string): any[] | undefined {
+export function getCachedRoutes(projectId: string): Route[] | undefined {
   return projectRoutesCache.get(projectId);
 }
 
-export function setCachedRoutes(projectId: string, routes: any[]) {
+export function setCachedRoutes(projectId: string, routes: Route[]) {
   projectRoutesCache.set(projectId, routes);
 }
 

@@ -35,15 +35,25 @@ export async function processMockRequest({
   requestPath: string;
   request: NextRequest;
   startTime: number;
-  }): Promise<Response> {
-  let matchedPath = requestPath;
-  let matchedMethod = request.method;
+}): Promise<Response> {
+  const matchedPath = requestPath;
+  const matchedMethod = request.method;
 
-  const logRequest = async (statusCode: number, isError: boolean, payload: unknown) => {
-    if (!project || !project.isLoggingEnabled || !process.env.LOGS_POSTGRES_URL) return;
-    const queryParams = JSON.stringify(Object.fromEntries(request.nextUrl.searchParams));
+  const logRequest = async (
+    statusCode: number,
+    isError: boolean,
+    payload: unknown,
+  ) => {
+    if (!project || !project.isLoggingEnabled || !process.env.LOGS_POSTGRES_URL)
+      return;
+    const queryParams = JSON.stringify(
+      Object.fromEntries(request.nextUrl.searchParams),
+    );
     const reqHeaders = JSON.stringify(Object.fromEntries(request.headers));
-    const resPayload = typeof payload === "string" ? payload : JSON.stringify(payload).slice(0, 5000);
+    const resPayload =
+      typeof payload === "string"
+        ? payload
+        : JSON.stringify(payload).slice(0, 5000);
 
     try {
       if (sqlClient) {
@@ -67,8 +77,8 @@ export async function processMockRequest({
             statusCode,
             Date.now() - startTime,
             isErrorInt,
-            resPayload
-          ]
+            resPayload,
+          ],
         });
       }
     } catch (e) {
@@ -97,14 +107,18 @@ export async function processMockRequest({
           .map((route) => ({
             ...route,
             path: normalizePath(`${endpoint.basePath}${route.path}`),
-          }))
+          })),
       );
 
       setCachedRoutes(project.id, allRoutes);
     }
 
     // ── 4. Match the Incoming Path Against Route Patterns ────────────────
-    const matchResult = findMatchingRoute(allRoutes, method, normalizePath(requestPath));
+    const matchResult = findMatchingRoute(
+      allRoutes,
+      method,
+      normalizePath(requestPath),
+    );
 
     if (!matchResult) {
       const errBody = {
@@ -130,8 +144,14 @@ export async function processMockRequest({
       try {
         customHeaders = JSON.parse(route.customHeaders ?? "{}");
       } catch {}
-      const response = buildResponse(ruleMatch.body, ruleMatch.status, customHeaders);
-      after(() => logRequest(ruleMatch.status, ruleMatch.status >= 400, ruleMatch.body));
+      const response = buildResponse(
+        ruleMatch.body,
+        ruleMatch.status,
+        customHeaders,
+      );
+      after(() =>
+        logRequest(ruleMatch.status, ruleMatch.status >= 400, ruleMatch.body),
+      );
       return response;
     }
 
@@ -161,7 +181,10 @@ export async function processMockRequest({
     // Parse pagination parameters (page, limit) to dynamically expand generated array size
     const searchParams = request.nextUrl.searchParams;
     const pageParam = searchParams.get("page") || searchParams.get("_page");
-    const limitParam = searchParams.get("limit") || searchParams.get("_limit") || searchParams.get("count");
+    const limitParam =
+      searchParams.get("limit") ||
+      searchParams.get("_limit") ||
+      searchParams.get("count");
 
     let limitValue: number | undefined = undefined;
     let pageValue: number = 1;
@@ -196,14 +219,17 @@ export async function processMockRequest({
       };
     }
 
-    const rawPayload = await generatePayload({
-      ...targetSchema,
-      ...(Object.keys(params).length > 0 && {
-        properties: {
-          ...(targetSchema.properties as Record<string, unknown> | undefined),
-        },
-      }),
-    }, limitValue);
+    const rawPayload = await generatePayload(
+      {
+        ...targetSchema,
+        ...(Object.keys(params).length > 0 && {
+          properties: {
+            ...(targetSchema.properties as Record<string, unknown> | undefined),
+          },
+        }),
+      },
+      limitValue,
+    );
 
     const payload = processQueryParameters(rawPayload, searchParams);
 

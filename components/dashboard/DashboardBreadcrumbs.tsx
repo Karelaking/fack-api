@@ -4,14 +4,7 @@ import * as React from "react";
 import type { Route } from "next";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import {
-  RiArrowRightSLine,
-  RiArrowUpDownLine,
-  RiGitBranchLine,
-  RiPulseLine,
-  RiSettings2Line,
-  RiFileHistoryLine,
-} from "@remixicon/react";
+import { RiArrowRightSLine, RiArrowUpDownLine } from "@remixicon/react";
 import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
@@ -82,7 +75,6 @@ export function DashboardBreadcrumbs({
 
   let projectSlug = "";
   let isProjectPage = false;
-  let activeTab = "canvas";
 
   if (segments[0] === "projects" && segments.length >= 2) {
     isProjectPage = true;
@@ -91,10 +83,7 @@ export function DashboardBreadcrumbs({
     let projectSlugSegments = segments.slice(1);
 
     if (subpages.has(lastSegment)) {
-      activeTab = normalizeTab(lastSegment);
       projectSlugSegments = segments.slice(1, -1);
-    } else {
-      activeTab = "canvas";
     }
     projectSlug = projectSlugSegments.join("/");
   }

@@ -3,9 +3,14 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { RiLoader2Line, RiDeleteBin6Line, RiSaveLine, RiAlertLine } from "@remixicon/react";
+import {
+  RiLoader2Line,
+  RiDeleteBin6Line,
+  RiSaveLine,
+  RiAlertLine,
+} from "@remixicon/react";
 import { updateProject, deleteProject } from "@/lib/actions/projects";
-import { slugify, cn, slugifyInput } from "@/lib/utils";
+import { cn, slugifyInput } from "@/lib/utils";
 import type { Project } from "@/db/schema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -73,7 +78,9 @@ export function ProjectSettings({
     }
     const cleanedSlug = slug.trim().replace(/^\/+|\/+$/g, "");
     if (!/^[a-z0-9_/-]+$/.test(cleanedSlug)) {
-      toast.error("Slug must be lowercase alphanumeric with hyphens, underscores, or slashes");
+      toast.error(
+        "Slug must be lowercase alphanumeric with hyphens, underscores, or slashes",
+      );
       return;
     }
 
@@ -175,7 +182,9 @@ export function ProjectSettings({
                 disabled={loading}
               />
               <span className="text-muted-foreground text-xs">
-                Allows routing requests from a custom domain directly to this project's mocks (e.g. <code>api.yourcompany.com/users</code>).
+                Allows routing requests from a custom domain directly to this
+                project&apos;s mocks (e.g.{" "}
+                <code>api.yourcompany.com/users</code>).
               </span>
             </div>
             <div className="grid gap-2">
@@ -192,15 +201,20 @@ export function ProjectSettings({
                 className="h-24 resize-none"
               />
             </div>
-            <div className={cn(
-              "flex items-center justify-between rounded-lg border p-4 bg-muted/10",
-              !isLogsDbConfigured && "border-amber-500/20 bg-amber-500/5"
-            )}>
+            <div
+              className={cn(
+                "bg-muted/10 flex items-center justify-between rounded-lg border p-4",
+                !isLogsDbConfigured && "border-amber-500/20 bg-amber-500/5",
+              )}
+            >
               <div className="space-y-0.5">
-                <label htmlFor="isLoggingEnabled" className="text-sm font-semibold block">
+                <label
+                  htmlFor="isLoggingEnabled"
+                  className="block text-sm font-semibold"
+                >
                   Capture Request History
                 </label>
-                <span className="text-muted-foreground text-xs block leading-normal">
+                <span className="text-muted-foreground block text-xs leading-normal">
                   {isLogsDbConfigured
                     ? "When enabled, incoming mock requests are stored in the database for debugging and latency analytics."
                     : "Request logging is currently disabled because LOGS_POSTGRES_URL is not configured in environment variables."}

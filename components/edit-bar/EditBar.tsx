@@ -7,9 +7,7 @@ import {
   RiSaveLine,
   RiLoader2Line,
   RiFileCodeLine,
-  RiFileCopyLine,
   RiDeleteBin6Line,
-  RiArrowDownSLine,
 } from "@remixicon/react";
 import { toast } from "sonner";
 import { updateRoute, deleteRoute } from "@/lib/actions/routes";
@@ -36,7 +34,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
 
 interface EditBarProps {
   route: Route;
@@ -54,17 +51,11 @@ interface EditBarProps {
  */
 function EditBarInner({
   route,
-  projectSlug,
-  customDomain,
-  endpoints,
   onOpenChange,
   onRouteUpdated,
   onRouteDeleted,
 }: {
   route: Route;
-  projectSlug: string;
-  customDomain?: string | null;
-  endpoints: Endpoint[];
   onOpenChange: (open: boolean) => void;
   onRouteUpdated: (updatedRoute: Route) => void;
   onRouteDeleted: (routeId: string) => void;
@@ -111,12 +102,14 @@ function EditBarInner({
   const [statusCode, setStatusCode] = React.useState(route.statusCode);
   const [isEnabled, setIsEnabled] = React.useState(route.isEnabled);
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   React.useEffect(() => {
     setMethod(route.method);
     setPath(route.path);
     setStatusCode(route.statusCode);
     setIsEnabled(route.isEnabled);
   }, [route]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const [latencyMin, setLatencyMin] = React.useState(route.latencyMin ?? 0);
   const [latencyMax, setLatencyMax] = React.useState(route.latencyMax ?? 0);
@@ -196,23 +189,27 @@ function EditBarInner({
           <span>Edit Route Config</span>
         </SheetTitle>
         <SheetDescription className="text-[11px]">
-          Simulate status codes, headers, delays, and configure response payloads.
+          Simulate status codes, headers, delays, and configure response
+          payloads.
         </SheetDescription>
       </SheetHeader>
 
       {/* Core Endpoint settings form fields (Method, Path, Status Code, Status Enabled) */}
-      <div className="bg-muted/15 border-border/40 mt-3 rounded-lg border p-3.5 space-y-3 shrink-0">
+      <div className="bg-muted/15 border-border/40 mt-3 shrink-0 space-y-3 rounded-lg border p-3.5">
         <div className="grid grid-cols-12 gap-3">
           {/* Method Selector */}
           <div className="col-span-4 flex flex-col gap-1">
-            <label htmlFor="route-method" className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+            <label
+              htmlFor="route-method"
+              className="text-muted-foreground text-[10px] font-bold tracking-wider uppercase"
+            >
               Method
             </label>
             <select
               id="route-method"
               value={method}
-              onChange={(e) => setMethod(e.target.value as any)}
-              className="flex h-8 w-full rounded border border-input bg-background px-2.5 py-1 text-xs font-bold shadow-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              onChange={(e) => setMethod(e.target.value as Route["method"])}
+              className="border-input bg-background focus-visible:ring-ring flex h-8 w-full rounded border px-2.5 py-1 text-xs font-bold shadow-xs focus-visible:ring-1 focus-visible:outline-none"
               disabled={loading}
             >
               <option value="GET">GET</option>
@@ -225,23 +222,29 @@ function EditBarInner({
 
           {/* Path Input */}
           <div className="col-span-8 flex flex-col gap-1">
-            <label htmlFor="route-path" className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+            <label
+              htmlFor="route-path"
+              className="text-muted-foreground text-[10px] font-bold tracking-wider uppercase"
+            >
               Route Path
             </label>
             <Input
               id="route-path"
               value={path}
               onChange={(e) => setPath(e.target.value)}
-              className="h-8 text-xs font-mono font-semibold"
+              className="h-8 font-mono text-xs font-semibold"
               disabled={loading}
             />
           </div>
         </div>
 
-        <div className="grid grid-cols-12 gap-3 items-center">
+        <div className="grid grid-cols-12 items-center gap-3">
           {/* Status Code */}
           <div className="col-span-6 flex flex-col gap-1">
-            <label htmlFor="route-status" className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+            <label
+              htmlFor="route-status"
+              className="text-muted-foreground text-[10px] font-bold tracking-wider uppercase"
+            >
               Response Status Code
             </label>
             <Input
@@ -257,8 +260,11 @@ function EditBarInner({
           </div>
 
           {/* Enabled Switch Row */}
-          <div className="col-span-6 flex items-center justify-between border border-dashed rounded px-3 py-1 bg-background h-8 mt-4.5">
-            <label htmlFor="route-enabled" className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider cursor-pointer">
+          <div className="bg-background col-span-6 mt-4.5 flex h-8 items-center justify-between rounded border border-dashed px-3 py-1">
+            <label
+              htmlFor="route-enabled"
+              className="text-muted-foreground cursor-pointer text-[10px] font-bold tracking-wider uppercase"
+            >
               Route Enabled
             </label>
             <Switch
@@ -276,34 +282,34 @@ function EditBarInner({
         defaultValue="schema"
         className="mt-3 flex min-h-0 min-w-0 flex-1 flex-col"
       >
-        <TabsList className="bg-muted grid h-8.5 shrink-0 grid-cols-5 p-1 rounded-lg">
+        <TabsList className="bg-muted grid h-8.5 shrink-0 grid-cols-5 rounded-lg p-1">
           <TabsTrigger
             value="schema"
-            className="px-1 text-[10.5px] font-bold rounded-md"
+            className="rounded-md px-1 text-[10.5px] font-bold"
           >
             Schema
           </TabsTrigger>
           <TabsTrigger
             value="rules"
-            className="px-1 text-[10.5px] font-bold rounded-md"
+            className="rounded-md px-1 text-[10.5px] font-bold"
           >
             Rules
           </TabsTrigger>
           <TabsTrigger
             value="behavior"
-            className="px-1 text-[10.5px] font-bold rounded-md"
+            className="rounded-md px-1 text-[10.5px] font-bold"
           >
             Chaos
           </TabsTrigger>
           <TabsTrigger
             value="headers"
-            className="px-1 text-[10.5px] font-bold rounded-md"
+            className="rounded-md px-1 text-[10.5px] font-bold"
           >
             Headers
           </TabsTrigger>
           <TabsTrigger
             value="preview"
-            className="px-1 text-[10.5px] font-bold rounded-md"
+            className="rounded-md px-1 text-[10.5px] font-bold"
           >
             Preview
           </TabsTrigger>
@@ -422,9 +428,6 @@ function EditBarInner({
  */
 export function EditBar({
   route,
-  projectSlug,
-  customDomain,
-  endpoints,
   open,
   onOpenChange,
   onRouteUpdated,
@@ -446,9 +449,6 @@ export function EditBar({
         <SchemaStoreProvider initialFields={initialFields}>
           <EditBarInner
             route={route}
-            projectSlug={projectSlug}
-            customDomain={customDomain}
-            endpoints={endpoints}
             onOpenChange={onOpenChange}
             onRouteUpdated={onRouteUpdated}
             onRouteDeleted={onRouteDeleted}

@@ -12,14 +12,11 @@ import {
   RiCodeLine,
   RiEqualizerLine,
   RiGitBranchLine,
-  RiExternalLinkLine,
   RiSettings2Line,
-  RiFileCopyLine,
 } from "@remixicon/react";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
-import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 
 interface RouteNodeData {
@@ -153,7 +150,10 @@ export function RouteNode({
       if (parsed.type === "array" && parsed.items) {
         return Object.keys(parsed.items.properties || {}).length;
       }
-      return Object.keys(parsed.properties || {}).length || Object.keys(parsed).length;
+      return (
+        Object.keys(parsed.properties || {}).length ||
+        Object.keys(parsed).length
+      );
     } catch {
       return 0;
     }
@@ -224,7 +224,7 @@ export function RouteNode({
               className={cn(
                 "h-1 w-1 shrink-0 rounded-full",
                 theme.dot,
-                data.isEnabled && "animate-pulse"
+                data.isEnabled && "animate-pulse",
               )}
             />
             {method}
@@ -233,7 +233,7 @@ export function RouteNode({
           {/* Status code view */}
           <span
             className={cn(
-              "flex shrink-0 items-center gap-0.5 rounded px-1 py-0.5 font-mono text-[8px] font-bold border border-border/10",
+              "border-border/10 flex shrink-0 items-center gap-0.5 rounded border px-1 py-0.5 font-mono text-[8px] font-bold",
               statusBadgeClass,
             )}
           >
@@ -255,27 +255,27 @@ export function RouteNode({
 
       {/* Path & Config Display */}
       <div className="flex flex-col gap-1.5 px-2.5 py-2">
-        <span className="text-foreground font-mono text-[10.5px] leading-normal font-bold break-all line-clamp-1 bg-muted/30 hover:bg-muted/50 rounded px-1 py-0.5 transition-colors border border-border/30">
+        <span className="text-foreground bg-muted/30 hover:bg-muted/50 border-border/30 line-clamp-1 rounded border px-1 py-0.5 font-mono text-[10.5px] leading-normal font-bold break-all transition-colors">
           {data.path}
         </span>
 
         {/* Info indicators */}
         {(schemaKeysCount > 0 || headersKeysCount > 0 || rulesCount > 0) && (
-          <div className="flex flex-wrap gap-1 mt-0.5">
+          <div className="mt-0.5 flex flex-wrap gap-1">
             {schemaKeysCount > 0 && (
-              <span className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/10 py-0.5 inline-flex items-center gap-0.5 rounded border px-1 text-[8px] font-bold">
+              <span className="inline-flex items-center gap-0.5 rounded border border-emerald-500/10 bg-emerald-500/10 px-1 py-0.5 text-[8px] font-bold text-emerald-600 dark:text-emerald-400">
                 <RiCodeLine className="h-3 w-3 shrink-0" />
                 <span>JSON ({schemaKeysCount})</span>
               </span>
             )}
             {headersKeysCount > 0 && (
-              <span className="py-0.5 inline-flex items-center gap-0.5 rounded border border-blue-500/10 bg-blue-500/10 px-1 text-[8px] font-bold text-blue-600 dark:text-blue-400">
+              <span className="inline-flex items-center gap-0.5 rounded border border-blue-500/10 bg-blue-500/10 px-1 py-0.5 text-[8px] font-bold text-blue-600 dark:text-blue-400">
                 <RiEqualizerLine className="h-3 w-3 shrink-0" />
                 <span>Headers ({headersKeysCount})</span>
               </span>
             )}
             {rulesCount > 0 && (
-              <span className="py-0.5 inline-flex items-center gap-0.5 rounded border border-purple-500/10 bg-purple-500/10 px-1 text-[8px] font-bold text-purple-600 dark:text-purple-400">
+              <span className="inline-flex items-center gap-0.5 rounded border border-purple-500/10 bg-purple-500/10 px-1 py-0.5 text-[8px] font-bold text-purple-600 dark:text-purple-400">
                 <RiGitBranchLine className="h-3 w-3 shrink-0" />
                 <span>Rules ({rulesCount})</span>
               </span>
@@ -286,12 +286,14 @@ export function RouteNode({
 
       {/* Node Footer indicators */}
       {(hasLatency || hasErrors) && (
-        <div className={cn(
-          "bg-muted/30 border-border/30 text-muted-foreground flex items-center justify-between border-t px-2.5 py-1 text-[8px] font-bold",
-          !selected && "rounded-b-lg"
-        )}>
+        <div
+          className={cn(
+            "bg-muted/30 border-border/30 text-muted-foreground flex items-center justify-between border-t px-2.5 py-1 text-[8px] font-bold",
+            !selected && "rounded-b-lg",
+          )}
+        >
           {hasLatency ? (
-            <div className="flex items-center gap-0.5 bg-amber-500/5 text-amber-600 dark:text-amber-400 border border-amber-500/10 rounded px-1 py-0.5">
+            <div className="flex items-center gap-0.5 rounded border border-amber-500/10 bg-amber-500/5 px-1 py-0.5 text-amber-600 dark:text-amber-400">
               <RiTimeLine className="h-2.5 w-2.5 shrink-0 text-amber-500" />
               <span>
                 {data.latencyMin === data.latencyMax
@@ -303,7 +305,7 @@ export function RouteNode({
             <div />
           )}
           {hasErrors && (
-            <div className="flex items-center gap-0.5 bg-rose-500/5 text-rose-600 dark:text-rose-400 border border-rose-500/10 rounded px-1 py-0.5">
+            <div className="flex items-center gap-0.5 rounded border border-rose-500/10 bg-rose-500/5 px-1 py-0.5 text-rose-600 dark:text-rose-400">
               <RiAlertLine className="h-2.5 w-2.5 shrink-0 animate-pulse text-rose-500" />
               <span>{data.errorRate}% Err</span>
             </div>
@@ -313,12 +315,12 @@ export function RouteNode({
 
       {/* Node expanded actions on selection */}
       {selected && (
-        <div className="bg-muted/40 border-border/40 flex flex-col gap-1 rounded-b-lg border-t p-1.5 bg-card/60">
+        <div className="bg-muted/40 border-border/40 bg-card/60 flex flex-col gap-1 rounded-b-lg border-t p-1.5">
           <Button
             type="button"
             size="xs"
             variant="default"
-            className="w-full gap-1 text-[9px] font-bold h-6 shadow-xs"
+            className="h-6 w-full gap-1 text-[9px] font-bold shadow-xs"
             onClick={(e) => {
               e.stopPropagation();
               data.onOpenEdit(data.id);

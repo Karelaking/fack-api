@@ -4,55 +4,43 @@ import { projects } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { buildResponse } from "@/lib/mock-engine";
 import { processMockRequest } from "@/lib/mock-handler-core";
-import { getCachedProjectByDomain, setCachedProjectByDomain } from "@/lib/cache";
+import {
+  getCachedProjectByDomain,
+  setCachedProjectByDomain,
+} from "@/lib/cache";
 
 export const dynamic = "force-dynamic";
 
-interface RouteContext<T> {
+interface RouteContext {
   params: Promise<{
     domain: string;
     slug: string[];
   }>;
 }
 
-export async function GET(
-  request: NextRequest,
-  context: RouteContext<"/api/mock/by-domain/[domain]/[...slug]">
-) {
+export async function GET(request: NextRequest, context: RouteContext) {
   return handleMockRequest(request, context);
 }
 
-export async function POST(
-  request: NextRequest,
-  context: RouteContext<"/api/mock/by-domain/[domain]/[...slug]">
-) {
+export async function POST(request: NextRequest, context: RouteContext) {
   return handleMockRequest(request, context);
 }
 
-export async function PUT(
-  request: NextRequest,
-  context: RouteContext<"/api/mock/by-domain/[domain]/[...slug]">
-) {
+export async function PUT(request: NextRequest, context: RouteContext) {
   return handleMockRequest(request, context);
 }
 
-export async function DELETE(
-  request: NextRequest,
-  context: RouteContext<"/api/mock/by-domain/[domain]/[...slug]">
-) {
+export async function DELETE(request: NextRequest, context: RouteContext) {
   return handleMockRequest(request, context);
 }
 
-export async function PATCH(
-  request: NextRequest,
-  context: RouteContext<"/api/mock/by-domain/[domain]/[...slug]">
-) {
+export async function PATCH(request: NextRequest, context: RouteContext) {
   return handleMockRequest(request, context);
 }
 
 async function handleMockRequest(
   request: NextRequest,
-  context: RouteContext<"/api/mock/by-domain/[domain]/[...slug]">
+  context: RouteContext,
 ): Promise<Response> {
   const startTime = Date.now();
 
@@ -80,7 +68,7 @@ async function handleMockRequest(
           message: `Project with custom domain "${domain}" not found`,
           hint: "Ensure the custom domain is mapped to your project in settings.",
         },
-        404
+        404,
       );
     }
 
@@ -92,6 +80,9 @@ async function handleMockRequest(
     });
   } catch (error) {
     console.error("[fack-api] Mock request handler error by domain:", error);
-    return buildResponse({ error: true, message: "Internal mock server error" }, 500);
+    return buildResponse(
+      { error: true, message: "Internal mock server error" },
+      500,
+    );
   }
 }

@@ -144,10 +144,14 @@ function FlowCanvasInner({
 
       const endpoint = dbEndpointsMap.get(route.endpointId);
       const basePath = endpoint?.basePath || "";
-      const origin = typeof window !== "undefined" ? window.location.origin : "";
+      const origin =
+        typeof window !== "undefined" ? window.location.origin : "";
       let fullMockUrl = "";
       if (customDomain) {
-        const protocol = typeof window !== "undefined" ? window.location.protocol + "//" : "http://";
+        const protocol =
+          typeof window !== "undefined"
+            ? window.location.protocol + "//"
+            : "http://";
         fullMockUrl = `${protocol}${customDomain}${basePath}${route.path}`;
       } else {
         fullMockUrl = `${origin}/${projectSlug}${basePath}${route.path}`;
@@ -203,7 +207,15 @@ function FlowCanvasInner({
     });
 
     return reconciledNodes;
-  }, [endpoints, routes, initialState, onSelectRoute]);
+  }, [
+    endpoints,
+    routes,
+    initialState,
+    onSelectRoute,
+    onOpenEdit,
+    projectSlug,
+    customDomain,
+  ]);
 
   const initialEdges: Edge[] = React.useMemo(() => {
     let savedEdges: Edge[] = [];
@@ -230,7 +242,7 @@ function FlowCanvasInner({
         animated: true,
         style: { stroke: "#6366f1", strokeWidth: 2.5, strokeDasharray: "6 4" },
       }));
-  }, [initialState, routes, customDomain, projectSlug, onOpenEdit, onSelectRoute]);
+  }, [initialState, routes]);
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
@@ -241,7 +253,11 @@ function FlowCanvasInner({
       (n) => n.selected && n.type === "routeNode",
     );
     if (selectedRouteNode) {
-      const data = selectedRouteNode.data as any;
+      const data = selectedRouteNode.data as {
+        path: string;
+        method: string;
+        mockUrl: string;
+      };
       window.dispatchEvent(
         new CustomEvent("route-selected", {
           detail: {
@@ -253,9 +269,7 @@ function FlowCanvasInner({
         }),
       );
     } else {
-      window.dispatchEvent(
-        new CustomEvent("route-selected", { detail: null }),
-      );
+      window.dispatchEvent(new CustomEvent("route-selected", { detail: null }));
     }
   }, [nodes]);
 
@@ -304,10 +318,14 @@ function FlowCanvasInner({
 
         const endpoint = dbEndpointsMap.get(route.endpointId);
         const basePath = endpoint?.basePath || "";
-        const origin = typeof window !== "undefined" ? window.location.origin : "";
+        const origin =
+          typeof window !== "undefined" ? window.location.origin : "";
         let fullMockUrl = "";
         if (customDomain) {
-          const protocol = typeof window !== "undefined" ? window.location.protocol + "//" : "http://";
+          const protocol =
+            typeof window !== "undefined"
+              ? window.location.protocol + "//"
+              : "http://";
           fullMockUrl = `${protocol}${customDomain}${basePath}${route.path}`;
         } else {
           fullMockUrl = `${origin}/${projectSlug}${basePath}${route.path}`;
@@ -364,7 +382,15 @@ function FlowCanvasInner({
 
       return reconciled;
     });
-  }, [endpoints, routes, onSelectRoute, setNodes]);
+  }, [
+    endpoints,
+    routes,
+    onSelectRoute,
+    onOpenEdit,
+    projectSlug,
+    customDomain,
+    setNodes,
+  ]);
 
   const onConnect = React.useCallback(
     (params: Connection) =>
@@ -459,7 +485,11 @@ function FlowCanvasInner({
           className="opacity-60"
         />
         <Controls className="bg-card! border-border!" />
-        <MiniMap zoomable pannable className="bg-card! border-border! w-[100px]! h-[75px]! sm:w-[150px]! sm:h-[110px]! md:w-[200px]! md:h-[150px]!" />
+        <MiniMap
+          zoomable
+          pannable
+          className="bg-card! border-border! h-[75px]! w-[100px]! sm:h-[110px]! sm:w-[150px]! md:h-[150px]! md:w-[200px]!"
+        />
       </ReactFlow>
 
       <AddRouteDialog

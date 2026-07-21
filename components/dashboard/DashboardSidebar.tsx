@@ -4,7 +4,6 @@ import * as React from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
-  RiFolderSharedLine,
   RiAddLine,
   RiLoader2Line,
   RiGitBranchLine,
@@ -94,9 +93,13 @@ export function DashboardSidebar({
       toast.error("Project name is required");
       return;
     }
-    const cleanedSlug = slug.trim() ? slug.trim().replace(/^\/+|\/+$/g, "") : undefined;
+    const cleanedSlug = slug.trim()
+      ? slug.trim().replace(/^\/+|\/+$/g, "")
+      : undefined;
     if (cleanedSlug && !/^[a-z0-9_/-]+$/.test(cleanedSlug)) {
-      toast.error("Slug must be lowercase alphanumeric with hyphens, underscores, or slashes");
+      toast.error(
+        "Slug must be lowercase alphanumeric with hyphens, underscores, or slashes",
+      );
       return;
     }
 
@@ -176,11 +179,13 @@ export function DashboardSidebar({
                             <Link href={`/projects/${proj.slug}/canvas`} />
                           }
                         >
-                          <span className="truncate font-semibold">{proj.name}</span>
+                          <span className="truncate font-semibold">
+                            {proj.name}
+                          </span>
                         </SidebarMenuButton>
 
                         {isProjectActive && (
-                          <div className="ml-3.5 mt-1 border-l border-border/60 pl-2.5 space-y-1 py-1">
+                          <div className="border-border/60 mt-1 ml-3.5 space-y-1 border-l py-1 pl-2.5">
                             {[
                               {
                                 name: "Canvas",
@@ -204,7 +209,9 @@ export function DashboardSidebar({
                               },
                             ].map((subItem) => {
                               const Icon = subItem.icon;
-                              const isSubActive = pathname.endsWith(`/${subItem.path}`);
+                              const isSubActive = pathname.endsWith(
+                                `/${subItem.path}`,
+                              );
                               return (
                                 <Link
                                   key={subItem.path}
@@ -213,7 +220,7 @@ export function DashboardSidebar({
                                     "flex items-center gap-2 rounded px-2.5 py-1 text-xs font-medium transition-all select-none",
                                     isSubActive
                                       ? "bg-primary/10 text-primary font-semibold"
-                                      : "text-muted-foreground hover:text-foreground hover:bg-accent/40"
+                                      : "text-muted-foreground hover:text-foreground hover:bg-accent/40",
                                   )}
                                 >
                                   <Icon className="h-3.5 w-3.5 shrink-0" />
@@ -233,43 +240,54 @@ export function DashboardSidebar({
 
           {/* Dynamic Selected Route Links Section */}
           {selectedRoute && (
-            <SidebarGroup className="mt-3 border-t border-border/60 pt-3">
+            <SidebarGroup className="border-border/60 mt-3 border-t pt-3">
               <SidebarGroupLabel className="text-foreground/90 flex items-center justify-between px-2 text-[10px] font-bold tracking-wider uppercase">
                 <span>Selected Route Link</span>
               </SidebarGroupLabel>
-              <div className="px-2 py-2 space-y-3.5">
+              <div className="space-y-3.5 px-2 py-2">
                 {/* Method & Path Display */}
-                <div className="flex items-center gap-2 bg-muted/40 border border-border/40 rounded-lg p-2">
-                  <span className={cn(
-                    "px-2 py-0.5 text-[9.5px] font-extrabold rounded-md uppercase tracking-wider shrink-0",
-                    selectedRoute.method.toUpperCase() === "GET" && "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20",
-                    selectedRoute.method.toUpperCase() === "POST" && "bg-blue-500/15 text-blue-600 dark:text-blue-400 border border-blue-500/20",
-                    selectedRoute.method.toUpperCase() === "PUT" && "bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/20",
-                    selectedRoute.method.toUpperCase() === "DELETE" && "bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/20",
-                    selectedRoute.method.toUpperCase() === "PATCH" && "bg-purple-500/15 text-purple-600 dark:text-purple-400 border border-purple-500/20",
-                  )}>
+                <div className="bg-muted/40 border-border/40 flex items-center gap-2 rounded-lg border p-2">
+                  <span
+                    className={cn(
+                      "shrink-0 rounded-md px-2 py-0.5 text-[9.5px] font-extrabold tracking-wider uppercase",
+                      selectedRoute.method.toUpperCase() === "GET" &&
+                        "border border-emerald-500/20 bg-emerald-500/15 text-emerald-600 dark:text-emerald-400",
+                      selectedRoute.method.toUpperCase() === "POST" &&
+                        "border border-blue-500/20 bg-blue-500/15 text-blue-600 dark:text-blue-400",
+                      selectedRoute.method.toUpperCase() === "PUT" &&
+                        "border border-amber-500/20 bg-amber-500/15 text-amber-600 dark:text-amber-400",
+                      selectedRoute.method.toUpperCase() === "DELETE" &&
+                        "border border-rose-500/20 bg-rose-500/15 text-rose-600 dark:text-rose-400",
+                      selectedRoute.method.toUpperCase() === "PATCH" &&
+                        "border border-purple-500/20 bg-purple-500/15 text-purple-600 dark:text-purple-400",
+                    )}
+                  >
                     {selectedRoute.method}
                   </span>
-                  <span className="text-[11px] font-mono font-bold truncate text-foreground flex-1">
+                  <span className="text-foreground flex-1 truncate font-mono text-[11px] font-bold">
                     {selectedRoute.path}
                   </span>
                 </div>
 
                 {/* Base Link (Copyable Input-like box) */}
                 <div className="flex flex-col gap-1">
-                  <span className="text-[8px] font-bold text-muted-foreground uppercase tracking-wider block px-0.5">Mock URL</span>
-                  <div className="flex items-center gap-1.5 bg-background border border-border/80 rounded-md p-1.5 shadow-xs">
-                    <span className="text-[11px] font-mono font-bold text-foreground truncate select-all flex-1 pl-1 leading-normal">
+                  <span className="text-muted-foreground block px-0.5 text-[8px] font-bold tracking-wider uppercase">
+                    Mock URL
+                  </span>
+                  <div className="bg-background border-border/80 flex items-center gap-1.5 rounded-md border p-1.5 shadow-xs">
+                    <span className="text-foreground flex-1 truncate pl-1 font-mono text-[11px] leading-normal font-bold select-all">
                       {selectedRoute.mockUrl}
                     </span>
                     <Button
                       size="icon"
                       variant="ghost"
-                      className="h-6 w-6 hover:bg-muted text-muted-foreground hover:text-foreground shrink-0 rounded"
+                      className="hover:bg-muted text-muted-foreground hover:text-foreground h-6 w-6 shrink-0 rounded"
                       title="Copy URL"
                       onClick={async () => {
                         try {
-                          await navigator.clipboard.writeText(selectedRoute.mockUrl);
+                          await navigator.clipboard.writeText(
+                            selectedRoute.mockUrl,
+                          );
                           toast.success("Mock link copied!");
                         } catch {
                           toast.error("Failed to copy link");
@@ -283,26 +301,38 @@ export function DashboardSidebar({
 
                 {/* Query Parameters Helper List */}
                 <div className="space-y-1.5">
-                  <span className="text-[8px] font-bold text-muted-foreground uppercase tracking-wider block px-0.5">Query Parameters</span>
-                  <div className="space-y-1 max-h-48 overflow-y-auto pr-0.5 border rounded-lg bg-muted/20 p-2 border-border/50">
+                  <span className="text-muted-foreground block px-0.5 text-[8px] font-bold tracking-wider uppercase">
+                    Query Parameters
+                  </span>
+                  <div className="bg-muted/20 border-border/50 max-h-48 space-y-1 overflow-y-auto rounded-lg border p-2 pr-0.5">
                     {[
                       { param: "?limit=5", desc: "Limit output array items" },
                       { param: "?q=search", desc: "Global text search" },
-                      { param: "?page=2&limit=5", desc: "Paginate mock output" },
+                      {
+                        param: "?page=2&limit=5",
+                        desc: "Paginate mock output",
+                      },
                       { param: "?sort=id&order=desc", desc: "Sort records" },
                       { param: "?field=value", desc: "Exact field match" },
                     ].map((opt, oIdx) => {
                       const optUrl = `${selectedRoute.mockUrl}${opt.param}`;
                       return (
-                        <div key={oIdx} className="flex items-center justify-between gap-2 px-1.5 py-1 rounded-md hover:bg-background transition-colors border border-transparent hover:border-border/30">
-                          <div className="flex flex-col min-w-0 flex-1">
-                            <span className="font-mono text-[9.5px] font-bold text-primary truncate leading-normal">{opt.param}</span>
-                            <span className="text-muted-foreground text-[8px] truncate leading-normal">{opt.desc}</span>
+                        <div
+                          key={oIdx}
+                          className="hover:bg-background hover:border-border/30 flex items-center justify-between gap-2 rounded-md border border-transparent px-1.5 py-1 transition-colors"
+                        >
+                          <div className="flex min-w-0 flex-1 flex-col">
+                            <span className="text-primary truncate font-mono text-[9.5px] leading-normal font-bold">
+                              {opt.param}
+                            </span>
+                            <span className="text-muted-foreground truncate text-[8px] leading-normal">
+                              {opt.desc}
+                            </span>
                           </div>
                           <Button
                             size="icon"
                             variant="ghost"
-                            className="h-6 w-6 text-muted-foreground hover:text-foreground shrink-0 rounded"
+                            className="text-muted-foreground hover:text-foreground h-6 w-6 shrink-0 rounded"
                             onClick={async () => {
                               try {
                                 await navigator.clipboard.writeText(optUrl);
