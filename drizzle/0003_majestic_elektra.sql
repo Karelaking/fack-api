@@ -1,0 +1,1 @@
+ALTER TABLE `projects` ADD `is_caching_enabled` integer DEFAULT true NOT NULL;

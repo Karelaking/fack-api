@@ -24,6 +24,7 @@ export const createProjectSchema = z.object({
     .string()
     .max(500, "Description must be 500 characters or fewer")
     .optional(),
+  isCachingEnabled: z.boolean().optional(),
 });
 
 export const updateProjectSchema = z.object({
@@ -47,6 +48,7 @@ export const updateProjectSchema = z.object({
     .max(500, "Description must be 500 characters or fewer")
     .optional(),
   isLoggingEnabled: z.boolean().optional(),
+  isCachingEnabled: z.boolean().optional(),
 });
 
 // ─── Endpoint ────────────────────────────────────────────────────────────────

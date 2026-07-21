@@ -236,6 +236,7 @@ export async function processMockRequest({
       limitParam !== null;
 
     const isPagedRequest = limitParam !== null || pageParam !== null;
+    const cachingEnabled = project.isCachingEnabled !== false;
 
     if (isArrayResponse) {
       // Determine array generator details from schema
@@ -254,102 +255,152 @@ export async function processMockRequest({
       const effectiveLimit = limitValue !== undefined ? limitValue : 10;
 
       if (isPagedRequest) {
-        // Paged route caching: previous, current, next page only
-        let cachedPage = getCachedPageData(route.id, pageValue, effectiveLimit);
-        isFromCache = true;
+        if (cachingEnabled) {
+          // Paged route caching: previous, current, next page only
+          let cachedPage = getCachedPageData(
+            route.id,
+            pageValue,
+            effectiveLimit,
+          );
+          isFromCache = true;
 
-        if (!cachedPage) {
-          isFromCache = false;
-          // Generate data specifically for the requested page
-          cachedPage = (await generatePayload(
+          if (!cachedPage) {
+            isFromCache = false;
+            // Generate data specifically for the requested page
+            cachedPage = (await generatePayload(
+              {
+                type: "array",
+                items: itemSchema,
+              },
+              effectiveLimit,
+            )) as unknown[];
+            setCachedPageData(route.id, pageValue, effectiveLimit, cachedPage);
+          }
+
+          // Prune the cache to keep only previous, current, and next page
+          prunePageCache(route.id, pageValue, effectiveLimit);
+
+          rawPayload = cachedPage;
+
+          // Prefetch next page in the background (post-response using 'after' hook)
+          after(async () => {
+            try {
+              const nextPage = pageValue + 1;
+              const hasNextCached = getCachedPageData(
+                route.id,
+                nextPage,
+                effectiveLimit,
+              );
+              if (!hasNextCached) {
+                mockLogger.info(
+                  `Proactively prefetching and caching next page: ${nextPage}`,
+                );
+                const nextPageData = (await generatePayload(
+                  {
+                    type: "array",
+                    items: itemSchema,
+                  },
+                  effectiveLimit,
+                )) as unknown[];
+                setCachedPageData(
+                  route.id,
+                  nextPage,
+                  effectiveLimit,
+                  nextPageData,
+                );
+                prunePageCache(route.id, pageValue, effectiveLimit);
+              }
+            } catch (prefetchError) {
+              mockLogger.error("Background prefetch failed:", prefetchError);
+            }
+          });
+        } else {
+          // Caching disabled: generate exactly effectiveLimit items for this request
+          rawPayload = (await generatePayload(
             {
               type: "array",
               items: itemSchema,
             },
             effectiveLimit,
           )) as unknown[];
-          setCachedPageData(route.id, pageValue, effectiveLimit, cachedPage);
         }
-
-        // Prune the cache to keep only previous, current, and next page
-        prunePageCache(route.id, pageValue, effectiveLimit);
-
-        rawPayload = cachedPage;
-
-        // Prefetch next page in the background (post-response using 'after' hook)
-        after(async () => {
-          try {
-            const nextPage = pageValue + 1;
-            const hasNextCached = getCachedPageData(
-              route.id,
-              nextPage,
-              effectiveLimit,
-            );
-            if (!hasNextCached) {
-              mockLogger.info(
-                `Proactively prefetching and caching next page: ${nextPage}`,
-              );
-              const nextPageData = (await generatePayload(
-                {
-                  type: "array",
-                  items: itemSchema,
-                },
-                effectiveLimit,
-              )) as unknown[];
-              setCachedPageData(
-                route.id,
-                nextPage,
-                effectiveLimit,
-                nextPageData,
-              );
-              prunePageCache(route.id, pageValue, effectiveLimit);
-            }
-          } catch (prefetchError) {
-            mockLogger.error("Background prefetch failed:", prefetchError);
-          }
-        });
       } else {
-        // Standard list response: use old incremental generation logic
-        // Calculate total required items based on pagination request
-        const requiredItemsCount = pageValue * effectiveLimit;
+        if (cachingEnabled) {
+          // Standard list response: use old incremental generation logic
+          // Calculate total required items based on pagination request
+          const requiredItemsCount = pageValue * effectiveLimit;
 
-        // Check route list cache first
-        let cachedArray = getCachedMockData(route.id);
-        isFromCache = true;
-        if (!cachedArray) {
-          cachedArray = [];
-          isFromCache = false;
-        }
+          // Check route list cache first
+          let cachedArray = getCachedMockData(route.id);
+          isFromCache = true;
+          if (!cachedArray) {
+            cachedArray = [];
+            isFromCache = false;
+          }
 
-        if (cachedArray.length < requiredItemsCount) {
-          isFromCache = false;
-          // Incrementally generate new mock items in batches of 100 to reduce latency
-          const deficit = requiredItemsCount - cachedArray.length;
-          const generationCount = Math.max(100, Math.ceil(deficit / 100) * 100);
+          if (cachedArray.length < requiredItemsCount) {
+            isFromCache = false;
+            // Incrementally generate new mock items in batches of 100 to reduce latency
+            const deficit = requiredItemsCount - cachedArray.length;
+            const generationCount = Math.max(
+              100,
+              Math.ceil(deficit / 100) * 100,
+            );
 
-          const newItems = (await generatePayload(
+            const newItems = (await generatePayload(
+              {
+                type: "array",
+                items: itemSchema,
+              },
+              generationCount,
+            )) as unknown[];
+
+            cachedArray = [...cachedArray, ...newItems];
+            setCachedMockData(route.id, cachedArray);
+          }
+
+          rawPayload = cachedArray;
+        } else {
+          // Caching disabled: generate exactly the pageValue * effectiveLimit items
+          const requiredItemsCount = pageValue * effectiveLimit;
+          rawPayload = (await generatePayload(
             {
               type: "array",
               items: itemSchema,
             },
-            generationCount,
+            requiredItemsCount,
           )) as unknown[];
-
-          cachedArray = [...cachedArray, ...newItems];
-          setCachedMockData(route.id, cachedArray);
         }
-
-        rawPayload = cachedArray;
       }
     } else {
-      // Standard single-object mock payload generation
-      let cachedObject = getCachedSingleMockData(route.id);
-      isFromCache = true;
-      if (!cachedObject) {
-        isFromCache = false;
-        const params = {}; // exact matches have no path parameters
+      if (cachingEnabled) {
+        // Standard single-object mock payload generation
+        let cachedObject = getCachedSingleMockData(route.id);
+        isFromCache = true;
+        if (!cachedObject) {
+          isFromCache = false;
+          const params = {}; // exact matches have no path parameters
+          const targetSchema = schema;
+          cachedObject = await generatePayload(
+            {
+              ...targetSchema,
+              ...(Object.keys(params).length > 0 && {
+                properties: {
+                  ...(targetSchema.properties as
+                    Record<string, unknown> | undefined),
+                },
+              }),
+            },
+            limitValue,
+          );
+          setCachedSingleMockData(route.id, cachedObject);
+        }
+        rawPayload = cachedObject;
+      } else {
+        // Caching disabled: generate fresh single object
+        const params = {};
         const targetSchema = schema;
-        cachedObject = await generatePayload(
+        rawPayload = await generatePayload(
           {
             ...targetSchema,
             ...(Object.keys(params).length > 0 && {
@@ -361,9 +412,7 @@ export async function processMockRequest({
           },
           limitValue,
         );
-        setCachedSingleMockData(route.id, cachedObject);
       }
-      rawPayload = cachedObject;
     }
 
     let payload: unknown;
@@ -408,7 +457,9 @@ export async function processMockRequest({
     const totalCount = isArrayResponse
       ? isPagedRequest
         ? Math.max(100, (pageValue + 1) * effectiveLimit)
-        : (getCachedMockData(route.id)?.length ?? 0)
+        : cachingEnabled
+          ? (getCachedMockData(route.id)?.length ?? 0)
+          : effectiveLimit
       : undefined;
 
     const formatter = MockResponseFormatterFactory.getFormatter(formatterType);

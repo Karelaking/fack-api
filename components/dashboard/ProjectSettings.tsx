@@ -65,6 +65,9 @@ export function ProjectSettings({
   const [isLoggingEnabled, setIsLoggingEnabled] = React.useState(
     isLogsDbConfigured ? project.isLoggingEnabled : false,
   );
+  const [isCachingEnabled, setIsCachingEnabled] = React.useState(
+    project.isCachingEnabled !== false,
+  );
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -93,6 +96,7 @@ export function ProjectSettings({
         slug: cleanedSlug,
         description,
         isLoggingEnabled,
+        isCachingEnabled,
       });
       toast.success("Workspace settings updated!");
       uiTrace.traceSuccess("handleUpdate", updated.slug);
@@ -210,6 +214,27 @@ export function ProjectSettings({
                 checked={isLoggingEnabled}
                 onCheckedChange={setIsLoggingEnabled}
                 disabled={loading || !isLogsDbConfigured}
+              />
+            </div>
+            <div className="bg-muted/10 flex items-center justify-between rounded-lg border p-4">
+              <div className="space-y-0.5">
+                <label
+                  htmlFor="isCachingEnabled"
+                  className="block text-sm font-semibold"
+                >
+                  Enable Mock Caching
+                </label>
+                <span className="text-muted-foreground block text-xs leading-normal">
+                  When enabled, mock response pages and single objects are
+                  cached to decrease latency and reduce server generation
+                  efforts.
+                </span>
+              </div>
+              <Switch
+                id="isCachingEnabled"
+                checked={isCachingEnabled}
+                onCheckedChange={setIsCachingEnabled}
+                disabled={loading}
               />
             </div>
           </CardContent>

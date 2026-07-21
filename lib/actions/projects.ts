@@ -150,6 +150,7 @@ export async function createProject(
         slug: finalSlug,
         description: parsed.description ?? "",
         isLoggingEnabled: hasLogsDb,
+        isCachingEnabled: parsed.isCachingEnabled ?? true,
       })
       .returning();
 
