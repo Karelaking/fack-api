@@ -1,0 +1,41 @@
+# Exclude large dependency directories and build outputs
+node_modules/
+.next/
+out/
+build/
+coverage/
+.git/
+.vscode/
+.github/
+
+# Exclude large lockfiles and compiler caches to optimize token limits
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+tsconfig.tsbuildinfo
+next-env.d.ts
+
+# Exclude local databases and graphify outputs
+data/
+graphify-out/
+*.db
+*.db-journal
+*.db-wal
+*.sqlite
+
+# Exclude media and binary files
+*.pdf
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.webp
+*.zip
+*.tar.gz
+
+# Exclude environment secrets
+.env
+.env.local
+.env.production
+.env.development
+.env.staging

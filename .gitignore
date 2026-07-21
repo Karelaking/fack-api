@@ -46,3 +46,6 @@ next-env.d.ts
 *.db-journal
 *.db-wal
 
+# graphify outputs
+/graphify-out/
+
