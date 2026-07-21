@@ -1,3 +1,16 @@
+# [1.2.0](https://github.com/Karelaking/fack-api/compare/v1.1.0...v1.2.0) (2026-07-21)
+
+### Features
+
+- implement core mock request handler and in-memory caching system ([ffa694a](https://github.com/Karelaking/fack-api/commit/ffa694a3687e7295bc4338622ff88640c28af827))
+- implement core mock request processing engine with routing, latency ([9c6ae7b](https://github.com/Karelaking/fack-api/commit/9c6ae7b109f84cdc22ffda4c98648126853426c8))
+- implement mock data caching, response formatting, and core request processing logic ([e6584b0](https://github.com/Karelaking/fack-api/commit/e6584b063f4d4629bf644076a45e888f8bff452c))
+- implement mock request engine and dashboard navigation components ([4dab8de](https://github.com/Karelaking/fack-api/commit/4dab8de215e59d84f256a0b4a9e62efa207736ab))
+- implement mock request processing core with integrated caching and logging logic ([921a742](https://github.com/Karelaking/fack-api/commit/921a7428abe160ced8abd8879e4c617027514439))
+- implement mock server engine, database schema, and project management dashboard ([c0e1ed9](https://github.com/Karelaking/fack-api/commit/c0e1ed9e21e5e6b5cb86bf7ac426e26d272473a0))
+- implement unified project routing with catch-all page ([4d18668](https://github.com/Karelaking/fack-api/commit/4d18668e3ad448f245a2976ecbf90272976aca02))
+- introduce graphify agent skill with structured references and configuration files ([73df3c5](https://github.com/Karelaking/fack-api/commit/73df3c56ab4b023a99bb6439f455d43aa24e54e5))
+
 # [1.1.0](https://github.com/Karelaking/fack-api/compare/v1.0.0...v1.1.0) (2026-07-21)
 
 ### Features
