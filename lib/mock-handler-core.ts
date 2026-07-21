@@ -9,6 +9,8 @@ import {
   setCachedRoutes,
   getCachedMockData,
   setCachedMockData,
+  getCachedSingleMockData,
+  setCachedSingleMockData,
 } from "@/lib/cache";
 import {
   generatePayload,
@@ -20,6 +22,7 @@ import {
   evaluateRules,
 } from "@/lib/mock-engine";
 import { LoggerRegistry } from "@/lib/logger-registry";
+import { MockResponseFormatterFactory } from "@/lib/mock-formatter";
 
 const mockLogger = LoggerRegistry.get("mock");
 const mockCoreTrace = LoggerRegistry.getTrace("mock-core");
@@ -220,6 +223,7 @@ export async function processMockRequest({
     }
 
     let rawPayload: unknown;
+    let isFromCache = false;
 
     // Check if we should respond with a list of items (either configured as an array schema, or if pagination limit parameters are passed)
     const isArrayResponse =
@@ -249,11 +253,14 @@ export async function processMockRequest({
 
       // Check route list cache first
       let cachedArray = getCachedMockData(route.id);
+      isFromCache = true;
       if (!cachedArray) {
         cachedArray = [];
+        isFromCache = false;
       }
 
       if (cachedArray.length < requiredItemsCount) {
+        isFromCache = false;
         // Incrementally generate new mock items in batches of 100 to reduce latency
         const deficit = requiredItemsCount - cachedArray.length;
         const generationCount = Math.max(100, Math.ceil(deficit / 100) * 100);
@@ -273,20 +280,27 @@ export async function processMockRequest({
       rawPayload = cachedArray;
     } else {
       // Standard single-object mock payload generation
-      const params = {}; // exact matches have no path parameters
-      const targetSchema = schema;
-      rawPayload = await generatePayload(
-        {
-          ...targetSchema,
-          ...(Object.keys(params).length > 0 && {
-            properties: {
-              ...(targetSchema.properties as
-                Record<string, unknown> | undefined),
-            },
-          }),
-        },
-        limitValue,
-      );
+      let cachedObject = getCachedSingleMockData(route.id);
+      isFromCache = true;
+      if (!cachedObject) {
+        isFromCache = false;
+        const params = {}; // exact matches have no path parameters
+        const targetSchema = schema;
+        cachedObject = await generatePayload(
+          {
+            ...targetSchema,
+            ...(Object.keys(params).length > 0 && {
+              properties: {
+                ...(targetSchema.properties as
+                  Record<string, unknown> | undefined),
+              },
+            }),
+          },
+          limitValue,
+        );
+        setCachedSingleMockData(route.id, cachedObject);
+      }
+      rawPayload = cachedObject;
     }
 
     const payload = processQueryParameters(rawPayload, searchParams);
@@ -299,8 +313,55 @@ export async function processMockRequest({
       mockLogger.warn(`Invalid custom headers for route ${route.id}`);
     }
 
-    const response = buildResponse(payload, route.statusCode, customHeaders);
-    after(() => logRequest(route.statusCode, route.statusCode >= 400, payload));
+    // ── 10. Wrap Response using SOLID Formatter Factory ──────────────────
+    const latency = Date.now() - startTime;
+    const queryRecord: Record<string, string> = {};
+    for (const [key, value] of searchParams.entries()) {
+      queryRecord[key] = value;
+    }
+
+    let formatterType: "single" | "list" | "paged" = "single";
+    if (isArrayResponse) {
+      if (limitParam !== null || pageParam !== null) {
+        formatterType = "paged";
+      } else {
+        formatterType = "list";
+      }
+    }
+
+    const totalCount = isArrayResponse
+      ? (getCachedMockData(route.id)?.length ?? 0)
+      : undefined;
+
+    const formatter = MockResponseFormatterFactory.getFormatter(formatterType);
+    const wrappedPayload = formatter.format(payload, {
+      routeId: route.id,
+      projectId: project.id,
+      statusCode: route.statusCode,
+      success: route.statusCode >= 200 && route.statusCode < 300,
+      isFromCache,
+      latency,
+      method: request.method,
+      path: requestPath,
+      query: queryRecord,
+      limitValue:
+        limitValue !== undefined
+          ? limitValue
+          : isArrayResponse
+            ? 10
+            : undefined,
+      pageValue: pageValue,
+      totalCount,
+    });
+
+    const response = buildResponse(
+      wrappedPayload,
+      route.statusCode,
+      customHeaders,
+    );
+    after(() =>
+      logRequest(route.statusCode, route.statusCode >= 400, wrappedPayload),
+    );
     mockCoreTrace.traceSuccess(
       "processMockRequest (successful mock response)",
       response.status,

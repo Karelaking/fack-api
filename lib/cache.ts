@@ -7,6 +7,7 @@ const projectListCache = new Map<string, Project[]>();
 const projectBySlugCache = new Map<string, Project>();
 const projectRoutesCache = new Map<string, Route[]>();
 const routeMockDataCache = new Map<string, unknown[]>();
+const routeSingleMockDataCache = new Map<string, unknown>();
 
 export function getCachedProjectsList(): Project[] | undefined {
   cacheTrace.traceCall("getCachedProjectsList");
@@ -72,11 +73,28 @@ export function setCachedMockData(routeId: string, data: unknown[]) {
   cacheTrace.traceSuccess("setCachedMockData", "void");
 }
 
+export function getCachedSingleMockData(routeId: string): unknown | undefined {
+  cacheTrace.traceCall("getCachedSingleMockData", routeId);
+  const res = routeSingleMockDataCache.get(routeId);
+  cacheTrace.traceSuccess(
+    "getCachedSingleMockData",
+    res ? "object" : "undefined",
+  );
+  return res;
+}
+
+export function setCachedSingleMockData(routeId: string, data: unknown) {
+  cacheTrace.traceCall("setCachedSingleMockData", routeId);
+  routeSingleMockDataCache.set(routeId, data);
+  cacheTrace.traceSuccess("setCachedSingleMockData", "void");
+}
+
 export function clearCache() {
   cacheTrace.traceCall("clearCache");
   projectListCache.clear();
   projectBySlugCache.clear();
   projectRoutesCache.clear();
   routeMockDataCache.clear();
+  routeSingleMockDataCache.clear();
   cacheTrace.traceSuccess("clearCache", "void");
 }
