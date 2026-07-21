@@ -4,6 +4,7 @@ import type { Project, Route } from "@/db/schema";
 const projectListCache = new Map<string, Project[]>();
 const projectBySlugCache = new Map<string, Project>();
 const projectRoutesCache = new Map<string, Route[]>();
+const routeMockDataCache = new Map<string, unknown[]>();
 
 export function getCachedProjectsList(): Project[] | undefined {
   return projectListCache.get("all_projects");
@@ -29,8 +30,17 @@ export function setCachedRoutes(projectId: string, routes: Route[]) {
   projectRoutesCache.set(projectId, routes);
 }
 
+export function getCachedMockData(routeId: string): unknown[] | undefined {
+  return routeMockDataCache.get(routeId);
+}
+
+export function setCachedMockData(routeId: string, data: unknown[]) {
+  routeMockDataCache.set(routeId, data);
+}
+
 export function clearCache() {
   projectListCache.clear();
   projectBySlugCache.clear();
   projectRoutesCache.clear();
+  routeMockDataCache.clear();
 }

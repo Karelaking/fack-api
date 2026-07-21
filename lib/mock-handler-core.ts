@@ -5,7 +5,12 @@ import { endpoints, type Project } from "@/db/schema";
 import { sqlClient } from "@/db/postgres";
 import { eq } from "drizzle-orm";
 import { findMatchingRoute } from "@/lib/route-matcher";
-import { getCachedRoutes, setCachedRoutes } from "@/lib/cache";
+import {
+  getCachedRoutes,
+  setCachedRoutes,
+  getCachedMockData,
+  setCachedMockData,
+} from "@/lib/cache";
 import {
   generatePayload,
   applyLatency,
@@ -219,17 +224,52 @@ export async function processMockRequest({
       };
     }
 
-    const rawPayload = await generatePayload(
-      {
-        ...targetSchema,
-        ...(Object.keys(params).length > 0 && {
-          properties: {
-            ...(targetSchema.properties as Record<string, unknown> | undefined),
+    const isArrayResponse = shouldWrapAsArray || targetSchema.type === "array";
+    let rawPayload: unknown;
+
+    if (isArrayResponse) {
+      const requestedLimit = limitValue !== undefined ? limitValue : 1;
+      const cachedData = getCachedMockData(route.id) || [];
+
+      if (cachedData.length >= requestedLimit) {
+        rawPayload = cachedData.slice(0, requestedLimit);
+      } else {
+        const deficit = requestedLimit - cachedData.length;
+        const generateCount = Math.ceil(deficit / 100) * 100;
+
+        const newItems = await generatePayload(
+          {
+            ...targetSchema,
+            ...(Object.keys(params).length > 0 && {
+              properties: {
+                ...(targetSchema.properties as
+                  Record<string, unknown> | undefined),
+              },
+            }),
           },
-        }),
-      },
-      limitValue,
-    );
+          generateCount,
+        );
+
+        const newItemsArray = Array.isArray(newItems) ? newItems : [newItems];
+        const updatedCache = [...cachedData, ...newItemsArray];
+        setCachedMockData(route.id, updatedCache);
+
+        rawPayload = updatedCache.slice(0, requestedLimit);
+      }
+    } else {
+      rawPayload = await generatePayload(
+        {
+          ...targetSchema,
+          ...(Object.keys(params).length > 0 && {
+            properties: {
+              ...(targetSchema.properties as
+                Record<string, unknown> | undefined),
+            },
+          }),
+        },
+        limitValue,
+      );
+    }
 
     const payload = processQueryParameters(rawPayload, searchParams);
 
