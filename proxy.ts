@@ -21,27 +21,6 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 /**
- * Checks if the host header represents a custom domain instead of a
- * system/dashboard domain.
- */
-function isCustomDomain(host: string) {
-  if (!host) return false;
-  // Strip port from Host header if present
-  const hostname = host.split(":")[0];
-
-  const systemDomains = new Set(
-    [
-      "localhost",
-      "127.0.0.1",
-      "fack-api",
-      process.env.APP_DOMAIN || "",
-    ].filter(Boolean)
-  );
-
-  return !systemDomains.has(hostname);
-}
-
-/**
  * Extracts the project namespace slug from the request's subdomain.
  * e.g., "api-v2.localhost:3000" -> "api-v2"
  * Ignores system domains and common system subdomains like www, api, dashboard, admin.
@@ -50,18 +29,38 @@ function getProjectSlugFromSubdomain(host: string): string | null {
   if (!host) return null;
   const hostname = host.split(":")[0];
 
-  const systemDomains = new Set(["localhost", "127.0.0.1", "fack-api"]);
+  const appDomain =
+    process.env.APP_DOMAIN || process.env.NEXT_PUBLIC_APP_DOMAIN || "";
+  const vercelUrl = process.env.VERCEL_URL || "";
+  const vercelProdUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL || "";
+  const vercelPublicUrl = process.env.NEXT_PUBLIC_VERCEL_URL || "";
+
+  const systemDomains = new Set(
+    [
+      "localhost",
+      "127.0.0.1",
+      "fack-api",
+      appDomain,
+      vercelUrl,
+      vercelProdUrl,
+      vercelPublicUrl,
+    ].filter(Boolean),
+  );
+
   if (systemDomains.has(hostname)) {
     return null;
   }
 
   let subdomain: string | null = null;
-  const appDomain = process.env.APP_DOMAIN || "";
 
   if (hostname.endsWith(".localhost")) {
     subdomain = hostname.slice(0, -".localhost".length);
   } else if (appDomain && hostname.endsWith("." + appDomain)) {
     subdomain = hostname.slice(0, -("." + appDomain).length);
+  } else if (vercelProdUrl && hostname.endsWith("." + vercelProdUrl)) {
+    subdomain = hostname.slice(0, -("." + vercelProdUrl).length);
+  } else if (vercelUrl && hostname.endsWith("." + vercelUrl)) {
+    subdomain = hostname.slice(0, -("." + vercelUrl).length);
   }
 
   if (!subdomain) return null;
@@ -93,10 +92,7 @@ export function proxy(request: NextRequest) {
 
   // ── CORS Preflight ───────────────────────────────────────────────────────
   // Handle OPTIONS requests for mock API paths or custom domain endpoints
-  if (
-    request.method === "OPTIONS" &&
-    (!isSystemPath || isCustomDomain(host))
-  ) {
+  if (request.method === "OPTIONS" && !isSystemPath) {
     return new NextResponse(null, {
       status: 204,
       headers: {
@@ -121,31 +117,11 @@ export function proxy(request: NextRequest) {
     response.headers.set("X-Accel-Buffering", "no");
     response.headers.set(
       "Cache-Control",
-      "no-store, no-cache, must-revalidate, proxy-revalidate"
+      "no-store, no-cache, must-revalidate, proxy-revalidate",
     );
     response.headers.set("Pragma", "no-cache");
     response.headers.set("Expires", "0");
     return response;
-  }
-
-  // ── Custom Domain Handling ───────────────────────────────────────────────
-  if (isCustomDomain(host)) {
-    // Avoid rewriting Next.js internals, static files, and database routes
-    if (!isSystemPath) {
-      const hostname = host.split(":")[0];
-      const url = request.nextUrl.clone();
-      url.pathname = `/api/mock/by-domain/${hostname}${pathname}`;
-
-      const response = NextResponse.rewrite(url);
-      response.headers.set("X-Accel-Buffering", "no");
-      response.headers.set(
-        "Cache-Control",
-        "no-store, no-cache, must-revalidate, proxy-revalidate"
-      );
-      response.headers.set("Pragma", "no-cache");
-      response.headers.set("Expires", "0");
-      return response;
-    }
   }
 
   // ── Mock API Rewrite (No Prefix /mock) ──────────────────────────────────
@@ -157,7 +133,7 @@ export function proxy(request: NextRequest) {
     response.headers.set("X-Accel-Buffering", "no");
     response.headers.set(
       "Cache-Control",
-      "no-store, no-cache, must-revalidate, proxy-revalidate"
+      "no-store, no-cache, must-revalidate, proxy-revalidate",
     );
     response.headers.set("Pragma", "no-cache");
     response.headers.set("Expires", "0");

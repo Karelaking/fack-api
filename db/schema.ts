@@ -16,7 +16,6 @@ export const projects = sqliteTable("projects", {
   isLoggingEnabled: integer("is_logging_enabled", { mode: "boolean" })
     .notNull()
     .default(true),
-  customDomain: text("custom_domain").unique(),
 });
 
 export const projectsRelations = relations(projects, ({ many, one }) => ({

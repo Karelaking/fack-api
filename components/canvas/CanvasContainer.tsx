@@ -8,7 +8,6 @@ import type { Endpoint, Route } from "@/db/schema";
 interface CanvasContainerProps {
   projectId: string;
   projectSlug: string;
-  customDomain?: string | null;
   endpoints: (Endpoint & { routes: Route[] })[];
   routes: Route[];
   initialState?: {
@@ -25,7 +24,6 @@ interface CanvasContainerProps {
 export function CanvasContainer({
   projectId,
   projectSlug,
-  customDomain,
   endpoints,
   routes,
   initialState,
@@ -70,11 +68,9 @@ export function CanvasContainer({
   return (
     <div className="relative flex h-full min-h-0 w-full min-w-0 gap-4">
       <div className="relative min-h-0 min-w-0 flex-1">
-
         <FlowCanvas
           projectId={projectId}
           projectSlug={projectSlug}
-          customDomain={customDomain}
           endpoints={endpoints}
           routes={activeRoutes}
           initialState={initialState}
@@ -88,7 +84,6 @@ export function CanvasContainer({
         <EditBar
           route={selectedRoute}
           projectSlug={projectSlug}
-          customDomain={customDomain}
           endpoints={endpoints}
           open={isEditOpen}
           onOpenChange={setIsEditOpen}

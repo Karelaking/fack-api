@@ -43,7 +43,6 @@ interface FlowCanvasInnerProps {
     edges: string;
     viewport: string;
   };
-  customDomain?: string | null;
   onSelectRoute: (routeId: string) => void;
   onOpenEdit: (routeId: string) => void;
 }
@@ -55,7 +54,6 @@ interface FlowCanvasInnerProps {
 function FlowCanvasInner({
   projectId,
   projectSlug,
-  customDomain,
   endpoints,
   routes,
   initialState,
@@ -146,16 +144,7 @@ function FlowCanvasInner({
       const basePath = endpoint?.basePath || "";
       const origin =
         typeof window !== "undefined" ? window.location.origin : "";
-      let fullMockUrl = "";
-      if (customDomain) {
-        const protocol =
-          typeof window !== "undefined"
-            ? window.location.protocol + "//"
-            : "http://";
-        fullMockUrl = `${protocol}${customDomain}${basePath}${route.path}`;
-      } else {
-        fullMockUrl = `${origin}/${projectSlug}${basePath}${route.path}`;
-      }
+      const fullMockUrl = `${origin}/${projectSlug}${basePath}${route.path}`;
 
       const routeData = {
         id: route.id,
@@ -207,15 +196,7 @@ function FlowCanvasInner({
     });
 
     return reconciledNodes;
-  }, [
-    endpoints,
-    routes,
-    initialState,
-    onSelectRoute,
-    onOpenEdit,
-    projectSlug,
-    customDomain,
-  ]);
+  }, [endpoints, routes, initialState, onSelectRoute, onOpenEdit, projectSlug]);
 
   const initialEdges: Edge[] = React.useMemo(() => {
     let savedEdges: Edge[] = [];
@@ -320,16 +301,7 @@ function FlowCanvasInner({
         const basePath = endpoint?.basePath || "";
         const origin =
           typeof window !== "undefined" ? window.location.origin : "";
-        let fullMockUrl = "";
-        if (customDomain) {
-          const protocol =
-            typeof window !== "undefined"
-              ? window.location.protocol + "//"
-              : "http://";
-          fullMockUrl = `${protocol}${customDomain}${basePath}${route.path}`;
-        } else {
-          fullMockUrl = `${origin}/${projectSlug}${basePath}${route.path}`;
-        }
+        const fullMockUrl = `${origin}/${projectSlug}${basePath}${route.path}`;
 
         const routeData = {
           id: route.id,
@@ -382,15 +354,7 @@ function FlowCanvasInner({
 
       return reconciled;
     });
-  }, [
-    endpoints,
-    routes,
-    onSelectRoute,
-    onOpenEdit,
-    projectSlug,
-    customDomain,
-    setNodes,
-  ]);
+  }, [endpoints, routes, onSelectRoute, onOpenEdit, projectSlug, setNodes]);
 
   const onConnect = React.useCallback(
     (params: Connection) =>

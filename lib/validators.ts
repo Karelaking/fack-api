@@ -17,18 +17,13 @@ export const createProjectSchema = z.object({
     .max(100)
     .regex(
       /^[a-z0-9_/-]+$/,
-      "Slug must be lowercase alphanumeric with hyphens, underscores, or slashes"
+      "Slug must be lowercase alphanumeric with hyphens, underscores, or slashes",
     )
     .optional(),
   description: z
     .string()
     .max(500, "Description must be 500 characters or fewer")
     .optional(),
-  customDomain: z
-    .string()
-    .max(255)
-    .optional()
-    .nullable(),
 });
 
 export const updateProjectSchema = z.object({
@@ -44,7 +39,7 @@ export const updateProjectSchema = z.object({
     .max(100)
     .regex(
       /^[a-z0-9_/-]+$/,
-      "Slug must be lowercase alphanumeric with hyphens, underscores, or slashes"
+      "Slug must be lowercase alphanumeric with hyphens, underscores, or slashes",
     )
     .optional(),
   description: z
@@ -52,11 +47,6 @@ export const updateProjectSchema = z.object({
     .max(500, "Description must be 500 characters or fewer")
     .optional(),
   isLoggingEnabled: z.boolean().optional(),
-  customDomain: z
-    .string()
-    .max(255)
-    .optional()
-    .nullable(),
 });
 
 // ─── Endpoint ────────────────────────────────────────────────────────────────
@@ -70,19 +60,12 @@ export const createEndpointSchema = z.object({
     .string()
     .max(500, "Description must be 500 characters or fewer")
     .optional(),
-  basePath: z
-    .string()
-    .max(200)
-    .optional(),
+  basePath: z.string().max(200).optional(),
 });
 
 export const updateEndpointSchema = z.object({
   id: z.string().min(1),
-  name: z
-    .string()
-    .min(1)
-    .max(100)
-    .optional(),
+  name: z.string().min(1).max(100).optional(),
   description: z.string().max(500).optional(),
   basePath: z.string().max(200).optional(),
 });

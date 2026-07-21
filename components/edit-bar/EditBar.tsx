@@ -38,7 +38,6 @@ import { Input } from "@/components/ui/input";
 interface EditBarProps {
   route: Route;
   projectSlug: string;
-  customDomain?: string | null;
   endpoints: Endpoint[];
   open: boolean;
   onOpenChange: (open: boolean) => void;

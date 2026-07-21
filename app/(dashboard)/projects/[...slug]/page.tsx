@@ -17,7 +17,9 @@ interface ProjectPageProps {
  * Combines Canvas, Endpoints, Logs, and Settings subpages into a single
  * catch-all dynamic router to support multi-segment project slugs (e.g. `/projects/api/v1/canvas`).
  */
-export default async function UnifiedProjectPage({ params }: ProjectPageProps): Promise<React.JSX.Element> {
+export default async function UnifiedProjectPage({
+  params,
+}: ProjectPageProps): Promise<React.JSX.Element> {
   const { slug: slugParam } = await params;
   if (!slugParam || slugParam.length === 0) {
     notFound();
@@ -28,7 +30,7 @@ export default async function UnifiedProjectPage({ params }: ProjectPageProps): 
   // e.g. for ["demo"] -> subpage = "", projectSlugParts = ["demo"]
   const lastSegment = slugParam[slugParam.length - 1];
   const subpages = new Set(["canvas", "endpoints", "logs", "settings"]);
-  
+
   let subpage = "";
   let projectSlugParts = slugParam;
 
@@ -64,7 +66,6 @@ export default async function UnifiedProjectPage({ params }: ProjectPageProps): 
       <CanvasContainer
         projectId={project.id}
         projectSlug={project.slug}
-        customDomain={project.customDomain}
         endpoints={endpointsList}
         routes={routesList}
         initialState={
@@ -92,14 +93,21 @@ export default async function UnifiedProjectPage({ params }: ProjectPageProps): 
     content = <ProjectLogs projectId={project.id} initialLogs={logs} />;
   } else if (subpage === "settings") {
     const isLogsDbConfigured = !!process.env.LOGS_POSTGRES_URL;
-    content = <ProjectSettings project={project} isLogsDbConfigured={isLogsDbConfigured} />;
+    content = (
+      <ProjectSettings
+        project={project}
+        isLogsDbConfigured={isLogsDbConfigured}
+      />
+    );
   }
 
   // Wrap in the standard layout styling
   const isCanvas = subpage === "canvas";
 
   return (
-    <div className={`flex h-full w-full flex-col ${isCanvas ? "overflow-hidden" : "overflow-y-auto bg-background"}`}>
+    <div
+      className={`flex h-full w-full flex-col ${isCanvas ? "overflow-hidden" : "bg-background overflow-y-auto"}`}
+    >
       {content}
     </div>
   );

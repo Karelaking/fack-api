@@ -40,7 +40,7 @@ export async function getProjects(): Promise<(typeof projects.$inferSelect)[]> {
     const message = error instanceof Error ? error.message : "";
     if (message.includes("no such table: projects")) {
       console.warn(
-        '[fack-api] Database schema is not initialized. Run "pnpm db:push" to create the required tables.'
+        '[fack-api] Database schema is not initialized. Run "pnpm db:push" to create the required tables.',
       );
       return [];
     }
@@ -49,7 +49,9 @@ export async function getProjects(): Promise<(typeof projects.$inferSelect)[]> {
   }
 }
 
-export async function getProjectBySlug(slug: string): Promise<(typeof projects.$inferSelect) | undefined> {
+export async function getProjectBySlug(
+  slug: string,
+): Promise<typeof projects.$inferSelect | undefined> {
   const cached = getCachedProjectBySlug(slug);
   if (cached) return cached;
 
@@ -70,17 +72,24 @@ export async function getProjectBySlug(slug: string): Promise<(typeof projects.$
   return project;
 }
 
-export async function getProjectById(id: string): Promise<(typeof projects.$inferSelect) | undefined> {
+export async function getProjectById(
+  id: string,
+): Promise<typeof projects.$inferSelect | undefined> {
   return db.query.projects.findFirst({
     where: eq(projects.id, id),
   });
 }
 
-export async function createProject(input: CreateProjectInput): Promise<(typeof projects.$inferSelect)> {
+export async function createProject(
+  input: CreateProjectInput,
+): Promise<typeof projects.$inferSelect> {
   const parsed = createProjectSchema.parse(input);
   const id = generateId();
   const slug = parsed.slug
-    ? parsed.slug.split("/").map((s) => slugify(s)).join("/")
+    ? parsed.slug
+        .split("/")
+        .map((s) => slugify(s))
+        .join("/")
     : slugify(parsed.name);
 
   // Ensure slug uniqueness by appending a short suffix if needed
@@ -98,7 +107,6 @@ export async function createProject(input: CreateProjectInput): Promise<(typeof 
       name: parsed.name,
       slug: finalSlug,
       description: parsed.description ?? "",
-      customDomain: parsed.customDomain === "" || !parsed.customDomain ? null : parsed.customDomain,
       isLoggingEnabled: hasLogsDb,
     })
     .returning();
@@ -108,16 +116,17 @@ export async function createProject(input: CreateProjectInput): Promise<(typeof 
   return project;
 }
 
-export async function updateProject(input: UpdateProjectInput): Promise<(typeof projects.$inferSelect)> {
+export async function updateProject(
+  input: UpdateProjectInput,
+): Promise<typeof projects.$inferSelect> {
   const parsed = updateProjectSchema.parse(input);
   const { id, ...updates } = parsed;
 
-  if (updates.customDomain === "") {
-    updates.customDomain = null;
-  }
-
   if (updates.slug) {
-    updates.slug = updates.slug.split("/").map((s) => slugify(s)).join("/");
+    updates.slug = updates.slug
+      .split("/")
+      .map((s) => slugify(s))
+      .join("/");
   }
 
   const hasLogsDb = !!process.env.LOGS_POSTGRES_URL;

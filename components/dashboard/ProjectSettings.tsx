@@ -62,9 +62,6 @@ export function ProjectSettings({
   const [isLoggingEnabled, setIsLoggingEnabled] = React.useState(
     isLogsDbConfigured ? project.isLoggingEnabled : false,
   );
-  const [customDomain, setCustomDomain] = React.useState(
-    project.customDomain ?? "",
-  );
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -92,7 +89,6 @@ export function ProjectSettings({
         slug: cleanedSlug,
         description,
         isLoggingEnabled,
-        customDomain,
       });
       toast.success("Workspace settings updated!");
       router.refresh();
@@ -167,24 +163,6 @@ export function ProjectSettings({
               />
               <span className="text-muted-foreground text-xs">
                 Determines the network mock base URL: `/{slug}/...`
-              </span>
-            </div>
-            <div className="grid gap-2">
-              <label htmlFor="customDomain" className="text-sm font-semibold">
-                Custom Domain (Static)
-              </label>
-              <Input
-                id="customDomain"
-                value={customDomain}
-                onChange={(e) => setCustomDomain(e.target.value)}
-                placeholder="api.yourcompany.com"
-                maxLength={255}
-                disabled={loading}
-              />
-              <span className="text-muted-foreground text-xs">
-                Allows routing requests from a custom domain directly to this
-                project&apos;s mocks (e.g.{" "}
-                <code>api.yourcompany.com/users</code>).
               </span>
             </div>
             <div className="grid gap-2">
