@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/Karelaking/fack-api/compare/v1.0.0...v1.1.0) (2026-07-21)
+
+### Features
+
+- add comprehensive agent skill sets for Vercel React best practices, Shadcn, and analytics refs ([7306385](https://github.com/Karelaking/fack-api/commit/7306385f848be4fdbbc0ae73f50919cee8e23c9f))
+- initialize new agent skills and reference documentation across all modules ([0f06ebd](https://github.com/Karelaking/fack-api/commit/0f06ebdf20ec657b28893bfa3caa165e5c8c2ff6))
+
 # 1.0.0 (2026-07-20)
 
 ### Bug Fixes
