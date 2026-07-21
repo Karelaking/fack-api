@@ -1,10 +1,9 @@
 import type { NextRequest } from "next/server";
-import { after } from "next/server";
 import { db } from "@/db";
-import { endpoints, type Project } from "@/db/schema";
 import { sqlClient } from "@/db/postgres";
+import { endpoints, type Project } from "@/db/schema";
 import { eq } from "drizzle-orm";
-import { findMatchingRoute } from "@/lib/route-matcher";
+import { after } from "next/server";
 import {
   getCachedRoutes,
   setCachedRoutes,
@@ -20,14 +19,21 @@ import {
   processQueryParameters,
   evaluateRules,
 } from "@/lib/mock-engine";
+import { LoggerRegistry } from "@/lib/logger-registry";
+
+const mockLogger = LoggerRegistry.get("mock");
+const mockCoreTrace = LoggerRegistry.getTrace("mock-core");
 
 /**
  * Normalizes a URL path by collapsing multiple slashes and ensuring
  * a leading slash. Handles edge cases from basePath + path concatenation.
  */
 function normalizePath(path: string): string {
+  mockCoreTrace.traceCall("normalizePath", path);
   const normalized = ("/" + path).replace(/\/+/g, "/").replace(/\/$/, "");
-  return normalized || "/";
+  const res = normalized || "/";
+  mockCoreTrace.traceSuccess("normalizePath", res);
+  return res;
 }
 
 export async function processMockRequest({
@@ -41,6 +47,12 @@ export async function processMockRequest({
   request: NextRequest;
   startTime: number;
 }): Promise<Response> {
+  mockCoreTrace.traceCall(
+    "processMockRequest",
+    project.slug,
+    requestPath,
+    request.method,
+  );
   const matchedPath = requestPath;
   const matchedMethod = request.method;
 
@@ -87,7 +99,7 @@ export async function processMockRequest({
         });
       }
     } catch (e) {
-      console.error("[fack-api] Failed to save request log:", e);
+      mockLogger.error("Failed to save request log:", e);
     }
   };
 
@@ -104,83 +116,83 @@ export async function processMockRequest({
           routes: true,
         },
       });
-
-      // Flatten all routes across endpoints, prepending the endpoint's basePath
-      allRoutes = projectEndpoints.flatMap((endpoint) =>
-        endpoint.routes
-          .filter((route) => route.isEnabled)
-          .map((route) => ({
-            ...route,
-            path: normalizePath(`${endpoint.basePath}${route.path}`),
-          })),
+      allRoutes = projectEndpoints.flatMap((e) =>
+        e.routes.map((r) => ({
+          ...r,
+          path: normalizePath(e.basePath + r.path),
+        })),
       );
-
       setCachedRoutes(project.id, allRoutes);
     }
 
-    // ── 4. Match the Incoming Path Against Route Patterns ────────────────
-    const matchResult = findMatchingRoute(
-      allRoutes,
-      method,
-      normalizePath(requestPath),
+    // ── 4. Find Best Matching Route ──────────────────────────────────────
+    const route = allRoutes.find(
+      (r) => r.path === matchedPath && r.method === method && r.isEnabled,
     );
 
-    if (!matchResult) {
+    if (!route) {
+      mockLogger.warn(
+        `No active mock route matches "${method} ${matchedPath}"`,
+      );
       const errBody = {
         error: true,
-        message: `No ${method} route matches "${requestPath}"`,
-        availableRoutes: allRoutes.map((r) => ({
-          method: r.method,
-          path: r.path,
-        })),
+        message: `Mock path "${matchedPath}" not found`,
+        hint: `Verify that you have created a ${method} route for path "${matchedPath}" and enabled it.`,
       };
       const response = buildResponse(errBody, 404);
       after(() => logRequest(404, true, errBody));
+      mockCoreTrace.traceSuccess("processMockRequest (route not found)", "404");
       return response;
     }
 
-    const { route, params } = matchResult;
-
-    // ── 5. Smart Conditional Rules Check ─────────────────────────────────
-    const ruleMatch = evaluateRules(route.conditionalRules, request, params);
+    // ── 5. Evaluate Conditional Logic Rules ──────────────────────────────
+    const matchedParams: Record<string, string> = {}; // URL param matching not active for exact match paths
+    const ruleMatch = evaluateRules(
+      route.conditionalRules,
+      request,
+      matchedParams,
+    );
     if (ruleMatch) {
-      await applyLatency(route.latencyMin ?? 0, route.latencyMax ?? 0);
-      let customHeaders: Record<string, string> = {};
-      try {
-        customHeaders = JSON.parse(route.customHeaders ?? "{}");
-      } catch {}
-      const response = buildResponse(
-        ruleMatch.body,
-        ruleMatch.status,
-        customHeaders,
-      );
+      const response = buildResponse(ruleMatch.body, ruleMatch.status);
       after(() =>
         logRequest(ruleMatch.status, ruleMatch.status >= 400, ruleMatch.body),
       );
+      mockCoreTrace.traceSuccess(
+        "processMockRequest (conditional rule matched)",
+        ruleMatch.status,
+      );
       return response;
     }
 
-    // ── 6. Chaos Engineering: Error Simulation ───────────────────────────
+    // ── 6. Simulated Error Injection ─────────────────────────────────────
     if (shouldError(route.errorRate ?? 0)) {
-      await applyLatency(route.latencyMin ?? 0, route.latencyMax ?? 0);
-      const errBody = {
-        error: true,
-        message: `Simulated error for ${method} ${requestPath} (error rate: ${route.errorRate}%)`,
-      };
-      const response = buildErrorResponse(500, errBody.message);
-      after(() => logRequest(500, true, errBody));
+      const response = buildErrorResponse(
+        route.statusCode >= 400 ? route.statusCode : 500,
+        "Simulated server error (Chaos Monkey)",
+      );
+      after(() =>
+        logRequest(
+          route.statusCode >= 400 ? route.statusCode : 500,
+          true,
+          "Simulated Chaos Monkey Error",
+        ),
+      );
+      mockCoreTrace.traceSuccess(
+        "processMockRequest (chaos monkey error injected)",
+        response.status,
+      );
       return response;
     }
 
-    // ── 7. Apply Simulated Latency ───────────────────────────────────────
+    // ── 7. Simulated Network Latency ─────────────────────────────────────
     await applyLatency(route.latencyMin ?? 0, route.latencyMax ?? 0);
 
-    // ── 8. Generate Mock Payload ─────────────────────────────────────────
+    // ── 8. Schema Resolution & Payload Generation ─────────────────────────
     let schema: Record<string, unknown> = {};
     try {
       schema = JSON.parse(route.responseSchema ?? "{}");
     } catch {
-      console.warn(`[fack-api] Invalid JSON schema for route ${route.id}`);
+      mockLogger.warn(`Invalid JSON schema for route ${route.id}`);
     }
 
     // Parse pagination parameters (page, limit) to dynamically expand generated array size
@@ -200,63 +212,69 @@ export async function processMockRequest({
         pageValue = parsedPage;
       }
     }
-
     if (limitParam) {
       const parsedLimit = parseInt(limitParam, 10);
       if (!isNaN(parsedLimit) && parsedLimit > 0) {
-        limitValue = pageValue > 1 ? pageValue * parsedLimit : parsedLimit;
+        limitValue = parsedLimit;
       }
     }
 
-    const isListRoute = !route.path.includes(":");
-    let shouldWrapAsArray = false;
-    if (schema.type === "object") {
-      if (isListRoute || limitParam || pageParam) {
-        shouldWrapAsArray = true;
-      }
-    }
-
-    let targetSchema = schema;
-    if (shouldWrapAsArray) {
-      targetSchema = {
-        type: "array",
-        items: schema,
-      };
-    }
-
-    const isArrayResponse = shouldWrapAsArray || targetSchema.type === "array";
     let rawPayload: unknown;
 
+    // Check if we should respond with a list of items (either configured as an array schema, or if pagination limit parameters are passed)
+    const isArrayResponse =
+      schema.type === "array" ||
+      limitValue !== undefined ||
+      pageParam !== null ||
+      limitParam !== null;
+
     if (isArrayResponse) {
-      const requestedLimit = limitValue !== undefined ? limitValue : 1;
-      const cachedData = getCachedMockData(route.id) || [];
-
-      if (cachedData.length >= requestedLimit) {
-        rawPayload = cachedData.slice(0, requestedLimit);
+      // Determine array generator details from schema
+      let itemSchema: Record<string, unknown> = {};
+      if (
+        schema.type === "array" &&
+        typeof schema.items === "object" &&
+        schema.items !== null
+      ) {
+        itemSchema = schema.items as Record<string, unknown>;
       } else {
-        const deficit = requestedLimit - cachedData.length;
-        const generateCount = Math.ceil(deficit / 100) * 100;
-
-        const newItems = await generatePayload(
-          {
-            ...targetSchema,
-            ...(Object.keys(params).length > 0 && {
-              properties: {
-                ...(targetSchema.properties as
-                  Record<string, unknown> | undefined),
-              },
-            }),
-          },
-          generateCount,
-        );
-
-        const newItemsArray = Array.isArray(newItems) ? newItems : [newItems];
-        const updatedCache = [...cachedData, ...newItemsArray];
-        setCachedMockData(route.id, updatedCache);
-
-        rawPayload = updatedCache.slice(0, requestedLimit);
+        itemSchema = schema;
       }
+
+      // If limit is not specified but it's an array response, default limit to 10
+      const effectiveLimit = limitValue !== undefined ? limitValue : 10;
+
+      // Calculate total required items based on pagination request
+      const requiredItemsCount = pageValue * effectiveLimit;
+
+      // Check route list cache first
+      let cachedArray = getCachedMockData(route.id);
+      if (!cachedArray) {
+        cachedArray = [];
+      }
+
+      if (cachedArray.length < requiredItemsCount) {
+        // Incrementally generate new mock items in batches of 100 to reduce latency
+        const deficit = requiredItemsCount - cachedArray.length;
+        const generationCount = Math.max(100, Math.ceil(deficit / 100) * 100);
+
+        const newItems = (await generatePayload(
+          {
+            type: "array",
+            items: itemSchema,
+          },
+          generationCount,
+        )) as unknown[];
+
+        cachedArray = [...cachedArray, ...newItems];
+        setCachedMockData(route.id, cachedArray);
+      }
+
+      rawPayload = cachedArray;
     } else {
+      // Standard single-object mock payload generation
+      const params = {}; // exact matches have no path parameters
+      const targetSchema = schema;
       rawPayload = await generatePayload(
         {
           ...targetSchema,
@@ -278,15 +296,18 @@ export async function processMockRequest({
     try {
       customHeaders = JSON.parse(route.customHeaders ?? "{}");
     } catch {
-      console.warn(`[fack-api] Invalid custom headers for route ${route.id}`);
+      mockLogger.warn(`Invalid custom headers for route ${route.id}`);
     }
 
-    // ── 10. Build and Return Response ────────────────────────────────────
     const response = buildResponse(payload, route.statusCode, customHeaders);
     after(() => logRequest(route.statusCode, route.statusCode >= 400, payload));
+    mockCoreTrace.traceSuccess(
+      "processMockRequest (successful mock response)",
+      response.status,
+    );
     return response;
   } catch (error) {
-    console.error("[fack-api] Mock request handler error:", error);
+    mockCoreTrace.traceError("processMockRequest", error);
     const errBody = { error: true, message: "Internal mock server error" };
     const response = buildErrorResponse(500, errBody.message);
     after(() => logRequest(500, true, errBody));

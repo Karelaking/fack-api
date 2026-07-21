@@ -22,6 +22,9 @@ import { saveCanvasState } from "@/lib/actions/canvas";
 import { updateRoute } from "@/lib/actions/routes";
 import { useRouter } from "next/navigation";
 import { RouteNode } from "./RouteNode";
+import { LoggerRegistry } from "@/lib/logger-registry";
+
+const canvasUiTrace = LoggerRegistry.getTrace("ui-flow-canvas");
 import { EndpointGroupNode } from "./EndpointGroupNode";
 import { AddRouteDialog } from "./AddRouteDialog";
 import type { Endpoint, Route } from "@/db/schema";
@@ -316,11 +319,14 @@ function FlowCanvasInner({
           customHeaders: route.customHeaders ?? "{}",
           conditionalRules: route.conditionalRules ?? "[]",
           onToggleEnabled: async (id: string, isEnabled: boolean) => {
+            canvasUiTrace.traceCall("onToggleEnabled", id, isEnabled);
             try {
               await updateRoute({ id, isEnabled });
               toast.success("Route status updated!");
-            } catch {
+              canvasUiTrace.traceSuccess("onToggleEnabled", isEnabled);
+            } catch (err) {
               toast.error("Failed to toggle route status");
+              canvasUiTrace.traceError("onToggleEnabled", err);
             }
           },
           onSelectRoute,
@@ -357,7 +363,8 @@ function FlowCanvasInner({
   }, [endpoints, routes, onSelectRoute, onOpenEdit, projectSlug, setNodes]);
 
   const onConnect = React.useCallback(
-    (params: Connection) =>
+    (params: Connection) => {
+      canvasUiTrace.traceCall("onConnect", params.source, params.target);
       setEdges((eds) =>
         addEdge(
           {
@@ -371,11 +378,14 @@ function FlowCanvasInner({
           },
           eds,
         ),
-      ),
+      );
+      canvasUiTrace.traceSuccess("onConnect", "edge added");
+    },
     [setEdges],
   );
 
   const handleSave = React.useCallback(async () => {
+    canvasUiTrace.traceCall("handleSave", projectId);
     window.dispatchEvent(new CustomEvent("canvas-save-start"));
     try {
       const flow = reactFlowInstance.toObject();
@@ -386,9 +396,10 @@ function FlowCanvasInner({
         viewport: JSON.stringify(flow.viewport),
       });
       toast.success("Canvas layout saved!");
+      canvasUiTrace.traceSuccess("handleSave", "saved");
     } catch (err) {
       toast.error("Failed to save canvas coordinates");
-      console.error(err);
+      canvasUiTrace.traceError("handleSave", err);
     } finally {
       window.dispatchEvent(new CustomEvent("canvas-save-end"));
     }

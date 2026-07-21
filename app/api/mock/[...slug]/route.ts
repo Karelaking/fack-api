@@ -5,6 +5,7 @@ import { eq } from "drizzle-orm";
 import { buildResponse } from "@/lib/mock-engine";
 import { processMockRequest } from "@/lib/mock-handler-core";
 import { getCachedProjectBySlug, setCachedProjectBySlug } from "@/lib/cache";
+import { LoggerRegistry } from "@/lib/logger-registry";
 
 export const dynamic = "force-dynamic";
 
@@ -14,36 +15,63 @@ interface RouteContext {
   }>;
 }
 
+const mockLogger = LoggerRegistry.get("mock");
+const mockTrace = LoggerRegistry.getTrace("mock");
+
 export async function GET(request: NextRequest, context: RouteContext) {
-  return handleMockRequest(request, context);
+  mockTrace.traceCall("GET", request.nextUrl.pathname);
+  const res = await handleMockRequest(request, context);
+  mockTrace.traceSuccess("GET", `Status: ${res.status}`);
+  return res;
 }
 
 export async function POST(request: NextRequest, context: RouteContext) {
-  return handleMockRequest(request, context);
+  mockTrace.traceCall("POST", request.nextUrl.pathname);
+  const res = await handleMockRequest(request, context);
+  mockTrace.traceSuccess("POST", `Status: ${res.status}`);
+  return res;
 }
 
 export async function PUT(request: NextRequest, context: RouteContext) {
-  return handleMockRequest(request, context);
+  mockTrace.traceCall("PUT", request.nextUrl.pathname);
+  const res = await handleMockRequest(request, context);
+  mockTrace.traceSuccess("PUT", `Status: ${res.status}`);
+  return res;
 }
 
 export async function DELETE(request: NextRequest, context: RouteContext) {
-  return handleMockRequest(request, context);
+  mockTrace.traceCall("DELETE", request.nextUrl.pathname);
+  const res = await handleMockRequest(request, context);
+  mockTrace.traceSuccess("DELETE", `Status: ${res.status}`);
+  return res;
 }
 
 export async function PATCH(request: NextRequest, context: RouteContext) {
-  return handleMockRequest(request, context);
+  mockTrace.traceCall("PATCH", request.nextUrl.pathname);
+  const res = await handleMockRequest(request, context);
+  mockTrace.traceSuccess("PATCH", `Status: ${res.status}`);
+  return res;
 }
 
 async function handleMockRequest(
   request: NextRequest,
-  context: RouteContext
+  context: RouteContext,
 ): Promise<Response> {
+  mockTrace.traceCall(
+    "handleMockRequest",
+    request.method,
+    request.nextUrl.pathname,
+  );
   const startTime = Date.now();
 
   try {
     const { slug } = await context.params;
     if (!slug || slug.length === 0) {
-      return buildResponse({ error: true, message: "No path segments provided" }, 400);
+      mockTrace.traceSuccess("handleMockRequest (missing slug)", "400");
+      return buildResponse(
+        { error: true, message: "No path segments provided" },
+        400,
+      );
     }
 
     // ── Find the Project and Request Path ──────────────────────────────
@@ -63,6 +91,7 @@ async function handleMockRequest(
         project = cached;
         const slugCount = candidate.split("/").length;
         requestPath = "/" + slug.slice(slugCount).join("/");
+        mockLogger.debug(`Resolved project slug from cache: ${candidate}`);
         break;
       }
     }
@@ -71,12 +100,12 @@ async function handleMockRequest(
     if (!project) {
       for (let i = slug.length; i > 0; i--) {
         const candidateSlug = slug.slice(0, i).join("/");
-        console.log("[fack-api] Checking candidate slug:", candidateSlug);
+        mockLogger.debug(`Checking candidate slug: ${candidateSlug}`);
         const foundProject = await db.query.projects.findFirst({
           where: eq(projects.slug, candidateSlug),
         });
         if (foundProject) {
-          console.log("[fack-api] Resolved project slug (DB):", foundProject.slug);
+          mockLogger.info(`Resolved project slug (DB): ${foundProject.slug}`);
           project = foundProject;
           requestPath = "/" + slug.slice(i).join("/");
           setCachedProjectBySlug(candidateSlug, foundProject);
@@ -87,24 +116,33 @@ async function handleMockRequest(
 
     if (!project) {
       const fullPath = slug.join("/");
+      mockTrace.traceSuccess("handleMockRequest (project not found)", "404");
       return buildResponse(
         {
           error: true,
           message: `Workspace namespace matching path "/${fullPath}" not found`,
           hint: "Check that your namespace slug and endpoint paths are correctly configured.",
         },
-        404
+        404,
       );
     }
 
-    return await processMockRequest({
+    const res = await processMockRequest({
       project,
       requestPath,
       request,
       startTime,
     });
+    mockTrace.traceSuccess(
+      "handleMockRequest (processed)",
+      `Status: ${res.status}`,
+    );
+    return res;
   } catch (error) {
-    console.error("[fack-api] Mock request handler error:", error);
-    return buildResponse({ error: true, message: "Internal mock server error" }, 500);
+    mockTrace.traceError("handleMockRequest", error);
+    return buildResponse(
+      { error: true, message: "Internal mock server error" },
+      500,
+    );
   }
 }

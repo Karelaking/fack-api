@@ -4,6 +4,8 @@ import path from "node:path";
 import fs from "node:fs";
 import * as schema from "./schema";
 
+import { dbLogger } from "@/lib/logger";
+
 // Standardize database URL. If it's a local path, prefix it with "file:" for @libsql/client
 let url = process.env.DATABASE_URL ?? "file:./data/fack.db";
 if (!url.includes("://") && !url.startsWith("file:")) {
@@ -24,14 +26,15 @@ function createDatabase() {
     }
   }
 
-
   const client = createClient({
     url: DATABASE_URL,
     authToken: DATABASE_AUTH_TOKEN,
   });
 
   // Bootstrap request_logs in SQLite/Turso if it does not exist
-  client.execute(`
+  client
+    .execute(
+      `
     CREATE TABLE IF NOT EXISTS request_logs (
       id TEXT PRIMARY KEY,
       project_id TEXT NOT NULL,
@@ -45,15 +48,21 @@ function createDatabase() {
       is_error INTEGER NOT NULL,
       response_payload TEXT DEFAULT ''
     );
-  `).then(() => {
-    // Bootstrap index for query performance
-    return client.execute(`
+  `,
+    )
+    .then(() => {
+      // Bootstrap index for query performance
+      return client.execute(`
       CREATE INDEX IF NOT EXISTS idx_request_logs_project_timestamp 
       ON request_logs(project_id, timestamp DESC);
     `);
-  }).catch((err) => {
-    console.error("[fack-api] Failed to bootstrap SQLite request_logs table/index:", err);
-  });
+    })
+    .catch((err) => {
+      dbLogger.error(
+        "Failed to bootstrap SQLite request_logs table/index:",
+        err,
+      );
+    });
 
   return drizzle(client, { schema });
 }

@@ -3,6 +3,9 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { LoggerRegistry } from "@/lib/logger-registry";
+
+const uiTrace = LoggerRegistry.getTrace("ui-project-settings");
 import {
   RiLoader2Line,
   RiDeleteBin6Line,
@@ -81,6 +84,7 @@ export function ProjectSettings({
       return;
     }
 
+    uiTrace.traceCall("handleUpdate", name, cleanedSlug);
     setLoading(true);
     try {
       const updated = await updateProject({
@@ -91,6 +95,7 @@ export function ProjectSettings({
         isLoggingEnabled,
       });
       toast.success("Workspace settings updated!");
+      uiTrace.traceSuccess("handleUpdate", updated.slug);
       router.refresh();
       // Redirect if slug changed
       if (updated.slug !== project.slug) {
@@ -98,7 +103,7 @@ export function ProjectSettings({
       }
     } catch (err) {
       toast.error("Failed to update workspace settings");
-      console.error(err);
+      uiTrace.traceError("handleUpdate", err);
     } finally {
       setLoading(false);
     }
@@ -109,16 +114,18 @@ export function ProjectSettings({
       toast.error("Please type the project name correctly to confirm.");
       return;
     }
+    uiTrace.traceCall("handleDelete", project.id);
     setDeleteLoading(true);
     try {
       await deleteProject(project.id);
       toast.success(`Project "${project.name}" deleted successfully.`);
+      uiTrace.traceSuccess("handleDelete", "deleted");
       setDeleteOpen(false);
       setDeleteConfirmText("");
       router.push("/dashboard");
     } catch (err) {
       toast.error("Failed to delete workspace");
-      console.error(err);
+      uiTrace.traceError("handleDelete", err);
     } finally {
       setDeleteLoading(false);
     }

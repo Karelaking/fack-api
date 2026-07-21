@@ -1,86 +1,33 @@
-/**
- * Fack API's — Mock Response Engine
- *
- * Core of the Data Plane — generates realistic fake API responses
- * from JSON Schema definitions. This module orchestrates:
- *
- * 1. **Payload Generation** — Uses `json-schema-faker` (JSF) with registered
- *    Faker.js providers to produce data matching the schema constraints.
- *
- * 2. **Chaos Simulation** — Injects configurable network latency and
- *    probabilistic error responses to test frontend resilience.
- *
- * 3. **Response Building** — Constructs properly formatted HTTP responses
- *    with CORS headers, custom headers, and correct status codes.
- *
- * Architecture:
- * ```
- * Request → Route Matcher → Mock Engine → Response
- *                              ├─ generatePayload()
- *                              ├─ applyLatency()
- *                              ├─ shouldError()
- *                              └─ buildResponse()
- * ```
- *
- * @see https://github.com/json-schema-faker/json-schema-faker
- * @see https://fakerjs.dev/
- */
-
 import { generate } from "json-schema-faker";
 import { faker } from "@faker-js/faker";
+import { LoggerRegistry } from "@/lib/logger-registry";
 import type { NextRequest } from "next/server";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
-/** Configuration for chaos simulation on a per-route basis */
-export interface ChaosConfig {
-  /** Minimum simulated latency in milliseconds (0 = no delay) */
-  latencyMin: number;
-  /** Maximum simulated latency in milliseconds (0 = no delay) */
-  latencyMax: number;
-  /** Percentage chance of returning an error (0-100) */
-  errorRate: number;
+export interface CustomHeaders {
+  [key: string]: string;
 }
 
-/** Custom header key-value pairs to inject into the response */
-export type CustomHeaders = Record<string, string>;
-
-// ─── Payload Generation ──────────────────────────────────────────────────────
+const mockTrace = LoggerRegistry.getTrace("mock");
 
 /**
  * Generates a fake data payload from a JSON Schema document.
- *
- * The schema should contain standard JSON Schema type definitions
- * and optionally `x-faker` extension keywords pointing to Faker.js methods.
- *
- * @param schema - A JSON Schema document (parsed from the route's responseSchema)
- * @returns A generated data object conforming to the schema
- *
- * @example
- * ```ts
- * const schema = {
- *   type: "object",
- *   properties: {
- *     id: { type: "string", "x-faker": "string.uuid" },
- *     name: { type: "string", "x-faker": "person.fullName" },
- *     age: { type: "integer", minimum: 18, maximum: 99 }
- *   },
- *   required: ["id", "name", "age"]
- * };
- *
- * const payload = await generatePayload(schema);
- * // → { id: "a1b2c3d4-...", name: "John Smith", age: 34 }
- * ```
  */
 /**
  * Recursively maps any "x-faker" properties in a JSON Schema to "faker".
- * This ensures backwards compatibility with older schemas in the database.
  */
 function mapXFakerToFaker(obj: unknown): unknown {
-  if (typeof obj !== "object" || obj === null) return obj;
+  logCallInternal("mapXFakerToFaker");
+  if (typeof obj !== "object" || obj === null) {
+    logSuccessInternal("mapXFakerToFaker", "primitive");
+    return obj;
+  }
 
   if (Array.isArray(obj)) {
-    return obj.map(mapXFakerToFaker);
+    const res = obj.map(mapXFakerToFaker);
+    logSuccessInternal("mapXFakerToFaker", "array");
+    return res;
   }
 
   const result: Record<string, unknown> = {};
@@ -91,13 +38,19 @@ function mapXFakerToFaker(obj: unknown): unknown {
       result[key] = mapXFakerToFaker(value);
     }
   }
+  logSuccessInternal("mapXFakerToFaker", "object");
   return result;
 }
 
 export async function generatePayload(
   schema: Record<string, unknown>,
-  limit?: number
+  limit?: number,
 ): Promise<unknown> {
+  mockTrace.traceCall(
+    "generatePayload",
+    `${schema.type || "object"} schema`,
+    `limit: ${limit}`,
+  );
   try {
     const transformedSchema = mapXFakerToFaker(schema);
     const minItems = limit !== undefined ? limit : 1;
@@ -108,200 +61,196 @@ export async function generatePayload(
       image: new Proxy(
         {
           ...faker.image,
-          sports: () => `https://loremflickr.com/640/480/sports?lock=${Math.floor(Math.random() * 100000)}`,
-          animals: () => `https://loremflickr.com/640/480/animals?lock=${Math.floor(Math.random() * 100000)}`,
-          business: () => `https://loremflickr.com/640/480/business?lock=${Math.floor(Math.random() * 100000)}`,
-          cats: () => `https://loremflickr.com/640/480/cats?lock=${Math.floor(Math.random() * 100000)}`,
-          city: () => `https://loremflickr.com/640/480/city?lock=${Math.floor(Math.random() * 100000)}`,
-          fashion: () => `https://loremflickr.com/640/480/fashion?lock=${Math.floor(Math.random() * 100000)}`,
-          food: () => `https://loremflickr.com/640/480/food?lock=${Math.floor(Math.random() * 100000)}`,
-          nature: () => `https://loremflickr.com/640/480/nature?lock=${Math.floor(Math.random() * 100000)}`,
-          technics: () => `https://loremflickr.com/640/480/technics?lock=${Math.floor(Math.random() * 100000)}`,
-          transport: () => `https://loremflickr.com/640/480/transport?lock=${Math.floor(Math.random() * 100000)}`,
-          abstract: () => `https://loremflickr.com/640/480/abstract?lock=${Math.floor(Math.random() * 100000)}`,
-          people: () => `https://loremflickr.com/640/480/people?lock=${Math.floor(Math.random() * 100000)}`,
-          nightlife: () => `https://loremflickr.com/640/480/nightlife?lock=${Math.floor(Math.random() * 100000)}`,
-          urlSquare: () => `https://picsum.photos/200/200?random=${Math.floor(Math.random() * 100000)}`,
-          urlThumbnail: () => `https://picsum.photos/150/150?random=${Math.floor(Math.random() * 100000)}`,
-          urlHD: () => `https://picsum.photos/1280/720?random=${Math.floor(Math.random() * 100000)}`,
-          urlFullHD: () => `https://picsum.photos/1920/1080?random=${Math.floor(Math.random() * 100000)}`,
+          sports: () =>
+            `https://loremflickr.com/640/480/sports?lock=${Math.floor(Math.random() * 100000)}`,
+          animals: () =>
+            `https://loremflickr.com/640/480/animals?lock=${Math.floor(Math.random() * 100000)}`,
+          business: () =>
+            `https://loremflickr.com/640/480/business?lock=${Math.floor(Math.random() * 100000)}`,
+          cats: () =>
+            `https://loremflickr.com/640/480/cats?lock=${Math.floor(Math.random() * 100000)}`,
+          city: () =>
+            `https://loremflickr.com/640/480/city?lock=${Math.floor(Math.random() * 100000)}`,
+          fashion: () =>
+            `https://loremflickr.com/640/480/fashion?lock=${Math.floor(Math.random() * 100000)}`,
+          food: () =>
+            `https://loremflickr.com/640/480/food?lock=${Math.floor(Math.random() * 100000)}`,
+          nature: () =>
+            `https://loremflickr.com/640/480/nature?lock=${Math.floor(Math.random() * 100000)}`,
+          technics: () =>
+            `https://loremflickr.com/640/480/technics?lock=${Math.floor(Math.random() * 100000)}`,
+          transport: () =>
+            `https://loremflickr.com/640/480/transport?lock=${Math.floor(Math.random() * 100000)}`,
+          abstract: () =>
+            `https://loremflickr.com/640/480/abstract?lock=${Math.floor(Math.random() * 100000)}`,
+          people: () =>
+            `https://loremflickr.com/640/480/people?lock=${Math.floor(Math.random() * 100000)}`,
+          nightlife: () =>
+            `https://loremflickr.com/640/480/nightlife?lock=${Math.floor(Math.random() * 100000)}`,
+          urlSquare: () =>
+            `https://picsum.photos/200/200?random=${Math.floor(Math.random() * 100000)}`,
+          urlThumbnail: () =>
+            `https://picsum.photos/150/150?random=${Math.floor(Math.random() * 100000)}`,
+          urlHD: () =>
+            `https://picsum.photos/1280/720?random=${Math.floor(Math.random() * 100000)}`,
+          urlFullHD: () =>
+            `https://picsum.photos/1920/1080?random=${Math.floor(Math.random() * 100000)}`,
         },
         {
           get(target, prop) {
-            if (typeof prop === "string" && prop.startsWith("customCategory:")) {
+            if (
+              typeof prop === "string" &&
+              prop.startsWith("customCategory:")
+            ) {
               const category = prop.slice("customCategory:".length) || "random";
-              return () => `https://loremflickr.com/640/480/${category}?lock=${Math.floor(Math.random() * 100000)}`;
+              return () =>
+                `https://loremflickr.com/640/480/${category}?lock=${Math.floor(Math.random() * 100000)}`;
             }
             if (prop === "customCategory") {
-              return () => `https://loremflickr.com/640/480/random?lock=${Math.floor(Math.random() * 100000)}`;
+              return () =>
+                `https://loremflickr.com/640/480/random?lock=${Math.floor(Math.random() * 100000)}`;
             }
             return Reflect.get(target, prop);
           },
-        }
+        },
       ),
     };
 
-    const result = await generate(transformedSchema as Parameters<typeof generate>[0], {
-      alwaysFakeOptionals: true,
-      useDefaultValue: true,
-      minItems,
-      maxItems,
-      extensions: {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        faker: extendedFaker as any,
+    const result = await generate(
+      transformedSchema as Parameters<typeof generate>[0],
+      {
+        alwaysFakeOptionals: true,
+        useDefaultValue: true,
+        minItems,
+        maxItems,
+        extensions: {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          faker: extendedFaker as any,
+        },
       },
-    });
+    );
+    mockTrace.traceSuccess("generatePayload", "Generated successfully");
     return result;
   } catch (error) {
-    console.error("[fack-api] Payload generation failed:", error);
-    // Return a minimal fallback rather than crashing the request
+    mockTrace.traceError("generatePayload", error);
     return { error: "Failed to generate mock data", details: String(error) };
   }
 }
 
 // ─── Chaos Simulation ────────────────────────────────────────────────────────
 
-/**
- * Applies simulated network latency by pausing execution.
- *
- * The actual delay is a random value between `min` and `max` milliseconds.
- * If both values are 0, no delay is applied.
- *
- * This is critical for testing:
- * - Loading states and skeleton UIs
- * - React Suspense boundaries
- * - Request timeout handling
- * - Debounced/throttled API calls
- *
- * @param min - Minimum delay in milliseconds
- * @param max - Maximum delay in milliseconds
- */
 export async function applyLatency(min: number, max: number): Promise<void> {
-  if (min <= 0 && max <= 0) return;
+  mockTrace.traceCall("applyLatency", min, max);
+  if (min <= 0 && max <= 0) {
+    mockTrace.traceSuccess("applyLatency", "skipped (0 delay)");
+    return;
+  }
 
   const effectiveMin = Math.max(0, min);
   const effectiveMax = Math.max(effectiveMin, max);
   const delay =
-    Math.floor(Math.random() * (effectiveMax - effectiveMin + 1)) + effectiveMin;
+    Math.floor(Math.random() * (effectiveMax - effectiveMin + 1)) +
+    effectiveMin;
 
   await new Promise((resolve) => setTimeout(resolve, delay));
+  mockTrace.traceSuccess("applyLatency", `Delayed by ${delay}ms`);
 }
 
-/**
- * Determines whether an error should be injected for this request
- * based on the configured error rate percentage.
- *
- * Uses Math.random() for probabilistic error injection:
- * - errorRate = 0 → never errors
- * - errorRate = 50 → errors ~50% of the time
- * - errorRate = 100 → always errors
- *
- * @param errorRate - Percentage chance of error (0-100)
- * @returns true if an error should be simulated
- */
 export function shouldError(errorRate: number): boolean {
-  if (errorRate <= 0) return false;
-  if (errorRate >= 100) return true;
-  return Math.random() * 100 < errorRate;
+  mockTrace.traceCall("shouldError", errorRate);
+  if (errorRate <= 0) {
+    mockTrace.traceSuccess("shouldError", false);
+    return false;
+  }
+  if (errorRate >= 100) {
+    mockTrace.traceSuccess("shouldError", true);
+    return true;
+  }
+  const result = Math.random() * 100 < errorRate;
+  mockTrace.traceSuccess("shouldError", result);
+  return result;
 }
 
 // ─── Response Building ───────────────────────────────────────────────────────
 
-/**
- * Default CORS headers applied to every mock API response.
- * These ensure frontend applications on different ports/domains
- * can consume the mock API without browser security violations.
- */
 const CORS_HEADERS: Record<string, string> = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With",
+  "Access-Control-Allow-Headers":
+    "Content-Type, Authorization, X-Requested-With",
   "Access-Control-Max-Age": "86400",
 };
 
-/**
- * Builds a complete HTTP Response object with the generated payload,
- * CORS headers, custom user-defined headers, and the configured status code.
- *
- * @param payload - The generated mock data to send as the response body
- * @param statusCode - HTTP status code (default: 200)
- * @param customHeaders - Additional headers defined by the user
- * @returns A standard Response object ready to return from a route handler
- */
 export function buildResponse(
   payload: unknown,
   statusCode: number = 200,
-  customHeaders: CustomHeaders = {}
+  customHeaders: CustomHeaders = {},
 ): Response {
+  mockTrace.traceCall("buildResponse", `status: ${statusCode}`);
   const headers = new Headers({
     "Content-Type": "application/json",
     "X-Powered-By": "Fack API's",
-    "X-Accel-Buffering": "no", // Prevents reverse proxy buffering
+    "X-Accel-Buffering": "no",
     "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
-    "Pragma": "no-cache",
-    "Expires": "0",
+    Pragma: "no-cache",
+    Expires: "0",
     ...CORS_HEADERS,
     ...customHeaders,
   });
 
-  return new Response(JSON.stringify(payload, null, 2), {
+  const res = new Response(JSON.stringify(payload, null, 2), {
     status: statusCode,
     headers,
   });
+  mockTrace.traceSuccess("buildResponse", `Response created: ${statusCode}`);
+  return res;
 }
 
-/**
- * Builds a CORS preflight response for OPTIONS requests.
- * This is returned by the proxy layer before the request reaches
- * the route handler, ensuring browser CORS checks pass.
- *
- * @returns A 204 No Content response with CORS headers
- */
 export function buildCorsPreflightResponse(): Response {
-  return new Response(null, {
+  mockTrace.traceCall("buildCorsPreflightResponse");
+  const res = new Response(null, {
     status: 204,
     headers: new Headers(CORS_HEADERS),
   });
+  mockTrace.traceSuccess("buildCorsPreflightResponse", "204 preflight created");
+  return res;
 }
 
-/**
- * Builds a standardized error response for simulated failures.
- *
- * @param statusCode - HTTP error status code (e.g., 500, 429, 503)
- * @param message - Human-readable error message
- * @returns A JSON error response
- */
 export function buildErrorResponse(
   statusCode: number = 500,
-  message: string = "Internal Server Error"
+  message: string = "Internal Server Error",
 ): Response {
-  return buildResponse(
+  mockTrace.traceCall("buildErrorResponse", statusCode, message);
+  const res = buildResponse(
     {
       error: true,
       statusCode,
       message,
       timestamp: new Date().toISOString(),
     },
-    statusCode
+    statusCode,
   );
+  mockTrace.traceSuccess("buildErrorResponse", `Error response: ${statusCode}`);
+  return res;
 }
 
-/**
- * Processes a mock payload (an array or an object containing arrays) using query parameters.
- * Implements filtering, sorting, pagination, and global search (?q=...).
- */
+// ─── Query Parameters Filtering ──────────────────────────────────────────────
+
 export function processQueryParameters(
   payload: unknown,
-  searchParams: URLSearchParams
+  searchParams: URLSearchParams,
 ): unknown {
-  if (!payload) return payload;
+  mockTrace.traceCall("processQueryParameters", searchParams.toString());
+  if (!payload) {
+    mockTrace.traceSuccess("processQueryParameters", payload);
+    return payload;
+  }
 
   const processArray = (items: unknown[]): unknown[] => {
     if (!Array.isArray(items) || items.length === 0) return items;
 
     let result = [...items];
 
-    // Special query keywords to exclude from exact property matching
     const specialKeys = new Set([
       "limit",
       "_limit",
@@ -315,7 +264,7 @@ export function processQueryParameters(
       "q",
     ]);
 
-    // 1. Filtering by exact matching (e.g. ?authorId=3 or ?category=tech)
+    // 1. Filtering
     for (const [key, value] of searchParams.entries()) {
       if (specialKeys.has(key)) continue;
 
@@ -332,25 +281,38 @@ export function processQueryParameters(
       });
     }
 
-    // 2. Global search (?q=substring)
+    // 2. Global search
     const query = searchParams.get("q");
     if (query) {
       const lowerQuery = query.toLowerCase();
       result = result.filter((item) => {
         if (!item || typeof item !== "object") return false;
         return Object.values(item as Record<string, unknown>).some(
-          (val) => val !== null && val !== undefined && val.toString().toLowerCase().includes(lowerQuery)
+          (val) =>
+            val !== null &&
+            val !== undefined &&
+            val.toString().toLowerCase().includes(lowerQuery),
         );
       });
     }
 
-    // 3. Sorting (?sort=field&order=desc or ?_sort=field&_order=desc)
+    // 3. Sorting
     const sortBy = searchParams.get("sort") || searchParams.get("_sort");
     if (sortBy) {
-      const order = (searchParams.get("order") || searchParams.get("_order") || "asc").toLowerCase();
+      const order = (
+        searchParams.get("order") ||
+        searchParams.get("_order") ||
+        "asc"
+      ).toLowerCase();
       result.sort((a, b) => {
-        const valA = a && typeof a === "object" ? (a as Record<string, unknown>)[sortBy] : undefined;
-        const valB = b && typeof b === "object" ? (b as Record<string, unknown>)[sortBy] : undefined;
+        const valA =
+          a && typeof a === "object"
+            ? (a as Record<string, unknown>)[sortBy]
+            : undefined;
+        const valB =
+          b && typeof b === "object"
+            ? (b as Record<string, unknown>)[sortBy]
+            : undefined;
 
         if (valA === undefined || valA === null) return 1;
         if (valB === undefined || valB === null) return -1;
@@ -367,16 +329,27 @@ export function processQueryParameters(
       });
     }
 
-    // 4. Pagination (?page=2&limit=5 or ?_page=2&_limit=5)
+    // 4. Pagination
     const pageParam = searchParams.get("page") || searchParams.get("_page");
-    const limitParam = searchParams.get("limit") || searchParams.get("_limit") || searchParams.get("count");
+    const limitParam =
+      searchParams.get("limit") ||
+      searchParams.get("_limit") ||
+      searchParams.get("count");
 
-    if (pageParam && limitParam) {
-      const page = parseInt(pageParam, 10);
+    if (limitParam) {
       const limit = parseInt(limitParam, 10);
-      if (!isNaN(page) && page > 0 && !isNaN(limit) && limit > 0) {
-        const startIndex = (page - 1) * limit;
-        const endIndex = page * limit;
+      if (!isNaN(limit) && limit > 0) {
+        const page = pageParam ? parseInt(pageParam, 10) : 1;
+        const parsedPage = !isNaN(page) && page > 0 ? page : 1;
+        const startIndex = (parsedPage - 1) * limit;
+        const endIndex = parsedPage * limit;
+        result = result.slice(startIndex, endIndex);
+      }
+    } else if (pageParam) {
+      const page = parseInt(pageParam, 10);
+      if (!isNaN(page) && page > 0) {
+        const startIndex = (page - 1) * 10;
+        const endIndex = page * 10;
         result = result.slice(startIndex, endIndex);
       }
     }
@@ -384,26 +357,38 @@ export function processQueryParameters(
     return result;
   };
 
-  // If the payload itself is an array, process it directly
   if (Array.isArray(payload)) {
-    return processArray(payload);
+    const res = processArray(payload);
+    mockTrace.traceSuccess(
+      "processQueryParameters (array)",
+      `${res.length} items`,
+    );
+    return res;
   }
 
-  // If the payload is an object, process any array properties inside it
   if (typeof payload === "object" && payload !== null) {
     const result: Record<string, unknown> = {};
-    for (const [key, value] of Object.entries(payload as Record<string, unknown>)) {
+    for (const [key, value] of Object.entries(
+      payload as Record<string, unknown>,
+    )) {
       if (Array.isArray(value)) {
         result[key] = processArray(value);
       } else {
         result[key] = value;
       }
     }
+    mockTrace.traceSuccess(
+      "processQueryParameters (object)",
+      "processed array properties",
+    );
     return result;
   }
 
+  mockTrace.traceSuccess("processQueryParameters (passthrough)", payload);
   return payload;
 }
+
+// ─── Conditional Rules Evaluation ───────────────────────────────────────────
 
 export interface ConditionalRule {
   id: string;
@@ -418,11 +403,15 @@ export interface ConditionalRule {
 export function evaluateRules(
   conditionalRulesJson: string | null | undefined,
   request: NextRequest,
-  params: Record<string, string>
+  params: Record<string, string>,
 ): { status: number; body: unknown } | null {
+  mockTrace.traceCall("evaluateRules", request.nextUrl.pathname);
   try {
     const rules: ConditionalRule[] = JSON.parse(conditionalRulesJson || "[]");
-    if (!Array.isArray(rules) || rules.length === 0) return null;
+    if (!Array.isArray(rules) || rules.length === 0) {
+      mockTrace.traceSuccess("evaluateRules (no rules)", null);
+      return null;
+    }
 
     for (const rule of rules) {
       let incomingValue: string | null = null;
@@ -453,14 +442,28 @@ export function evaluateRules(
         } catch {
           // fallback to raw string if it's not valid JSON
         }
-        return {
+        const matchResult = {
           status: rule.responseStatus || 200,
           body: parsedBody,
         };
+        mockTrace.traceSuccess(
+          "evaluateRules (rule match)",
+          matchResult.status,
+        );
+        return matchResult;
       }
     }
   } catch (error) {
-    console.error("[fack-api] Failed to evaluate conditional rules:", error);
+    mockTrace.traceError("evaluateRules", error);
   }
+  mockTrace.traceSuccess("evaluateRules (no match)", null);
   return null;
+}
+
+// Helpers for internal unexposed functions
+function logCallInternal(fnName: string, ...args: unknown[]) {
+  mockTrace.traceCall(fnName, ...args);
+}
+function logSuccessInternal(fnName: string, result: unknown) {
+  mockTrace.traceSuccess(fnName, result);
 }

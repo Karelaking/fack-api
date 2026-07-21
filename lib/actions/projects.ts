@@ -18,10 +18,20 @@ import {
   type CreateProjectInput,
   type UpdateProjectInput,
 } from "@/lib/validators";
+import { LoggerRegistry } from "@/lib/logger-registry";
+
+const projectsTrace = LoggerRegistry.getTrace("db-projects");
 
 export async function getProjects(): Promise<(typeof projects.$inferSelect)[]> {
+  projectsTrace.traceCall("getProjects");
   const cached = getCachedProjectsList();
-  if (cached) return cached;
+  if (cached) {
+    projectsTrace.traceSuccess(
+      "getProjects (cache hit)",
+      `${cached.length} projects`,
+    );
+    return cached;
+  }
 
   try {
     const list = await db.query.projects.findMany({
@@ -35,6 +45,10 @@ export async function getProjects(): Promise<(typeof projects.$inferSelect)[]> {
       },
     });
     setCachedProjectsList(list);
+    projectsTrace.traceSuccess(
+      "getProjects (DB fetched)",
+      `${list.length} projects`,
+    );
     return list;
   } catch (error) {
     const message = error instanceof Error ? error.message : "";
@@ -42,9 +56,11 @@ export async function getProjects(): Promise<(typeof projects.$inferSelect)[]> {
       console.warn(
         '[fack-api] Database schema is not initialized. Run "pnpm db:push" to create the required tables.',
       );
+      projectsTrace.traceSuccess("getProjects (not initialized)", []);
       return [];
     }
 
+    projectsTrace.traceError("getProjects", error);
     throw error;
   }
 }
@@ -52,101 +68,146 @@ export async function getProjects(): Promise<(typeof projects.$inferSelect)[]> {
 export async function getProjectBySlug(
   slug: string,
 ): Promise<typeof projects.$inferSelect | undefined> {
+  projectsTrace.traceCall("getProjectBySlug", slug);
   const cached = getCachedProjectBySlug(slug);
-  if (cached) return cached;
+  if (cached) {
+    projectsTrace.traceSuccess("getProjectBySlug (cache hit)", cached.name);
+    return cached;
+  }
 
-  const project = await db.query.projects.findFirst({
-    where: eq(projects.slug, slug),
-    with: {
-      endpoints: {
-        with: {
-          routes: true,
+  try {
+    const project = await db.query.projects.findFirst({
+      where: eq(projects.slug, slug),
+      with: {
+        endpoints: {
+          with: {
+            routes: true,
+          },
         },
       },
-    },
-  });
+    });
 
-  if (project) {
-    setCachedProjectBySlug(slug, project);
+    if (project) {
+      setCachedProjectBySlug(slug, project);
+    }
+    projectsTrace.traceSuccess(
+      "getProjectBySlug (DB fetched)",
+      project ? project.name : "undefined",
+    );
+    return project;
+  } catch (error) {
+    projectsTrace.traceError("getProjectBySlug", error);
+    throw error;
   }
-  return project;
 }
 
 export async function getProjectById(
   id: string,
 ): Promise<typeof projects.$inferSelect | undefined> {
-  return db.query.projects.findFirst({
-    where: eq(projects.id, id),
-  });
+  projectsTrace.traceCall("getProjectById", id);
+  try {
+    const project = await db.query.projects.findFirst({
+      where: eq(projects.id, id),
+    });
+    projectsTrace.traceSuccess(
+      "getProjectById",
+      project ? project.name : "undefined",
+    );
+    return project;
+  } catch (error) {
+    projectsTrace.traceError("getProjectById", error);
+    throw error;
+  }
 }
 
 export async function createProject(
   input: CreateProjectInput,
 ): Promise<typeof projects.$inferSelect> {
-  const parsed = createProjectSchema.parse(input);
-  const id = generateId();
-  const slug = parsed.slug
-    ? parsed.slug
-        .split("/")
-        .map((s) => slugify(s))
-        .join("/")
-    : slugify(parsed.name);
+  projectsTrace.traceCall("createProject", input.name, input.slug);
+  try {
+    const parsed = createProjectSchema.parse(input);
+    const id = generateId();
+    const slug = parsed.slug
+      ? parsed.slug
+          .split("/")
+          .map((s) => slugify(s))
+          .join("/")
+      : slugify(parsed.name);
 
-  // Ensure slug uniqueness by appending a short suffix if needed
-  const existing = await db.query.projects.findFirst({
-    where: eq(projects.slug, slug),
-  });
-  const finalSlug = existing ? `${slug}-${generateId(4)}` : slug;
+    // Ensure slug uniqueness by appending a short suffix if needed
+    const existing = await db.query.projects.findFirst({
+      where: eq(projects.slug, slug),
+    });
+    const finalSlug = existing ? `${slug}-${generateId(4)}` : slug;
 
-  const hasLogsDb = !!process.env.LOGS_POSTGRES_URL;
+    const hasLogsDb = !!process.env.LOGS_POSTGRES_URL;
 
-  const [project] = await db
-    .insert(projects)
-    .values({
-      id,
-      name: parsed.name,
-      slug: finalSlug,
-      description: parsed.description ?? "",
-      isLoggingEnabled: hasLogsDb,
-    })
-    .returning();
+    const [project] = await db
+      .insert(projects)
+      .values({
+        id,
+        name: parsed.name,
+        slug: finalSlug,
+        description: parsed.description ?? "",
+        isLoggingEnabled: hasLogsDb,
+      })
+      .returning();
 
-  clearCache();
-  revalidatePath("/");
-  return project;
+    clearCache();
+    revalidatePath("/");
+    projectsTrace.traceSuccess("createProject", project.name);
+    return project;
+  } catch (error) {
+    projectsTrace.traceError("createProject", error);
+    throw error;
+  }
 }
 
 export async function updateProject(
   input: UpdateProjectInput,
 ): Promise<typeof projects.$inferSelect> {
-  const parsed = updateProjectSchema.parse(input);
-  const { id, ...updates } = parsed;
+  projectsTrace.traceCall("updateProject", input.id, input.name);
+  try {
+    const parsed = updateProjectSchema.parse(input);
+    const { id, ...updates } = parsed;
 
-  if (updates.slug) {
-    updates.slug = updates.slug
-      .split("/")
-      .map((s) => slugify(s))
-      .join("/");
+    if (updates.slug) {
+      updates.slug = updates.slug
+        .split("/")
+        .map((s) => slugify(s))
+        .join("/");
+    }
+
+    const hasLogsDb = !!process.env.LOGS_POSTGRES_URL;
+    if (!hasLogsDb) {
+      updates.isLoggingEnabled = false;
+    }
+
+    const [project] = await db
+      .update(projects)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(projects.id, id))
+      .returning();
+
+    clearCache();
+    revalidatePath("/");
+    projectsTrace.traceSuccess("updateProject", project.name);
+    return project;
+  } catch (error) {
+    projectsTrace.traceError("updateProject", error);
+    throw error;
   }
-
-  const hasLogsDb = !!process.env.LOGS_POSTGRES_URL;
-  if (!hasLogsDb) {
-    updates.isLoggingEnabled = false;
-  }
-
-  const [project] = await db
-    .update(projects)
-    .set({ ...updates, updatedAt: new Date() })
-    .where(eq(projects.id, id))
-    .returning();
-
-  clearCache();
-  revalidatePath("/");
-  return project;
 }
 
 export async function deleteProject(id: string): Promise<void> {
-  await db.delete(projects).where(eq(projects.id, id));
-  clearCache();
-  revalidatePath("/");
+  projectsTrace.traceCall("deleteProject", id);
+  try {
+    await db.delete(projects).where(eq(projects.id, id));
+    clearCache();
+    revalidatePath("/");
+    projectsTrace.traceSuccess("deleteProject", "void");
+  } catch (error) {
+    projectsTrace.traceError("deleteProject", error);
+    throw error;
+  }
 }

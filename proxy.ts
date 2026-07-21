@@ -4,21 +4,13 @@
  * This is the edge-level request interceptor for the platform.
  * In Next.js 16, `middleware.ts` was renamed to `proxy.ts` and the
  * exported function must be named `proxy`.
- *
- * Responsibilities:
- * 1. Detect and handle custom domain requests by mapping them to their projects.
- * 2. Intercepts requests to `/mock/:projectId/*` paths.
- * 3. Rewrites them to the internal catch-all API route handler.
- * 4. Handles CORS preflight (OPTIONS) requests globally.
- * 5. Skips dashboard routes, static assets, and API routes.
- *
- * The proxy acts transparently — the consuming frontend application
- * never sees the internal rewrite, maintaining the illusion of a
- * real API server at the mock endpoint URL.
  */
 
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { LoggerRegistry } from "@/lib/logger-registry";
+
+const proxyTrace = LoggerRegistry.getTrace("proxy");
 
 /**
  * Extracts the project namespace slug from the request's subdomain.
@@ -26,7 +18,11 @@ import type { NextRequest } from "next/server";
  * Ignores system domains and common system subdomains like www, api, dashboard, admin.
  */
 function getProjectSlugFromSubdomain(host: string): string | null {
-  if (!host) return null;
+  proxyTrace.traceCall("getProjectSlugFromSubdomain", host);
+  if (!host) {
+    proxyTrace.traceSuccess("getProjectSlugFromSubdomain", null);
+    return null;
+  }
   const hostname = host.split(":")[0];
 
   const appDomain =
@@ -48,6 +44,10 @@ function getProjectSlugFromSubdomain(host: string): string | null {
   );
 
   if (systemDomains.has(hostname)) {
+    proxyTrace.traceSuccess(
+      "getProjectSlugFromSubdomain (system domain)",
+      null,
+    );
     return null;
   }
 
@@ -63,13 +63,24 @@ function getProjectSlugFromSubdomain(host: string): string | null {
     subdomain = hostname.slice(0, -("." + vercelUrl).length);
   }
 
-  if (!subdomain) return null;
-
-  const ignoredSubdomains = new Set(["www", "api", "dashboard", "admin"]);
-  if (ignoredSubdomains.has(subdomain)) {
+  if (!subdomain) {
+    proxyTrace.traceSuccess(
+      "getProjectSlugFromSubdomain (no subdomain match)",
+      null,
+    );
     return null;
   }
 
+  const ignoredSubdomains = new Set(["www", "api", "dashboard", "admin"]);
+  if (ignoredSubdomains.has(subdomain)) {
+    proxyTrace.traceSuccess(
+      "getProjectSlugFromSubdomain (ignored subdomain)",
+      null,
+    );
+    return null;
+  }
+
+  proxyTrace.traceSuccess("getProjectSlugFromSubdomain", subdomain);
   return subdomain;
 }
 
@@ -79,6 +90,7 @@ function getProjectSlugFromSubdomain(host: string): string | null {
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const host = request.headers.get("host") || "";
+  proxyTrace.traceCall("proxy", request.method, pathname, host);
 
   // ── Detect System/Dashboard Paths ────────────────────────────────────────
   const isSystemPath =
@@ -93,6 +105,7 @@ export function proxy(request: NextRequest) {
   // ── CORS Preflight ───────────────────────────────────────────────────────
   // Handle OPTIONS requests for mock API paths or custom domain endpoints
   if (request.method === "OPTIONS" && !isSystemPath) {
+    proxyTrace.traceSuccess("proxy (CORS Preflight OPTIONS)", "204");
     return new NextResponse(null, {
       status: 204,
       headers: {
@@ -113,6 +126,7 @@ export function proxy(request: NextRequest) {
     const url = request.nextUrl.clone();
     url.pathname = `/api/mock/${projectSlug}${pathname}`;
 
+    proxyTrace.traceSuccess("proxy (Subdomain rewrite)", url.pathname);
     const response = NextResponse.rewrite(url);
     response.headers.set("X-Accel-Buffering", "no");
     response.headers.set(
@@ -129,6 +143,7 @@ export function proxy(request: NextRequest) {
     const url = request.nextUrl.clone();
     url.pathname = `/api/mock${pathname}`;
 
+    proxyTrace.traceSuccess("proxy (Standard path rewrite)", url.pathname);
     const response = NextResponse.rewrite(url);
     response.headers.set("X-Accel-Buffering", "no");
     response.headers.set(
@@ -142,6 +157,7 @@ export function proxy(request: NextRequest) {
 
   // ── Pass Through ─────────────────────────────────────────────────────────
   // All other requests (dashboard, static files, etc.) proceed normally
+  proxyTrace.traceSuccess("proxy (Pass through)", "NextResponse.next()");
   return NextResponse.next();
 }
 
