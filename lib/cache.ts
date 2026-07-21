@@ -9,6 +9,14 @@ const projectRoutesCache = new Map<string, Route[]>();
 const routeMockDataCache = new Map<string, unknown[]>();
 const routeSingleMockDataCache = new Map<string, unknown>();
 
+export interface PageCacheEntry {
+  page: number;
+  limit: number;
+  items: unknown[];
+}
+
+const routePageCache = new Map<string, PageCacheEntry[]>();
+
 export function getCachedProjectsList(): Project[] | undefined {
   cacheTrace.traceCall("getCachedProjectsList");
   const res = projectListCache.get("all_projects");
@@ -89,6 +97,71 @@ export function setCachedSingleMockData(routeId: string, data: unknown) {
   cacheTrace.traceSuccess("setCachedSingleMockData", "void");
 }
 
+export function getCachedPageData(
+  routeId: string,
+  page: number,
+  limit: number,
+): unknown[] | undefined {
+  cacheTrace.traceCall(
+    "getCachedPageData",
+    routeId,
+    `page: ${page}`,
+    `limit: ${limit}`,
+  );
+  const entries = routePageCache.get(routeId) || [];
+  const entry = entries.find((e) => e.page === page && e.limit === limit);
+  cacheTrace.traceSuccess(
+    "getCachedPageData",
+    entry ? `hit (${entry.items.length} items)` : "miss",
+  );
+  return entry?.items;
+}
+
+export function setCachedPageData(
+  routeId: string,
+  page: number,
+  limit: number,
+  items: unknown[],
+) {
+  cacheTrace.traceCall(
+    "setCachedPageData",
+    routeId,
+    `page: ${page}`,
+    `limit: ${limit}`,
+    `${items.length} items`,
+  );
+  const entries = routePageCache.get(routeId) || [];
+  const filtered = entries.filter(
+    (e) => !(e.page === page && e.limit === limit),
+  );
+  filtered.push({ page, limit, items });
+  routePageCache.set(routeId, filtered);
+  cacheTrace.traceSuccess("setCachedPageData", "void");
+}
+
+export function prunePageCache(
+  routeId: string,
+  currentPage: number,
+  limit: number,
+) {
+  cacheTrace.traceCall(
+    "prunePageCache",
+    routeId,
+    `currentPage: ${currentPage}`,
+    `limit: ${limit}`,
+  );
+  const entries = routePageCache.get(routeId) || [];
+  const pruned = entries.filter(
+    (e) =>
+      e.limit !== limit ||
+      e.page === currentPage - 1 ||
+      e.page === currentPage ||
+      e.page === currentPage + 1,
+  );
+  routePageCache.set(routeId, pruned);
+  cacheTrace.traceSuccess("prunePageCache", `kept ${pruned.length} pages`);
+}
+
 export function clearCache() {
   cacheTrace.traceCall("clearCache");
   projectListCache.clear();
@@ -96,5 +169,6 @@ export function clearCache() {
   projectRoutesCache.clear();
   routeMockDataCache.clear();
   routeSingleMockDataCache.clear();
+  routePageCache.clear();
   cacheTrace.traceSuccess("clearCache", "void");
 }
