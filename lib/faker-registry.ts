@@ -1,4 +1,7 @@
-import { staticProviderDefinitions, type FakerProvider } from "./faker-providers-data";
+import {
+  staticProviderDefinitions,
+  type FakerProvider,
+} from "./faker-providers-data";
 
 export type { FakerProvider };
 

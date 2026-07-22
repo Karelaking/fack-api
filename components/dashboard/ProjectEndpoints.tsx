@@ -264,7 +264,9 @@ export function ProjectEndpoints({
                   Cancel
                 </Button>
                 <Button type="submit" disabled={loading} className="gap-1.5">
-                  {loading && <RiLoader2Line className="h-4 w-4 animate-spin" />}
+                  {loading && (
+                    <RiLoader2Line className="h-4 w-4 animate-spin" />
+                  )}
                   <span>Create Group</span>
                 </Button>
               </DialogFooter>

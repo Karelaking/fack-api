@@ -62,8 +62,8 @@ export function ChaosConfig({
           </div>
           <span className="bg-muted border-border rounded border px-1.5 py-0.5 font-mono text-[11px] font-medium">
             {latencyMin === latencyMax
-               ? `${latencyMin} ms`
-               : `${latencyMin} - ${latencyMax} ms`}
+              ? `${latencyMin} ms`
+              : `${latencyMin} - ${latencyMax} ms`}
           </span>
         </div>
 

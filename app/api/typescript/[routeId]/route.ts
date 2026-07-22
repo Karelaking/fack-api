@@ -28,7 +28,7 @@ import { generateTypeScript } from "@/lib/ts-generator";
  */
 export async function GET(
   request: NextRequest,
-  context: RouteContext<"/api/typescript/[routeId]">
+  context: RouteContext<"/api/typescript/[routeId]">,
 ) {
   try {
     const { routeId } = await context.params;
@@ -44,7 +44,7 @@ export async function GET(
     if (!route) {
       return Response.json(
         { error: true, message: `Route "${routeId}" not found` },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -56,9 +56,10 @@ export async function GET(
       return Response.json(
         {
           error: true,
-          message: "Route has an invalid JSON Schema. Please fix it in the dashboard.",
+          message:
+            "Route has an invalid JSON Schema. Please fix it in the dashboard.",
         },
-        { status: 422 }
+        { status: 422 },
       );
     }
 
@@ -82,7 +83,7 @@ export async function GET(
     console.error("[fack-api] TypeScript generation error:", error);
     return Response.json(
       { error: true, message: "Failed to generate TypeScript interface" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -111,7 +112,8 @@ function deriveTypeName(method: string, path: string): string {
     .map((s) => s.charAt(0).toUpperCase() + s.slice(1).toLowerCase());
 
   const pathPart = segments.length > 0 ? segments.join("") : "Root";
-  const methodPart = method.charAt(0).toUpperCase() + method.slice(1).toLowerCase();
+  const methodPart =
+    method.charAt(0).toUpperCase() + method.slice(1).toLowerCase();
 
   return `${methodPart}${pathPart}Response`;
 }

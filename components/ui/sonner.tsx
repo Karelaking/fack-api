@@ -1,32 +1,28 @@
-"use client"
+"use client";
 
-import { useTheme } from "@/components/theme-provider"
-import { Toaster as Sonner, type ToasterProps } from "sonner"
-import { RiCheckboxCircleLine, RiInformationLine, RiAlertLine, RiCloseCircleLine, RiLoader2Line } from "@remixicon/react"
+import { useTheme } from "@/components/theme-provider";
+import { Toaster as Sonner, type ToasterProps } from "sonner";
+import {
+  RiCheckboxCircleLine,
+  RiInformationLine,
+  RiAlertLine,
+  RiCloseCircleLine,
+  RiLoader2Line,
+} from "@remixicon/react";
 
 const Toaster = ({ ...props }: ToasterProps) => {
-  const { theme = "system" } = useTheme()
+  const { theme = "system" } = useTheme();
 
   return (
     <Sonner
       theme={theme as ToasterProps["theme"]}
       className="toaster group"
       icons={{
-        success: (
-          <RiCheckboxCircleLine className="size-4" />
-        ),
-        info: (
-          <RiInformationLine className="size-4" />
-        ),
-        warning: (
-          <RiAlertLine className="size-4" />
-        ),
-        error: (
-          <RiCloseCircleLine className="size-4" />
-        ),
-        loading: (
-          <RiLoader2Line className="size-4 animate-spin" />
-        ),
+        success: <RiCheckboxCircleLine className="size-4" />,
+        info: <RiInformationLine className="size-4" />,
+        warning: <RiAlertLine className="size-4" />,
+        error: <RiCloseCircleLine className="size-4" />,
+        loading: <RiLoader2Line className="size-4 animate-spin" />,
       }}
       style={
         {
@@ -43,7 +39,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
       }}
       {...props}
     />
-  )
-}
+  );
+};
 
-export { Toaster }
+export { Toaster };

@@ -8,9 +8,10 @@ import { Button } from "@/components/ui/button";
 export function HeaderNewProjectButton(): React.JSX.Element | null {
   const pathname = usePathname();
   const segments = pathname.split("/").filter(Boolean);
-  
+
   const isProjectPage = segments[0] === "projects" && segments[1];
-  const isCanvasPage = isProjectPage && segments[segments.length - 1] === "canvas";
+  const isCanvasPage =
+    isProjectPage && segments[segments.length - 1] === "canvas";
 
   const [isSaving, setIsSaving] = React.useState(false);
 

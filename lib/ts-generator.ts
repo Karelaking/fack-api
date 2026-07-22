@@ -64,7 +64,7 @@ export interface GeneratorOptions {
  */
 export async function generateTypeScript(
   schema: Record<string, unknown>,
-  options: GeneratorOptions = {}
+  options: GeneratorOptions = {},
 ): Promise<string> {
   const {
     typeName = "ApiResponse",
@@ -113,7 +113,9 @@ export async function generateTypeScript(
  * @param obj - A JSON Schema object (or nested part thereof)
  * @returns A clean copy of the schema without Faker extensions
  */
-function stripFakerKeywords(obj: Record<string, unknown>): Record<string, unknown> {
+function stripFakerKeywords(
+  obj: Record<string, unknown>,
+): Record<string, unknown> {
   const clean: Record<string, unknown> = {};
 
   for (const [key, value] of Object.entries(obj)) {

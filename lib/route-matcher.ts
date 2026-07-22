@@ -55,7 +55,7 @@ const matcherCache = new Map<string, MatchFunction<Record<string, string>>>();
  * @returns A compiled match function from path-to-regexp
  */
 function getOrCreateMatcher(
-  pattern: string
+  pattern: string,
 ): MatchFunction<Record<string, string>> {
   const cached = matcherCache.get(pattern);
   if (cached) return cached;
@@ -101,11 +101,11 @@ function getOrCreateMatcher(
 export function findMatchingRoute(
   routes: RouteDefinition[],
   method: string,
-  path: string
+  path: string,
 ): RouteMatchResult | null {
   // Filter routes by HTTP method first (case-insensitive)
   const methodRoutes = routes.filter(
-    (r) => r.method.toUpperCase() === method.toUpperCase()
+    (r) => r.method.toUpperCase() === method.toUpperCase(),
   );
 
   // Sort: static routes first, then parameterized routes
@@ -124,10 +124,7 @@ export function findMatchingRoute(
       }
     } catch (error) {
       // Skip routes with invalid path patterns rather than crashing
-      console.warn(
-        `[fack-api] Invalid route pattern "${route.path}":`,
-        error
-      );
+      console.warn(`[fack-api] Invalid route pattern "${route.path}":`, error);
     }
   }
 
@@ -146,15 +143,17 @@ export function findMatchingRoute(
  * @param routes - Array of route definitions to sort
  * @returns A new array sorted by specificity (most specific first)
  */
-function sortRoutesBySpecificity(
-  routes: RouteDefinition[]
-): RouteDefinition[] {
+function sortRoutesBySpecificity(routes: RouteDefinition[]): RouteDefinition[] {
   return [...routes].sort((a, b) => {
     const aSegments = a.path.split("/").filter(Boolean);
     const bSegments = b.path.split("/").filter(Boolean);
 
-    const aDynamic = aSegments.filter((s) => s.startsWith(":") || s === "*").length;
-    const bDynamic = bSegments.filter((s) => s.startsWith(":") || s === "*").length;
+    const aDynamic = aSegments.filter(
+      (s) => s.startsWith(":") || s === "*",
+    ).length;
+    const bDynamic = bSegments.filter(
+      (s) => s.startsWith(":") || s === "*",
+    ).length;
 
     // Static routes first
     if (aDynamic === 0 && bDynamic > 0) return -1;

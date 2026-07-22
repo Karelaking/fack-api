@@ -230,7 +230,8 @@ export function parseSchemaToFields(schema: JsonSchema): SchemaField[] {
           required: prop.items.required ?? [],
         });
       } else {
-        field.arrayItemFakerProvider = prop.items["faker"] || prop.items["x-faker"];
+        field.arrayItemFakerProvider =
+          prop.items["faker"] || prop.items["x-faker"];
       }
     }
 

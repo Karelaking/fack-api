@@ -3,7 +3,12 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { RiGitBranchLine, RiPulseLine, RiSettings2Line, RiFileHistoryLine } from "@remixicon/react";
+import {
+  RiGitBranchLine,
+  RiPulseLine,
+  RiSettings2Line,
+  RiFileHistoryLine,
+} from "@remixicon/react";
 import type { Route } from "next";
 import { cn } from "@/lib/utils";
 
@@ -14,7 +19,7 @@ export function MobileBottomNav(): React.JSX.Element | null {
 
   const lastSegment = segments[segments.length - 1];
   const subpages = new Set(["canvas", "endpoints", "logs", "settings"]);
-  
+
   let activeTab = "canvas";
   let projectSlugSegments = segments.slice(1);
 

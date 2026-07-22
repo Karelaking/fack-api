@@ -75,7 +75,10 @@ export const createSchemaStore = (initialFields: SchemaField[] = []) => {
                   field.children.push(newField);
                   return true;
                 }
-                if (field.type === "array" && field.arrayItemType === "object") {
+                if (
+                  field.type === "array" &&
+                  field.arrayItemType === "object"
+                ) {
                   field.arrayItemChildren = field.arrayItemChildren ?? [];
                   field.arrayItemChildren.push(newField);
                   return true;
@@ -83,7 +86,11 @@ export const createSchemaStore = (initialFields: SchemaField[] = []) => {
                 return false;
               }
               if (field.children && addToParent(field.children)) return true;
-              if (field.arrayItemChildren && addToParent(field.arrayItemChildren)) return true;
+              if (
+                field.arrayItemChildren &&
+                addToParent(field.arrayItemChildren)
+              )
+                return true;
             }
             return false;
           };
@@ -129,14 +136,21 @@ export const createSchemaStore = (initialFields: SchemaField[] = []) => {
                   field.arrayItemType = "string";
                   field.fakerProvider = undefined;
                 }
-                if (updates.arrayItemType === "object" && !field.arrayItemChildren) {
+                if (
+                  updates.arrayItemType === "object" &&
+                  !field.arrayItemChildren
+                ) {
                   field.arrayItemChildren = [];
                   field.arrayItemFakerProvider = undefined;
                 }
                 return true;
               }
               if (field.children && updateInTree(field.children)) return true;
-              if (field.arrayItemChildren && updateInTree(field.arrayItemChildren)) return true;
+              if (
+                field.arrayItemChildren &&
+                updateInTree(field.arrayItemChildren)
+              )
+                return true;
             }
             return false;
           };
@@ -166,7 +180,11 @@ export const createSchemaStore = (initialFields: SchemaField[] = []) => {
 
             for (const field of array) {
               if (field.children && moveInArray(field.children)) return true;
-              if (field.arrayItemChildren && moveInArray(field.arrayItemChildren)) return true;
+              if (
+                field.arrayItemChildren &&
+                moveInArray(field.arrayItemChildren)
+              )
+                return true;
             }
             return false;
           };
@@ -178,7 +196,10 @@ export const createSchemaStore = (initialFields: SchemaField[] = []) => {
         set((state) => {
           if (draggedId === targetId) return;
 
-          const findContainingArray = (array: SchemaField[], id: string): SchemaField[] | null => {
+          const findContainingArray = (
+            array: SchemaField[],
+            id: string,
+          ): SchemaField[] | null => {
             const index = array.findIndex((field) => field.id === id);
             if (index !== -1) return array;
 
@@ -188,7 +209,10 @@ export const createSchemaStore = (initialFields: SchemaField[] = []) => {
                 if (foundInChildren) return foundInChildren;
               }
               if (field.arrayItemChildren) {
-                const foundInArrayItems = findContainingArray(field.arrayItemChildren, id);
+                const foundInArrayItems = findContainingArray(
+                  field.arrayItemChildren,
+                  id,
+                );
                 if (foundInArrayItems) return foundInArrayItems;
               }
             }
@@ -198,16 +222,22 @@ export const createSchemaStore = (initialFields: SchemaField[] = []) => {
 
           const sourceArray = findContainingArray(state.fields, draggedId);
           const targetArray = findContainingArray(state.fields, targetId);
-          if (!sourceArray || !targetArray || sourceArray !== targetArray) return;
+          if (!sourceArray || !targetArray || sourceArray !== targetArray)
+            return;
 
-          const fromIndex = sourceArray.findIndex((field) => field.id === draggedId);
-          const toIndex = targetArray.findIndex((field) => field.id === targetId);
-          if (fromIndex === -1 || toIndex === -1 || fromIndex === toIndex) return;
+          const fromIndex = sourceArray.findIndex(
+            (field) => field.id === draggedId,
+          );
+          const toIndex = targetArray.findIndex(
+            (field) => field.id === targetId,
+          );
+          if (fromIndex === -1 || toIndex === -1 || fromIndex === toIndex)
+            return;
 
           const [draggedField] = sourceArray.splice(fromIndex, 1);
           const adjustedIndex = fromIndex < toIndex ? toIndex - 1 : toIndex;
           sourceArray.splice(adjustedIndex, 0, draggedField);
         }),
-    }))
+    })),
   );
 };

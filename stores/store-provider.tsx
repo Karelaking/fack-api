@@ -8,7 +8,9 @@ import type { SchemaField } from "@/lib/schema-synthesizer";
 
 // ─── React Context ───────────────────────────────────────────────────────────
 
-const SchemaStoreContext = React.createContext<StoreApi<SchemaStore> | null>(null);
+const SchemaStoreContext = React.createContext<StoreApi<SchemaStore> | null>(
+  null,
+);
 
 interface SchemaStoreProviderProps {
   initialFields?: SchemaField[];

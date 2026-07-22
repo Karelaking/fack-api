@@ -40,7 +40,11 @@ export function RulesEditor({
     onRulesChange(rules.filter((r) => r.id !== id));
   };
 
-  const handleChange = (id: string, field: keyof ConditionalRule, val: string | number) => {
+  const handleChange = (
+    id: string,
+    field: keyof ConditionalRule,
+    val: string | number,
+  ) => {
     const updated = rules.map((rule) => {
       if (rule.id === id) {
         return { ...rule, [field]: val } as ConditionalRule;
@@ -56,7 +60,8 @@ export function RulesEditor({
         <div className="flex flex-col gap-0.5">
           <h3 className="text-xs font-semibold">Conditional Response Rules</h3>
           <span className="text-muted-foreground text-[10px] leading-normal">
-            Short-circuit matching requests with custom status codes and payloads.
+            Short-circuit matching requests with custom status codes and
+            payloads.
           </span>
         </div>
         <Button
@@ -64,7 +69,7 @@ export function RulesEditor({
           size="sm"
           variant="outline"
           onClick={handleAdd}
-          className="h-7 gap-1 text-xs shrink-0"
+          className="h-7 shrink-0 gap-1 text-xs"
         >
           <RiAddLine className="h-3 w-3" />
           <span>Add Rule</span>
@@ -73,7 +78,8 @@ export function RulesEditor({
 
       {rules.length === 0 ? (
         <div className="bg-muted/30 text-muted-foreground rounded-lg border border-dashed p-5 text-center text-xs italic">
-          No conditional rules configured. Default payload schema will always be returned.
+          No conditional rules configured. Default payload schema will always be
+          returned.
         </div>
       ) : (
         <div className="space-y-4">
@@ -87,12 +93,14 @@ export function RulesEditor({
                 <span className="text-muted-foreground text-[10px] font-bold tracking-wider uppercase">
                   IF Request
                 </span>
-                
+
                 <Select
                   value={rule.type}
-                  onValueChange={(val) => handleChange(rule.id, "type", val ?? "query")}
+                  onValueChange={(val) =>
+                    handleChange(rule.id, "type", val ?? "query")
+                  }
                 >
-                  <SelectTrigger className="h-7 text-xs w-[85px] bg-card">
+                  <SelectTrigger className="bg-card h-7 w-[85px] text-xs">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -106,14 +114,16 @@ export function RulesEditor({
                   value={rule.key}
                   onChange={(e) => handleChange(rule.id, "key", e.target.value)}
                   placeholder="key (e.g. status)"
-                  className="h-7 text-xs flex-1 min-w-[70px] bg-card"
+                  className="bg-card h-7 min-w-[70px] flex-1 text-xs"
                 />
 
                 <Select
                   value={rule.operator}
-                  onValueChange={(val) => handleChange(rule.id, "operator", val ?? "equals")}
+                  onValueChange={(val) =>
+                    handleChange(rule.id, "operator", val ?? "equals")
+                  }
                 >
-                  <SelectTrigger className="h-7 text-xs w-[90px] bg-card">
+                  <SelectTrigger className="bg-card h-7 w-[90px] text-xs">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -126,17 +136,19 @@ export function RulesEditor({
                 {rule.operator !== "exists" && (
                   <Input
                     value={rule.value}
-                    onChange={(e) => handleChange(rule.id, "value", e.target.value)}
+                    onChange={(e) =>
+                      handleChange(rule.id, "value", e.target.value)
+                    }
                     placeholder="value (e.g. error)"
-                    className="h-7 text-xs flex-1 min-w-[70px] bg-card"
+                    className="bg-card h-7 min-w-[70px] flex-1 text-xs"
                   />
                 )}
               </div>
 
               {/* Action triggers: Status and Response Body */}
-              <div className="grid grid-cols-5 gap-2 items-start">
+              <div className="grid grid-cols-5 items-start gap-2">
                 <div className="col-span-1 space-y-1">
-                  <label className="text-muted-foreground text-[8px] font-bold uppercase tracking-wider block">
+                  <label className="text-muted-foreground block text-[8px] font-bold tracking-wider uppercase">
                     Status
                   </label>
                   <Input
@@ -146,22 +158,24 @@ export function RulesEditor({
                       handleChange(
                         rule.id,
                         "responseStatus",
-                        parseInt(e.target.value, 10) || 200
+                        parseInt(e.target.value, 10) || 200,
                       )
                     }
                     placeholder="200"
-                    className="h-7 text-xs bg-card"
+                    className="bg-card h-7 text-xs"
                   />
                 </div>
                 <div className="col-span-4 space-y-1">
-                  <label className="text-muted-foreground text-[8px] font-bold uppercase tracking-wider block">
+                  <label className="text-muted-foreground block text-[8px] font-bold tracking-wider uppercase">
                     Custom Response Body (JSON)
                   </label>
                   <Textarea
                     value={rule.responseBody}
-                    onChange={(e) => handleChange(rule.id, "responseBody", e.target.value)}
+                    onChange={(e) =>
+                      handleChange(rule.id, "responseBody", e.target.value)
+                    }
                     placeholder='{"error": "Custom Error"}'
-                    className="h-14 font-mono text-[10px] leading-tight resize-none bg-card p-1.5"
+                    className="bg-card h-14 resize-none p-1.5 font-mono text-[10px] leading-tight"
                   />
                 </div>
               </div>
@@ -171,7 +185,7 @@ export function RulesEditor({
                 type="button"
                 size="icon"
                 variant="ghost"
-                className="text-destructive hover:bg-destructive/10 absolute right-1.5 top-1.5 h-6 w-6 shrink-0"
+                className="text-destructive hover:bg-destructive/10 absolute top-1.5 right-1.5 h-6 w-6 shrink-0"
                 onClick={() => handleRemove(rule.id)}
               >
                 <RiDeleteBin6Line className="h-3 w-3" />

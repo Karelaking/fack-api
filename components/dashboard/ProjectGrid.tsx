@@ -441,8 +441,8 @@ export function ProjectGrid({
                   disabled={editLoading}
                 />
                 <span className="text-muted-foreground text-[10px]">
-                  Determines mock base URL: `/{editSlug}`. Must be
-                  lowercase alphanumeric with hyphens.
+                  Determines mock base URL: `/{editSlug}`. Must be lowercase
+                  alphanumeric with hyphens.
                 </span>
               </div>
               <div className="flex flex-col gap-2">
@@ -472,7 +472,9 @@ export function ProjectGrid({
                 Cancel
               </Button>
               <Button type="submit" disabled={editLoading} className="gap-1.5">
-                {editLoading && <RiLoader2Line className="h-4 w-4 animate-spin" />}
+                {editLoading && (
+                  <RiLoader2Line className="h-4 w-4 animate-spin" />
+                )}
                 <span>Save Changes</span>
               </Button>
             </DialogFooter>
@@ -542,7 +544,9 @@ export function ProjectGrid({
               disabled={deleteLoading || deleteConfirmText !== deleteProj?.name}
               className="gap-1.5"
             >
-              {deleteLoading && <RiLoader2Line className="h-4 w-4 animate-spin" />}
+              {deleteLoading && (
+                <RiLoader2Line className="h-4 w-4 animate-spin" />
+              )}
               <span>Permanently Delete</span>
             </Button>
           </DialogFooter>
