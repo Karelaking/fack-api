@@ -7,8 +7,8 @@ FROM node:26-alpine AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-# Enable pnpm via Corepack
-RUN corepack enable && corepack prepare pnpm@latest --activate
+# Enable pnpm via npm
+RUN npm install -g pnpm
 
 # Copy workspace and package files
 COPY package.json pnpm-workspace.yaml ./
@@ -20,7 +20,7 @@ RUN pnpm install
 FROM node:26-alpine AS builder
 WORKDIR /app
 
-RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN npm install -g pnpm
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .

@@ -235,7 +235,7 @@ export async function processMockRequest({
       pageParam !== null ||
       limitParam !== null;
 
-    const isPagedRequest = limitParam !== null || pageParam !== null;
+    const isPagedRequest = pageParam !== null;
     const cachingEnabled = project.isCachingEnabled !== false;
 
     if (isArrayResponse) {
@@ -446,7 +446,7 @@ export async function processMockRequest({
 
     let formatterType: "single" | "list" | "paged" = "single";
     if (isArrayResponse) {
-      if (limitParam !== null || pageParam !== null) {
+      if (pageParam !== null) {
         formatterType = "paged";
       } else {
         formatterType = "list";
