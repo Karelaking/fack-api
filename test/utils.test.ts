@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { cn, slugify, slugifyInput, formatRelativeTime } from "./utils";
+import { cn, slugify, slugifyInput, formatRelativeTime } from "../lib/utils";
 
-describe("cn", () => {
+describe("cn Utility", () => {
   it("merges tailwind classes", () => {
     expect(cn("px-4 py-2", "px-6")).toBe("py-2 px-6");
   });
@@ -13,9 +13,18 @@ describe("cn", () => {
   it("returns empty string for no input", () => {
     expect(cn()).toBe("");
   });
+
+  it("handles complex combinations of objects, arrays, and falsy values", () => {
+    expect(
+      cn("class1", undefined, null, false, { class2: true, class3: false }, [
+        "class4",
+        { class5: true },
+      ]),
+    ).toBe("class1 class2 class4 class5");
+  });
 });
 
-describe("slugify", () => {
+describe("slugify Utility", () => {
   it("converts text to url-safe slug", () => {
     expect(slugify("My Cool Project!")).toBe("my-cool-project");
   });
@@ -31,9 +40,14 @@ describe("slugify", () => {
   it("removes leading/trailing hyphens", () => {
     expect(slugify("-hello-")).toBe("hello");
   });
+
+  it("handles emojis, multiple spaces and special symbols", () => {
+    expect(slugify("🚀 Space App @ Version 2.0!")).toBe("space-app-version-20");
+    expect(slugify("camelCaseAndPascalCase")).toBe("camelcaseandpascalcase");
+  });
 });
 
-describe("slugifyInput", () => {
+describe("slugifyInput Utility", () => {
   it("preserves slashes for nested paths", () => {
     expect(slugifyInput("api/v1/auth")).toBe("api/v1/auth");
   });
@@ -45,9 +59,14 @@ describe("slugifyInput", () => {
   it("removes special characters except slashes and hyphens", () => {
     expect(slugifyInput("api/v1! @test")).toBe("api/v1-test");
   });
+
+  it("handles leading, trailing, and duplicate slashes correctly", () => {
+    expect(slugifyInput("/api//v1/users/")).toBe("/api/v1/users/");
+    expect(slugifyInput("///api///")).toBe("/api/");
+  });
 });
 
-describe("formatRelativeTime", () => {
+describe("formatRelativeTime Utility", () => {
   beforeEach(() => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-07-20T12:00:00Z"));
@@ -82,6 +101,15 @@ describe("formatRelativeTime", () => {
   it("returns month/day/year for different year", () => {
     expect(formatRelativeTime(new Date("2025-06-15T12:00:00Z"))).toBe(
       "Jun 15, 2025",
+    );
+  });
+
+  it("handles future dates gracefully by returning 'just now'", () => {
+    expect(formatRelativeTime(new Date("2026-07-21T12:00:00Z"))).toBe(
+      "just now",
+    );
+    expect(formatRelativeTime(new Date("2027-07-20T12:00:00Z"))).toBe(
+      "just now",
     );
   });
 });
