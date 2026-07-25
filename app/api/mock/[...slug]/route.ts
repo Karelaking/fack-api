@@ -18,40 +18,20 @@ interface RouteContext {
 const mockLogger = LoggerRegistry.get("mock");
 const mockTrace = LoggerRegistry.getTrace("mock");
 
-export async function GET(request: NextRequest, context: RouteContext) {
-  mockTrace.traceCall("GET", request.nextUrl.pathname);
-  const res = await handleMockRequest(request, context);
-  mockTrace.traceSuccess("GET", `Status: ${res.status}`);
-  return res;
+function createHandler(method: string) {
+  return async function (request: NextRequest, context: RouteContext) {
+    mockTrace.traceCall(method, request.nextUrl.pathname);
+    const res = await handleMockRequest(request, context);
+    mockTrace.traceSuccess(method, `Status: ${res.status}`);
+    return res;
+  };
 }
 
-export async function POST(request: NextRequest, context: RouteContext) {
-  mockTrace.traceCall("POST", request.nextUrl.pathname);
-  const res = await handleMockRequest(request, context);
-  mockTrace.traceSuccess("POST", `Status: ${res.status}`);
-  return res;
-}
-
-export async function PUT(request: NextRequest, context: RouteContext) {
-  mockTrace.traceCall("PUT", request.nextUrl.pathname);
-  const res = await handleMockRequest(request, context);
-  mockTrace.traceSuccess("PUT", `Status: ${res.status}`);
-  return res;
-}
-
-export async function DELETE(request: NextRequest, context: RouteContext) {
-  mockTrace.traceCall("DELETE", request.nextUrl.pathname);
-  const res = await handleMockRequest(request, context);
-  mockTrace.traceSuccess("DELETE", `Status: ${res.status}`);
-  return res;
-}
-
-export async function PATCH(request: NextRequest, context: RouteContext) {
-  mockTrace.traceCall("PATCH", request.nextUrl.pathname);
-  const res = await handleMockRequest(request, context);
-  mockTrace.traceSuccess("PATCH", `Status: ${res.status}`);
-  return res;
-}
+export const GET = createHandler("GET");
+export const POST = createHandler("POST");
+export const PUT = createHandler("PUT");
+export const DELETE = createHandler("DELETE");
+export const PATCH = createHandler("PATCH");
 
 async function handleMockRequest(
   request: NextRequest,

@@ -24,7 +24,6 @@ describe("Mock Data Caching", () => {
     id: "proj-1",
     name: "Sample Project",
     slug: "sample-slug",
-    userId: "user-1",
     description: "",
     isLoggingEnabled: true,
     isCachingEnabled: true,

@@ -31,7 +31,6 @@ describe("Mock Handler Core - Edge Cases and Scenarios", () => {
     id: "project-1",
     name: "Test Project",
     slug: "test-project",
-    userId: "user-1",
     description: "",
     isLoggingEnabled: false,
     isCachingEnabled: false,

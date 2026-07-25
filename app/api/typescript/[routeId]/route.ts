@@ -28,7 +28,7 @@ import { generateTypeScript } from "@/lib/ts-generator";
  */
 export async function GET(
   request: NextRequest,
-  context: RouteContext<"/api/typescript/[routeId]">,
+  context: { params: Promise<{ routeId: string }> },
 ) {
   try {
     const { routeId } = await context.params;
