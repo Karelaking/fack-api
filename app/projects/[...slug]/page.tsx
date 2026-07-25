@@ -102,11 +102,11 @@ export default async function UnifiedProjectPage({
   }
 
   // Wrap in the standard layout styling
-  const isCanvas = subpage === "canvas";
+  const isLockedHeight = subpage === "canvas" || subpage === "logs";
 
   return (
     <div
-      className={`flex h-full w-full flex-col ${isCanvas ? "overflow-hidden" : "bg-background overflow-y-auto"}`}
+      className={`flex h-full w-full flex-col ${isLockedHeight ? "overflow-hidden" : "bg-background overflow-y-auto"}`}
     >
       {content}
     </div>

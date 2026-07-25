@@ -96,7 +96,6 @@ export function proxy(request: NextRequest) {
   const isSystemPath =
     pathname === "/" ||
     pathname.startsWith("/_next/") ||
-    pathname.startsWith("/dashboard") ||
     pathname.startsWith("/projects/") ||
     pathname.startsWith("/api/typescript/") ||
     pathname.startsWith("/api/mock/") ||

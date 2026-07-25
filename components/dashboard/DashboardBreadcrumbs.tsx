@@ -69,7 +69,7 @@ export function DashboardBreadcrumbs({
   // Base "Workspaces" breadcrumb
   breadcrumbs.push({
     label: "Workspaces",
-    href: "/dashboard",
+    href: "/",
     isProject: false,
   });
 

@@ -126,7 +126,7 @@ export function ProjectSettings({
       uiTrace.traceSuccess("handleDelete", "deleted");
       setDeleteOpen(false);
       setDeleteConfirmText("");
-      router.push("/dashboard");
+      router.push("/");
     } catch (err) {
       toast.error("Failed to delete workspace");
       uiTrace.traceError("handleDelete", err);

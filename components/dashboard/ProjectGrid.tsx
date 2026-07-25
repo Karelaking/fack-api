@@ -188,27 +188,27 @@ export function ProjectGrid({
     const themes = [
       {
         bg: "bg-indigo-500/10 text-indigo-500 dark:text-indigo-400 border-indigo-500/20",
-        accent: "from-indigo-500/20 to-indigo-500/5",
+        accent: "from-indigo-500/60 to-indigo-500/10",
         dot: "bg-indigo-500",
       },
       {
         bg: "bg-emerald-500/10 text-emerald-500 dark:text-emerald-400 border-emerald-500/20",
-        accent: "from-emerald-500/20 to-emerald-500/5",
+        accent: "from-emerald-500/60 to-emerald-500/10",
         dot: "bg-emerald-500",
       },
       {
         bg: "bg-blue-500/10 text-blue-500 dark:text-blue-400 border-blue-500/20",
-        accent: "from-blue-500/20 to-blue-500/5",
+        accent: "from-blue-500/60 to-blue-500/10",
         dot: "bg-blue-500",
       },
       {
         bg: "bg-rose-500/10 text-rose-500 dark:text-rose-400 border-rose-500/20",
-        accent: "from-rose-500/20 to-rose-500/5",
+        accent: "from-rose-500/60 to-rose-500/10",
         dot: "bg-rose-500",
       },
       {
         bg: "bg-purple-500/10 text-purple-500 dark:text-purple-400 border-purple-500/20",
-        accent: "from-purple-500/20 to-purple-500/5",
+        accent: "from-purple-500/60 to-purple-500/10",
         dot: "bg-purple-500",
       },
     ];
@@ -374,7 +374,7 @@ export function ProjectGrid({
                   </div>
                 </CardContent>
 
-                <CardFooter className="border-border/40 mt-1 border-t p-4 pt-0">
+                <CardFooter className="border-border/40 mt-1 border-t p-4 pt-3">
                   <Link
                     href={`/projects/${proj.slug}/canvas`}
                     className="w-full"
