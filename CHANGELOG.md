@@ -1,3 +1,12 @@
+# [1.3.0](https://github.com/Karelaking/fack-api/compare/v1.2.0...v1.3.0) (2026-07-25)
+
+### Features
+
+- implement core project infrastructure, canvas management, and dynamic API mocking system ([0c626e1](https://github.com/Karelaking/fack-api/commit/0c626e1a8e731c48bf4560161dbe77b46c701bbc))
+- implement dashboard navigation system including project management UI ([806514f](https://github.com/Karelaking/fack-api/commit/806514ff259abfe269274c2077e2fa5609ec4365))
+- implement mock request processing core and fix docker port mapping ([c4c0a1e](https://github.com/Karelaking/fack-api/commit/c4c0a1e41f313d3362a044864e7a10d858efdda5))
+- implement project workspace routes, global error boundaries, and mock handler core tests ([810facb](https://github.com/Karelaking/fack-api/commit/810facba615136e0d454ec0b415b4ce190110aea))
+
 # [1.2.0](https://github.com/Karelaking/fack-api/compare/v1.1.0...v1.2.0) (2026-07-21)
 
 ### Features
