@@ -75,6 +75,7 @@ export function ChaosConfig({
               <span>{latencyMin} ms</span>
             </div>
             <Slider
+              aria-label="Minimum Delay"
               value={[latencyMin]}
               onValueChange={handleMinSlider}
               min={0}
@@ -91,6 +92,7 @@ export function ChaosConfig({
               <span>{latencyMax} ms</span>
             </div>
             <Slider
+              aria-label="Maximum Delay"
               value={[latencyMax]}
               onValueChange={handleMaxSlider}
               min={0}

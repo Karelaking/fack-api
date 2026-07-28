@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -19,10 +20,10 @@ interface RulesEditorProps {
   onRulesChange: (rules: ConditionalRule[]) => void;
 }
 
-export function RulesEditor({
+export const RulesEditor = ({
   rules,
   onRulesChange,
-}: RulesEditorProps): React.JSX.Element {
+}: RulesEditorProps): React.JSX.Element => {
   const handleAdd = () => {
     const newRule: ConditionalRule = {
       id: crypto.randomUUID(),
@@ -30,8 +31,8 @@ export function RulesEditor({
       key: "",
       operator: "equals",
       value: "",
-      responseStatus: 400,
-      responseBody: '{\n  "error": "Bad Request"\n}',
+      responseStatus: 200,
+      responseBody: "",
     };
     onRulesChange([...rules, newRule]);
   };
@@ -43,70 +44,69 @@ export function RulesEditor({
   const handleChange = (
     id: string,
     field: keyof ConditionalRule,
-    val: string | number,
+    value: string | number,
   ) => {
-    const updated = rules.map((rule) => {
-      if (rule.id === id) {
-        return { ...rule, [field]: val } as ConditionalRule;
-      }
-      return rule;
-    });
-    onRulesChange(updated);
+    onRulesChange(
+      rules.map((r) => (r.id === id ? { ...r, [field]: value } : r)),
+    );
   };
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <div className="flex flex-col gap-0.5">
+        <div>
           <h3 className="text-xs font-semibold">Conditional Response Rules</h3>
-          <span className="text-muted-foreground text-[10px] leading-normal">
-            Short-circuit matching requests with custom status codes and
-            payloads.
-          </span>
+          <p className="text-muted-foreground text-[10px]">
+            Override status and payload based on query params, headers, or URL
+            params.
+          </p>
         </div>
         <Button
           type="button"
           size="sm"
           variant="outline"
           onClick={handleAdd}
-          className="h-7 shrink-0 gap-1 text-xs"
+          className="h-7 text-xs font-semibold"
         >
-          <RiAddLine className="h-3 w-3" />
+          <RiAddLine className="h-3.5 w-3.5" />
           <span>Add Rule</span>
         </Button>
       </div>
 
       {rules.length === 0 ? (
         <div className="bg-muted/30 text-muted-foreground rounded-lg border border-dashed p-5 text-center text-xs italic">
-          No conditional rules configured. Default payload schema will always be
-          returned.
+          No conditional rules added.
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-3">
           {rules.map((rule) => (
             <div
               key={rule.id}
-              className="border-border bg-muted/10 relative space-y-2.5 rounded-lg border p-3"
+              className="bg-muted/20 border-border/60 relative space-y-2.5 rounded-lg border p-3"
             >
-              {/* Header: Rule Selection Parameters */}
-              <div className="flex flex-wrap items-center gap-1.5 pr-8">
-                <span className="text-muted-foreground text-[10px] font-bold tracking-wider uppercase">
-                  IF Request
+              {/* Condition trigger configuration */}
+              <div className="flex flex-wrap items-center gap-1.5 pr-6">
+                <span className="text-muted-foreground text-[9.5px] font-bold uppercase">
+                  IF
                 </span>
-
                 <Select
                   value={rule.type}
                   onValueChange={(val) =>
                     handleChange(rule.id, "type", val ?? "query")
                   }
                 >
-                  <SelectTrigger className="bg-card h-7 w-[85px] text-xs">
+                  <SelectTrigger
+                    aria-label="Condition Type"
+                    className="bg-card h-7 w-21.25 text-xs"
+                  >
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="query">Query</SelectItem>
-                    <SelectItem value="header">Header</SelectItem>
-                    <SelectItem value="param">Param</SelectItem>
+                    <SelectGroup>
+                      <SelectItem value="query">Query</SelectItem>
+                      <SelectItem value="header">Header</SelectItem>
+                      <SelectItem value="param">Param</SelectItem>
+                    </SelectGroup>
                   </SelectContent>
                 </Select>
 
@@ -114,7 +114,8 @@ export function RulesEditor({
                   value={rule.key}
                   onChange={(e) => handleChange(rule.id, "key", e.target.value)}
                   placeholder="key (e.g. status)"
-                  className="bg-card h-7 min-w-[70px] flex-1 text-xs"
+                  aria-label="Condition Key"
+                  className="bg-card h-7 min-w-17.5 flex-1 text-xs"
                 />
 
                 <Select
@@ -123,13 +124,18 @@ export function RulesEditor({
                     handleChange(rule.id, "operator", val ?? "equals")
                   }
                 >
-                  <SelectTrigger className="bg-card h-7 w-[90px] text-xs">
+                  <SelectTrigger
+                    aria-label="Condition Operator"
+                    className="bg-card h-7 w-22.5 text-xs"
+                  >
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="equals">Equals</SelectItem>
-                    <SelectItem value="contains">Contains</SelectItem>
-                    <SelectItem value="exists">Exists</SelectItem>
+                    <SelectGroup>
+                      <SelectItem value="equals">Equals</SelectItem>
+                      <SelectItem value="contains">Contains</SelectItem>
+                      <SelectItem value="exists">Exists</SelectItem>
+                    </SelectGroup>
                   </SelectContent>
                 </Select>
 
@@ -140,7 +146,8 @@ export function RulesEditor({
                       handleChange(rule.id, "value", e.target.value)
                     }
                     placeholder="value (e.g. error)"
-                    className="bg-card h-7 min-w-[70px] flex-1 text-xs"
+                    aria-label="Condition Value"
+                    className="bg-card h-7 min-w-17.5 flex-1 text-xs"
                   />
                 )}
               </div>
@@ -148,10 +155,14 @@ export function RulesEditor({
               {/* Action triggers: Status and Response Body */}
               <div className="grid grid-cols-5 items-start gap-2">
                 <div className="col-span-1 space-y-1">
-                  <label className="text-muted-foreground block text-[8px] font-bold tracking-wider uppercase">
+                  <label
+                    htmlFor={`rule-status-${rule.id}`}
+                    className="text-muted-foreground block text-[8px] font-bold tracking-wider uppercase"
+                  >
                     Status
                   </label>
                   <Input
+                    id={`rule-status-${rule.id}`}
                     type="number"
                     value={rule.responseStatus}
                     onChange={(e) =>
@@ -162,19 +173,25 @@ export function RulesEditor({
                       )
                     }
                     placeholder="200"
+                    aria-label="Response Status"
                     className="bg-card h-7 text-xs"
                   />
                 </div>
                 <div className="col-span-4 space-y-1">
-                  <label className="text-muted-foreground block text-[8px] font-bold tracking-wider uppercase">
+                  <label
+                    htmlFor={`rule-body-${rule.id}`}
+                    className="text-muted-foreground block text-[8px] font-bold tracking-wider uppercase"
+                  >
                     Custom Response Body (JSON)
                   </label>
                   <Textarea
+                    id={`rule-body-${rule.id}`}
                     value={rule.responseBody}
                     onChange={(e) =>
                       handleChange(rule.id, "responseBody", e.target.value)
                     }
                     placeholder='{"error": "Custom Error"}'
+                    aria-label="Custom Response Body"
                     className="bg-card h-14 resize-none p-1.5 font-mono text-[10px] leading-tight"
                   />
                 </div>
@@ -186,6 +203,8 @@ export function RulesEditor({
                 size="icon"
                 variant="ghost"
                 className="text-destructive hover:bg-destructive/10 absolute top-1.5 right-1.5 h-6 w-6 shrink-0"
+                title="Delete Rule"
+                aria-label="Delete Rule"
                 onClick={() => handleRemove(rule.id)}
               >
                 <RiDeleteBin6Line className="h-3 w-3" />
@@ -196,6 +215,6 @@ export function RulesEditor({
       )}
     </div>
   );
-}
+};
 
 export default RulesEditor;

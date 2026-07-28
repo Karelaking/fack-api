@@ -23,10 +23,10 @@ interface ProjectLogsProps {
   initialLogs: RequestLog[];
 }
 
-export function ProjectLogs({
+export const ProjectLogs = ({
   projectId,
   initialLogs,
-}: ProjectLogsProps): React.JSX.Element {
+}: ProjectLogsProps): React.JSX.Element => {
   const [logs, setLogs] = React.useState<RequestLog[]>(initialLogs);
   const [loading, setLoading] = React.useState(false);
   const [search, setSearch] = React.useState("");
@@ -131,13 +131,14 @@ export function ProjectLogs({
     <div className="flex h-full flex-col gap-4 overflow-hidden p-4">
       {/* Top action header: search and filters */}
       <div className="flex shrink-0 flex-wrap items-center justify-between gap-3">
-        <div className="flex max-w-md min-w-[240px] flex-1 items-center gap-2">
+        <div className="flex max-w-md min-w-60 flex-1 items-center gap-2">
           <div className="relative flex-1">
             <RiSearchLine className="text-muted-foreground absolute top-2.5 left-2.5 h-4 w-4" />
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Filter by method or path..."
+              aria-label="Filter logs by method or path"
               className="h-9 pl-9 text-xs"
             />
           </div>
@@ -161,8 +162,11 @@ export function ProjectLogs({
 
         <div className="flex shrink-0 items-center gap-1.5">
           <Button
+            type="button"
             variant="outline"
             size="sm"
+            title="Refresh Logs"
+            aria-label="Refresh Logs"
             onClick={handleRefresh}
             disabled={loading}
             className="h-9 gap-1.5 text-xs font-semibold"
@@ -173,8 +177,11 @@ export function ProjectLogs({
             <span>Refresh</span>
           </Button>
           <Button
+            type="button"
             variant="destructive"
             size="sm"
+            title="Clear Logs"
+            aria-label="Clear Logs"
             onClick={handleClear}
             disabled={loading || logs.length === 0}
             className="h-9 gap-1.5 text-xs font-semibold"
@@ -226,7 +233,17 @@ export function ProjectLogs({
                 <div key={log.id} className="hover:bg-muted/10 transition-all">
                   {/* Summary Bar */}
                   <div
+                    role="button"
+                    tabIndex={0}
+                    aria-expanded={isExpanded}
+                    aria-label={`Log details for ${log.method} ${log.path}`}
                     onClick={() => setExpandedLogId(isExpanded ? null : log.id)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        setExpandedLogId(isExpanded ? null : log.id);
+                      }
+                    }}
                     className="flex cursor-pointer items-center gap-4 px-4 py-3 text-xs font-medium select-none"
                   >
                     <span className="text-muted-foreground/60 flex w-16 items-center gap-1 font-mono">
@@ -319,7 +336,7 @@ export function ProjectLogs({
                               {Object.entries(parsedQueryParams).map(
                                 ([k, v]) => (
                                   <div key={k} className="flex gap-1.5">
-                                    <span className="shrink-0 font-semibold text-violet-600 dark:text-violet-400">
+                                    <span className="shrink-0 font-semibold text-violet-500">
                                       {k}:
                                     </span>
                                     <span className="text-muted-foreground break-all">
@@ -354,4 +371,4 @@ export function ProjectLogs({
       </div>
     </div>
   );
-}
+};

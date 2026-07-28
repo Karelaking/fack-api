@@ -54,7 +54,10 @@ export function MobileBottomNav(): React.JSX.Element | null {
   ];
 
   return (
-    <div className="bg-card/85 border-border fixed right-0 bottom-0 left-0 z-40 flex h-14 items-center justify-around border-t px-4 backdrop-blur-md select-none md:hidden">
+    <nav
+      aria-label="Mobile Navigation"
+      className="bg-card/85 border-border fixed right-0 bottom-0 left-0 z-40 flex h-14 items-center justify-around border-t px-4 backdrop-blur-md select-none md:hidden"
+    >
       {tabs.map((tab) => {
         const Icon = tab.icon;
         const isActive = activeTab === tab.name.toLowerCase();
@@ -75,6 +78,6 @@ export function MobileBottomNav(): React.JSX.Element | null {
           </Link>
         );
       })}
-    </div>
+    </nav>
   );
 }

@@ -50,11 +50,11 @@ interface ProjectEndpointsProps {
 /**
  * Interactive Client interface to add, edit, or remove endpoints under a project.
  */
-export function ProjectEndpoints({
+export const ProjectEndpoints = ({
   projectId,
   projectSlug,
   initialEndpoints,
-}: ProjectEndpointsProps): React.JSX.Element | null {
+}: ProjectEndpointsProps): React.JSX.Element | null => {
   const router = useRouter();
   const [endpointsList, setEndpointsList] =
     React.useState<EndpointWithRoutes[]>(initialEndpoints);
@@ -190,7 +190,15 @@ export function ProjectEndpoints({
         {/* Create Dialog */}
         <Dialog open={createOpen} onOpenChange={setCreateOpen}>
           <DialogTrigger
-            render={<Button size="sm" className="shrink-0 gap-1.5" />}
+            render={
+              <Button
+                type="button"
+                size="sm"
+                title="Add Endpoint Group"
+                aria-label="Add Endpoint Group"
+                className="shrink-0 gap-1.5"
+              />
+            }
           >
             <RiAddLine className="h-4 w-4" />
             <span>Add Endpoint Group</span>
@@ -258,16 +266,32 @@ export function ProjectEndpoints({
                 <Button
                   type="button"
                   variant="outline"
+                  title="Cancel creation"
+                  aria-label="Cancel creation"
                   onClick={() => setCreateOpen(false)}
                   disabled={loading}
                 >
                   Cancel
                 </Button>
-                <Button type="submit" disabled={loading} className="gap-1.5">
-                  {loading && (
-                    <RiLoader2Line className="h-4 w-4 animate-spin" />
+                <Button
+                  type="submit"
+                  disabled={loading}
+                  aria-disabled={loading}
+                  title="Create Endpoint Group"
+                  aria-label="Create Endpoint Group"
+                  className="gap-1.5"
+                >
+                  {loading ? (
+                    <>
+                      <RiLoader2Line
+                        className="h-4 w-4 animate-spin"
+                        aria-hidden="true"
+                      />
+                      <span>Creating...</span>
+                    </>
+                  ) : (
+                    <span>Create Group</span>
                   )}
-                  <span>Create Group</span>
                 </Button>
               </DialogFooter>
             </form>
@@ -315,6 +339,8 @@ export function ProjectEndpoints({
                       size="icon"
                       variant="ghost"
                       className="text-muted-foreground hover:text-foreground h-8 w-8"
+                      title="Edit Endpoint Group"
+                      aria-label="Edit Endpoint Group"
                       onClick={() => handleEditInit(ep)}
                     >
                       <RiEdit2Line className="h-4 w-4" />
@@ -323,13 +349,15 @@ export function ProjectEndpoints({
                       size="icon"
                       variant="ghost"
                       className="text-destructive hover:bg-destructive/10 h-8 w-8"
+                      title="Delete Endpoint Group"
+                      aria-label="Delete Endpoint Group"
                       onClick={() => handleDeleteInit(ep)}
                     >
                       <RiDeleteBin6Line className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
-                <CardDescription className="mt-2 line-clamp-2 min-h-[2.5rem]">
+                <CardDescription className="mt-2 line-clamp-2 min-h-10">
                   {ep.description || "No description provided."}
                 </CardDescription>
               </CardHeader>
@@ -412,14 +440,32 @@ export function ProjectEndpoints({
               <Button
                 type="button"
                 variant="outline"
+                title="Cancel edits"
+                aria-label="Cancel edits"
                 onClick={() => setEditOpen(false)}
                 disabled={loading}
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={loading} className="gap-1.5">
-                {loading && <RiLoader2Line className="h-4 w-4 animate-spin" />}
-                <span>Save Changes</span>
+              <Button
+                type="submit"
+                disabled={loading}
+                aria-disabled={loading}
+                title="Save Changes"
+                aria-label="Save Changes"
+                className="gap-1.5"
+              >
+                {loading ? (
+                  <>
+                    <RiLoader2Line
+                      className="h-4 w-4 animate-spin"
+                      aria-hidden="true"
+                    />
+                    <span>Saving...</span>
+                  </>
+                ) : (
+                  <span>Save Changes</span>
+                )}
               </Button>
             </DialogFooter>
           </form>
@@ -443,6 +489,8 @@ export function ProjectEndpoints({
             <Button
               type="button"
               variant="outline"
+              title="Cancel deletion"
+              aria-label="Cancel deletion"
               onClick={() => setDeleteOpen(false)}
               disabled={loading}
             >
@@ -451,16 +499,28 @@ export function ProjectEndpoints({
             <Button
               type="button"
               variant="destructive"
+              title="Delete Group"
+              aria-label="Delete Group"
               onClick={handleDelete}
               disabled={loading}
+              aria-disabled={loading}
               className="gap-1.5"
             >
-              {loading && <RiLoader2Line className="h-4 w-4 animate-spin" />}
-              <span>Delete Group</span>
+              {loading ? (
+                <>
+                  <RiLoader2Line
+                    className="h-4 w-4 animate-spin"
+                    aria-hidden="true"
+                  />
+                  <span>Deleting...</span>
+                </>
+              ) : (
+                <span>Delete Group</span>
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
   );
-}
+};

@@ -30,6 +30,8 @@ export function FieldTree(): React.JSX.Element {
         <Button
           type="button"
           size="sm"
+          title="Add Root Field"
+          aria-label="Add Root Field"
           onClick={() => addField()}
           className="h-7 gap-1 text-[11px] font-semibold"
         >
@@ -50,6 +52,8 @@ export function FieldTree(): React.JSX.Element {
             type="button"
             size="xs"
             variant="secondary"
+            title="Add First Field"
+            aria-label="Add First Field"
             onClick={() => addField()}
             className="h-6.5 px-2 text-[10px] font-bold"
           >

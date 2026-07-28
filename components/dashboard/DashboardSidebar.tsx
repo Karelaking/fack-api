@@ -45,9 +45,9 @@ interface DashboardSidebarProps {
   initialProjects: Project[];
 }
 
-export function DashboardSidebar({
+export const DashboardSidebar = ({
   initialProjects,
-}: DashboardSidebarProps): React.JSX.Element {
+}: DashboardSidebarProps): React.JSX.Element => {
   const router = useRouter();
   const pathname = usePathname();
   const [projects, setProjects] = React.useState<Project[]>(initialProjects);
@@ -152,7 +152,7 @@ export function DashboardSidebar({
               <Button
                 size="icon"
                 variant="ghost"
-                className="text-muted-foreground hover:text-foreground h-5 w-5"
+                className="text-muted-foreground hover:text-foreground h-6 w-6"
                 title="Create Project"
                 aria-label="Create Project"
                 onClick={() => setDialogOpen(true)}
@@ -176,7 +176,10 @@ export function DashboardSidebar({
                         <SidebarMenuButton
                           isActive={isProjectActive}
                           render={
-                            <Link href={`/projects/${proj.slug}/canvas`} />
+                            <Link
+                              href={`/projects/${proj.slug}/canvas`}
+                              aria-label={proj.name}
+                            />
                           }
                         >
                           <span className="truncate font-semibold">
@@ -251,15 +254,15 @@ export function DashboardSidebar({
                     className={cn(
                       "shrink-0 rounded-md px-2 py-0.5 text-[9.5px] font-extrabold tracking-wider uppercase",
                       selectedRoute.method.toUpperCase() === "GET" &&
-                        "border border-emerald-500/20 bg-emerald-500/15 text-emerald-600 dark:text-emerald-400",
+                        "border border-emerald-500/20 bg-emerald-500/15 text-emerald-500",
                       selectedRoute.method.toUpperCase() === "POST" &&
-                        "border border-blue-500/20 bg-blue-500/15 text-blue-600 dark:text-blue-400",
+                        "border border-blue-500/20 bg-blue-500/15 text-blue-500",
                       selectedRoute.method.toUpperCase() === "PUT" &&
-                        "border border-amber-500/20 bg-amber-500/15 text-amber-600 dark:text-amber-400",
+                        "border border-amber-500/20 bg-amber-500/15 text-amber-500",
                       selectedRoute.method.toUpperCase() === "DELETE" &&
-                        "border border-rose-500/20 bg-rose-500/15 text-rose-600 dark:text-rose-400",
+                        "border border-rose-500/20 bg-rose-500/15 text-rose-500",
                       selectedRoute.method.toUpperCase() === "PATCH" &&
-                        "border border-purple-500/20 bg-purple-500/15 text-purple-600 dark:text-purple-400",
+                        "border border-purple-500/20 bg-purple-500/15 text-purple-500",
                     )}
                   >
                     {selectedRoute.method}
@@ -279,10 +282,12 @@ export function DashboardSidebar({
                       {selectedRoute.mockUrl}
                     </span>
                     <Button
+                      type="button"
                       size="icon"
                       variant="ghost"
-                      className="hover:bg-muted text-muted-foreground hover:text-foreground h-6 w-6 shrink-0 rounded"
-                      title="Copy URL"
+                      className="text-muted-foreground hover:text-foreground h-7 w-7 shrink-0 rounded"
+                      title="Copy Mock Endpoint URL"
+                      aria-label="Copy Mock Endpoint URL"
                       onClick={async () => {
                         try {
                           await navigator.clipboard.writeText(
@@ -330,9 +335,12 @@ export function DashboardSidebar({
                             </span>
                           </div>
                           <Button
+                            type="button"
                             size="icon"
                             variant="ghost"
                             className="text-muted-foreground hover:text-foreground h-6 w-6 shrink-0 rounded"
+                            title="Copy parameter URL"
+                            aria-label="Copy parameter URL"
                             onClick={async () => {
                               try {
                                 await navigator.clipboard.writeText(optUrl);
@@ -432,14 +440,32 @@ export function DashboardSidebar({
               <Button
                 type="button"
                 variant="outline"
+                title="Cancel creation"
+                aria-label="Cancel creation"
                 onClick={() => setDialogOpen(false)}
                 disabled={loading}
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={loading} className="gap-1.5">
-                {loading && <RiLoader2Line className="h-4 w-4 animate-spin" />}
-                <span>Create Workspace</span>
+              <Button
+                type="submit"
+                disabled={loading}
+                aria-disabled={loading}
+                title="Create Workspace"
+                aria-label="Create Workspace"
+                className="gap-1.5"
+              >
+                {loading ? (
+                  <>
+                    <RiLoader2Line
+                      className="h-4 w-4 animate-spin"
+                      aria-hidden="true"
+                    />
+                    <span>Creating...</span>
+                  </>
+                ) : (
+                  <span>Create Workspace</span>
+                )}
               </Button>
             </DialogFooter>
           </form>
@@ -447,4 +473,4 @@ export function DashboardSidebar({
       </Dialog>
     </>
   );
-}
+};

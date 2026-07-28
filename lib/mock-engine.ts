@@ -124,8 +124,7 @@ export async function generatePayload(
         minItems,
         maxItems,
         extensions: {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          faker: extendedFaker as any,
+          faker: extendedFaker as unknown as Record<string, unknown>,
         },
       },
     );

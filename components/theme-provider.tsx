@@ -85,6 +85,38 @@ export function ThemeProvider({
     return () => media.removeEventListener("change", listener);
   }, [enableSystem, theme]);
 
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.tagName === "SELECT" ||
+          target.isContentEditable)
+      ) {
+        return;
+      }
+
+      if (
+        (e.key.toLowerCase() === "d" &&
+          !e.ctrlKey &&
+          !e.metaKey &&
+          !e.altKey) ||
+        (e.key.toLowerCase() === "d" && (e.metaKey || e.ctrlKey) && e.shiftKey)
+      ) {
+        e.preventDefault();
+        setThemeState((prev) => {
+          const currentResolved = prev === "system" ? getSystemTheme() : prev;
+          return currentResolved === "dark" ? "light" : "dark";
+        });
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   const value = React.useMemo<ThemeContextValue>(
     () => ({
       theme,

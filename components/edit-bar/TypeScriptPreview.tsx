@@ -115,6 +115,8 @@ export function TypeScriptPreview({
             type="button"
             variant="outline"
             size="sm"
+            title="Copy Code"
+            aria-label="Copy Code"
             onClick={handleCopy}
             disabled={loading || !code}
             className="gap-1.5 text-xs font-semibold"
@@ -129,6 +131,8 @@ export function TypeScriptPreview({
           <Button
             type="button"
             size="sm"
+            title="Download .d.ts"
+            aria-label="Download .d.ts"
             onClick={handleDownload}
             disabled={loading || !code}
             className="gap-1.5 text-xs font-semibold"

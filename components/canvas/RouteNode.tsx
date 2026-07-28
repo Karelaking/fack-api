@@ -12,7 +12,7 @@ import {
   RiCodeLine,
   RiEqualizerLine,
   RiGitBranchLine,
-  RiSettings2Line,
+  RiPencilLine,
 } from "@remixicon/react";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
@@ -46,10 +46,10 @@ interface RouteNodeProps {
  * Premium redesigned Custom Node representing a Mock API route.
  * Sleek card container, glowing indicators, copyable path styling, and rules indicators.
  */
-export function RouteNode({
+export const RouteNode = ({
   data,
   selected,
-}: RouteNodeProps): React.ReactElement {
+}: RouteNodeProps): React.ReactElement => {
   const method = data.method.toUpperCase();
 
   // Method-specific color configurations: [leftBorder, text/badge, bg, shadow/glow, dot]
@@ -186,7 +186,16 @@ export function RouteNode({
 
   return (
     <div
+      role="button"
+      tabIndex={0}
+      aria-label={`Route ${data.method} ${data.path}`}
       onClick={() => data.onSelectRoute(data.id)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          data.onSelectRoute(data.id);
+        }
+      }}
       className={cn(
         "bg-card/90 border-border/80 flex w-52 cursor-pointer flex-col rounded-lg border border-l-4 shadow-sm backdrop-blur-md transition-all duration-300 select-none",
         theme.border,
@@ -194,7 +203,7 @@ export function RouteNode({
         selected
           ? "border-primary ring-primary/20 shadow-primary/5 -translate-y-1 scale-[1.01] shadow-lg ring-2"
           : "hover:-translate-y-0.5 hover:shadow-md",
-        !data.isEnabled && "opacity-60 grayscale-[15%]",
+        !data.isEnabled && "opacity-60 grayscale-15",
       )}
     >
       {/* Node handles for connections */}
@@ -242,8 +251,25 @@ export function RouteNode({
           </span>
         </div>
 
-        {/* Toggle Switch */}
-        <div className="flex items-center" onClick={(e) => e.stopPropagation()}>
+        {/* Actions block: Edit Button & Toggle Switch */}
+        <div
+          className="flex items-center gap-0.5"
+          onPointerDown={(e) => e.stopPropagation()}
+        >
+          <Button
+            type="button"
+            size="icon"
+            variant="ghost"
+            className="text-muted-foreground hover:text-foreground hover:bg-muted/80 h-5 w-5 rounded p-0 transition-colors"
+            title="Edit Route"
+            aria-label="Edit Route"
+            onClick={(e) => {
+              e.stopPropagation();
+              data.onOpenEdit(data.id);
+            }}
+          >
+            <RiPencilLine className="h-3 w-3" />
+          </Button>
           <Switch
             checked={data.isEnabled}
             onCheckedChange={handleToggle}
@@ -263,19 +289,19 @@ export function RouteNode({
         {(schemaKeysCount > 0 || headersKeysCount > 0 || rulesCount > 0) && (
           <div className="mt-0.5 flex flex-wrap gap-1">
             {schemaKeysCount > 0 && (
-              <span className="inline-flex items-center gap-0.5 rounded border border-emerald-500/10 bg-emerald-500/10 px-1 py-0.5 text-[8px] font-bold text-emerald-600 dark:text-emerald-400">
+              <span className="inline-flex items-center gap-0.5 rounded border border-emerald-500/10 bg-emerald-500/10 px-1 py-0.5 text-[8px] font-bold text-emerald-500">
                 <RiCodeLine className="h-3 w-3 shrink-0" />
                 <span>JSON ({schemaKeysCount})</span>
               </span>
             )}
             {headersKeysCount > 0 && (
-              <span className="inline-flex items-center gap-0.5 rounded border border-blue-500/10 bg-blue-500/10 px-1 py-0.5 text-[8px] font-bold text-blue-600 dark:text-blue-400">
+              <span className="inline-flex items-center gap-0.5 rounded border border-blue-500/10 bg-blue-500/10 px-1 py-0.5 text-[8px] font-bold text-blue-500">
                 <RiEqualizerLine className="h-3 w-3 shrink-0" />
                 <span>Headers ({headersKeysCount})</span>
               </span>
             )}
             {rulesCount > 0 && (
-              <span className="inline-flex items-center gap-0.5 rounded border border-purple-500/10 bg-purple-500/10 px-1 py-0.5 text-[8px] font-bold text-purple-600 dark:text-purple-400">
+              <span className="inline-flex items-center gap-0.5 rounded border border-purple-500/10 bg-purple-500/10 px-1 py-0.5 text-[8px] font-bold text-purple-500">
                 <RiGitBranchLine className="h-3 w-3 shrink-0" />
                 <span>Rules ({rulesCount})</span>
               </span>
@@ -286,14 +312,9 @@ export function RouteNode({
 
       {/* Node Footer indicators */}
       {(hasLatency || hasErrors) && (
-        <div
-          className={cn(
-            "bg-muted/30 border-border/30 text-muted-foreground flex items-center justify-between border-t px-2.5 py-1 text-[8px] font-bold",
-            !selected && "rounded-b-lg",
-          )}
-        >
+        <div className="bg-muted/30 border-border/30 text-muted-foreground flex items-center justify-between rounded-b-lg border-t px-2.5 py-1 text-[8px] font-bold">
           {hasLatency ? (
-            <div className="flex items-center gap-0.5 rounded border border-amber-500/10 bg-amber-500/5 px-1 py-0.5 text-amber-600 dark:text-amber-400">
+            <div className="flex items-center gap-0.5 rounded border border-amber-500/10 bg-amber-500/5 px-1 py-0.5 text-amber-500">
               <RiTimeLine className="h-2.5 w-2.5 shrink-0 text-amber-500" />
               <span>
                 {data.latencyMin === data.latencyMax
@@ -305,30 +326,11 @@ export function RouteNode({
             <div />
           )}
           {hasErrors && (
-            <div className="flex items-center gap-0.5 rounded border border-rose-500/10 bg-rose-500/5 px-1 py-0.5 text-rose-600 dark:text-rose-400">
+            <div className="flex items-center gap-0.5 rounded border border-rose-500/10 bg-rose-500/5 px-1 py-0.5 text-rose-500">
               <RiAlertLine className="h-2.5 w-2.5 shrink-0 animate-pulse text-rose-500" />
               <span>{data.errorRate}% Err</span>
             </div>
           )}
-        </div>
-      )}
-
-      {/* Node expanded actions on selection */}
-      {selected && (
-        <div className="bg-muted/40 border-border/40 bg-card/60 flex flex-col gap-1 rounded-b-lg border-t p-1.5">
-          <Button
-            type="button"
-            size="xs"
-            variant="default"
-            className="h-6 w-full gap-1 text-[9px] font-bold shadow-xs"
-            onClick={(e) => {
-              e.stopPropagation();
-              data.onOpenEdit(data.id);
-            }}
-          >
-            <RiSettings2Line className="h-3 w-3" />
-            <span>Edit Configurations</span>
-          </Button>
         </div>
       )}
 
@@ -344,6 +346,6 @@ export function RouteNode({
       />
     </div>
   );
-}
+};
 
 export default React.memo(RouteNode);

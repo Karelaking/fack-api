@@ -8,9 +8,9 @@ import type { SchemaField } from "@/lib/schema-synthesizer";
 
 // ─── React Context ───────────────────────────────────────────────────────────
 
-const SchemaStoreContext = React.createContext<StoreApi<SchemaStore> | null>(
-  null,
-);
+const SchemaStoreContext = React.createContext<
+  StoreApi<SchemaStore> | undefined
+>(undefined);
 
 interface SchemaStoreProviderProps {
   initialFields?: SchemaField[];
@@ -24,10 +24,10 @@ interface SchemaStoreProviderProps {
  *
  * @see https://zustand.docs.pmnd.rs/learn/guides/nextjs
  */
-export function SchemaStoreProvider({
+export const SchemaStoreProvider = ({
   initialFields = [],
   children,
-}: SchemaStoreProviderProps) {
+}: SchemaStoreProviderProps): React.JSX.Element => {
   const [store] = React.useState(() => createSchemaStore(initialFields));
 
   return (
@@ -35,7 +35,7 @@ export function SchemaStoreProvider({
       {children}
     </SchemaStoreContext.Provider>
   );
-}
+};
 
 /**
  * Custom React Hook to access values and actions of the Schema Store.
@@ -49,10 +49,10 @@ export function SchemaStoreProvider({
  * const addField = useSchemaStore((state) => state.addField);
  * ```
  */
-export function useSchemaStore<T>(selector: (store: SchemaStore) => T): T {
+export const useSchemaStore = <T,>(selector: (store: SchemaStore) => T): T => {
   const context = React.useContext(SchemaStoreContext);
   if (!context) {
     throw new Error("useSchemaStore must be used within a SchemaStoreProvider");
   }
   return useStore(context, selector);
-}
+};

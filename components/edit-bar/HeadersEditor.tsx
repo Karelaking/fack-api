@@ -18,10 +18,10 @@ interface HeadersEditorProps {
 /**
  * Custom Response Headers key-value editor component.
  */
-export function HeadersEditor({
+export const HeadersEditor = ({
   headers,
   onHeadersChange,
-}: HeadersEditorProps): React.JSX.Element {
+}: HeadersEditorProps): React.JSX.Element => {
   const handleAdd = () => {
     onHeadersChange([...headers, { key: "", value: "" }]);
   };
@@ -69,12 +69,14 @@ export function HeadersEditor({
                 value={row.key}
                 onChange={(e) => handleChange(index, "key", e.target.value)}
                 placeholder="Header Name (e.g. Authorization)"
+                aria-label="Header Name"
                 className="h-8 text-xs"
               />
               <Input
                 value={row.value}
                 onChange={(e) => handleChange(index, "value", e.target.value)}
                 placeholder="Value"
+                aria-label="Header Value"
                 className="h-8 text-xs"
               />
               <Button
@@ -82,6 +84,8 @@ export function HeadersEditor({
                 size="icon"
                 variant="ghost"
                 className="text-destructive hover:bg-destructive/10 h-8 w-8 shrink-0"
+                title="Delete Header"
+                aria-label="Delete Header"
                 onClick={() => handleRemove(index)}
               >
                 <RiDeleteBin6Line className="h-3.5 w-3.5" />
@@ -95,5 +99,5 @@ export function HeadersEditor({
       </p>
     </div>
   );
-}
+};
 export default HeadersEditor;

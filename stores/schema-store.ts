@@ -199,7 +199,7 @@ export const createSchemaStore = (initialFields: SchemaField[] = []) => {
           const findContainingArray = (
             array: SchemaField[],
             id: string,
-          ): SchemaField[] | null => {
+          ): SchemaField[] | undefined => {
             const index = array.findIndex((field) => field.id === id);
             if (index !== -1) return array;
 
@@ -217,7 +217,7 @@ export const createSchemaStore = (initialFields: SchemaField[] = []) => {
               }
             }
 
-            return null;
+            return undefined;
           };
 
           const sourceArray = findContainingArray(state.fields, draggedId);

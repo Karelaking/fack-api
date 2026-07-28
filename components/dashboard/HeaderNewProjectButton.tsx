@@ -40,6 +40,8 @@ export function HeaderNewProjectButton(): React.JSX.Element | null {
           variant="outline"
           size="sm"
           className="h-8 gap-1.5 text-xs font-semibold"
+          title="Save Layout"
+          aria-label="Save Layout"
           onClick={() => triggerAction("canvas-save")}
           disabled={isSaving}
         >
@@ -55,6 +57,8 @@ export function HeaderNewProjectButton(): React.JSX.Element | null {
           variant="default"
           size="sm"
           className="h-8 gap-1.5 text-xs font-semibold shadow-xs"
+          title="Add Route"
+          aria-label="Add Route"
           onClick={() => triggerAction("open-add-route-dialog")}
         >
           <RiAddLine className="h-4 w-4" />
@@ -77,6 +81,8 @@ export function HeaderNewProjectButton(): React.JSX.Element | null {
       size="sm"
       variant="outline"
       className="gap-1.5"
+      title="Create New Project"
+      aria-label="Create New Project"
       onClick={handleNewProjectClick}
     >
       <RiAddLine className="h-4 w-4" />

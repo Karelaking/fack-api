@@ -19,9 +19,9 @@ import {
 } from "@remixicon/react";
 import { toast } from "sonner";
 import { deleteProject, updateProject } from "@/lib/actions/projects";
-import { formatRelativeTime } from "@/lib/utils";
+import { cn, formatRelativeTime } from "@/lib/utils";
 import type { Project, Endpoint, Route } from "@/db/schema";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Card,
@@ -228,7 +228,10 @@ export function ProjectGrid({
         </div>
 
         <Button
+          type="button"
           onClick={triggerCreateProject}
+          title="Create New Project"
+          aria-label="Create New Project"
           className="h-9 shrink-0 gap-1.5 text-xs font-semibold"
         >
           <RiAddLine className="h-4 w-4" />
@@ -244,13 +247,18 @@ export function ProjectGrid({
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search workspaces..."
+            aria-label="Search workspaces"
             className="h-8.5 pl-8 text-xs"
           />
         </div>
 
         <div className="flex items-center gap-2 self-end text-xs sm:self-auto">
-          <span className="text-muted-foreground">Sort by:</span>
+          <label htmlFor="sort-by-select" className="text-muted-foreground">
+            Sort by:
+          </label>
           <select
+            id="sort-by-select"
+            aria-label="Sort by"
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as "updated" | "name")}
             className="bg-card border-border text-foreground rounded border px-2 py-1 font-medium focus:outline-none"
@@ -275,7 +283,10 @@ export function ProjectGrid({
           </CardDescription>
           {!search && (
             <Button
+              type="button"
               onClick={triggerCreateProject}
+              title="Create Project"
+              aria-label="Create Project"
               className="mt-5 h-9 gap-1.5 text-xs font-semibold"
             >
               <RiAddLine className="h-4 w-4" />
@@ -314,19 +325,23 @@ export function ProjectGrid({
 
                     <div className="flex items-center gap-1 transition-opacity group-hover:opacity-100 sm:opacity-0">
                       <Button
+                        type="button"
                         variant="ghost"
                         size="icon"
                         className="text-muted-foreground hover:text-foreground h-6 w-6"
                         title="Workspace Settings"
+                        aria-label="Workspace Settings"
                         onClick={() => setEditProj(proj)}
                       >
                         <RiSettings3Line className="h-3.5 w-3.5" />
                       </Button>
                       <Button
+                        type="button"
                         variant="ghost"
                         size="icon"
                         className="text-destructive hover:bg-destructive/10 h-6 w-6"
                         title="Delete Workspace"
+                        aria-label="Delete Workspace"
                         onClick={() => setDeleteProj(proj)}
                       >
                         <RiDeleteBin6Line className="h-3.5 w-3.5" />
@@ -377,15 +392,13 @@ export function ProjectGrid({
                 <CardFooter className="border-border/40 mt-1 border-t p-4 pt-3">
                   <Link
                     href={`/projects/${proj.slug}/canvas`}
-                    className="w-full"
+                    className={cn(
+                      buttonVariants({ variant: "ghost" }),
+                      "hover:bg-primary/5 hover:text-primary group/btn h-8.5 w-full justify-between px-2 text-xs font-bold",
+                    )}
                   >
-                    <Button
-                      variant="ghost"
-                      className="hover:bg-primary/5 hover:text-primary group/btn h-8.5 w-full justify-between px-2 text-xs font-bold"
-                    >
-                      <span>Enter Workspace</span>
-                      <RiArrowRightLine className="h-3.5 w-3.5 transition-transform group-hover/btn:translate-x-1" />
-                    </Button>
+                    <span>Enter Workspace</span>
+                    <RiArrowRightLine className="h-3.5 w-3.5 transition-transform group-hover/btn:translate-x-1" />
                   </Link>
                 </CardFooter>
               </Card>
@@ -471,11 +484,23 @@ export function ProjectGrid({
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={editLoading} className="gap-1.5">
-                {editLoading && (
-                  <RiLoader2Line className="h-4 w-4 animate-spin" />
+              <Button
+                type="submit"
+                disabled={editLoading}
+                aria-disabled={editLoading}
+                className="gap-1.5"
+              >
+                {editLoading ? (
+                  <>
+                    <RiLoader2Line
+                      className="h-4 w-4 animate-spin"
+                      aria-hidden="true"
+                    />
+                    <span>Saving...</span>
+                  </>
+                ) : (
+                  <span>Save Changes</span>
                 )}
-                <span>Save Changes</span>
               </Button>
             </DialogFooter>
           </form>
@@ -529,6 +554,8 @@ export function ProjectGrid({
             <Button
               type="button"
               variant="outline"
+              title="Cancel deletion"
+              aria-label="Cancel deletion"
               onClick={() => {
                 setDeleteProj(null);
                 setDeleteConfirmText("");
@@ -540,8 +567,11 @@ export function ProjectGrid({
             <Button
               type="button"
               variant="destructive"
+              title="Permanently Delete Workspace"
+              aria-label="Permanently Delete Workspace"
               onClick={handleDeleteProject}
               disabled={deleteLoading || deleteConfirmText !== deleteProj?.name}
+              aria-disabled={deleteLoading}
               className="gap-1.5"
             >
               {deleteLoading && (

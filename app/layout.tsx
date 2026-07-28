@@ -13,6 +13,7 @@ import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { HeaderNewProjectButton } from "@/components/dashboard/HeaderNewProjectButton";
 import { MobileBottomNav } from "@/components/dashboard/MobileBottomNav";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { CommandMenu } from "@/components/command-menu";
 
 const inter = Inter({
   variable: "--font-sans",
@@ -23,6 +24,19 @@ export const metadata: Metadata = {
   title: "Fack API's — Mock API Platform",
   description:
     "High-performance, open-source mock API platform with visual React Flow editor and dynamic payload synthesis.",
+  openGraph: {
+    title: "Fack API's — Mock API Platform",
+    description:
+      "High-performance, open-source mock API platform with visual React Flow editor and dynamic payload synthesis.",
+    images: ["/opengraph-image"],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Fack API's — Mock API Platform",
+    description:
+      "High-performance, open-source mock API platform with visual React Flow editor and dynamic payload synthesis.",
+    images: ["/opengraph-image"],
+  },
 };
 
 export default async function RootLayout({
@@ -48,7 +62,7 @@ export default async function RootLayout({
           <TooltipProvider>
             <Analytics />
             <SidebarProvider>
-              <div className="bg-background flex h-screen w-screen overflow-hidden">
+              <div className="bg-background flex h-screen w-full max-w-full overflow-hidden">
                 {/* Sidebar component */}
                 <DashboardSidebar initialProjects={projects} />
 
@@ -69,6 +83,7 @@ export default async function RootLayout({
                 </main>
               </div>
             </SidebarProvider>
+            <CommandMenu />
             <Toaster position="top-right" richColors />
           </TooltipProvider>
         </ThemeProvider>

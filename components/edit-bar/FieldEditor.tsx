@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -67,10 +68,10 @@ let activeDraggedFieldId: string | null = null;
  * Recursive field row editor in the JSON Schema Builder tree.
  * Automatically displays conditional selectors based on data types.
  */
-export function FieldEditor({
+export const FieldEditor = ({
   field,
   depth,
-}: FieldEditorProps): React.JSX.Element {
+}: FieldEditorProps): React.JSX.Element => {
   const updateField = useSchemaStore((state) => state.updateField);
   const removeField = useSchemaStore((state) => state.removeField);
   const addField = useSchemaStore((state) => state.addField);
@@ -213,7 +214,7 @@ export function FieldEditor({
           draggable
           onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
-          className="text-muted-foreground/70 inline-flex h-7 w-5 cursor-grab items-center justify-center active:cursor-grabbing"
+          className="text-muted-foreground/70 inline-flex h-7 w-5 cursor-grab items-center justify-center"
           title="Drag to reorder"
         >
           <RiDragMove2Line className="h-3.5 w-3.5" />
@@ -224,6 +225,7 @@ export function FieldEditor({
           value={field.name}
           onChange={handleNameChange}
           placeholder="Field key"
+          aria-label="Field key"
           className="h-7 w-30 shrink-0 font-mono text-xs font-semibold"
         />
 
@@ -234,16 +236,21 @@ export function FieldEditor({
             if (isFieldType(val)) handleTypeChange(val);
           }}
         >
-          <SelectTrigger className="h-7 w-20 shrink-0 text-xs font-medium">
+          <SelectTrigger
+            aria-label="Field Type"
+            className="h-7 w-20 shrink-0 text-xs font-medium"
+          >
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="string">String</SelectItem>
-            <SelectItem value="number">Number</SelectItem>
-            <SelectItem value="integer">Integer</SelectItem>
-            <SelectItem value="boolean">Boolean</SelectItem>
-            <SelectItem value="object">Object</SelectItem>
-            <SelectItem value="array">Array</SelectItem>
+            <SelectGroup>
+              <SelectItem value="string">String</SelectItem>
+              <SelectItem value="number">Number</SelectItem>
+              <SelectItem value="integer">Integer</SelectItem>
+              <SelectItem value="boolean">Boolean</SelectItem>
+              <SelectItem value="object">Object</SelectItem>
+              <SelectItem value="array">Array</SelectItem>
+            </SelectGroup>
           </SelectContent>
         </Select>
 
@@ -252,6 +259,7 @@ export function FieldEditor({
           <Switch
             checked={field.nullable}
             onCheckedChange={handleNullableChange}
+            aria-label="Nullable"
             className="h-4 scale-[0.65]"
           />
           <span className="text-muted-foreground text-[9px] font-semibold uppercase">
@@ -281,15 +289,20 @@ export function FieldEditor({
                 if (isArrayItemType(val)) handleArrayItemTypeChange(val);
               }}
             >
-              <SelectTrigger className="h-7 w-20 shrink-0 text-xs font-medium">
+              <SelectTrigger
+                aria-label="Array Item Type"
+                className="h-7 w-20 shrink-0 text-xs font-medium"
+              >
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="string">String</SelectItem>
-                <SelectItem value="number">Number</SelectItem>
-                <SelectItem value="integer">Integer</SelectItem>
-                <SelectItem value="boolean">Boolean</SelectItem>
-                <SelectItem value="object">Object</SelectItem>
+                <SelectGroup>
+                  <SelectItem value="string">String</SelectItem>
+                  <SelectItem value="number">Number</SelectItem>
+                  <SelectItem value="integer">Integer</SelectItem>
+                  <SelectItem value="boolean">Boolean</SelectItem>
+                  <SelectItem value="object">Object</SelectItem>
+                </SelectGroup>
               </SelectContent>
             </Select>
 
@@ -313,6 +326,7 @@ export function FieldEditor({
             variant="ghost"
             className="text-muted-foreground hover:text-foreground hover:bg-muted h-7 w-7"
             title="Move Up"
+            aria-label="Move Up"
             onClick={() => moveField(field.id, "up")}
           >
             <RiArrowUpLine className="h-3.5 w-3.5" />
@@ -323,6 +337,7 @@ export function FieldEditor({
             variant="ghost"
             className="text-muted-foreground hover:text-foreground hover:bg-muted h-7 w-7"
             title="Move Down"
+            aria-label="Move Down"
             onClick={() => moveField(field.id, "down")}
           >
             <RiArrowDownLine className="h-3.5 w-3.5" />
@@ -335,6 +350,8 @@ export function FieldEditor({
               size="icon"
               variant="outline"
               className="hover:bg-primary/5 h-7 w-7"
+              title="Add Child Field"
+              aria-label="Add Child Field"
               onClick={() => addField(field.id)}
             >
               <RiAddLine className="h-3.5 w-3.5" />
@@ -345,6 +362,8 @@ export function FieldEditor({
             size="icon"
             variant="ghost"
             className="text-destructive hover:bg-destructive/10 h-7 w-7"
+            title="Delete Field"
+            aria-label="Delete Field"
             onClick={() => removeField(field.id)}
           >
             <RiDeleteBin6Line className="h-3.5 w-3.5" />
@@ -362,6 +381,7 @@ export function FieldEditor({
             value={customCategoryName}
             onChange={handleCustomCategoryChange}
             placeholder="e.g. puppy, nature, architecture"
+            aria-label="Category Name"
             className="h-6 w-48 shrink-0 px-2 py-0.5 text-xs font-medium"
           />
         </div>
@@ -376,6 +396,7 @@ export function FieldEditor({
             value={customArrayItemCategoryName}
             onChange={handleCustomArrayItemCategoryChange}
             placeholder="e.g. puppy, nature, architecture"
+            aria-label="Array Item Category"
             className="h-6 w-48 shrink-0 px-2 py-0.5 text-xs font-medium"
           />
         </div>
@@ -403,5 +424,5 @@ export function FieldEditor({
         )}
     </div>
   );
-}
+};
 export default FieldEditor;

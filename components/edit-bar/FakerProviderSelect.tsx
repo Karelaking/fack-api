@@ -46,9 +46,12 @@ export function FakerProviderSelect({
       <PopoverTrigger
         render={
           <Button
+            type="button"
             variant="outline"
             role="combobox"
             aria-expanded={open}
+            aria-label="Select data provider"
+            title="Select data provider"
             disabled={disabled}
             className="border-muted-foreground/20 hover:bg-accent h-7 w-full justify-between px-2 text-xs"
           />

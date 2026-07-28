@@ -14,7 +14,7 @@ import {
 /**
  * Dropdown trigger component to toggle between light, dark, and system themes.
  */
-export function ThemeToggle() {
+export const ThemeToggle = (): React.JSX.Element => {
   const { setTheme } = useTheme();
 
   return (
@@ -22,14 +22,17 @@ export function ThemeToggle() {
       <DropdownMenuTrigger
         render={
           <Button
+            type="button"
             variant="outline"
             size="icon"
             className="h-9 w-9 rounded-md"
+            title="Toggle theme"
+            aria-label="Toggle theme"
           />
         }
       >
-        <RiSunLine className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
-        <RiMoonLine className="absolute h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
+        <RiSunLine className="h-[1.2rem] w-[1.2rem] transition-all dark:scale-0 dark:-rotate-90" />
+        <RiMoonLine className="absolute h-[1.2rem] w-[1.2rem] transition-all not-dark:scale-0 not-dark:rotate-90 dark:scale-100 dark:rotate-0" />
         <span className="sr-only">Toggle theme</span>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-36">
@@ -57,4 +60,4 @@ export function ThemeToggle() {
       </DropdownMenuContent>
     </DropdownMenu>
   );
-}
+};

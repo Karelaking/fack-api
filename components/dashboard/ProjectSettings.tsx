@@ -242,14 +242,25 @@ export function ProjectSettings({
             <Button
               type="submit"
               disabled={loading || !name.trim() || !slug.trim()}
+              aria-disabled={loading}
+              title="Save Changes"
+              aria-label="Save Changes"
               className="gap-1.5"
             >
               {loading ? (
-                <RiLoader2Line className="h-4 w-4 animate-spin" />
+                <>
+                  <RiLoader2Line
+                    className="h-4 w-4 animate-spin"
+                    aria-hidden="true"
+                  />
+                  <span>Saving...</span>
+                </>
               ) : (
-                <RiSaveLine className="h-4 w-4" />
+                <>
+                  <RiSaveLine className="h-4 w-4" />
+                  <span>Save Changes</span>
+                </>
               )}
-              <span>Save Changes</span>
             </Button>
           </CardFooter>
         </Card>
@@ -281,7 +292,15 @@ export function ProjectSettings({
             }}
           >
             <DialogTrigger
-              render={<Button variant="destructive" className="gap-1.5" />}
+              render={
+                <Button
+                  type="button"
+                  variant="destructive"
+                  title="Delete Workspace"
+                  aria-label="Delete Workspace"
+                  className="gap-1.5"
+                />
+              }
             >
               <RiDeleteBin6Line className="h-4 w-4" />
               <span>Delete Workspace</span>
@@ -324,6 +343,8 @@ export function ProjectSettings({
                 <Button
                   type="button"
                   variant="outline"
+                  title="Cancel deletion"
+                  aria-label="Cancel deletion"
                   onClick={() => {
                     setDeleteOpen(false);
                     setDeleteConfirmText("");
@@ -335,8 +356,11 @@ export function ProjectSettings({
                 <Button
                   type="button"
                   variant="destructive"
+                  title="Permanently Delete Workspace"
+                  aria-label="Permanently Delete Workspace"
                   onClick={handleDelete}
                   disabled={deleteLoading || deleteConfirmText !== project.name}
+                  aria-disabled={deleteLoading}
                   className="gap-1.5"
                 >
                   {deleteLoading && (

@@ -11,8 +11,10 @@ import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
   SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import {
   Dialog,
@@ -33,12 +35,12 @@ interface AddRouteDialogProps {
 /**
  * Modal form dialog to register a new route under an endpoint group.
  */
-export function AddRouteDialog({
+export const AddRouteDialog = ({
   open,
   onOpenChange,
   endpoints,
   onRouteAdded,
-}: AddRouteDialogProps): React.JSX.Element {
+}: AddRouteDialogProps): React.JSX.Element => {
   const [loading, setLoading] = React.useState(false);
 
   // Form states
@@ -141,7 +143,7 @@ export function AddRouteDialog({
             <div className="flex flex-col gap-2">
               <label className="text-sm font-semibold">Endpoint Group</label>
               {endpoints.length === 0 ? (
-                <div className="flex flex-col gap-1.5 rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-600 dark:border-amber-900/30 dark:bg-amber-950/20 dark:text-amber-400">
+                <div className="flex flex-col gap-1.5 rounded-lg border border-amber-500/20 bg-amber-500/10 p-3 text-xs text-amber-500">
                   <span className="font-semibold">
                     No Endpoint Groups found.
                   </span>
@@ -156,7 +158,7 @@ export function AddRouteDialog({
                   onValueChange={(val) => setEndpointId(val ?? "")}
                   disabled={loading}
                 >
-                  <SelectTrigger className="w-full">
+                  <SelectTrigger aria-label="Endpoint Group" className="w-full">
                     <span className="truncate" data-slot="select-value">
                       {endpoints.find((ep) => ep.id === endpointId)
                         ? `${endpoints.find((ep) => ep.id === endpointId)?.name} (${endpoints.find((ep) => ep.id === endpointId)?.basePath || "/"})`
@@ -164,65 +166,67 @@ export function AddRouteDialog({
                     </span>
                   </SelectTrigger>
                   <SelectContent>
-                    {endpoints.map((ep) => (
-                      <SelectItem key={ep.id} value={ep.id}>
-                        {ep.name} ({ep.basePath || "/"})
-                      </SelectItem>
-                    ))}
+                    <SelectGroup>
+                      {endpoints.map((ep) => (
+                        <SelectItem key={ep.id} value={ep.id}>
+                          {ep.name} ({ep.basePath || "/"})
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
                   </SelectContent>
                 </Select>
               )}
             </div>
 
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-3 gap-3">
               <div className="col-span-1 flex flex-col gap-2">
                 <label className="text-sm font-semibold">Method</label>
                 <Select
                   value={method}
-                  onValueChange={(val) => {
-                    if (
-                      val === "GET" ||
-                      val === "POST" ||
-                      val === "PUT" ||
-                      val === "DELETE" ||
-                      val === "PATCH"
-                    )
-                      setMethod(val);
-                  }}
+                  onValueChange={(val) => setMethod(val as Route["method"])}
                   disabled={loading || endpoints.length === 0}
                 >
-                  <SelectTrigger className="w-full">
-                    <span data-slot="select-value">{method}</span>
+                  <SelectTrigger
+                    aria-label="HTTP Method"
+                    className="w-full font-mono text-xs font-bold"
+                  >
+                    <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="GET">GET</SelectItem>
-                    <SelectItem value="POST">POST</SelectItem>
-                    <SelectItem value="PUT">PUT</SelectItem>
-                    <SelectItem value="DELETE">DELETE</SelectItem>
-                    <SelectItem value="PATCH">PATCH</SelectItem>
+                    <SelectGroup>
+                      <SelectItem value="GET">GET</SelectItem>
+                      <SelectItem value="POST">POST</SelectItem>
+                      <SelectItem value="PUT">PUT</SelectItem>
+                      <SelectItem value="DELETE">DELETE</SelectItem>
+                      <SelectItem value="PATCH">PATCH</SelectItem>
+                    </SelectGroup>
                   </SelectContent>
                 </Select>
               </div>
               <div className="col-span-2 flex flex-col gap-2">
                 <label htmlFor="route-path" className="text-sm font-semibold">
-                  Path
+                  Sub-Path
                 </label>
                 <Input
                   id="route-path"
                   value={path}
                   onChange={(e) => setPath(e.target.value)}
-                  placeholder="e.g. /:id/profile"
+                  placeholder="e.g. /login or /:id"
+                  maxLength={200}
                   disabled={loading || endpoints.length === 0}
                 />
               </div>
             </div>
 
             <div className="flex flex-col gap-2">
-              <label htmlFor="route-status" className="text-sm font-semibold">
+              <label
+                htmlFor="route-statusCode"
+                className="text-sm font-semibold"
+              >
                 Default Status Code
               </label>
               <Input
-                id="route-status"
+                id="route-statusCode"
                 type="number"
                 value={statusCode}
                 onChange={(e) => setStatusCode(e.target.value)}
@@ -232,14 +236,21 @@ export function AddRouteDialog({
                 disabled={loading || endpoints.length === 0}
               />
             </div>
-            <div className="border-border bg-muted/20 flex items-center justify-between rounded-lg border p-3">
-              <div className="flex flex-col gap-0.5">
-                <span className="text-xs font-semibold">Default Fields</span>
-                <span className="text-muted-foreground text-[10px] leading-normal">
-                  Pre-populate schema with id, createdAt, and updatedAt.
+            <div className="bg-muted/10 flex items-center justify-between rounded-lg border p-3">
+              <div className="space-y-0.5">
+                <label
+                  htmlFor="include-defaults"
+                  className="block text-xs font-semibold"
+                >
+                  Generate Starter Schema
+                </label>
+                <span className="text-muted-foreground block text-[10px] leading-normal">
+                  Include default JSON schema properties (`id`, `createdAt`,
+                  `status`).
                 </span>
               </div>
               <Switch
+                id="include-defaults"
                 checked={includeDefaults}
                 onCheckedChange={setIncludeDefaults}
                 disabled={loading || endpoints.length === 0}
@@ -250,6 +261,8 @@ export function AddRouteDialog({
             <Button
               type="button"
               variant="outline"
+              title="Cancel creation"
+              aria-label="Cancel creation"
               onClick={() => onOpenChange(false)}
               disabled={loading}
             >
@@ -258,14 +271,26 @@ export function AddRouteDialog({
             <Button
               type="submit"
               disabled={loading || endpoints.length === 0}
+              aria-disabled={loading}
+              title="Create Node"
+              aria-label="Create Node"
               className="gap-1.5"
             >
-              {loading && <RiLoader2Line className="h-4 w-4 animate-spin" />}
-              <span>Create Node</span>
+              {loading ? (
+                <>
+                  <RiLoader2Line
+                    className="h-4 w-4 animate-spin"
+                    aria-hidden="true"
+                  />
+                  <span>Creating...</span>
+                </>
+              ) : (
+                <span>Create Node</span>
+              )}
             </Button>
           </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>
   );
-}
+};

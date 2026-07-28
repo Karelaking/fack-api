@@ -354,8 +354,10 @@ function EditBarInner({
               </span>
               <Button
                 type="button"
-                size="xs"
                 variant="outline"
+                size="sm"
+                title="Generate types"
+                aria-label="Generate types"
                 onClick={() => setTsOpen(true)}
                 className="h-7 gap-1 px-2.5 text-[10px] font-bold"
               >
@@ -373,10 +375,14 @@ function EditBarInner({
       {/* Save panel footer triggers */}
       <div className="border-border bg-card mt-auto flex shrink-0 items-center justify-between border-t pt-3">
         <Button
+          type="button"
           variant="destructive"
           size="sm"
+          title="Delete Route"
+          aria-label="Delete Route"
           onClick={handleDelete}
           disabled={loading}
+          aria-disabled={loading}
           className="h-8 gap-1 text-xs font-bold"
         >
           {loading ? (
@@ -389,8 +395,11 @@ function EditBarInner({
 
         <div className="flex gap-1.5">
           <Button
+            type="button"
             variant="outline"
             size="sm"
+            title="Cancel edits"
+            aria-label="Cancel edits"
             onClick={() => onOpenChange(false)}
             disabled={loading}
             className="h-8 text-xs font-bold"
@@ -398,9 +407,13 @@ function EditBarInner({
             Cancel
           </Button>
           <Button
+            type="button"
             size="sm"
+            title="Save Route"
+            aria-label="Save Route"
             onClick={handleSave}
             disabled={loading}
+            aria-disabled={loading}
             className="h-8 gap-1 text-xs font-bold"
           >
             {loading ? (
@@ -444,7 +457,10 @@ export function EditBar({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="flex h-full w-full flex-col overflow-hidden p-4 sm:max-w-135">
+      <SheetContent
+        aria-label="Edit Route Config"
+        className="flex h-full w-full flex-col overflow-hidden p-4 sm:max-w-135"
+      >
         <SchemaStoreProvider initialFields={initialFields}>
           <EditBarInner
             route={route}
