@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/Karelaking/fack-api/compare/v1.3.0...v1.4.0) (2026-07-28)
+
+### Features
+
+- implement mock data generation engine and comprehensive dashboard UI components ([c9b6685](https://github.com/Karelaking/fack-api/commit/c9b6685a9ec97160b32b9585bc5924edb835c2a9))
+- implement project settings, theme toggle, and dashboard navigation ([8b0c10d](https://github.com/Karelaking/fack-api/commit/8b0c10ded942c0edc6a0986865dd3eed379853c2))
+
 # [1.3.0](https://github.com/Karelaking/fack-api/compare/v1.2.0...v1.3.0) (2026-07-25)
 
 ### Features
