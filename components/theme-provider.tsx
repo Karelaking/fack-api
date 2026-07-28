@@ -85,6 +85,26 @@ export function ThemeProvider({
     return () => media.removeEventListener("change", listener);
   }, [enableSystem, theme]);
 
+  const value = React.useMemo<ThemeContextValue>(
+    () => ({
+      theme,
+      resolvedTheme,
+      setTheme: setThemeState,
+    }),
+    [resolvedTheme, theme],
+  );
+
+  return (
+    <ThemeContext.Provider value={value}>
+      <ThemeHotkeyListener />
+      {children}
+    </ThemeContext.Provider>
+  );
+}
+
+function ThemeHotkeyListener(): null {
+  const { resolvedTheme, setTheme } = useTheme();
+
   React.useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null;
@@ -106,29 +126,15 @@ export function ThemeProvider({
         (e.key.toLowerCase() === "d" && (e.metaKey || e.ctrlKey) && e.shiftKey)
       ) {
         e.preventDefault();
-        setThemeState((prev) => {
-          const currentResolved = prev === "system" ? getSystemTheme() : prev;
-          return currentResolved === "dark" ? "light" : "dark";
-        });
+        setTheme(resolvedTheme === "dark" ? "light" : "dark");
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
+  }, [resolvedTheme, setTheme]);
 
-  const value = React.useMemo<ThemeContextValue>(
-    () => ({
-      theme,
-      resolvedTheme,
-      setTheme: setThemeState,
-    }),
-    [resolvedTheme, theme],
-  );
-
-  return (
-    <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
-  );
+  return null;
 }
 
 export function useTheme() {

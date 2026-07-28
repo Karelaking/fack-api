@@ -182,29 +182,31 @@ export function DashboardBreadcrumbs({
                       align="start"
                       className="max-h-75 w-52 overflow-y-auto"
                     >
-                      {projectsList.map((p) => {
-                        const isActive = p.slug === projectSlug;
-                        return (
-                          <DropdownMenuItem
-                            key={p.id}
-                            className={`flex w-full cursor-pointer items-center justify-between py-1.5 text-sm ${
-                              isActive
-                                ? "text-primary bg-accent/40 font-semibold"
-                                : ""
-                            }`}
-                            onClick={() =>
-                              router.push(
-                                getProjectTabHref(p.slug, segments[2]),
-                              )
-                            }
-                          >
-                            <span className="truncate">{p.name}</span>
-                            {isActive && (
-                              <span className="bg-primary h-1.5 w-1.5 shrink-0 rounded-full" />
-                            )}
-                          </DropdownMenuItem>
-                        );
-                      })}
+                      <DropdownMenuGroup>
+                        {projectsList.map((p) => {
+                          const isActive = p.slug === projectSlug;
+                          return (
+                            <DropdownMenuItem
+                              key={p.id}
+                              className={`flex w-full cursor-pointer items-center justify-between py-1.5 text-sm ${
+                                isActive
+                                  ? "text-primary bg-accent/40 font-semibold"
+                                  : ""
+                              }`}
+                              onClick={() =>
+                                router.push(
+                                  getProjectTabHref(p.slug, segments[2]),
+                                )
+                              }
+                            >
+                              <span className="truncate">{p.name}</span>
+                              {isActive && (
+                                <span className="bg-primary h-1.5 w-1.5 shrink-0 rounded-full" />
+                              )}
+                            </DropdownMenuItem>
+                          );
+                        })}
+                      </DropdownMenuGroup>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 ) : (

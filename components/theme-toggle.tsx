@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -31,32 +32,34 @@ export const ThemeToggle = (): React.JSX.Element => {
           />
         }
       >
-        <RiSunLine className="h-[1.2rem] w-[1.2rem] transition-all dark:scale-0 dark:-rotate-90" />
-        <RiMoonLine className="absolute h-[1.2rem] w-[1.2rem] transition-all not-dark:scale-0 not-dark:rotate-90 dark:scale-100 dark:rotate-0" />
+        <RiSunLine className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
+        <RiMoonLine className="absolute h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
         <span className="sr-only">Toggle theme</span>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-36">
-        <DropdownMenuItem
-          onClick={() => setTheme("light")}
-          className="flex items-center gap-2"
-        >
-          <RiSunLine className="h-4 w-4" />
-          <span>Light</span>
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          onClick={() => setTheme("dark")}
-          className="flex items-center gap-2"
-        >
-          <RiMoonLine className="h-4 w-4" />
-          <span>Dark</span>
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          onClick={() => setTheme("system")}
-          className="flex items-center gap-2"
-        >
-          <RiComputerLine className="h-4 w-4" />
-          <span>System</span>
-        </DropdownMenuItem>
+        <DropdownMenuGroup>
+          <DropdownMenuItem
+            onClick={() => setTheme("light")}
+            className="flex items-center gap-2"
+          >
+            <RiSunLine className="h-4 w-4" />
+            <span>Light</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => setTheme("dark")}
+            className="flex items-center gap-2"
+          >
+            <RiMoonLine className="h-4 w-4" />
+            <span>Dark</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => setTheme("system")}
+            className="flex items-center gap-2"
+          >
+            <RiComputerLine className="h-4 w-4" />
+            <span>System</span>
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>
   );

@@ -120,7 +120,9 @@ export function ProjectGrid({
     return filtered; // already ordered by updatedAt desc from query
   }, [projects, search, sortBy]);
 
-  const handleEditSubmit = async (e: React.FormEvent) => {
+  const [isPending, startTransition] = React.useTransition();
+
+  const handleEditSubmit = (e: React.FormEvent): void => {
     e.preventDefault();
     if (!editProj) return;
     if (!editName.trim()) {
@@ -133,47 +135,51 @@ export function ProjectGrid({
     }
 
     setEditLoading(true);
-    try {
-      const updated = await updateProject({
-        id: editProj.id,
-        name: editName.trim(),
-        slug: editSlug.trim(),
-        description: editDescription.trim(),
-      });
-      toast.success("Workspace settings updated successfully!");
-      setProjects((prev) =>
-        prev.map((p) => (p.id === editProj.id ? { ...p, ...updated } : p)),
-      );
-      setEditProj(null);
-      router.refresh();
-    } catch (err) {
-      toast.error("Failed to update workspace settings");
-      console.error(err);
-    } finally {
-      setEditLoading(false);
-    }
+    startTransition(async () => {
+      try {
+        const updated = await updateProject({
+          id: editProj.id,
+          name: editName.trim(),
+          slug: editSlug.trim(),
+          description: editDescription.trim(),
+        });
+        toast.success("Workspace settings updated successfully!");
+        setProjects((prev) =>
+          prev.map((p) => (p.id === editProj.id ? { ...p, ...updated } : p)),
+        );
+        setEditProj(null);
+        router.refresh();
+      } catch (err) {
+        toast.error("Failed to update workspace settings");
+        console.error(err);
+      } finally {
+        setEditLoading(false);
+      }
+    });
   };
 
-  const handleDeleteProject = async () => {
+  const handleDeleteProject = (): void => {
     if (!deleteProj) return;
     if (deleteConfirmText !== deleteProj.name) {
       toast.error("Please type the project name correctly to confirm.");
       return;
     }
     setDeleteLoading(true);
-    try {
-      await deleteProject(deleteProj.id);
-      toast.success(`Project "${deleteProj.name}" deleted successfully.`);
-      setProjects((prev) => prev.filter((p) => p.id !== deleteProj.id));
-      setDeleteProj(null);
-      setDeleteConfirmText("");
-      router.refresh();
-    } catch (err) {
-      toast.error("Failed to delete workspace");
-      console.error(err);
-    } finally {
-      setDeleteLoading(false);
-    }
+    startTransition(async () => {
+      try {
+        await deleteProject(deleteProj.id);
+        toast.success(`Project "${deleteProj.name}" deleted successfully.`);
+        setProjects((prev) => prev.filter((p) => p.id !== deleteProj.id));
+        setDeleteProj(null);
+        setDeleteConfirmText("");
+        router.refresh();
+      } catch (err) {
+        toast.error("Failed to delete workspace");
+        console.error(err);
+      } finally {
+        setDeleteLoading(false);
+      }
+    });
   };
 
   const triggerCreateProject = () => {
@@ -438,7 +444,7 @@ export function ProjectGrid({
                   onChange={(e) => setEditName(e.target.value)}
                   placeholder="e.g., Billing Service"
                   maxLength={100}
-                  disabled={editLoading}
+                  disabled={editLoading || isPending}
                 />
               </div>
               <div className="flex flex-col gap-2">
@@ -451,7 +457,7 @@ export function ProjectGrid({
                   onChange={(e) => setEditSlug(e.target.value)}
                   placeholder="e.g., billing-service"
                   maxLength={100}
-                  disabled={editLoading}
+                  disabled={editLoading || isPending}
                 />
                 <span className="text-muted-foreground text-[10px]">
                   Determines mock base URL: `/{editSlug}`. Must be lowercase
@@ -471,7 +477,7 @@ export function ProjectGrid({
                   onChange={(e) => setEditDescription(e.target.value)}
                   placeholder="e.g., Mocking stripe endpoints for dev"
                   maxLength={500}
-                  disabled={editLoading}
+                  disabled={editLoading || isPending}
                 />
               </div>
             </div>
@@ -480,17 +486,17 @@ export function ProjectGrid({
                 type="button"
                 variant="outline"
                 onClick={() => setEditProj(null)}
-                disabled={editLoading}
+                disabled={editLoading || isPending}
               >
                 Cancel
               </Button>
               <Button
                 type="submit"
-                disabled={editLoading}
-                aria-disabled={editLoading}
+                disabled={editLoading || isPending}
+                aria-disabled={editLoading || isPending}
                 className="gap-1.5"
               >
-                {editLoading ? (
+                {editLoading || isPending ? (
                   <>
                     <RiLoader2Line
                       className="h-4 w-4 animate-spin"
@@ -546,7 +552,7 @@ export function ProjectGrid({
               onChange={(e) => setDeleteConfirmText(e.target.value)}
               placeholder={deleteProj?.name}
               className="font-mono text-sm"
-              disabled={deleteLoading}
+              disabled={deleteLoading || isPending}
               autoComplete="off"
             />
           </div>
@@ -560,7 +566,7 @@ export function ProjectGrid({
                 setDeleteProj(null);
                 setDeleteConfirmText("");
               }}
-              disabled={deleteLoading}
+              disabled={deleteLoading || isPending}
             >
               Cancel
             </Button>
@@ -570,11 +576,15 @@ export function ProjectGrid({
               title="Permanently Delete Workspace"
               aria-label="Permanently Delete Workspace"
               onClick={handleDeleteProject}
-              disabled={deleteLoading || deleteConfirmText !== deleteProj?.name}
-              aria-disabled={deleteLoading}
+              disabled={
+                deleteLoading ||
+                isPending ||
+                deleteConfirmText !== deleteProj?.name
+              }
+              aria-disabled={deleteLoading || isPending}
               className="gap-1.5"
             >
-              {deleteLoading && (
+              {(deleteLoading || isPending) && (
                 <RiLoader2Line className="h-4 w-4 animate-spin" />
               )}
               <span>Permanently Delete</span>

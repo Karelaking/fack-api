@@ -260,7 +260,7 @@ export const RouteNode = ({
             type="button"
             size="icon"
             variant="ghost"
-            className="text-muted-foreground hover:text-foreground hover:bg-muted/80 h-5 w-5 rounded p-0 transition-colors"
+            className="text-muted-foreground hover:text-foreground hover:bg-muted/80 h-6 w-6 rounded p-0 transition-colors"
             title="Edit Route"
             aria-label="Edit Route"
             onClick={(e) => {
@@ -268,7 +268,7 @@ export const RouteNode = ({
               data.onOpenEdit(data.id);
             }}
           >
-            <RiPencilLine className="h-3 w-3" />
+            <RiPencilLine className="h-3.5 w-3.5" />
           </Button>
           <Switch
             checked={data.isEnabled}

@@ -69,7 +69,9 @@ export function ProjectSettings({
     project.isCachingEnabled !== false,
   );
 
-  const handleUpdate = async (e: React.FormEvent) => {
+  const [isPending, startTransition] = React.useTransition();
+
+  const handleUpdate = (e: React.FormEvent): void => {
     e.preventDefault();
     if (!name.trim()) {
       toast.error("Project name is required");
@@ -89,50 +91,54 @@ export function ProjectSettings({
 
     uiTrace.traceCall("handleUpdate", name, cleanedSlug);
     setLoading(true);
-    try {
-      const updated = await updateProject({
-        id: project.id,
-        name,
-        slug: cleanedSlug,
-        description,
-        isLoggingEnabled,
-        isCachingEnabled,
-      });
-      toast.success("Workspace settings updated!");
-      uiTrace.traceSuccess("handleUpdate", updated.slug);
-      router.refresh();
-      // Redirect if slug changed
-      if (updated.slug !== project.slug) {
-        router.push(`/projects/${updated.slug}/settings`);
+    startTransition(async () => {
+      try {
+        const updated = await updateProject({
+          id: project.id,
+          name,
+          slug: cleanedSlug,
+          description,
+          isLoggingEnabled,
+          isCachingEnabled,
+        });
+        toast.success("Workspace settings updated!");
+        uiTrace.traceSuccess("handleUpdate", updated.slug);
+        router.refresh();
+        // Redirect if slug changed
+        if (updated.slug !== project.slug) {
+          router.push(`/projects/${updated.slug}/settings`);
+        }
+      } catch (err) {
+        toast.error("Failed to update workspace settings");
+        uiTrace.traceError("handleUpdate", err);
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      toast.error("Failed to update workspace settings");
-      uiTrace.traceError("handleUpdate", err);
-    } finally {
-      setLoading(false);
-    }
+    });
   };
 
-  const handleDelete = async () => {
+  const handleDelete = (): void => {
     if (deleteConfirmText !== project.name) {
       toast.error("Please type the project name correctly to confirm.");
       return;
     }
     uiTrace.traceCall("handleDelete", project.id);
     setDeleteLoading(true);
-    try {
-      await deleteProject(project.id);
-      toast.success(`Project "${project.name}" deleted successfully.`);
-      uiTrace.traceSuccess("handleDelete", "deleted");
-      setDeleteOpen(false);
-      setDeleteConfirmText("");
-      router.push("/");
-    } catch (err) {
-      toast.error("Failed to delete workspace");
-      uiTrace.traceError("handleDelete", err);
-    } finally {
-      setDeleteLoading(false);
-    }
+    startTransition(async () => {
+      try {
+        await deleteProject(project.id);
+        toast.success(`Project "${project.name}" deleted successfully.`);
+        uiTrace.traceSuccess("handleDelete", "deleted");
+        setDeleteOpen(false);
+        setDeleteConfirmText("");
+        router.push("/");
+      } catch (err) {
+        toast.error("Failed to delete workspace");
+        uiTrace.traceError("handleDelete", err);
+      } finally {
+        setDeleteLoading(false);
+      }
+    });
   };
 
   return (
@@ -241,13 +247,13 @@ export function ProjectSettings({
           <CardFooter className="border-border justify-end border-t pt-4">
             <Button
               type="submit"
-              disabled={loading || !name.trim() || !slug.trim()}
-              aria-disabled={loading}
+              disabled={loading || isPending || !name.trim() || !slug.trim()}
+              aria-disabled={loading || isPending}
               title="Save Changes"
               aria-label="Save Changes"
               className="gap-1.5"
             >
-              {loading ? (
+              {loading || isPending ? (
                 <>
                   <RiLoader2Line
                     className="h-4 w-4 animate-spin"
@@ -359,11 +365,15 @@ export function ProjectSettings({
                   title="Permanently Delete Workspace"
                   aria-label="Permanently Delete Workspace"
                   onClick={handleDelete}
-                  disabled={deleteLoading || deleteConfirmText !== project.name}
-                  aria-disabled={deleteLoading}
+                  disabled={
+                    deleteLoading ||
+                    isPending ||
+                    deleteConfirmText !== project.name
+                  }
+                  aria-disabled={deleteLoading || isPending}
                   className="gap-1.5"
                 >
-                  {deleteLoading && (
+                  {(deleteLoading || isPending) && (
                     <RiLoader2Line className="h-4 w-4 animate-spin" />
                   )}
                   <span>Permanently Delete</span>

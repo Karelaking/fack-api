@@ -159,7 +159,7 @@ function CommandItem({
       {...props}
     >
       {children}
-      <RiCheckLine className="ml-auto group-has-data-[slot=command-shortcut]/command-item:hidden group-data-[checked=false]/command-item:hidden group-data-[checked=true]/command-item:block" />
+      <RiCheckLine className="ml-auto hidden group-has-data-[slot=command-shortcut]/command-item:hidden group-data-[checked=true]/command-item:block" />
     </CommandPrimitive.Item>
   );
 }
