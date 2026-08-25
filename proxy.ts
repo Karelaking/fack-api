@@ -87,7 +87,7 @@ function getProjectSlugFromSubdomain(host: string): string | null {
 /**
  * Next.js Proxy function — runs before every matched request.
  */
-export function proxy(request: NextRequest) {
+export function proxy(request: NextRequest): NextResponse {
   const { pathname } = request.nextUrl;
   const host = request.headers.get("host") || "";
   proxyTrace.traceCall("proxy", request.method, pathname, host);
@@ -95,11 +95,19 @@ export function proxy(request: NextRequest) {
   // ── Detect System/Dashboard Paths ────────────────────────────────────────
   const isSystemPath =
     pathname === "/" ||
-    pathname.startsWith("/_next/") ||
+    pathname === "/dashboard" ||
+    pathname.startsWith("/dashboard/") ||
     pathname.startsWith("/projects/") ||
     pathname.startsWith("/api/typescript/") ||
     pathname.startsWith("/api/mock/") ||
-    pathname.match(/\.(?:svg|png|jpg|jpeg|gif|webp|css|js|ico)$/) !== null;
+    pathname.startsWith("/_next/") ||
+    pathname === "/opengraph-image" ||
+    pathname.startsWith("/opengraph-image/") ||
+    pathname === "/robots.txt" ||
+    pathname === "/sitemap.xml" ||
+    pathname.match(
+      /\.(?:svg|png|jpg|jpeg|gif|webp|css|js|ico|txt|xml|json)$/,
+    ) !== null;
 
   // ── CORS Preflight ───────────────────────────────────────────────────────
   // Handle OPTIONS requests for mock API paths or custom domain endpoints

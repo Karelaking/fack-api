@@ -1,13 +1,9 @@
-import { getProjects } from "@/lib/actions/projects";
-import { ProjectGrid } from "@/components/dashboard/ProjectGrid";
-
-export const dynamic = "force-dynamic";
+import { LandingPage } from "@/components/landing/LandingPage";
 
 /**
- * Next.js App Router Page.
- * Fetches initial projects list on the server and mounts the interactive ProjectGrid.
+ * Root Landing Page for Fack API's.
+ * Styled after schemaflow.studio.
  */
-export default async function RootPage() {
-  const projects = await getProjects();
-  return <ProjectGrid initialProjects={projects} />;
+export default function RootPage() {
+  return <LandingPage />;
 }

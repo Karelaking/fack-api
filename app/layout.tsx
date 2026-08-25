@@ -6,21 +6,15 @@ import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
 
-import { getProjects } from "@/lib/actions/projects";
-import { Separator } from "@/components/ui/separator";
-import { DashboardBreadcrumbs } from "@/components/dashboard/DashboardBreadcrumbs";
-import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
-import { HeaderNewProjectButton } from "@/components/dashboard/HeaderNewProjectButton";
-import { MobileBottomNav } from "@/components/dashboard/MobileBottomNav";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { CommandMenu } from "@/components/command-menu";
-
 const inter = Inter({
   variable: "--font-sans",
   subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
+  ),
   title: "Fack API's — Mock API Platform",
   description:
     "High-performance, open-source mock API platform with visual React Flow editor and dynamic payload synthesis.",
@@ -39,13 +33,11 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const projects = await getProjects();
-
   return (
     <html
       lang="en"
@@ -61,29 +53,7 @@ export default async function RootLayout({
         >
           <TooltipProvider>
             <Analytics />
-            <SidebarProvider>
-              <div className="bg-background flex h-screen w-full max-w-full overflow-hidden">
-                {/* Sidebar component */}
-                <DashboardSidebar initialProjects={projects} />
-
-                {/* Main Content Area */}
-                <main className="relative flex min-w-0 flex-1 flex-col overflow-hidden">
-                  <header className="border-border bg-card flex h-14 shrink-0 items-center justify-between border-b px-4">
-                    <div className="flex items-center gap-2">
-                      <SidebarTrigger className="h-9 w-9" />
-                      <Separator orientation="vertical" className="h-4" />
-                      <DashboardBreadcrumbs projects={projects} />
-                    </div>
-                    <HeaderNewProjectButton />
-                  </header>
-                  <div className="bg-background flex-1 overflow-auto pb-14 md:pb-0">
-                    {children}
-                  </div>
-                  <MobileBottomNav />
-                </main>
-              </div>
-            </SidebarProvider>
-            <CommandMenu />
+            {children}
             <Toaster position="top-right" richColors />
           </TooltipProvider>
         </ThemeProvider>
