@@ -14,11 +14,51 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { ConditionalRule } from "@/lib/mock-engine";
+import { toast } from "sonner";
 
 interface RulesEditorProps {
   rules: ConditionalRule[];
   onRulesChange: (rules: ConditionalRule[]) => void;
 }
+
+const RULE_PRESETS: { label: string; rule: Omit<ConditionalRule, "id"> }[] = [
+  {
+    label: "401 If No Auth Header",
+    rule: {
+      type: "header",
+      key: "authorization",
+      operator: "exists",
+      value: "",
+      responseStatus: 401,
+      responseBody:
+        '{\n  "error": "Unauthorized",\n  "message": "Missing authorization header"\n}',
+    },
+  },
+  {
+    label: "404 On Not Found ID",
+    rule: {
+      type: "query",
+      key: "id",
+      operator: "equals",
+      value: "999",
+      responseStatus: 404,
+      responseBody:
+        '{\n  "error": "Not Found",\n  "message": "Record 999 does not exist"\n}',
+    },
+  },
+  {
+    label: "500 On ?error=true",
+    rule: {
+      type: "query",
+      key: "error",
+      operator: "equals",
+      value: "true",
+      responseStatus: 500,
+      responseBody:
+        '{\n  "error": "Internal Server Error",\n  "message": "Simulated server failure"\n}',
+    },
+  },
+];
 
 export const RulesEditor = ({
   rules,
@@ -35,6 +75,15 @@ export const RulesEditor = ({
       responseBody: "",
     };
     onRulesChange([...rules, newRule]);
+  };
+
+  const handleAddPreset = (preset: (typeof RULE_PRESETS)[number]) => {
+    const newRule: ConditionalRule = {
+      id: crypto.randomUUID(),
+      ...preset.rule,
+    };
+    onRulesChange([...rules, newRule]);
+    toast.success(`Added "${preset.label}" rule`);
   };
 
   const handleRemove = (id: string) => {
@@ -73,16 +122,49 @@ export const RulesEditor = ({
         </Button>
       </div>
 
+      {/* Quick Rule Presets */}
+      <div className="space-y-1">
+        <span className="text-muted-foreground block text-[9.5px] font-bold tracking-wider uppercase">
+          Rule Presets
+        </span>
+        <div className="flex flex-wrap gap-1">
+          {RULE_PRESETS.map((preset) => (
+            <button
+              key={preset.label}
+              type="button"
+              onClick={() => handleAddPreset(preset)}
+              className="bg-muted/40 hover:bg-muted border-border text-foreground hover:border-muted-foreground/30 flex cursor-pointer items-center gap-1 border px-2 py-0.5 font-mono text-[9.5px] transition-colors"
+            >
+              <RiAddLine className="text-muted-foreground h-2.5 w-2.5" />
+              <span>{preset.label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
       {rules.length === 0 ? (
-        <div className="bg-muted/30 text-muted-foreground border border-dashed p-5 text-center text-xs italic">
-          No conditional rules added.
+        <div className="bg-muted/20 border-border/80 flex flex-col items-center justify-center space-y-1.5 border border-dashed p-6 text-center">
+          <span className="text-xs font-semibold">No rules configured</span>
+          <p className="text-muted-foreground max-w-64 text-[10px] leading-normal">
+            Rules allow matching requests (e.g. `?error=true`) to return dynamic
+            mock status codes and JSON payloads.
+          </p>
+          <Button
+            type="button"
+            size="xs"
+            variant="secondary"
+            onClick={handleAdd}
+            className="h-6.5 px-2 text-[10px] font-bold"
+          >
+            Create First Rule
+          </Button>
         </div>
       ) : (
         <div className="space-y-3">
           {rules.map((rule) => (
             <div
               key={rule.id}
-              className="bg-muted/20 border-border/60 relative space-y-2.5 border p-3"
+              className="bg-card border-border relative space-y-2.5 border p-3 shadow-xs"
             >
               {/* Condition trigger configuration */}
               <div className="flex flex-wrap items-center gap-1.5 pr-6">

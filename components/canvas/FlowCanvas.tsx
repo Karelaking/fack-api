@@ -29,6 +29,7 @@ import { EndpointGroupNode } from "./EndpointGroupNode";
 import { AddRouteDialog } from "./AddRouteDialog";
 import type { Endpoint, Route } from "@/db/schema";
 import { RiLoader2Line } from "@remixicon/react";
+import { useTheme } from "@/components/theme-provider";
 
 // Custom Node Types registered on React Flow canvas
 const nodeTypes = {
@@ -65,6 +66,7 @@ function FlowCanvasInner({
 }: FlowCanvasInnerProps): React.JSX.Element {
   const reactFlowInstance = useReactFlow();
   const router = useRouter();
+  const { resolvedTheme } = useTheme();
   const [dialogOpen, setDialogOpen] = React.useState(false);
 
   // Listen for global open-add-route event and query params
@@ -440,7 +442,7 @@ function FlowCanvasInner({
   );
 
   return (
-    <div className="bg-card relative h-full w-full overflow-hidden">
+    <div className="dark:bg-card relative h-full w-full overflow-hidden bg-slate-50/70">
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -450,20 +452,32 @@ function FlowCanvasInner({
         onNodeClick={handleNodeClick}
         nodeTypes={nodeTypes}
         fitView
-        colorMode="system"
+        colorMode={resolvedTheme}
         deleteKeyCode={null}
       >
         <Background
-          variant={BackgroundVariant.Lines}
-          gap={16}
-          size={1}
-          className="opacity-60"
+          variant={BackgroundVariant.Dots}
+          gap={20}
+          size={1.5}
+          className="opacity-70 dark:opacity-40"
+          color={resolvedTheme === "dark" ? "#52525b" : "#94a3b8"}
         />
-        <Controls className="bg-card! border-border!" />
+        <Controls className="bg-card! border-border! shadow-xs!" />
         <MiniMap
           zoomable
           pannable
-          className="bg-card! border-border! h-[75px]! w-[100px]! sm:h-[110px]! sm:w-[150px]! md:h-[150px]! md:w-[200px]!"
+          nodeColor={(node) => {
+            if (node.type === "endpointGroup") {
+              return resolvedTheme === "dark" ? "#27272a" : "#e2e8f0";
+            }
+            return resolvedTheme === "dark" ? "#6366f1" : "#4f46e5";
+          }}
+          maskColor={
+            resolvedTheme === "dark"
+              ? "rgba(0, 0, 0, 0.6)"
+              : "rgba(241, 245, 249, 0.7)"
+          }
+          className="bg-card! border-border! h-[75px]! w-[100px]! shadow-xs! sm:h-[110px]! sm:w-[150px]! md:h-[150px]! md:w-[200px]!"
         />
       </ReactFlow>
 

@@ -141,6 +141,35 @@
   height: 0;
 }
 
+/* React Flow theme integration */
+.react-flow {
+  --xy-background-color: transparent;
+  --xy-controls-button-background-color: var(--card);
+  --xy-controls-button-background-color-hover: var(--accent);
+  --xy-controls-button-color: var(--foreground);
+  --xy-controls-button-color-hover: var(--foreground);
+  --xy-controls-button-border-color: var(--border);
+  --xy-controls-box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.08);
+  --xy-minimap-background-color: var(--card);
+  --xy-minimap-mask-background-color: var(--muted);
+  --xy-minimap-mask-stroke-color: var(--border);
+}
+
+.react-flow__controls button {
+  background-color: var(--card) !important;
+  border-bottom: 1px solid var(--border) !important;
+  color: var(--foreground) !important;
+  fill: var(--foreground) !important;
+}
+
+.react-flow__controls button:hover {
+  background-color: var(--accent) !important;
+}
+
+.react-flow__controls button svg {
+  fill: currentColor !important;
+}
+
 /* React Flow attribution link accessibility override */
 .react-flow__attribution a {
   color: oklch(0.45 0 0) !important;

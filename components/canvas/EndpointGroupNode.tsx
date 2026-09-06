@@ -24,14 +24,15 @@ export function EndpointGroupNode({
   return (
     <div
       className={cn(
-        "bg-muted/5 relative h-full w-full border-2 border-dashed p-4 transition-all duration-300",
+        "relative h-full w-full border-2 border-dashed p-4 transition-all duration-300",
+        "dark:bg-muted/5 bg-white/70",
         selected
-          ? "border-primary/50 bg-muted/10 shadow-primary/2 shadow-lg"
-          : "border-border/80 hover:border-muted-foreground/30",
+          ? "border-primary/60 dark:bg-muted/10 shadow-primary/5 bg-white/95 shadow-lg"
+          : "dark:border-border/80 dark:hover:border-muted-foreground/30 border-slate-300 hover:border-slate-400",
       )}
     >
       {/* Dynamic Grid Background Pattern */}
-      <div className="absolute inset-0 -z-10 bg-[linear-gradient(to_right,#808080_1px,transparent_1px),linear-gradient(to_bottom,#808080_1px,transparent_1px)] bg-size-[14px_24px] opacity-[0.03] dark:opacity-[0.05]" />
+      <div className="absolute inset-0 -z-10 bg-[linear-gradient(to_right,#808080_1px,transparent_1px),linear-gradient(to_bottom,#808080_1px,transparent_1px)] bg-size-[14px_24px] opacity-[0.04] dark:opacity-[0.05]" />
 
       {/* NodeResizer for scaling bounding containers */}
       <NodeResizer
@@ -39,11 +40,11 @@ export function EndpointGroupNode({
         minHeight={160}
         isVisible={selected}
         lineClassName="border-primary"
-        handleClassName="h-3.5 w-3.5 rounded-full border-2 border-primary bg-background shadow-sm hover:scale-110 transition-transform"
+        handleClassName="h-3.5 w-3.5 rounded-full border-2 border-primary bg-background shadow-xs hover:scale-110 transition-transform"
       />
 
       <div
-        className="text-muted-foreground border-border/40 mb-4 flex shrink-0 items-center gap-2 border-b pb-2"
+        className="text-muted-foreground dark:border-border/40 mb-4 flex shrink-0 items-center gap-2 border-b border-slate-200 pb-2"
         style={{ contentVisibility: "auto" }}
       >
         <RiFolderOpenLine className="text-primary h-4 w-4 shrink-0 animate-pulse" />

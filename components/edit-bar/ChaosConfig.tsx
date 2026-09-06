@@ -4,6 +4,15 @@ import * as React from "react";
 import { RiTimeLine, RiAlertLine } from "@remixicon/react";
 import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
+
+const CHAOS_PRESETS = [
+  { label: "Normal", min: 0, max: 0, err: 0 },
+  { label: "Fast 4G", min: 50, max: 150, err: 0 },
+  { label: "Slow 3G", min: 1000, max: 2000, err: 0 },
+  { label: "Flaky", min: 200, max: 500, err: 15 },
+  { label: "Severe", min: 2000, max: 4000, err: 50 },
+] as const;
 
 interface ChaosConfigProps {
   latencyMin: number;
@@ -53,6 +62,52 @@ export function ChaosConfig({
 
   return (
     <div className="space-y-4">
+      {/* Quick Simulation Presets */}
+      <div className="space-y-1.5">
+        <span className="text-muted-foreground block text-[10px] font-bold tracking-wider uppercase">
+          Quick Simulation Presets
+        </span>
+        <div className="grid grid-cols-5 gap-1.5">
+          {CHAOS_PRESETS.map((preset) => {
+            const isMatch =
+              latencyMin === preset.min &&
+              latencyMax === preset.max &&
+              errorRate === preset.err;
+            return (
+              <button
+                key={preset.label}
+                type="button"
+                onClick={() => {
+                  onLatencyMinChange(preset.min);
+                  onLatencyMaxChange(preset.max);
+                  onErrorRateChange(preset.err);
+                }}
+                className={cn(
+                  "flex cursor-pointer flex-col items-center gap-0.5 border p-1.5 text-center transition-all",
+                  isMatch
+                    ? "bg-primary text-primary-foreground border-primary shadow-xs"
+                    : "bg-muted/30 hover:bg-muted border-border text-foreground",
+                )}
+              >
+                <span className="text-[10px] leading-none font-bold">
+                  {preset.label}
+                </span>
+                <span
+                  className={cn(
+                    "max-w-full truncate font-mono text-[8px] leading-tight",
+                    isMatch
+                      ? "text-primary-foreground/80"
+                      : "text-muted-foreground",
+                  )}
+                >
+                  {preset.err > 0 ? `${preset.err}% err` : `${preset.max}ms`}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Latency Section */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
