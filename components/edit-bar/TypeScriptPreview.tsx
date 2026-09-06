@@ -98,7 +98,7 @@ export function TypeScriptPreview({
         </DialogHeader>
 
         {/* Code Viewport */}
-        <div className="bg-muted border-border text-foreground relative min-h-0 flex-1 overflow-auto rounded-lg border p-4 font-mono text-xs">
+        <div className="bg-muted border-border text-foreground relative min-h-0 flex-1 overflow-auto border p-4 font-mono text-xs">
           {loading ? (
             <div className="bg-muted/50 absolute inset-0 flex items-center justify-center">
               <RiLoader2Line className="text-primary h-6 w-6 animate-spin" />

@@ -267,7 +267,7 @@ export function ProjectGrid({
             aria-label="Sort by"
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as "updated" | "name")}
-            className="bg-card border-border text-foreground rounded border px-2 py-1 font-medium focus:outline-none"
+            className="bg-card border-border text-foreground border px-2 py-1 font-medium focus:outline-none"
           >
             <option value="updated">Last Updated</option>
             <option value="name">Project Name</option>
@@ -324,7 +324,7 @@ export function ProjectGrid({
                 <CardHeader className="p-4 pb-2">
                   <div className="flex items-center justify-between gap-2">
                     <div
-                      className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border ${theme.bg}`}
+                      className={`flex h-7 w-7 shrink-0 items-center justify-center border ${theme.bg}`}
                     >
                       <RiTerminalBoxLine className="h-3.5 w-3.5" />
                     </div>
@@ -363,7 +363,7 @@ export function ProjectGrid({
                       <span>{proj.name}</span>
                       <RiMagicLine className="text-primary h-3.5 w-3.5 shrink-0 opacity-0 transition-opacity group-hover:opacity-100" />
                     </Link>
-                    <span className="text-muted-foreground bg-muted border-border/40 inline-flex max-w-full truncate rounded border px-1.5 py-0.5 font-mono text-[9px] font-semibold">
+                    <span className="text-muted-foreground bg-muted border-border/40 inline-flex max-w-full truncate border px-1.5 py-0.5 font-mono text-[9px] font-semibold">
                       /{proj.slug}
                     </span>
                   </div>

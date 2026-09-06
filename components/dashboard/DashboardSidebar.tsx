@@ -139,7 +139,7 @@ export const DashboardSidebar = ({
               alt="Fack API's Logo"
               width={24}
               height={24}
-              className="h-6 w-6 rounded-md object-cover"
+              className="h-6 w-6 object-cover"
             />
             <span>Fack API&apos;s</span>
           </Link>
@@ -220,7 +220,7 @@ export const DashboardSidebar = ({
                                   key={subItem.path}
                                   href={`/projects/${proj.slug}/${subItem.path}`}
                                   className={cn(
-                                    "flex items-center gap-2 rounded px-2.5 py-1 text-xs font-medium transition-all select-none",
+                                    "flex items-center gap-2 px-2.5 py-1 text-xs font-medium transition-all select-none",
                                     isSubActive
                                       ? "bg-primary/10 text-primary font-semibold"
                                       : "text-muted-foreground hover:text-foreground hover:bg-accent/40",
@@ -249,10 +249,10 @@ export const DashboardSidebar = ({
               </SidebarGroupLabel>
               <div className="space-y-3.5 px-2 py-2">
                 {/* Method & Path Display */}
-                <div className="bg-muted/40 border-border/40 flex items-center gap-2 rounded-lg border p-2">
+                <div className="bg-muted/40 border-border/40 flex items-center gap-2 border p-2">
                   <span
                     className={cn(
-                      "shrink-0 rounded-md px-2 py-0.5 text-[9.5px] font-extrabold tracking-wider uppercase",
+                      "shrink-0 px-2 py-0.5 text-[9.5px] font-extrabold tracking-wider uppercase",
                       selectedRoute.method.toUpperCase() === "GET" &&
                         "border border-emerald-500/20 bg-emerald-500/15 text-emerald-500",
                       selectedRoute.method.toUpperCase() === "POST" &&
@@ -277,7 +277,7 @@ export const DashboardSidebar = ({
                   <span className="text-muted-foreground block px-0.5 text-[8px] font-bold tracking-wider uppercase">
                     Mock URL
                   </span>
-                  <div className="bg-background border-border/80 flex items-center gap-1.5 rounded-md border p-1.5 shadow-xs">
+                  <div className="bg-background border-border/80 flex items-center gap-1.5 border p-1.5 shadow-xs">
                     <span className="text-foreground flex-1 truncate pl-1 font-mono text-[11px] leading-normal font-bold select-all">
                       {selectedRoute.mockUrl}
                     </span>
@@ -285,7 +285,7 @@ export const DashboardSidebar = ({
                       type="button"
                       size="icon"
                       variant="ghost"
-                      className="text-muted-foreground hover:text-foreground h-7 w-7 shrink-0 rounded"
+                      className="text-muted-foreground hover:text-foreground h-7 w-7 shrink-0"
                       title="Copy Mock Endpoint URL"
                       aria-label="Copy Mock Endpoint URL"
                       onClick={async () => {
@@ -309,7 +309,7 @@ export const DashboardSidebar = ({
                   <span className="text-muted-foreground block px-0.5 text-[8px] font-bold tracking-wider uppercase">
                     Query Parameters
                   </span>
-                  <div className="bg-muted/20 border-border/50 max-h-48 space-y-1 overflow-y-auto rounded-lg border p-2 pr-0.5">
+                  <div className="bg-muted/20 border-border/50 max-h-48 space-y-1 overflow-y-auto border p-2 pr-0.5">
                     {[
                       { param: "?limit=5", desc: "Limit output array items" },
                       { param: "?q=search", desc: "Global text search" },
@@ -324,7 +324,7 @@ export const DashboardSidebar = ({
                       return (
                         <div
                           key={oIdx}
-                          className="hover:bg-background hover:border-border/30 flex items-center justify-between gap-2 rounded-md border border-transparent px-1.5 py-1 transition-colors"
+                          className="hover:bg-background hover:border-border/30 flex items-center justify-between gap-2 border border-transparent px-1.5 py-1 transition-colors"
                         >
                           <div className="flex min-w-0 flex-1 flex-col">
                             <span className="text-primary truncate font-mono text-[9.5px] leading-normal font-bold">
@@ -338,7 +338,7 @@ export const DashboardSidebar = ({
                             type="button"
                             size="icon"
                             variant="ghost"
-                            className="text-muted-foreground hover:text-foreground h-6 w-6 shrink-0 rounded"
+                            className="text-muted-foreground hover:text-foreground h-6 w-6 shrink-0"
                             title="Copy parameter URL"
                             aria-label="Copy parameter URL"
                             onClick={async () => {

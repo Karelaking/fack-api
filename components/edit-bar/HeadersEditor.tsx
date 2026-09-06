@@ -57,7 +57,7 @@ export const HeadersEditor = ({
       </div>
 
       {headers.length === 0 ? (
-        <div className="bg-muted/30 text-muted-foreground rounded-lg border border-dashed p-5 text-center text-xs italic">
+        <div className="bg-muted/30 text-muted-foreground border border-dashed p-5 text-center text-xs italic">
           No custom headers configured. (Default: Content-Type:
           application/json)
         </div>

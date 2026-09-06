@@ -197,7 +197,7 @@ export const RouteNode = ({
         }
       }}
       className={cn(
-        "bg-card/90 border-border/80 flex w-52 cursor-pointer flex-col rounded-lg border border-l-4 shadow-sm backdrop-blur-md transition-all duration-300 select-none",
+        "bg-card/90 border-border/80 flex w-52 cursor-pointer flex-col border border-l-4 shadow-sm backdrop-blur-md transition-all duration-300 select-none",
         theme.border,
         theme.glow,
         selected
@@ -242,7 +242,7 @@ export const RouteNode = ({
           {/* Status code view */}
           <span
             className={cn(
-              "border-border/10 flex shrink-0 items-center gap-0.5 rounded border px-1 py-0.5 font-mono text-[8px] font-bold",
+              "border-border/10 flex shrink-0 items-center gap-0.5 border px-1 py-0.5 font-mono text-[8px] font-bold",
               statusBadgeClass,
             )}
           >
@@ -260,7 +260,7 @@ export const RouteNode = ({
             type="button"
             size="icon"
             variant="ghost"
-            className="text-muted-foreground hover:text-foreground hover:bg-muted/80 h-6 w-6 rounded p-0 transition-colors"
+            className="text-muted-foreground hover:text-foreground hover:bg-muted/80 h-6 w-6 p-0 transition-colors"
             title="Edit Route"
             aria-label="Edit Route"
             onClick={(e) => {
@@ -281,7 +281,7 @@ export const RouteNode = ({
 
       {/* Path & Config Display */}
       <div className="flex flex-col gap-1.5 px-2.5 py-2">
-        <span className="text-foreground bg-muted/30 hover:bg-muted/50 border-border/30 line-clamp-1 rounded border px-1 py-0.5 font-mono text-[10.5px] leading-normal font-bold break-all transition-colors">
+        <span className="text-foreground bg-muted/30 hover:bg-muted/50 border-border/30 line-clamp-1 border px-1 py-0.5 font-mono text-[10.5px] leading-normal font-bold break-all transition-colors">
           {data.path}
         </span>
 
@@ -289,19 +289,19 @@ export const RouteNode = ({
         {(schemaKeysCount > 0 || headersKeysCount > 0 || rulesCount > 0) && (
           <div className="mt-0.5 flex flex-wrap gap-1">
             {schemaKeysCount > 0 && (
-              <span className="inline-flex items-center gap-0.5 rounded border border-emerald-500/10 bg-emerald-500/10 px-1 py-0.5 text-[8px] font-bold text-emerald-500">
+              <span className="inline-flex items-center gap-0.5 border border-emerald-500/10 bg-emerald-500/10 px-1 py-0.5 text-[8px] font-bold text-emerald-500">
                 <RiCodeLine className="h-3 w-3 shrink-0" />
                 <span>JSON ({schemaKeysCount})</span>
               </span>
             )}
             {headersKeysCount > 0 && (
-              <span className="inline-flex items-center gap-0.5 rounded border border-blue-500/10 bg-blue-500/10 px-1 py-0.5 text-[8px] font-bold text-blue-500">
+              <span className="inline-flex items-center gap-0.5 border border-blue-500/10 bg-blue-500/10 px-1 py-0.5 text-[8px] font-bold text-blue-500">
                 <RiEqualizerLine className="h-3 w-3 shrink-0" />
                 <span>Headers ({headersKeysCount})</span>
               </span>
             )}
             {rulesCount > 0 && (
-              <span className="inline-flex items-center gap-0.5 rounded border border-purple-500/10 bg-purple-500/10 px-1 py-0.5 text-[8px] font-bold text-purple-500">
+              <span className="inline-flex items-center gap-0.5 border border-purple-500/10 bg-purple-500/10 px-1 py-0.5 text-[8px] font-bold text-purple-500">
                 <RiGitBranchLine className="h-3 w-3 shrink-0" />
                 <span>Rules ({rulesCount})</span>
               </span>
@@ -312,9 +312,9 @@ export const RouteNode = ({
 
       {/* Node Footer indicators */}
       {(hasLatency || hasErrors) && (
-        <div className="bg-muted/30 border-border/30 text-muted-foreground flex items-center justify-between rounded-b-lg border-t px-2.5 py-1 text-[8px] font-bold">
+        <div className="bg-muted/30 border-border/30 text-muted-foreground flex items-center justify-between border-t px-2.5 py-1 text-[8px] font-bold">
           {hasLatency ? (
-            <div className="flex items-center gap-0.5 rounded border border-amber-500/10 bg-amber-500/5 px-1 py-0.5 text-amber-500">
+            <div className="flex items-center gap-0.5 border border-amber-500/10 bg-amber-500/5 px-1 py-0.5 text-amber-500">
               <RiTimeLine className="h-2.5 w-2.5 shrink-0 text-amber-500" />
               <span>
                 {data.latencyMin === data.latencyMax
@@ -326,7 +326,7 @@ export const RouteNode = ({
             <div />
           )}
           {hasErrors && (
-            <div className="flex items-center gap-0.5 rounded border border-rose-500/10 bg-rose-500/5 px-1 py-0.5 text-rose-500">
+            <div className="flex items-center gap-0.5 border border-rose-500/10 bg-rose-500/5 px-1 py-0.5 text-rose-500">
               <RiAlertLine className="h-2.5 w-2.5 shrink-0 animate-pulse text-rose-500" />
               <span>{data.errorRate}% Err</span>
             </div>

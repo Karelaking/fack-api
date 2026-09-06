@@ -60,7 +60,7 @@ export function ChaosConfig({
             <RiTimeLine className="h-3.5 w-3.5 text-amber-500" />
             <h3 className="text-xs font-semibold">Simulated Latency</h3>
           </div>
-          <span className="bg-muted border-border rounded border px-1.5 py-0.5 font-mono text-[11px] font-medium">
+          <span className="bg-muted border-border border px-1.5 py-0.5 font-mono text-[11px] font-medium">
             {latencyMin === latencyMax
               ? `${latencyMin} ms`
               : `${latencyMin} - ${latencyMax} ms`}
@@ -111,7 +111,7 @@ export function ChaosConfig({
             <RiAlertLine className="text-destructive h-3.5 w-3.5" />
             <h3 className="text-xs font-semibold">Probabilistic Failures</h3>
           </div>
-          <span className="bg-muted border-border rounded border px-1.5 py-0.5 font-mono text-[11px] font-medium">
+          <span className="bg-muted border-border border px-1.5 py-0.5 font-mono text-[11px] font-medium">
             {errorRate}% chance
           </span>
         </div>

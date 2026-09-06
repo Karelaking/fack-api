@@ -142,13 +142,13 @@ export const ProjectLogs = ({
               className="h-9 pl-9 text-xs"
             />
           </div>
-          <div className="bg-muted/30 flex rounded-md border p-0.5">
+          <div className="bg-muted/30 flex border p-0.5">
             {(["all", "2xx", "3xx", "4xx", "5xx"] as const).map((filter) => (
               <button
                 key={filter}
                 onClick={() => setStatusFilter(filter)}
                 className={cn(
-                  "rounded-sm px-2.5 py-1 text-[10px] font-bold tracking-wide uppercase transition-all",
+                  "px-2.5 py-1 text-[10px] font-bold tracking-wide uppercase transition-all",
                   statusFilter === filter
                     ? "bg-background text-foreground border-border/20 border shadow-xs"
                     : "text-muted-foreground hover:text-foreground",
@@ -193,7 +193,7 @@ export const ProjectLogs = ({
       </div>
 
       {/* Main logs display grid */}
-      <div className="bg-card flex-1 overflow-y-auto rounded-lg border">
+      <div className="bg-card flex-1 overflow-y-auto border">
         {filteredLogs.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-3 py-20 text-center">
             <RiTerminalBoxLine className="text-muted-foreground/30 h-10 w-10" />
@@ -253,7 +253,7 @@ export const ProjectLogs = ({
                     <Badge
                       variant="outline"
                       className={cn(
-                        "rounded px-1.5 py-0.5 text-[9px] font-bold tracking-wider uppercase",
+                        "px-1.5 py-0.5 text-[9px] font-bold tracking-wider uppercase",
                         getMethodBadgeClass(log.method),
                       )}
                     >
@@ -266,7 +266,7 @@ export const ProjectLogs = ({
                       <Badge
                         variant="outline"
                         className={cn(
-                          "border-border/10 py-0.2 rounded px-1 font-mono text-[10px]",
+                          "border-border/10 py-0.2 px-1 font-mono text-[10px]",
                           log.latency > 1000
                             ? "bg-rose-500/5 text-rose-500"
                             : log.latency > 200
@@ -280,7 +280,7 @@ export const ProjectLogs = ({
                     <Badge
                       variant="outline"
                       className={cn(
-                        "rounded-full px-2 py-0.5 font-mono text-[10px] font-bold",
+                        "px-2 py-0.5 font-mono text-[10px] font-bold",
                         getStatusBadgeClass(log.statusCode),
                       )}
                     >
@@ -307,7 +307,7 @@ export const ProjectLogs = ({
                               No request headers found
                             </div>
                           ) : (
-                            <div className="bg-card max-h-32 space-y-0.5 overflow-x-auto rounded border p-2">
+                            <div className="bg-card max-h-32 space-y-0.5 overflow-x-auto border p-2">
                               {Object.entries(parsedHeaders).map(([k, v]) => (
                                 <div key={k} className="flex gap-1.5">
                                   <span className="text-primary shrink-0 font-semibold">
@@ -332,7 +332,7 @@ export const ProjectLogs = ({
                               No query parameters sent
                             </div>
                           ) : (
-                            <div className="bg-card max-h-32 space-y-0.5 overflow-x-auto rounded border p-2">
+                            <div className="bg-card max-h-32 space-y-0.5 overflow-x-auto border p-2">
                               {Object.entries(parsedQueryParams).map(
                                 ([k, v]) => (
                                   <div key={k} className="flex gap-1.5">
@@ -355,7 +355,7 @@ export const ProjectLogs = ({
                         <span className="text-muted-foreground text-[9px] font-bold tracking-wider uppercase">
                           Response Payload
                         </span>
-                        <div className="bg-muted max-h-60 overflow-y-auto rounded-md border p-2">
+                        <div className="bg-muted max-h-60 overflow-y-auto border p-2">
                           <pre className="text-xs leading-normal whitespace-pre-wrap select-all">
                             {formattedBody || "Empty Response"}
                           </pre>

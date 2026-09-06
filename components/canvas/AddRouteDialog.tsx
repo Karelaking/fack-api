@@ -143,7 +143,7 @@ export const AddRouteDialog = ({
             <div className="flex flex-col gap-2">
               <label className="text-sm font-semibold">Endpoint Group</label>
               {endpoints.length === 0 ? (
-                <div className="flex flex-col gap-1.5 rounded-lg border border-amber-500/20 bg-amber-500/10 p-3 text-xs text-amber-500">
+                <div className="flex flex-col gap-1.5 border border-amber-500/20 bg-amber-500/10 p-3 text-xs text-amber-500">
                   <span className="font-semibold">
                     No Endpoint Groups found.
                   </span>
@@ -236,7 +236,7 @@ export const AddRouteDialog = ({
                 disabled={loading || endpoints.length === 0}
               />
             </div>
-            <div className="bg-muted/10 flex items-center justify-between rounded-lg border p-3">
+            <div className="bg-muted/10 flex items-center justify-between border p-3">
               <div className="space-y-0.5">
                 <label
                   htmlFor="include-defaults"

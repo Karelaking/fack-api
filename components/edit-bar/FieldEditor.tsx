@@ -196,7 +196,7 @@ export const FieldEditor = ({
       {/* Field Row */}
       <div
         className={cn(
-          "border-border bg-card/65 hover:border-muted-foreground/15 relative flex flex-wrap items-center gap-1.5 rounded-md border px-2 py-1.5 transition-all",
+          "border-border bg-card/65 hover:border-muted-foreground/15 relative flex flex-wrap items-center gap-1.5 border px-2 py-1.5 transition-all",
           isDragOver && "border-primary/60 bg-primary/5",
           depth > 0 && "ml-3",
         )}

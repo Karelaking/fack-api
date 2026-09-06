@@ -74,7 +74,7 @@ export const RulesEditor = ({
       </div>
 
       {rules.length === 0 ? (
-        <div className="bg-muted/30 text-muted-foreground rounded-lg border border-dashed p-5 text-center text-xs italic">
+        <div className="bg-muted/30 text-muted-foreground border border-dashed p-5 text-center text-xs italic">
           No conditional rules added.
         </div>
       ) : (
@@ -82,7 +82,7 @@ export const RulesEditor = ({
           {rules.map((rule) => (
             <div
               key={rule.id}
-              className="bg-muted/20 border-border/60 relative space-y-2.5 rounded-lg border p-3"
+              className="bg-muted/20 border-border/60 relative space-y-2.5 border p-3"
             >
               {/* Condition trigger configuration */}
               <div className="flex flex-wrap items-center gap-1.5 pr-6">

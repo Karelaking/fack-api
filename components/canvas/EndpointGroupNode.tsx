@@ -24,14 +24,14 @@ export function EndpointGroupNode({
   return (
     <div
       className={cn(
-        "bg-muted/5 relative h-full w-full rounded-2xl border-2 border-dashed p-4 transition-all duration-300",
+        "bg-muted/5 relative h-full w-full border-2 border-dashed p-4 transition-all duration-300",
         selected
           ? "border-primary/50 bg-muted/10 shadow-primary/2 shadow-lg"
           : "border-border/80 hover:border-muted-foreground/30",
       )}
     >
       {/* Dynamic Grid Background Pattern */}
-      <div className="absolute inset-0 -z-10 rounded-2xl bg-[linear-gradient(to_right,#808080_1px,transparent_1px),linear-gradient(to_bottom,#808080_1px,transparent_1px)] bg-size-[14px_24px] opacity-[0.03] dark:opacity-[0.05]" />
+      <div className="absolute inset-0 -z-10 bg-[linear-gradient(to_right,#808080_1px,transparent_1px),linear-gradient(to_bottom,#808080_1px,transparent_1px)] bg-size-[14px_24px] opacity-[0.03] dark:opacity-[0.05]" />
 
       {/* NodeResizer for scaling bounding containers */}
       <NodeResizer

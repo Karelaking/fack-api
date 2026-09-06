@@ -330,7 +330,7 @@ export const ProjectEndpoints = ({
                     <CardTitle className="truncate text-lg">
                       {ep.name}
                     </CardTitle>
-                    <span className="bg-muted border-border text-muted-foreground mt-0.5 inline-block rounded border px-2 py-0.5 font-mono text-xs">
+                    <span className="bg-muted border-border text-muted-foreground mt-0.5 inline-block border px-2 py-0.5 font-mono text-xs">
                       Prefix: {ep.basePath || "/ (Root)"}
                     </span>
                   </div>

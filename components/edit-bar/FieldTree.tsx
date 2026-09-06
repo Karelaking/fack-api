@@ -42,7 +42,7 @@ export function FieldTree(): React.JSX.Element {
 
       {/* Fields List */}
       {fields.length === 0 ? (
-        <div className="bg-muted/30 flex flex-col items-center justify-center space-y-1.5 rounded-lg border border-dashed p-6 text-center">
+        <div className="bg-muted/30 flex flex-col items-center justify-center space-y-1.5 border border-dashed p-6 text-center">
           <RiQuestionLine className="text-muted-foreground/60 h-6 w-6 stroke-1" />
           <div className="text-xs font-semibold">No fields configured</div>
           <p className="text-muted-foreground max-w-60 text-[10px] leading-normal">

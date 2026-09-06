@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowUpRight, Layers } from "lucide-react";
+import { ArrowUpRight, ArrowRight, Layers } from "lucide-react";
 import dynamic from "next/dynamic";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AnimatedCounter } from "@/components/landing/AnimatedCounter";
@@ -110,6 +110,30 @@ export const HeroSection = (): React.JSX.Element => {
                 instant multi-format HTTP mock responses, and simulate edge
                 conditions seamlessly.
               </p>
+
+              {/* 3-Step Dashboard Workflow Guide */}
+              <div className="flex flex-wrap items-center gap-2 pt-1 font-mono text-[11px]">
+                <div className="border-border/60 bg-muted/40 text-foreground flex items-center gap-1.5 rounded-full border px-3 py-1">
+                  <span className="bg-foreground text-background flex size-4 items-center justify-center rounded-full text-[9px] font-bold">
+                    1
+                  </span>
+                  <span>Click + Add Route</span>
+                </div>
+                <ArrowRight className="text-muted-foreground hidden size-3 sm:inline" />
+                <div className="border-border/60 bg-muted/40 text-foreground flex items-center gap-1.5 rounded-full border px-3 py-1">
+                  <span className="bg-foreground text-background flex size-4 items-center justify-center rounded-full text-[9px] font-bold">
+                    2
+                  </span>
+                  <span>Pick Faker fields</span>
+                </div>
+                <ArrowRight className="text-muted-foreground hidden size-3 sm:inline" />
+                <div className="flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 font-bold text-emerald-400">
+                  <span className="flex size-4 items-center justify-center rounded-full bg-emerald-500 text-[9px] font-bold text-white">
+                    3
+                  </span>
+                  <span>Live /api/mock/... URL</span>
+                </div>
+              </div>
 
               {/* CTA Cluster */}
               <div className="gsap-animate flex flex-wrap items-center gap-3.5 pt-2">

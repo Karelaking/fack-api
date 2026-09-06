@@ -198,7 +198,7 @@ export function ProjectSettings({
             </div>
             <div
               className={cn(
-                "bg-muted/10 flex items-center justify-between rounded-lg border p-4",
+                "bg-muted/10 flex items-center justify-between border p-4",
                 !isLogsDbConfigured && "border-amber-500/20 bg-amber-500/5",
               )}
             >
@@ -222,7 +222,7 @@ export function ProjectSettings({
                 disabled={loading || !isLogsDbConfigured}
               />
             </div>
-            <div className="bg-muted/10 flex items-center justify-between rounded-lg border p-4">
+            <div className="bg-muted/10 flex items-center justify-between border p-4">
               <div className="space-y-0.5">
                 <label
                   htmlFor="isCachingEnabled"

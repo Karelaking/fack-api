@@ -194,7 +194,7 @@ function EditBarInner({
       </SheetHeader>
 
       {/* Core Endpoint settings form fields (Method, Path, Status Code, Status Enabled) */}
-      <div className="bg-muted/15 border-border/40 mt-3 shrink-0 space-y-3 rounded-lg border p-3.5">
+      <div className="bg-muted/15 border-border/40 mt-3 shrink-0 space-y-3 border p-3.5">
         <div className="grid grid-cols-12 gap-3">
           {/* Method Selector */}
           <div className="col-span-4 flex flex-col gap-1">
@@ -208,7 +208,7 @@ function EditBarInner({
               id="route-method"
               value={method}
               onChange={(e) => setMethod(e.target.value as Route["method"])}
-              className="border-input bg-background focus-visible:ring-ring flex h-8 w-full rounded border px-2.5 py-1 text-xs font-bold shadow-xs focus-visible:ring-1 focus-visible:outline-none"
+              className="border-input bg-background focus-visible:ring-ring flex h-8 w-full border px-2.5 py-1 text-xs font-bold shadow-xs focus-visible:ring-1 focus-visible:outline-none"
               disabled={loading}
             >
               <option value="GET">GET</option>
@@ -259,7 +259,7 @@ function EditBarInner({
           </div>
 
           {/* Enabled Switch Row */}
-          <div className="bg-background col-span-6 mt-4.5 flex h-8 items-center justify-between rounded border border-dashed px-3 py-1">
+          <div className="bg-background col-span-6 mt-4.5 flex h-8 items-center justify-between border border-dashed px-3 py-1">
             <label
               htmlFor="route-enabled"
               className="text-muted-foreground cursor-pointer text-[10px] font-bold tracking-wider uppercase"
@@ -281,35 +281,23 @@ function EditBarInner({
         defaultValue="schema"
         className="mt-3 flex min-h-0 min-w-0 flex-1 flex-col"
       >
-        <TabsList className="bg-muted grid h-8.5 shrink-0 grid-cols-5 rounded-lg p-1">
-          <TabsTrigger
-            value="schema"
-            className="rounded-md px-1 text-[10.5px] font-bold"
-          >
+        <TabsList className="bg-muted grid h-8.5 shrink-0 grid-cols-5 p-1">
+          <TabsTrigger value="schema" className="px-1 text-[10.5px] font-bold">
             Schema
           </TabsTrigger>
-          <TabsTrigger
-            value="rules"
-            className="rounded-md px-1 text-[10.5px] font-bold"
-          >
+          <TabsTrigger value="rules" className="px-1 text-[10.5px] font-bold">
             Rules
           </TabsTrigger>
           <TabsTrigger
             value="behavior"
-            className="rounded-md px-1 text-[10.5px] font-bold"
+            className="px-1 text-[10.5px] font-bold"
           >
             Chaos
           </TabsTrigger>
-          <TabsTrigger
-            value="headers"
-            className="rounded-md px-1 text-[10.5px] font-bold"
-          >
+          <TabsTrigger value="headers" className="px-1 text-[10.5px] font-bold">
             Headers
           </TabsTrigger>
-          <TabsTrigger
-            value="preview"
-            className="rounded-md px-1 text-[10.5px] font-bold"
-          >
+          <TabsTrigger value="preview" className="px-1 text-[10.5px] font-bold">
             Preview
           </TabsTrigger>
         </TabsList>
@@ -365,7 +353,7 @@ function EditBarInner({
                 <span>Generate types</span>
               </Button>
             </div>
-            <div className="bg-muted min-h-0 flex-1 overflow-auto rounded-md border p-2 font-mono text-[10px]">
+            <div className="bg-muted min-h-0 flex-1 overflow-auto border p-2 font-mono text-[10px]">
               <pre>{schemaPreview}</pre>
             </div>
           </TabsContent>
