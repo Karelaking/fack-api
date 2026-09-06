@@ -6,29 +6,9 @@
  * for ID generation, slug creation, and date formatting.
  */
 
-import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
 import { nanoid } from "nanoid";
 
-/**
- * Merges Tailwind CSS classes with intelligent conflict resolution.
- * This is the standard utility function required by all shadcn/ui components.
- *
- * Uses `clsx` for conditional class joining and `tailwind-merge` to
- * resolve conflicting Tailwind utilities (e.g., `p-2` + `p-4` → `p-4`).
- *
- * @param inputs - Class values (strings, arrays, objects, conditionals)
- * @returns Merged, de-duplicated class string
- *
- * @example
- * ```ts
- * cn("px-4 py-2", isActive && "bg-primary", "px-6")
- * // → "py-2 px-6 bg-primary" (px-4 resolved to px-6)
- * ```
- */
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
+export { cn } from "cn";
 
 /**
  * Generates a compact, URL-safe unique identifier using nanoid.
