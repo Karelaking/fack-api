@@ -1,3 +1,14 @@
+# [1.5.0](https://github.com/Karelaking/fack-api/compare/v1.4.0...v1.5.0) (2026-09-07)
+
+### Bug Fixes
+
+- **utils:** restore clsx and tailwind-merge and remove problematic cn package ([5496b5e](https://github.com/Karelaking/fack-api/commit/5496b5e34c43d3b016d0e519f59e2b01f749cd5b))
+
+### Features
+
+- add pixel-perfect landing page for Fack API with interactive playground ([e292bc1](https://github.com/Karelaking/fack-api/commit/e292bc1e7f86ea8accfbd2acb83334382c455744))
+- enhance UI components with improved styling and new features ([6ac110a](https://github.com/Karelaking/fack-api/commit/6ac110ab06d786277f2fd8cec2e5e92d9d8d95a0))
+
 # [1.4.0](https://github.com/Karelaking/fack-api/compare/v1.3.0...v1.4.0) (2026-07-28)
 
 ### Features
