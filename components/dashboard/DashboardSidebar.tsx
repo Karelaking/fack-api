@@ -39,7 +39,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import Image from "next/image";
+import { BrandLogo } from "@/components/ui/brand-logo";
 
 interface DashboardSidebarProps {
   initialProjects: Project[];
@@ -132,14 +132,11 @@ export const DashboardSidebar = ({
         <SidebarHeader className="flex flex-row items-center justify-between px-4 py-3">
           <Link
             href="/"
-            className="flex items-center gap-2.5 text-lg font-bold tracking-tight"
+            className="group flex items-center gap-2.5 text-lg font-bold tracking-tight"
           >
-            <Image
-              src="/logo-v2.png"
-              alt="Fack API's Logo"
-              width={24}
-              height={24}
-              className="h-6 w-6 object-cover"
+            <BrandLogo
+              size={24}
+              className="h-6 w-6 transition-transform group-hover:scale-105"
             />
             <span>Fack API&apos;s</span>
           </Link>

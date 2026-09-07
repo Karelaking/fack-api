@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./public/logo-v2.png" alt="Fack API's Logo" width="120" height="120" style="border-radius: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.15);" />
+  <img src="./public/logo-v2.png" alt="Fack API's Logo" width="128" height="128" style="border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 10px 30px rgba(0,0,0,0.35);" />
 </p>
 
 <h1 align="center">🛠️ FACK API'S</h1>
@@ -83,27 +83,29 @@ graph TD
 
 ## 🛠️ Technology Stack
 
-| Component | Technology | Role |
-| :--- | :--- | :--- |
-| **Framework** | Next.js 16 (App Router) | Runtime container, rendering, and API handler |
-| **Flow Canvas** | React Flow (v12) | Topology graph canvas layout |
-| **UI Components** | Radix UI + Tailwind CSS v4 | Clean interface styling and accessibility |
-| **State Manager** | Zustand + Immer | Schema tree edits and node transformations |
-| **ORM** | Drizzle ORM | Database schema mapping and DDL generation |
-| **Database** | SQLite (@libsql/client) | Portable file-based storage engine |
-| **Mock Engine** | json-schema-faker + Faker.js | Synthetic mock payload parser |
-| **Route Matcher** | path-to-regexp | Fast Express-like matching |
-| **Type Compiler** | json-schema-to-typescript | Compiles schema trees into raw `.d.ts` strings |
+| Component         | Technology                   | Role                                           |
+| :---------------- | :--------------------------- | :--------------------------------------------- |
+| **Framework**     | Next.js 16 (App Router)      | Runtime container, rendering, and API handler  |
+| **Flow Canvas**   | React Flow (v12)             | Topology graph canvas layout                   |
+| **UI Components** | Radix UI + Tailwind CSS v4   | Clean interface styling and accessibility      |
+| **State Manager** | Zustand + Immer              | Schema tree edits and node transformations     |
+| **ORM**           | Drizzle ORM                  | Database schema mapping and DDL generation     |
+| **Database**      | SQLite (@libsql/client)      | Portable file-based storage engine             |
+| **Mock Engine**   | json-schema-faker + Faker.js | Synthetic mock payload parser                  |
+| **Route Matcher** | path-to-regexp               | Fast Express-like matching                     |
+| **Type Compiler** | json-schema-to-typescript    | Compiles schema trees into raw `.d.ts` strings |
 
 ---
 
 ## 🚀 Quick Start (Local Development)
 
 ### Prerequisites
+
 - Node.js 20+
 - pnpm (v10+)
 
 ### Step-by-Step Setup
+
 1. **Clone the repository** and enter the folder.
 2. **Install dependencies**:
    ```bash
@@ -127,6 +129,7 @@ graph TD
 To self-host Fack API's on your local network or server, you have two options:
 
 ### Option A: Pull Pre-built Image from Docker Hub
+
 You can pull and run the official pre-built image directly:
 
 ```bash
@@ -137,17 +140,19 @@ docker pull mkkatiyar277/fake-api:latest
 docker run -d -p 3000:3000 -v fack-data:/app/data mkkatiyar277/fake-api:latest
 ```
 
-*Note: Replace `latest` with a specific version tag if needed.*
+_Note: Replace `latest` with a specific version tag if needed._
 
 ### Option B: Build and Run with Docker Compose
+
 If you cloned the source repository and want to run it locally using Docker Compose:
 
 1. **Spin up the container**:
+
    ```bash
    docker compose up -d
    ```
 
-2. The dashboard will be accessible at `http://localhost:3000`. 
+2. The dashboard will be accessible at `http://localhost:3000`.
 3. Database and project topologies are persisted in the `fack-data` volume.
 
 ---
@@ -161,6 +166,7 @@ curl -X GET http://localhost:3000/mock/payment-service/v1/customers/cust_9923
 ```
 
 ### Response Payload:
+
 ```json
 {
   "id": "cust_9923",
