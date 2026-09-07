@@ -25,18 +25,15 @@ importers:
       "@xyflow/react":
         specifier: ^12.11.2
         version: 12.11.2(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(immer@11.1.15)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      better-sqlite3:
-        specifier: ^13.0.1
-        version: 13.0.1
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
-      clsx:
-        specifier: ^2.1.1
-        version: 2.1.1
       cmdk:
         specifier: ^1.1.1
         version: 1.1.1(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      cn:
+        specifier: ^0.2.6
+        version: 0.2.6
       consola:
         specifier: ^3.4.2
         version: 3.4.2
@@ -82,9 +79,6 @@ importers:
       sonner:
         specifier: ^2.0.7
         version: 2.0.7(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      tailwind-merge:
-        specifier: ^3.6.0
-        version: 3.6.0
       tw-animate-css:
         specifier: ^1.4.0
         version: 1.4.0
@@ -116,9 +110,6 @@ importers:
       "@tailwindcss/postcss":
         specifier: ^4
         version: 4.3.3
-      "@types/better-sqlite3":
-        specifier: ^7.6.13
-        version: 7.6.13
       "@types/node":
         specifier: ^26
         version: 26.1.1
@@ -3787,6 +3778,14 @@ packages:
     peerDependencies:
       react: ^18 || ^19 || ^19.0.0-rc
       react-dom: ^18 || ^19 || ^19.0.0-rc
+
+  cn@0.2.6:
+    resolution:
+      {
+        integrity: sha512-+i4L0zUGgRcEnhsxueVrP7iBGxBx5iD0WOTYg1MwFEu2ZyCmH5Ov2V1cul2Ht5UchRQQgftCf4be/RxspuW6QQ==,
+      }
+    engines: { node: ">=20" }
+    hasBin: true
 
   code-block-writer@13.0.3:
     resolution:
@@ -10461,6 +10460,7 @@ snapshots:
   "@types/better-sqlite3@7.6.13":
     dependencies:
       "@types/node": 26.1.1
+    optional: true
 
   "@types/chai@5.2.3":
     dependencies:
@@ -10944,6 +10944,7 @@ snapshots:
   better-sqlite3@13.0.1:
     dependencies:
       node-addon-api: 8.9.0
+    optional: true
 
   body-parser@2.3.0(supports-color@7.2.0):
     dependencies:
@@ -11086,6 +11087,8 @@ snapshots:
     transitivePeerDependencies:
       - "@types/react"
       - "@types/react-dom"
+
+  cn@0.2.6: {}
 
   code-block-writer@13.0.3: {}
 
@@ -12870,7 +12873,8 @@ snapshots:
       - "@babel/core"
       - babel-plugin-macros
 
-  node-addon-api@8.9.0: {}
+  node-addon-api@8.9.0:
+    optional: true
 
   node-emoji@2.2.0:
     dependencies:
