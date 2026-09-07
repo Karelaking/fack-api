@@ -12,6 +12,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { BrandLogo } from "@/components/ui/brand-logo";
 
 export type NavigationSection = {
   title: string;
@@ -113,13 +114,12 @@ export const LandingHeader = (): React.JSX.Element => {
         {/* Brand Logo */}
         <Link
           href="/"
-          className="group flex shrink-0 items-center gap-2 transition-opacity hover:opacity-90"
+          className="group flex shrink-0 items-center gap-2.5 transition-opacity hover:opacity-90"
         >
-          <div className="bg-foreground text-background flex size-8 items-center justify-center rounded-full font-bold shadow-xs transition-transform group-hover:scale-105">
-            <span className="font-mono text-xs font-black tracking-tighter">
-              f.
-            </span>
-          </div>
+          <BrandLogo
+            size={32}
+            className="size-8 transition-transform group-hover:scale-105"
+          />
           <span className="text-foreground text-lg font-extrabold tracking-tight">
             fackapi<span className="text-primary font-black">.</span>studio
           </span>
