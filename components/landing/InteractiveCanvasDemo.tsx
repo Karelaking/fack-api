@@ -358,7 +358,7 @@ export type ApiResponse = {
                       />
                       <span className="truncate font-bold">{f.key}</span>
                     </div>
-                    <span className="max-w-[120px] truncate text-[9.5px] font-normal text-sky-400">
+                    <span className="max-w-30 truncate text-[9.5px] font-normal text-sky-400">
                       {f.fakerProvider.replace("faker.", "")}
                     </span>
                   </button>

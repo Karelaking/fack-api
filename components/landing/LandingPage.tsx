@@ -261,10 +261,10 @@ export const LandingPage = (): React.JSX.Element => {
         >
           <div className="grid grid-cols-1 lg:grid-cols-2">
             {/* Left Hero Column: Light Blue/Indigo Glow */}
-            <div className="flex flex-col justify-center border-neutral-200 bg-gradient-to-tr from-blue-100/70 via-indigo-50/40 to-transparent p-8 lg:border-r lg:p-14 dark:border-neutral-800 dark:from-blue-950/30 dark:via-indigo-950/20">
+            <div className="flex flex-col justify-center border-neutral-200 bg-linear-to-tr from-blue-100/70 via-indigo-50/40 to-transparent p-8 lg:border-r lg:p-14 dark:border-neutral-800 dark:from-blue-950/30 dark:via-indigo-950/20">
               <div className="space-y-6">
                 <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl/none">
-                  <span className="block bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-5xl font-extrabold text-transparent lg:text-7xl">
+                  <span className="block bg-linear-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-5xl font-extrabold text-transparent lg:text-7xl">
                     Synthesize
                   </span>
                   <span className="mt-2 block text-5xl leading-none font-extrabold tracking-tight text-neutral-900 lg:text-7xl dark:text-neutral-50">
@@ -306,12 +306,12 @@ export const LandingPage = (): React.JSX.Element => {
             </div>
 
             {/* Right Hero Column: Cyan/Teal Grid Pattern + 3D Card Model */}
-            <div className="relative flex min-h-[500px] items-center justify-center bg-[linear-gradient(to_right,#e5e7eb_1px,transparent_1px),linear-gradient(to_bottom,#e5e7eb_1px,transparent_1px)] bg-[size:24px_24px] p-8 lg:p-12 dark:bg-[linear-gradient(to_right,#1f2937_1px,transparent_1px),linear-gradient(to_bottom,#1f2937_1px,transparent_1px)]">
+            <div className="relative flex min-h-125 items-center justify-center bg-[linear-gradient(to_right,#e5e7eb_1px,transparent_1px),linear-gradient(to_bottom,#e5e7eb_1px,transparent_1px)] bg-size-[24px_24px] p-8 lg:p-12 dark:bg-[linear-gradient(to_right,#1f2937_1px,transparent_1px),linear-gradient(to_bottom,#1f2937_1px,transparent_1px)]">
               {/* Soft radial glow behind 3D slab */}
-              <div className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-tr from-cyan-400/20 via-blue-400/10 to-transparent blur-3xl" />
+              <div className="pointer-events-none absolute inset-0 rounded-full bg-linear-to-tr from-cyan-400/20 via-blue-400/10 to-transparent blur-3xl" />
 
               {/* Tilted 3D Slab Container */}
-              <div className="relative w-full max-w-md [transform:perspective(1000px)_rotateX(8deg)_rotateY(-12deg)_rotateZ(2deg)] transition-transform duration-700 ease-out [transform-style:preserve-3d] hover:[transform:perspective(1000px)_rotateX(2deg)_rotateY(-4deg)_rotateZ(0deg)]">
+              <div className="relative w-full max-w-md transform-[perspective(1000px)_rotateX(8deg)_rotateY(-12deg)_rotateZ(2deg)] transition-transform duration-700 ease-out transform-3d hover:transform-[perspective(1000px)_rotateX(2deg)_rotateY(-4deg)_rotateZ(0deg)]">
                 {/* Floating Cyan Code Tag */}
                 <div className="absolute -top-4 right-4 z-30">
                   <span className="inline-flex items-center gap-1.5 rounded-full border border-cyan-200 bg-cyan-50 px-3 py-1 font-mono text-[11px] font-bold text-cyan-600 shadow-md backdrop-blur-md dark:border-cyan-800 dark:bg-cyan-950/90 dark:text-cyan-300">
@@ -323,7 +323,7 @@ export const LandingPage = (): React.JSX.Element => {
                 {/* Main White 3D Slab Card Canvas */}
                 <div className="relative space-y-4 rounded-3xl border border-neutral-200/90 bg-white/95 p-6 shadow-[0_30px_70px_-15px_rgba(0,0,0,0.14)] backdrop-blur-xl dark:border-neutral-800/90 dark:bg-neutral-900/95">
                   {/* Card 1: GET users */}
-                  <div className="max-w-[270px] rounded-xl border border-neutral-200/80 bg-neutral-50/80 p-3 shadow-xs transition-transform hover:-translate-y-0.5 dark:border-neutral-800/80 dark:bg-neutral-800/50">
+                  <div className="max-w-67.5 rounded-xl border border-neutral-200/80 bg-neutral-50/80 p-3 shadow-xs transition-transform hover:-translate-y-0.5 dark:border-neutral-800/80 dark:bg-neutral-800/50">
                     <div className="flex items-center justify-between border-b border-neutral-200/60 pb-1.5 dark:border-neutral-700/60">
                       <div className="flex items-center gap-1.5">
                         <span className="rounded border border-emerald-500/20 bg-emerald-500/10 px-1.5 py-0.5 font-mono text-[9px] font-bold text-emerald-600 uppercase dark:text-emerald-400">
@@ -374,7 +374,7 @@ export const LandingPage = (): React.JSX.Element => {
                   </div>
 
                   {/* Card 2: POST orders */}
-                  <div className="ml-auto max-w-[270px] rounded-xl border border-neutral-200/80 bg-neutral-50/80 p-3 shadow-xs transition-transform hover:-translate-y-0.5 dark:border-neutral-800/80 dark:bg-neutral-800/50">
+                  <div className="ml-auto max-w-67.5 rounded-xl border border-neutral-200/80 bg-neutral-50/80 p-3 shadow-xs transition-transform hover:-translate-y-0.5 dark:border-neutral-800/80 dark:bg-neutral-800/50">
                     <div className="flex items-center justify-between border-b border-neutral-200/60 pb-1.5 dark:border-neutral-700/60">
                       <div className="flex items-center gap-1.5">
                         <span className="rounded border border-blue-500/20 bg-blue-500/10 px-1.5 py-0.5 font-mono text-[9px] font-bold text-blue-600 uppercase dark:text-blue-400">
@@ -415,7 +415,7 @@ export const LandingPage = (): React.JSX.Element => {
                   </div>
 
                   {/* Card 3: order_items */}
-                  <div className="max-w-[250px] rounded-xl border border-neutral-200/80 bg-neutral-50/80 p-3 shadow-xs transition-transform hover:-translate-y-0.5 dark:border-neutral-800/80 dark:bg-neutral-800/50">
+                  <div className="max-w-62.5 rounded-xl border border-neutral-200/80 bg-neutral-50/80 p-3 shadow-xs transition-transform hover:-translate-y-0.5 dark:border-neutral-800/80 dark:bg-neutral-800/50">
                     <div className="flex items-center justify-between border-b border-neutral-200/60 pb-1.5 dark:border-neutral-700/60">
                       <div className="flex items-center gap-1.5">
                         <span className="rounded border border-amber-500/20 bg-amber-500/10 px-1.5 py-0.5 font-mono text-[9px] font-bold text-amber-600 uppercase dark:text-amber-400">

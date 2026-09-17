@@ -213,7 +213,7 @@ export const RouteNode = ({
         type="target"
         position={Position.Left}
         className={cn(
-          "bg-background! -left-[6px]! h-2.5 w-2.5 border-2 transition-colors duration-200",
+          "bg-background! -left-1.5! h-2.5 w-2.5 border-2 transition-colors duration-200",
           selected
             ? "border-primary scale-110"
             : "border-muted-foreground/50 hover:border-primary",
@@ -340,7 +340,7 @@ export const RouteNode = ({
         type="source"
         position={Position.Right}
         className={cn(
-          "bg-background! -right-[6px]! h-2.5 w-2.5 border-2 transition-colors duration-200",
+          "bg-background! -right-1.5! h-2.5 w-2.5 border-2 transition-colors duration-200",
           selected
             ? "border-primary scale-110"
             : "border-muted-foreground/50 hover:border-primary",
