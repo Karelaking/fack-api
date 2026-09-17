@@ -1,5 +1,4 @@
 "use client";
-/* eslint-disable shadcn/no-restyle -- Suppressed at consumer */
 
 import * as React from "react";
 import { Handle, Position } from "@xyflow/react";
@@ -15,7 +14,6 @@ import {
   RiGitBranchLine,
   RiPencilLine,
 } from "@remixicon/react";
-import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -224,10 +222,9 @@ export const RouteNode = ({
       <div className="border-border/80 dark:border-border/40 flex items-center justify-between border-b px-2.5 py-1.5">
         <div className="flex items-center gap-1">
           {/* Method Badge with glowing indicator dot */}
-          <Badge
-            variant="outline"
+          <span
             className={cn(
-              "flex shrink-0 items-center gap-0.5 px-1 py-0 text-[8.5px] font-extrabold tracking-wider",
+              "flex shrink-0 items-center gap-0.5 border px-1 py-0 text-[8.5px] font-extrabold tracking-wider",
               theme.badge,
             )}
           >
@@ -239,7 +236,7 @@ export const RouteNode = ({
               )}
             />
             {method}
-          </Badge>
+          </span>
 
           {/* Status code view */}
           <span
@@ -260,9 +257,8 @@ export const RouteNode = ({
         >
           <Button
             type="button"
-            size="icon"
+            size="icon-xs"
             variant="ghost"
-            className="text-muted-foreground hover:text-foreground hover:bg-muted/80 h-6 w-6 p-0 transition-colors"
             title="Edit Route"
             aria-label="Edit Route"
             onClick={(e) => {

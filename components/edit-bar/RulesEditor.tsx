@@ -1,5 +1,4 @@
 "use client";
-/* eslint-disable shadcn/no-restyle -- Suppressed at consumer */
 
 import * as React from "react";
 import { RiAddLine, RiDeleteBin6Line } from "@remixicon/react";
@@ -111,13 +110,7 @@ export const RulesEditor = ({
             params.
           </p>
         </div>
-        <Button
-          type="button"
-          size="sm"
-          variant="outline"
-          onClick={handleAdd}
-          className="h-7 text-xs font-semibold"
-        >
+        <Button type="button" size="sm" variant="outline" onClick={handleAdd}>
           <RiAddLine className="h-3.5 w-3.5" />
           <span>Add Rule</span>
         </Button>
@@ -155,7 +148,6 @@ export const RulesEditor = ({
             size="xs"
             variant="secondary"
             onClick={handleAdd}
-            className="h-6.5 px-2 text-[10px] font-bold"
           >
             Create First Rule
           </Button>
@@ -179,8 +171,9 @@ export const RulesEditor = ({
                   }
                 >
                   <SelectTrigger
+                    size="sm"
                     aria-label="Condition Type"
-                    className="bg-card h-7 w-21.25 text-xs"
+                    className="w-21.25"
                   >
                     <SelectValue />
                   </SelectTrigger>
@@ -194,11 +187,12 @@ export const RulesEditor = ({
                 </Select>
 
                 <Input
+                  size="sm"
                   value={rule.key}
                   onChange={(e) => handleChange(rule.id, "key", e.target.value)}
                   placeholder="key (e.g. status)"
                   aria-label="Condition Key"
-                  className="bg-card h-7 min-w-17.5 flex-1 text-xs"
+                  className="min-w-17.5 flex-1"
                 />
 
                 <Select
@@ -208,8 +202,9 @@ export const RulesEditor = ({
                   }
                 >
                   <SelectTrigger
+                    size="sm"
                     aria-label="Condition Operator"
-                    className="bg-card h-7 w-22.5 text-xs"
+                    className="w-22.5"
                   >
                     <SelectValue />
                   </SelectTrigger>
@@ -224,13 +219,14 @@ export const RulesEditor = ({
 
                 {rule.operator !== "exists" && (
                   <Input
+                    size="sm"
                     value={rule.value}
                     onChange={(e) =>
                       handleChange(rule.id, "value", e.target.value)
                     }
                     placeholder="value (e.g. error)"
                     aria-label="Condition Value"
-                    className="bg-card h-7 min-w-17.5 flex-1 text-xs"
+                    className="min-w-17.5 flex-1"
                   />
                 )}
               </div>
@@ -245,6 +241,7 @@ export const RulesEditor = ({
                     Status
                   </label>
                   <Input
+                    size="sm"
                     id={`rule-status-${rule.id}`}
                     type="number"
                     value={rule.responseStatus}
@@ -257,7 +254,6 @@ export const RulesEditor = ({
                     }
                     placeholder="200"
                     aria-label="Response Status"
-                    className="bg-card h-7 text-xs"
                   />
                 </div>
                 <div className="col-span-4 space-y-1">
@@ -275,7 +271,8 @@ export const RulesEditor = ({
                     }
                     placeholder='{"error": "Custom Error"}'
                     aria-label="Custom Response Body"
-                    className="bg-card h-14 resize-none p-1.5 font-mono text-[10px] leading-tight"
+                    variant="mono"
+                    className="h-14 resize-none"
                   />
                 </div>
               </div>
@@ -283,9 +280,9 @@ export const RulesEditor = ({
               {/* Remove button */}
               <Button
                 type="button"
-                size="icon"
-                variant="ghost"
-                className="text-destructive hover:bg-destructive/10 absolute top-1.5 right-1.5 h-6 w-6 shrink-0"
+                size="icon-xs"
+                variant="destructive"
+                className="absolute top-1.5 right-1.5"
                 title="Delete Rule"
                 aria-label="Delete Rule"
                 onClick={() => handleRemove(rule.id)}

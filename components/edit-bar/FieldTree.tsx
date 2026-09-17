@@ -1,5 +1,4 @@
 "use client";
-/* eslint-disable shadcn/no-restyle -- Suppressed at consumer */
 
 import * as React from "react";
 import { RiAddLine, RiQuestionLine, RiFileCodeLine } from "@remixicon/react";
@@ -121,7 +120,6 @@ export function FieldTree(): React.JSX.Element {
           title="Add Root Field"
           aria-label="Add Root Field"
           onClick={() => addField()}
-          className="h-7 gap-1 text-[11px] font-semibold"
         >
           <RiAddLine className="h-3 w-3" />
           <span>Add Field</span>
@@ -145,7 +143,6 @@ export function FieldTree(): React.JSX.Element {
               size="xs"
               variant="default"
               onClick={() => addField()}
-              className="h-6.5 px-2.5 text-[10px] font-bold"
             >
               Add Blank Field
             </Button>
@@ -154,7 +151,6 @@ export function FieldTree(): React.JSX.Element {
               size="xs"
               variant="outline"
               onClick={() => handleLoadStarter(USER_STARTER, "User")}
-              className="h-6.5 px-2.5 text-[10px] font-bold"
             >
               User Template
             </Button>
@@ -163,7 +159,6 @@ export function FieldTree(): React.JSX.Element {
               size="xs"
               variant="outline"
               onClick={() => handleLoadStarter(PRODUCT_STARTER, "Product")}
-              className="h-6.5 px-2.5 text-[10px] font-bold"
             >
               Product Template
             </Button>

@@ -1,5 +1,4 @@
 "use client";
-/* eslint-disable shadcn/no-restyle -- Suppressed at consumer */
 
 import * as React from "react";
 import { usePathname } from "next/navigation";
@@ -40,7 +39,6 @@ export function HeaderNewProjectButton(): React.JSX.Element | null {
           type="button"
           variant="outline"
           size="sm"
-          className="h-8 gap-1.5 text-xs font-semibold"
           title="Save Layout"
           aria-label="Save Layout"
           onClick={() => triggerAction("canvas-save")}
@@ -57,7 +55,6 @@ export function HeaderNewProjectButton(): React.JSX.Element | null {
           type="button"
           variant="default"
           size="sm"
-          className="h-8 gap-1.5 text-xs font-semibold shadow-xs"
           title="Add Route"
           aria-label="Add Route"
           onClick={() => triggerAction("open-add-route-dialog")}
@@ -81,7 +78,6 @@ export function HeaderNewProjectButton(): React.JSX.Element | null {
       type="button"
       size="sm"
       variant="outline"
-      className="gap-1.5"
       title="Create New Project"
       aria-label="Create New Project"
       onClick={handleNewProjectClick}

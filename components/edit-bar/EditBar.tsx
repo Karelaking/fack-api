@@ -1,5 +1,4 @@
 "use client";
-/* eslint-disable shadcn/no-restyle -- Suppressed at consumer */
 
 import * as React from "react";
 import {
@@ -242,12 +241,14 @@ function EditBarInner({
     <div className="flex h-full flex-col overflow-hidden">
       <SheetHeader variant="bordered" className="shrink-0">
         {}
-        <SheetTitle className="flex items-center gap-1.5 text-base">
-          <RiSettings2Line className="text-primary h-4 w-4" />
-          <span>Edit Route Config</span>
+        <SheetTitle>
+          <span className="flex items-center gap-1.5">
+            <RiSettings2Line className="text-primary h-4 w-4" />
+            <span>Edit Route Config</span>
+          </span>
         </SheetTitle>
         {}
-        <SheetDescription className="text-[11px]">
+        <SheetDescription>
           Simulate status codes, headers, delays, and configure response
           payloads.
         </SheetDescription>
@@ -309,8 +310,7 @@ function EditBarInner({
             value={path}
             onChange={(e) => setPath(e.target.value)}
             placeholder="/endpoint/path"
-
-            className="h-8 font-mono text-xs font-semibold"
+            variant="mono"
             disabled={loading}
           />
         </div>
@@ -366,7 +366,7 @@ function EditBarInner({
         className="mt-3 flex min-h-0 min-w-0 flex-1 flex-col"
       >
         {}
-        <TabsList className="bg-muted grid h-8.5 shrink-0 grid-cols-5 p-1">
+        <TabsList className="grid shrink-0 grid-cols-5">
           <TabsTrigger value="schema" size="compact">
             <span>Schema</span>
             <span className="bg-muted-foreground/15 text-muted-foreground py-0.2 rounded-xs px-1 font-mono text-[9px]">
@@ -431,51 +431,45 @@ function EditBarInner({
           </TabsContent>
 
           {/* JSON Schema Live Preview & TS Export Tab */}
-          <TabsContent
-            value="preview"
-
-            className="m-0 flex h-full flex-col space-y-2"
-          >
-            <div className="border-border flex shrink-0 items-center justify-between border-b pb-1.5">
-              <span className="text-muted-foreground flex items-center gap-1 text-xs font-semibold">
-                <RiFileCodeLine className="h-4 w-4" />
-                <span>JSON Schema Preview</span>
-              </span>
-              <div className="flex items-center gap-1.5">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  title="Copy Schema JSON"
-                  aria-label="Copy Schema JSON"
-                  onClick={handleCopySchema}
-
-                  className="h-7 gap-1 px-2 text-[10px] font-bold"
-                >
-                  {copiedJson ? (
-                    <RiCheckLine className="h-3.5 w-3.5 text-emerald-500" />
-                  ) : (
-                    <RiFileCopyLine className="h-3.5 w-3.5" />
-                  )}
-                  <span>{copiedJson ? "Copied" : "Copy JSON"}</span>
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  title="Generate types"
-                  aria-label="Generate types"
-                  onClick={() => setTsOpen(true)}
-
-                  className="h-7 gap-1 px-2 text-[10px] font-bold"
-                >
-                  <RiCodeLine className="h-3.5 w-3.5" />
-                  <span>Types</span>
-                </Button>
+          <TabsContent value="preview" className="m-0 h-full">
+            <div className="flex h-full flex-col space-y-2">
+              <div className="border-border flex shrink-0 items-center justify-between border-b pb-1.5">
+                <span className="text-muted-foreground flex items-center gap-1 text-xs font-semibold">
+                  <RiFileCodeLine className="h-4 w-4" />
+                  <span>JSON Schema Preview</span>
+                </span>
+                <div className="flex items-center gap-1.5">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    title="Copy Schema JSON"
+                    aria-label="Copy Schema JSON"
+                    onClick={handleCopySchema}
+                  >
+                    {copiedJson ? (
+                      <RiCheckLine className="h-3.5 w-3.5 text-emerald-500" />
+                    ) : (
+                      <RiFileCopyLine className="h-3.5 w-3.5" />
+                    )}
+                    <span>{copiedJson ? "Copied" : "Copy JSON"}</span>
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    title="Generate types"
+                    aria-label="Generate types"
+                    onClick={() => setTsOpen(true)}
+                  >
+                    <RiCodeLine className="h-3.5 w-3.5" />
+                    <span>Types</span>
+                  </Button>
+                </div>
               </div>
-            </div>
-            <div className="bg-muted min-h-0 flex-1 overflow-auto border p-2 font-mono text-[10px]">
-              <pre>{schemaPreview}</pre>
+              <div className="bg-muted min-h-0 flex-1 overflow-auto border p-2 font-mono text-[10px]">
+                <pre>{schemaPreview}</pre>
+              </div>
             </div>
           </TabsContent>
         </div>
@@ -492,8 +486,6 @@ function EditBarInner({
           onClick={handleDelete}
           disabled={loading}
           aria-disabled={loading}
-
-          className="h-8 gap-1 text-xs font-bold"
         >
           {loading ? (
             <RiLoader2Line className="h-4 w-4 animate-spin" />
@@ -512,8 +504,6 @@ function EditBarInner({
             aria-label="Cancel edits"
             onClick={() => onOpenChange(false)}
             disabled={loading}
-
-            className="h-8 text-xs font-bold"
           >
             Cancel
           </Button>
@@ -525,8 +515,6 @@ function EditBarInner({
             onClick={handleSave}
             disabled={loading}
             aria-disabled={loading}
-
-            className="h-8 gap-1 text-xs font-bold"
           >
             {loading ? (
               <RiLoader2Line className="h-4 w-4 animate-spin" />
@@ -571,8 +559,7 @@ export function EditBar({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
         aria-label="Edit Route Config"
-
-        className="flex h-full w-full flex-col overflow-hidden p-4 sm:max-w-135"
+        className="flex h-full w-full flex-col overflow-hidden sm:max-w-135"
       >
         <SchemaStoreProvider initialFields={initialFields}>
           <EditBarInner

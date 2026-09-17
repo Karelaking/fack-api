@@ -1,5 +1,4 @@
 "use client";
-/* eslint-disable shadcn/no-restyle -- Suppressed at consumer */
 
 import * as React from "react";
 import Link from "next/link";
@@ -597,9 +596,10 @@ export const LandingPage = (): React.JSX.Element => {
                 {/* Execute Button */}
                 <Button
                   type="button"
+                  size="lg"
                   onClick={() => handleRunPlayground(selectedEndpoint)}
                   disabled={isExecuting}
-                  className="h-9 shrink-0 gap-1.5 rounded-lg px-5 font-bold"
+                  className="shrink-0"
                 >
                   <RiPlayFill className="h-4 w-4" />
                   <span>Send Request</span>

@@ -1,5 +1,4 @@
 "use client";
-/* eslint-disable shadcn/no-restyle -- Suppressed at consumer */
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
@@ -12,6 +11,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { BrandLogo } from "@/components/ui/brand-logo";
 
@@ -117,10 +117,9 @@ export const LandingHeader = (): React.JSX.Element => {
           href="/"
           className="group flex shrink-0 items-center gap-2.5 transition-opacity hover:opacity-90"
         >
-          <BrandLogo
-            size={32}
-            className="size-8 transition-transform group-hover:scale-105"
-          />
+          <span className="flex size-8 shrink-0 items-center justify-center transition-transform group-hover:scale-105">
+            <BrandLogo size={32} />
+          </span>
           <span className="text-foreground text-lg font-extrabold tracking-tight">
             fackapi<span className="text-primary font-black">.</span>studio
           </span>
@@ -161,21 +160,22 @@ export const LandingHeader = (): React.JSX.Element => {
           <ThemeToggle />
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger
-              aria-label="Toggle Navigation Menu"
-              className="bg-background border-border focus-visible:ring-ring hover:bg-muted flex cursor-pointer items-center justify-center rounded-full border p-2 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+              render={
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  aria-label="Toggle Navigation Menu"
+                />
+              }
             >
               <AlignJustify size={18} />
               <span className="sr-only">Toggle Navigation Menu</span>
             </SheetTrigger>
 
-            <SheetContent
-              side="right"
-              className="bg-card border-border w-80 border-l p-6 shadow-xl"
-            >
-              <SheetHeader className="border-border/40 mb-4 border-b pb-4 text-left">
-                <SheetTitle className="text-base font-bold">
-                  Navigation
-                </SheetTitle>
+            <SheetContent side="right" className="w-80">
+              <SheetHeader variant="bordered" className="mb-4 text-left">
+                <SheetTitle>Navigation</SheetTitle>
               </SheetHeader>
               <nav
                 aria-label="Mobile Navigation Menu"

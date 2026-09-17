@@ -1,5 +1,4 @@
 "use client";
-/* eslint-disable shadcn/no-restyle -- Suppressed at consumer */
 
 import * as React from "react";
 import Link from "next/link";
@@ -12,7 +11,6 @@ import {
   RiSearchLine,
   RiLoader2Line,
   RiDeleteBin6Line,
-  RiAlertLine,
   RiSettings3Line,
   RiAddLine,
   RiStackLine,
@@ -25,6 +23,11 @@ import { cn, formatRelativeTime } from "@/lib/utils";
 import type { Project, Endpoint, Route } from "@/db/schema";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group";
 import {
   Card,
   CardTitle,
@@ -235,7 +238,8 @@ export function ProjectGrid({
           onClick={triggerCreateProject}
           title="Create New Project"
           aria-label="Create New Project"
-          className="h-9 shrink-0 gap-1.5 text-xs font-semibold"
+          size="lg"
+          className="shrink-0"
         >
           <RiAddLine className="h-4 w-4" />
           <span>New Project</span>
@@ -244,16 +248,17 @@ export function ProjectGrid({
 
       {/* Search & Sort Filters */}
       <div className="flex flex-col items-center justify-between gap-3 sm:flex-row">
-        <div className="relative w-full sm:max-w-xs">
-          <RiSearchLine className="text-muted-foreground absolute top-1/2 left-2.5 h-3.5 w-3.5 -translate-y-1/2" />
-          <Input
+        <InputGroup className="w-full sm:max-w-xs">
+          <InputGroupAddon>
+            <RiSearchLine className="text-muted-foreground h-3.5 w-3.5" />
+          </InputGroupAddon>
+          <InputGroupInput
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search workspaces..."
             aria-label="Search workspaces"
-            className="h-8.5 pl-8 text-xs"
           />
-        </div>
+        </InputGroup>
 
         <div className="flex items-center gap-2 self-end text-xs sm:self-auto">
           <label htmlFor="sort-by-select" className="text-muted-foreground">
@@ -274,31 +279,30 @@ export function ProjectGrid({
 
       {/* Grid listing */}
       {filteredProjects.length === 0 ? (
-        <Card
-          variant="dashed"
-          className="flex flex-col items-center justify-center p-12 text-center"
-        >
-          <RiTerminalBoxLine className="text-muted-foreground/60 mb-3 h-10 w-10 stroke-1" />
-          <CardTitle className="text-base font-bold">
-            No workspaces found
-          </CardTitle>
-          <CardDescription className="mt-1.5 max-w-xs text-xs leading-relaxed">
-            {search
-              ? "No workspaces match your search keyword. Try adjusting your query."
-              : "Get started by creating your first mock API workspace namespace."}
-          </CardDescription>
-          {!search && (
-            <Button
-              type="button"
-              onClick={triggerCreateProject}
-              title="Create Project"
-              aria-label="Create Project"
-              className="mt-5 h-9 gap-1.5 text-xs font-semibold"
-            >
-              <RiAddLine className="h-4 w-4" />
-              <span>Create Project</span>
-            </Button>
-          )}
+        <Card variant="dashed">
+          <div className="flex flex-col items-center justify-center p-12 text-center">
+            <RiTerminalBoxLine className="text-muted-foreground/60 mb-3 h-10 w-10 stroke-1" />
+            <CardTitle>No workspaces found</CardTitle>
+            <CardDescription className="mt-1.5">
+              <span className="block max-w-xs leading-relaxed">
+                {search
+                  ? "No workspaces match your search keyword. Try adjusting your query."
+                  : "Get started by creating your first mock API workspace namespace."}
+              </span>
+            </CardDescription>
+            {!search && (
+              <Button
+                type="button"
+                onClick={triggerCreateProject}
+                title="Create Project"
+                aria-label="Create Project"
+                className="mt-5"
+              >
+                <RiAddLine className="h-4 w-4" />
+                <span>Create Workspace</span>
+              </Button>
+            )}
+          </div>
         </Card>
       ) : (
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -314,14 +318,15 @@ export function ProjectGrid({
             return (
               <Card
                 key={proj.id}
-                className="hover:border-primary/20 group bg-card/65 relative flex flex-col justify-between overflow-hidden backdrop-blur-sm transition-all duration-300 hover:shadow-lg"
+                variant="interactive"
+                className="group relative flex flex-col justify-between overflow-hidden"
               >
                 {/* Visual Header Accent Gradient */}
                 <div
                   className={`h-1.5 w-full bg-linear-to-r ${theme.accent}`}
                 />
 
-                <CardHeader className="p-4 pb-2">
+                <CardHeader>
                   <div className="flex items-center justify-between gap-2">
                     <div
                       className={`flex h-7 w-7 shrink-0 items-center justify-center border ${theme.bg}`}
@@ -333,8 +338,7 @@ export function ProjectGrid({
                       <Button
                         type="button"
                         variant="ghost"
-                        size="icon"
-                        className="text-muted-foreground hover:text-foreground h-6 w-6"
+                        size="icon-xs"
                         title="Workspace Settings"
                         aria-label="Workspace Settings"
                         onClick={() => setEditProj(proj)}
@@ -344,8 +348,7 @@ export function ProjectGrid({
                       <Button
                         type="button"
                         variant="ghost"
-                        size="icon"
-                        className="text-destructive hover:bg-destructive/10 h-6 w-6"
+                        size="icon-xs"
                         title="Delete Workspace"
                         aria-label="Delete Workspace"
                         onClick={() => setDeleteProj(proj)}
@@ -368,39 +371,43 @@ export function ProjectGrid({
                     </span>
                   </div>
 
-                  <CardDescription className="mt-2 line-clamp-2 min-h-8 text-xs leading-relaxed">
-                    {proj.description || "No description provided."}
+                  <CardDescription className="mt-2 min-h-8">
+                    <span className="line-clamp-2 block leading-relaxed">
+                      {proj.description || "No description provided."}
+                    </span>
                   </CardDescription>
                 </CardHeader>
 
-                <CardContent className="space-y-2 p-4 pt-1 pb-3.5">
-                  <div className="text-muted-foreground flex items-center gap-1.5 text-[10px] font-semibold">
-                    <RiCalendarLine className="h-3.5 w-3.5 shrink-0" />
-                    <span>Updated {formatRelativeTime(proj.updatedAt)}</span>
-                  </div>
-
-                  <div className="border-border/40 text-muted-foreground/80 flex items-center gap-3 border-t pt-2 text-[10px] font-semibold">
-                    <div className="flex items-center gap-1">
-                      <RiStackLine className="text-primary/80 h-3.5 w-3.5 shrink-0" />
-                      <span>
-                        {groupsCount} {groupsCount === 1 ? "group" : "groups"}
-                      </span>
+                <CardContent>
+                  <div className="flex flex-col gap-2">
+                    <div className="text-muted-foreground flex items-center gap-1.5 text-[10px] font-semibold">
+                      <RiCalendarLine className="h-3.5 w-3.5 shrink-0" />
+                      <span>Updated {formatRelativeTime(proj.updatedAt)}</span>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <RiPulseLine className="h-3.5 w-3.5 shrink-0 text-emerald-500/80" />
-                      <span>
-                        {routesCount} {routesCount === 1 ? "route" : "routes"}
-                      </span>
+
+                    <div className="border-border/40 text-muted-foreground/80 flex items-center gap-3 border-t pt-2 text-[10px] font-semibold">
+                      <div className="flex items-center gap-1">
+                        <RiStackLine className="text-primary/80 h-3.5 w-3.5 shrink-0" />
+                        <span>
+                          {groupsCount} {groupsCount === 1 ? "group" : "groups"}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <RiPulseLine className="h-3.5 w-3.5 shrink-0 text-emerald-500/80" />
+                        <span>
+                          {routesCount} {routesCount === 1 ? "route" : "routes"}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </CardContent>
 
-                <CardFooter className="border-border/40 mt-1 border-t p-4 pt-3">
+                <CardFooter className="mt-1">
                   <Link
                     href={`/projects/${proj.slug}/canvas`}
                     className={cn(
-                      buttonVariants({ variant: "ghost" }),
-                      "hover:bg-primary/5 hover:text-primary group/btn h-8.5 w-full justify-between px-2 text-xs font-bold",
+                      buttonVariants({ variant: "ghost", size: "sm" }),
+                      "hover:bg-primary/5 hover:text-primary group/btn w-full justify-between px-2 font-bold",
                     )}
                   >
                     <span>Enter Workspace</span>
@@ -494,7 +501,6 @@ export function ProjectGrid({
                 type="submit"
                 disabled={editLoading || isPending}
                 aria-disabled={editLoading || isPending}
-                className="gap-1.5"
               >
                 {editLoading || isPending ? (
                   <>
@@ -525,47 +531,37 @@ export function ProjectGrid({
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle variant="destructive">
-              <RiAlertLine className="h-5 w-5" />
-              <span>Confirm Deletion</span>
-            </DialogTitle>
+            <DialogTitle variant="destructive">Delete Workspace</DialogTitle>
             <DialogDescription>
-              Are you absolutely sure you want to delete project **
-              {deleteProj?.name}**? This will delete all endpoints, mock schema
-              pipelines, and coordinate states. This action cannot be undone.
+              Are you sure you want to delete **{deleteProj?.name}**? All
+              endpoints, routes, schemas, and historical logs will be
+              permanently wiped.
             </DialogDescription>
           </DialogHeader>
-          <div className="my-2 grid gap-2">
-            <label
-              htmlFor="confirm-text"
-              className="text-muted-foreground text-xs font-semibold"
-            >
-              To confirm, type{" "}
-              <span className="text-foreground selection:bg-primary/20 font-mono font-bold">
-                &ldquo;{deleteProj?.name}&ldquo;
-              </span>{" "}
+
+          <div className="space-y-3 py-2">
+            <p className="text-muted-foreground text-xs">
+              To verify deletion, type the project name{" "}
+              <strong className="text-foreground select-all">
+                {deleteProj?.name}
+              </strong>{" "}
               below:
-            </label>
+            </p>
             <Input
-              id="confirm-text"
+              size="sm"
+              variant="mono"
               value={deleteConfirmText}
               onChange={(e) => setDeleteConfirmText(e.target.value)}
               placeholder={deleteProj?.name}
-              className="font-mono text-sm"
-              disabled={deleteLoading || isPending}
-              autoComplete="off"
+              autoFocus
             />
           </div>
-          <DialogFooter className="mt-2 gap-2 sm:gap-0">
+
+          <DialogFooter>
             <Button
               type="button"
               variant="outline"
-              title="Cancel deletion"
-              aria-label="Cancel deletion"
-              onClick={() => {
-                setDeleteProj(null);
-                setDeleteConfirmText("");
-              }}
+              onClick={() => setDeleteProj(null)}
               disabled={deleteLoading || isPending}
             >
               Cancel
@@ -582,7 +578,6 @@ export function ProjectGrid({
                 deleteConfirmText !== deleteProj?.name
               }
               aria-disabled={deleteLoading || isPending}
-              className="gap-1.5"
             >
               {(deleteLoading || isPending) && (
                 <RiLoader2Line className="h-4 w-4 animate-spin" />

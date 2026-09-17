@@ -1,5 +1,4 @@
 "use client";
-/* eslint-disable shadcn/no-restyle -- Suppressed at consumer */
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
@@ -197,7 +196,7 @@ export const ProjectEndpoints = ({
                 size="sm"
                 title="Add Endpoint Group"
                 aria-label="Add Endpoint Group"
-                className="shrink-0 gap-1.5"
+                className="shrink-0"
               />
             }
           >
@@ -280,7 +279,6 @@ export const ProjectEndpoints = ({
                   aria-disabled={loading}
                   title="Create Endpoint Group"
                   aria-label="Create Endpoint Group"
-                  className="gap-1.5"
                 >
                   {loading ? (
                     <>
@@ -302,37 +300,41 @@ export const ProjectEndpoints = ({
 
       {/* Grid listing */}
       {endpointsList.length === 0 ? (
-        <Card
-          variant="dashed"
-          className="flex flex-col items-center justify-center p-12 text-center"
-        >
-          <RiPulseLine className="text-muted-foreground mb-4 h-10 w-10 animate-pulse stroke-1" />
-          <CardTitle className="text-lg">No Endpoint Groups</CardTitle>
-          <CardDescription className="mt-1 max-w-sm">
-            Endpoint groups help catalog routes in structural namespaces. Create
-            your first group to add custom dynamic routes.
-          </CardDescription>
-          <Button
-            size="sm"
-            onClick={() => setCreateOpen(true)}
-            className="mt-6 gap-1.5"
-          >
-            <RiAddLine className="h-4 w-4" />
-            <span>Create Group</span>
-          </Button>
+        <Card variant="dashed">
+          <div className="flex flex-col items-center justify-center p-12 text-center">
+            <RiPulseLine className="text-muted-foreground mb-4 h-10 w-10 animate-pulse stroke-1" />
+            <CardTitle>
+              <span className="text-lg">No Endpoint Groups</span>
+            </CardTitle>
+            <CardDescription className="mt-1">
+              <span className="block max-w-sm">
+                Endpoint groups help catalog routes in structural namespaces.
+                Create your first group to add custom dynamic routes.
+              </span>
+            </CardDescription>
+            <Button
+              size="sm"
+              onClick={() => setCreateOpen(true)}
+              className="mt-6"
+            >
+              <RiAddLine className="h-4 w-4" />
+              <span>Create Group</span>
+            </Button>
+          </div>
         </Card>
       ) : (
         <div className="grid gap-4 md:grid-cols-2">
           {endpointsList.map((ep) => (
             <Card
               key={ep.id}
-              className="hover:border-muted-foreground/30 flex flex-col justify-between transition-colors"
+              variant="interactive"
+              className="flex flex-col justify-between"
             >
-              <CardHeader className="pb-3">
+              <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="space-y-1">
-                    <CardTitle className="truncate text-lg">
-                      {ep.name}
+                    <CardTitle>
+                      <span className="block truncate text-lg">{ep.name}</span>
                     </CardTitle>
                     <span className="bg-muted border-border text-muted-foreground mt-0.5 inline-block border px-2 py-0.5 font-mono text-xs">
                       Prefix: {ep.basePath || "/ (Root)"}
@@ -340,19 +342,17 @@ export const ProjectEndpoints = ({
                   </div>
                   <div className="flex items-center gap-1">
                     <Button
-                      size="icon"
+                      size="icon-sm"
                       variant="ghost"
-                      className="text-muted-foreground hover:text-foreground h-8 w-8"
                       title="Edit Endpoint Group"
                       aria-label="Edit Endpoint Group"
                       onClick={() => handleEditInit(ep)}
                     >
-                      <RiEdit2Line className="h-4 w-4" />
+                      <RiEdit2Line className="text-muted-foreground hover:text-foreground h-4 w-4" />
                     </Button>
                     <Button
-                      size="icon"
-                      variant="ghost"
-                      className="text-destructive hover:bg-destructive/10 h-8 w-8"
+                      size="icon-sm"
+                      variant="destructive"
                       title="Delete Endpoint Group"
                       aria-label="Delete Endpoint Group"
                       onClick={() => handleDeleteInit(ep)}
@@ -361,21 +361,25 @@ export const ProjectEndpoints = ({
                     </Button>
                   </div>
                 </div>
-                <CardDescription className="mt-2 line-clamp-2 min-h-10">
-                  {ep.description || "No description provided."}
+                <CardDescription className="mt-2 min-h-10">
+                  <span className="line-clamp-2">
+                    {ep.description || "No description provided."}
+                  </span>
                 </CardDescription>
               </CardHeader>
-              <CardContent className="py-2">
-                <div className="text-muted-foreground flex items-center gap-2 text-xs font-semibold">
-                  <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                  <span>{ep.routes.length} Active Routes</span>
+              <CardContent>
+                <div className="py-2">
+                  <div className="text-muted-foreground flex items-center gap-2 text-xs font-semibold">
+                    <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                    <span>{ep.routes.length} Active Routes</span>
+                  </div>
                 </div>
               </CardContent>
-              <CardFooter className="border-border mt-4 border-t pt-3">
+              <CardFooter className="mt-4">
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="hover:bg-primary/5 group/btn w-full justify-between"
+                  className="group/btn w-full justify-between"
                   onClick={() => router.push(`/projects/${projectSlug}/canvas`)}
                 >
                   <span>Open Route Canvas</span>
@@ -457,7 +461,6 @@ export const ProjectEndpoints = ({
                 aria-disabled={loading}
                 title="Save Changes"
                 aria-label="Save Changes"
-                className="gap-1.5"
               >
                 {loading ? (
                   <>
@@ -508,7 +511,6 @@ export const ProjectEndpoints = ({
               onClick={handleDelete}
               disabled={loading}
               aria-disabled={loading}
-              className="gap-1.5"
             >
               {loading ? (
                 <>

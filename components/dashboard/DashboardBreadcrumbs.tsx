@@ -1,5 +1,4 @@
 "use client";
-/* eslint-disable shadcn/no-restyle -- Suppressed at consumer */
 
 import * as React from "react";
 import type { Route } from "next";
@@ -129,8 +128,15 @@ export function DashboardBreadcrumbs({
                 {isLast ? (
                   crumb.isProject && projectsList.length > 0 ? (
                     <DropdownMenu>
-                      <DropdownMenuTrigger className="hover:text-foreground text-foreground group flex items-center gap-1 font-semibold transition-colors focus:outline-none">
-                        <span className="max-w-37.5 truncate sm:max-w-xs">
+                      <DropdownMenuTrigger
+                        render={
+                          <button
+                            type="button"
+                            className="group flex cursor-pointer items-center gap-1 transition-colors focus:outline-none"
+                          />
+                        }
+                      >
+                        <span className="text-foreground max-w-37.5 truncate font-semibold sm:max-w-xs">
                           {crumb.label}
                         </span>
                         <RiArrowUpDownLine className="text-muted-foreground/60 group-hover:text-foreground h-3.5 w-3.5 shrink-0 transition-colors" />
@@ -145,18 +151,21 @@ export function DashboardBreadcrumbs({
                             return (
                               <DropdownMenuItem
                                 key={p.id}
-                                className={`flex w-full cursor-pointer items-center justify-between py-1.5 text-sm ${
-                                  isActive
-                                    ? "text-primary bg-accent/40 font-semibold"
-                                    : ""
-                                }`}
+                                className="w-full cursor-pointer justify-between"
                                 onClick={() =>
                                   router.push(
                                     getProjectTabHref(p.slug, segments[2]),
                                   )
                                 }
                               >
-                                <span className="truncate">{p.name}</span>
+                                <span
+                                  className={cn(
+                                    "truncate",
+                                    isActive && "text-primary font-semibold",
+                                  )}
+                                >
+                                  {p.name}
+                                </span>
                                 {isActive && (
                                   <span className="bg-primary h-1.5 w-1.5 shrink-0 rounded-full" />
                                 )}
@@ -173,8 +182,15 @@ export function DashboardBreadcrumbs({
                   )
                 ) : crumb.isProject && projectsList.length > 0 ? (
                   <DropdownMenu>
-                    <DropdownMenuTrigger className="hover:text-foreground text-muted-foreground group flex items-center gap-1 font-normal transition-colors focus:outline-none">
-                      <span className="max-w-37.5 truncate sm:max-w-xs">
+                    <DropdownMenuTrigger
+                      render={
+                        <button
+                          type="button"
+                          className="group flex cursor-pointer items-center gap-1 transition-colors focus:outline-none"
+                        />
+                      }
+                    >
+                      <span className="text-muted-foreground hover:text-foreground max-w-37.5 truncate font-normal transition-colors sm:max-w-xs">
                         {crumb.label}
                       </span>
                       <RiArrowUpDownLine className="text-muted-foreground/40 group-hover:text-foreground h-3 w-3 shrink-0 transition-colors" />
@@ -189,18 +205,21 @@ export function DashboardBreadcrumbs({
                           return (
                             <DropdownMenuItem
                               key={p.id}
-                              className={`flex w-full cursor-pointer items-center justify-between py-1.5 text-sm ${
-                                isActive
-                                  ? "text-primary bg-accent/40 font-semibold"
-                                  : ""
-                              }`}
+                              className="w-full cursor-pointer justify-between"
                               onClick={() =>
                                 router.push(
                                   getProjectTabHref(p.slug, segments[2]),
                                 )
                               }
                             >
-                              <span className="truncate">{p.name}</span>
+                              <span
+                                className={cn(
+                                  "truncate",
+                                  isActive && "text-primary font-semibold",
+                                )}
+                              >
+                                {p.name}
+                              </span>
                               {isActive && (
                                 <span className="bg-primary h-1.5 w-1.5 shrink-0 rounded-full" />
                               )}

@@ -1,5 +1,4 @@
 "use client";
-/* eslint-disable shadcn/no-restyle -- Suppressed at consumer */
 
 import * as React from "react";
 import {
@@ -12,8 +11,11 @@ import {
   RiTerminalBoxLine,
 } from "@remixicon/react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group";
 import { clearRequestLogs, getRequestLogs } from "@/lib/actions/logs";
 import type { RequestLog } from "@/db/schema";
 import { useVirtualizer } from "@tanstack/react-virtual";
@@ -143,16 +145,17 @@ export const ProjectLogs = ({
       {/* Top action header: search and filters */}
       <div className="flex shrink-0 flex-wrap items-center justify-between gap-3">
         <div className="flex max-w-md min-w-60 flex-1 items-center gap-2">
-          <div className="relative flex-1">
-            <RiSearchLine className="text-muted-foreground absolute top-2.5 left-2.5 h-4 w-4" />
-            <Input
+          <InputGroup className="flex-1">
+            <InputGroupAddon>
+              <RiSearchLine className="text-muted-foreground h-4 w-4" />
+            </InputGroupAddon>
+            <InputGroupInput
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Filter by method or path..."
               aria-label="Filter logs by method or path"
-              className="h-9 pl-9 text-xs"
             />
-          </div>
+          </InputGroup>
           <div className="bg-muted/30 flex border p-0.5">
             {(["all", "2xx", "3xx", "4xx", "5xx"] as const).map((filter) => (
               <button
@@ -180,7 +183,6 @@ export const ProjectLogs = ({
             aria-label="Refresh Logs"
             onClick={handleRefresh}
             disabled={loading}
-            className="h-9 gap-1.5 text-xs font-semibold"
           >
             <RiRefreshLine
               className={cn("h-4 w-4", loading && "animate-spin")}
@@ -195,7 +197,6 @@ export const ProjectLogs = ({
             aria-label="Clear Logs"
             onClick={handleClear}
             disabled={loading || logs.length === 0}
-            className="h-9 gap-1.5 text-xs font-semibold"
           >
             <RiDeleteBin6Line className="h-4 w-4" />
             <span>Clear Logs</span>
@@ -281,23 +282,21 @@ export const ProjectLogs = ({
                       <RiTimeLine className="h-3 w-3" />
                       {formatTimestamp(log.timestamp)}
                     </span>
-                    <Badge
-                      variant="outline"
+                    <span
                       className={cn(
-                        "px-1.5 py-0.5 text-[9px] font-bold tracking-wider uppercase",
+                        "inline-flex items-center justify-center rounded border px-1.5 py-0.5 text-[9px] font-bold tracking-wider uppercase",
                         getMethodBadgeClass(log.method),
                       )}
                     >
                       {log.method}
-                    </Badge>
+                    </span>
                     <span className="text-foreground flex-1 truncate font-mono">
                       {log.path}
                     </span>
                     <span className="text-muted-foreground/80 hidden items-center gap-0.5 sm:inline-flex">
-                      <Badge
-                        variant="outline"
+                      <span
                         className={cn(
-                          "border-border/10 py-0.2 px-1 font-mono text-[10px]",
+                          "border-border/10 inline-flex items-center justify-center rounded border px-1 py-0.5 font-mono text-[10px]",
                           log.latency > 1000
                             ? "bg-rose-500/5 text-rose-500"
                             : log.latency > 200
@@ -306,17 +305,16 @@ export const ProjectLogs = ({
                         )}
                       >
                         {log.latency}ms
-                      </Badge>
+                      </span>
                     </span>
-                    <Badge
-                      variant="outline"
+                    <span
                       className={cn(
-                        "px-2 py-0.5 font-mono text-[10px] font-bold",
+                        "inline-flex items-center justify-center rounded border px-2 py-0.5 font-mono text-[10px] font-bold",
                         getStatusBadgeClass(log.statusCode),
                       )}
                     >
                       {log.statusCode}
-                    </Badge>
+                    </span>
                     {isExpanded ? (
                       <RiArrowDownSLine className="text-muted-foreground h-4 w-4" />
                     ) : (

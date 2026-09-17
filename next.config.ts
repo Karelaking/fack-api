@@ -16,7 +16,7 @@ const nextConfig: NextConfig = {
     "/*": ["./drizzle/**/*"],
   },
   typedRoutes: true,
-  allowedDevOrigins: ["192.168.29.142"],
+  allowedDevOrigins: ["192.168.29.142", "192.168.0.196"],
 };
 
 export default nextConfig;

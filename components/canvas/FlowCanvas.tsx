@@ -479,7 +479,7 @@ function FlowCanvasInner({
               ? "rgba(0, 0, 0, 0.6)"
               : "rgba(241, 245, 249, 0.7)"
           }
-          className="bg-card! border-border! h-[75px]! w-[100px]! shadow-xs! sm:h-[110px]! sm:w-[150px]! md:h-[150px]! md:w-[200px]!"
+          className="bg-card! border-border! h-18.75! w-25! shadow-xs! sm:h-27.5! sm:w-37.5! md:h-37.5! md:w-50!"
         />
       </ReactFlow>
 

@@ -1,5 +1,4 @@
 "use client";
-/* eslint-disable shadcn/no-restyle -- Suppressed at consumer */
 
 import * as React from "react";
 import {
@@ -88,9 +87,11 @@ export function TypeScriptPreview({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="flex h-[80vh] max-h-150 flex-col sm:max-w-150">
         <DialogHeader className="shrink-0">
-          <DialogTitle className="flex items-center gap-2">
-            <RiCodeLine className="text-primary h-5 w-5" />
-            <span>TypeScript Definition</span>
+          <DialogTitle>
+            <span className="flex items-center gap-2">
+              <RiCodeLine className="text-primary h-5 w-5" />
+              <span>TypeScript Definition</span>
+            </span>
           </DialogTitle>
           <DialogDescription>
             Download or copy static type contracts compiled from your JSON
@@ -111,7 +112,7 @@ export function TypeScriptPreview({
           )}
         </div>
 
-        <DialogFooter className="border-border flex shrink-0 flex-row justify-end gap-2 border-t pt-4">
+        <DialogFooter className="shrink-0">
           <Button
             type="button"
             variant="outline"
@@ -120,7 +121,6 @@ export function TypeScriptPreview({
             aria-label="Copy Code"
             onClick={handleCopy}
             disabled={loading || !code}
-            className="gap-1.5 text-xs font-semibold"
           >
             {copied ? (
               <RiCheckLine className="h-3.5 w-3.5 text-emerald-500" />
@@ -136,7 +136,6 @@ export function TypeScriptPreview({
             aria-label="Download .d.ts"
             onClick={handleDownload}
             disabled={loading || !code}
-            className="gap-1.5 text-xs font-semibold"
           >
             <RiDownloadLine className="h-3.5 w-3.5" />
             <span>Download .d.ts</span>

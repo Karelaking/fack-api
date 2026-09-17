@@ -1,5 +1,4 @@
 "use client";
-/* eslint-disable shadcn/no-restyle -- Suppressed at consumer */
 
 import * as React from "react";
 import {
@@ -227,7 +226,9 @@ export const FieldEditor = ({
           onChange={handleNameChange}
           placeholder="Field key"
           aria-label="Field key"
-          className="h-7 w-30 shrink-0 font-mono text-xs font-semibold"
+          size="sm"
+          variant="mono"
+          className="w-30 shrink-0"
         />
 
         {/* Field Type */}
@@ -238,8 +239,9 @@ export const FieldEditor = ({
           }}
         >
           <SelectTrigger
+            size="sm"
             aria-label="Field Type"
-            className="h-7 w-20 shrink-0 text-xs font-medium"
+            className="w-20 shrink-0"
           >
             <SelectValue />
           </SelectTrigger>
@@ -258,10 +260,10 @@ export const FieldEditor = ({
         {/* Nullable Switch */}
         <div className="flex shrink-0 items-center gap-1 px-0.5">
           <Switch
+            size="sm"
             checked={field.nullable}
             onCheckedChange={handleNullableChange}
             aria-label="Nullable"
-            className="h-4 scale-[0.65]"
           />
           <span className="text-muted-foreground text-[9px] font-semibold uppercase">
             Null
@@ -291,8 +293,9 @@ export const FieldEditor = ({
               }}
             >
               <SelectTrigger
+                size="sm"
                 aria-label="Array Item Type"
-                className="h-7 w-20 shrink-0 text-xs font-medium"
+                className="w-20 shrink-0"
               >
                 <SelectValue />
               </SelectTrigger>
@@ -323,9 +326,8 @@ export const FieldEditor = ({
           {/* Reorder Buttons */}
           <Button
             type="button"
-            size="icon"
+            size="icon-sm"
             variant="ghost"
-            className="text-muted-foreground hover:text-foreground hover:bg-muted h-7 w-7"
             title="Move Up"
             aria-label="Move Up"
             onClick={() => moveField(field.id, "up")}
@@ -334,9 +336,8 @@ export const FieldEditor = ({
           </Button>
           <Button
             type="button"
-            size="icon"
+            size="icon-sm"
             variant="ghost"
-            className="text-muted-foreground hover:text-foreground hover:bg-muted h-7 w-7"
             title="Move Down"
             aria-label="Move Down"
             onClick={() => moveField(field.id, "down")}
@@ -348,9 +349,8 @@ export const FieldEditor = ({
           {(isObject || (isArray && field.arrayItemType === "object")) && (
             <Button
               type="button"
-              size="icon"
+              size="icon-sm"
               variant="outline"
-              className="hover:bg-primary/5 h-7 w-7"
               title="Add Child Field"
               aria-label="Add Child Field"
               onClick={() => addField(field.id)}
@@ -360,9 +360,8 @@ export const FieldEditor = ({
           )}
           <Button
             type="button"
-            size="icon"
-            variant="ghost"
-            className="text-destructive hover:bg-destructive/10 h-7 w-7"
+            size="icon-sm"
+            variant="destructive"
             title="Delete Field"
             aria-label="Delete Field"
             onClick={() => removeField(field.id)}
@@ -383,7 +382,8 @@ export const FieldEditor = ({
             onChange={handleCustomCategoryChange}
             placeholder="e.g. puppy, nature, architecture"
             aria-label="Category Name"
-            className="h-6 w-48 shrink-0 px-2 py-0.5 text-xs font-medium"
+            size="sm"
+            className="w-48 shrink-0"
           />
         </div>
       )}
@@ -398,7 +398,8 @@ export const FieldEditor = ({
             onChange={handleCustomArrayItemCategoryChange}
             placeholder="e.g. puppy, nature, architecture"
             aria-label="Array Item Category"
-            className="h-6 w-48 shrink-0 px-2 py-0.5 text-xs font-medium"
+            size="sm"
+            className="w-48 shrink-0"
           />
         </div>
       )}

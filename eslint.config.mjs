@@ -11,7 +11,13 @@ const eslintConfig = defineConfig([
             shadcn,
         },
         rules: {
-        "shadcn/no-restyle": ["error", { allow: ["layout"] }],
+            "shadcn/no-restyle": ["error", { allow: ["layout"] }],
+        },
+    },
+    {
+        files: ["components/ui/**"],
+        rules: {
+            "shadcn/no-restyle": "off",
         },
     },
     // Override default ignores of eslint-config-next.

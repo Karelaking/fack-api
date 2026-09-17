@@ -1,4 +1,3 @@
-/* eslint-disable shadcn/no-restyle -- Suppressed at consumer */
 import type { Metadata } from "next";
 import dynamic from "next/dynamic";
 import { LandingHeader } from "@/components/landing/LandingHeader";
@@ -28,7 +27,9 @@ const InteractiveCanvasDemo = dynamic(
     loading: (): React.JSX.Element => (
       <div className="bg-background border-border/40 w-full border-b py-16 md:py-24">
         <div className="border-border/40 mx-auto max-w-7xl border-x px-4 sm:px-6 lg:px-8">
-          <Skeleton className="border-border/40 h-112.5 w-full rounded-xl border" />
+          <div className="border-border/40 overflow-hidden rounded-xl border">
+            <Skeleton className="h-112.5 w-full" />
+          </div>
         </div>
       </div>
     ),

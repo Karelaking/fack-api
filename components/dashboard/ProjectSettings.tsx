@@ -1,5 +1,4 @@
 "use client";
-/* eslint-disable shadcn/no-restyle -- Suppressed at consumer */
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
@@ -148,134 +147,135 @@ export function ProjectSettings({
             </CardDescription>
           </CardHeader>
           {}
-          <CardContent className="space-y-4">
-            <div className="grid gap-2">
-              <label htmlFor="name" className="text-sm font-semibold">
-                Workspace Name
-              </label>
-              <Input
-                id="name"
-                {...register("name")}
-                placeholder="Billing Microservice"
-                maxLength={100}
-                disabled={isSubmitting}
-              />
-              {errors.name && (
-                <span className="text-destructive text-xs">
-                  {errors.name.message}
-                </span>
-              )}
-            </div>
-            <div className="grid gap-2">
-              <label htmlFor="slug" className="text-sm font-semibold">
-                Namespace Slug
-              </label>
-              <Input
-                id="slug"
-                {...register("slug", {
-                  onChange: (e) =>
-                    setValue("slug", slugifyInput(e.target.value)),
-                })}
-                placeholder="billing-microservice"
-                maxLength={100}
-                disabled={isSubmitting}
-              />
-              {errors.slug && (
-                <span className="text-destructive text-xs">
-                  {errors.slug.message}
-                </span>
-              )}
-              <span className="text-muted-foreground text-xs">
-                Determines the network mock base URL: `/{project.slug}/...`
-              </span>
-            </div>
-            <div className="grid gap-2">
-              <label htmlFor="description" className="text-sm font-semibold">
-                Description
-              </label>
-              <Textarea
-                id="description"
-                {...register("description")}
-                placeholder="API virtualizer endpoints for billing tasks..."
-                maxLength={500}
-                disabled={isSubmitting}
-                className="h-24 resize-none"
-              />
-              {errors.description && (
-                <span className="text-destructive text-xs">
-                  {errors.description.message}
-                </span>
-              )}
-            </div>
-            <div
-              className={cn(
-                "bg-muted/10 flex items-center justify-between border p-4",
-                !isLogsDbConfigured && "border-amber-500/20 bg-amber-500/5",
-              )}
-            >
-              <div className="space-y-0.5">
-                <label
-                  htmlFor="isLoggingEnabled"
-                  className="block text-sm font-semibold"
-                >
-                  Capture Request History
+          <CardContent>
+            <div className="space-y-4">
+              <div className="grid gap-2">
+                <label htmlFor="name" className="text-sm font-semibold">
+                  Workspace Name
                 </label>
-                <span className="text-muted-foreground block text-xs leading-normal">
-                  {isLogsDbConfigured
-                    ? "When enabled, incoming mock requests are stored in the database for debugging and latency analytics."
-                    : "Request logging is currently disabled because LOGS_POSTGRES_URL is not configured in environment variables."}
+                <Input
+                  id="name"
+                  {...register("name")}
+                  placeholder="Billing Microservice"
+                  maxLength={100}
+                  disabled={isSubmitting}
+                />
+                {errors.name && (
+                  <span className="text-destructive text-xs">
+                    {errors.name.message}
+                  </span>
+                )}
+              </div>
+              <div className="grid gap-2">
+                <label htmlFor="slug" className="text-sm font-semibold">
+                  Namespace Slug
+                </label>
+                <Input
+                  id="slug"
+                  {...register("slug", {
+                    onChange: (e) =>
+                      setValue("slug", slugifyInput(e.target.value)),
+                  })}
+                  placeholder="billing-microservice"
+                  maxLength={100}
+                  disabled={isSubmitting}
+                />
+                {errors.slug && (
+                  <span className="text-destructive text-xs">
+                    {errors.slug.message}
+                  </span>
+                )}
+                <span className="text-muted-foreground text-xs">
+                  Determines the network mock base URL: `/{project.slug}/...`
                 </span>
               </div>
-              <Controller
-                control={control}
-                name="isLoggingEnabled"
-                render={({ field }) => (
-                  <Switch
-                    id="isLoggingEnabled"
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                    disabled={isSubmitting || !isLogsDbConfigured}
-                  />
-                )}
-              />
-            </div>
-            <div className="bg-muted/10 flex items-center justify-between border p-4">
-              <div className="space-y-0.5">
-                <label
-                  htmlFor="isCachingEnabled"
-                  className="block text-sm font-semibold"
-                >
-                  Enable Mock Caching
+              <div className="grid gap-2">
+                <label htmlFor="description" className="text-sm font-semibold">
+                  Description
                 </label>
-                <span className="text-muted-foreground block text-xs leading-normal">
-                  When enabled, mock response pages and single objects are
-                  cached to decrease latency and reduce server generation
-                  efforts.
-                </span>
-              </div>
-              <Controller
-                control={control}
-                name="isCachingEnabled"
-                render={({ field }) => (
-                  <Switch
-                    id="isCachingEnabled"
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                    disabled={isSubmitting}
-                  />
+                <Textarea
+                  id="description"
+                  {...register("description")}
+                  placeholder="API virtualizer endpoints for billing tasks..."
+                  maxLength={500}
+                  disabled={isSubmitting}
+                  className="h-24 resize-none"
+                />
+                {errors.description && (
+                  <span className="text-destructive text-xs">
+                    {errors.description.message}
+                  </span>
                 )}
-              />
+              </div>
+              <div
+                className={cn(
+                  "bg-muted/10 flex items-center justify-between border p-4",
+                  !isLogsDbConfigured && "border-amber-500/20 bg-amber-500/5",
+                )}
+              >
+                <div className="space-y-0.5">
+                  <label
+                    htmlFor="isLoggingEnabled"
+                    className="block text-sm font-semibold"
+                  >
+                    Capture Request History
+                  </label>
+                  <span className="text-muted-foreground block text-xs leading-normal">
+                    {isLogsDbConfigured
+                      ? "When enabled, incoming mock requests are stored in the database for debugging and latency analytics."
+                      : "Request logging is currently disabled because LOGS_POSTGRES_URL is not configured in environment variables."}
+                  </span>
+                </div>
+                <Controller
+                  control={control}
+                  name="isLoggingEnabled"
+                  render={({ field }) => (
+                    <Switch
+                      id="isLoggingEnabled"
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                      disabled={isSubmitting || !isLogsDbConfigured}
+                    />
+                  )}
+                />
+              </div>
+              <div className="bg-muted/10 flex items-center justify-between border p-4">
+                <div className="space-y-0.5">
+                  <label
+                    htmlFor="isCachingEnabled"
+                    className="block text-sm font-semibold"
+                  >
+                    Enable Mock Caching
+                  </label>
+                  <span className="text-muted-foreground block text-xs leading-normal">
+                    When enabled, mock response pages and single objects are
+                    cached to decrease latency and reduce server generation
+                    efforts.
+                  </span>
+                </div>
+                <Controller
+                  control={control}
+                  name="isCachingEnabled"
+                  render={({ field }) => (
+                    <Switch
+                      id="isCachingEnabled"
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                      disabled={isSubmitting}
+                    />
+                  )}
+                />
+              </div>
             </div>
           </CardContent>
           {}
-          <CardFooter className="border-border justify-end border-t pt-4">
+          <CardFooter className="justify-end">
             <Button
               type="submit"
               disabled={isSubmitting}
               aria-disabled={isSubmitting}
               title="Save Changes"
               aria-label="Save Changes"
-              className="gap-1.5"
             >
               {isSubmitting ? (
                 <>
@@ -309,7 +309,7 @@ export function ProjectSettings({
           </CardDescription>
         </CardHeader>
         {}
-        <CardFooter className="border-destructive/10 bg-destructive/10 flex items-center justify-between border-t pt-4">
+        <CardFooter variant="destructive" className="justify-between">
           <span className="text-destructive text-xs font-medium">
             This action is not reversible.
           </span>
@@ -329,8 +329,6 @@ export function ProjectSettings({
                   variant="destructive"
                   title="Delete Workspace"
                   aria-label="Delete Workspace"
-
-                  className="gap-1.5"
                 />
               }
             >
@@ -367,14 +365,13 @@ export function ProjectSettings({
                   value={deleteConfirmText}
                   onChange={(e) => setDeleteConfirmText(e.target.value)}
                   placeholder={project.name}
-
-                  className="font-mono text-sm"
+                  variant="mono"
                   disabled={deleteLoading}
                   autoComplete="off"
                 />
               </div>
               {}
-              <DialogFooter className="mt-2 gap-2 sm:gap-0">
+              <DialogFooter className="mt-2">
                 <Button
                   type="button"
                   variant="outline"
@@ -400,8 +397,6 @@ export function ProjectSettings({
                     deleteConfirmText !== project.name
                   }
                   aria-disabled={deleteLoading || isPending}
-
-                  className="gap-1.5"
                 >
                   {(deleteLoading || isPending) && (
                     <RiLoader2Line className="h-4 w-4 animate-spin" />

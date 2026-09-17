@@ -1,5 +1,4 @@
 "use client";
-/* eslint-disable shadcn/no-restyle -- Suppressed at consumer */
 
 import React, { useState, useMemo } from "react";
 import Link from "next/link";
@@ -14,7 +13,6 @@ import {
   Plus,
   Layers,
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 export type HttpMethod = "GET" | "POST" | "PUT" | "DELETE";
@@ -545,10 +543,9 @@ export type ApiResponse = {
                 </span>
               </div>
 
-              <Badge
-                variant="outline"
+              <span
                 className={cn(
-                  "shrink-0 px-2 py-0.5 font-mono text-[9px]",
+                  "inline-flex shrink-0 items-center justify-center rounded border px-2 py-0.5 font-mono text-[9px]",
                   statusCode === 200 || statusCode === 201
                     ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
                     : "border-rose-500/30 bg-rose-500/10 text-rose-400",
@@ -561,7 +558,7 @@ export type ApiResponse = {
                     ? "Created"
                     : "Error"}{" "}
                 • {latencyMs}ms
-              </Badge>
+              </span>
             </div>
 
             {/* Code Display Console */}

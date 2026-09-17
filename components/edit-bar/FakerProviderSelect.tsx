@@ -1,5 +1,4 @@
 "use client";
-/* eslint-disable shadcn/no-restyle -- Suppressed at consumer */
 
 import * as React from "react";
 import { RiCheckLine, RiArrowUpDownLine } from "@remixicon/react";
@@ -49,12 +48,13 @@ export function FakerProviderSelect({
           <Button
             type="button"
             variant="outline"
+            size="sm"
             role="combobox"
             aria-expanded={open}
             aria-label="Select data provider"
             title="Select data provider"
             disabled={disabled}
-            className="border-muted-foreground/20 hover:bg-accent h-7 w-full justify-between px-2 text-xs"
+            className="w-full justify-between"
           />
         }
       >
@@ -65,22 +65,13 @@ export function FakerProviderSelect({
         </span>
         <RiArrowUpDownLine className="ml-2 h-4 w-4 shrink-0 opacity-50" />
       </PopoverTrigger>
-      <PopoverContent className="w-75 p-0" align="start">
+      <PopoverContent variant="flush" className="w-75" align="start">
         <Command>
-          <CommandInput
-            placeholder="Search mock data provider..."
-            className="h-9 text-xs"
-          />
+          <CommandInput placeholder="Search mock data provider..." />
           <CommandList className="max-h-75 overflow-y-auto">
-            <CommandEmpty className="text-muted-foreground py-3 text-center text-xs">
-              No data provider found.
-            </CommandEmpty>
+            <CommandEmpty>No data provider found.</CommandEmpty>
             {groupedCategories.map((category) => (
-              <CommandGroup
-                key={category.name}
-                heading={category.name}
-                className="text-muted-foreground text-[10px] font-semibold"
-              >
+              <CommandGroup key={category.name} heading={category.name}>
                 {category.providers.map((provider) => (
                   <CommandItem
                     key={provider.value}
@@ -89,7 +80,7 @@ export function FakerProviderSelect({
                       onValueChange(provider.value);
                       setOpen(false);
                     }}
-                    className="flex items-center justify-between text-xs"
+                    className="justify-between"
                   >
                     <div className="flex flex-col">
                       <span className="text-foreground font-medium">

@@ -96,12 +96,19 @@ function CardContent({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
-function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
+function CardFooter({
+  className,
+  variant = "default",
+  ...props
+}: React.ComponentProps<"div"> & {
+  variant?: "default" | "destructive";
+}) {
   return (
     <div
       data-slot="card-footer"
       className={cn(
         "bg-muted/50 flex items-center rounded-b-xl border-t p-(--card-spacing)",
+        variant === "destructive" && "border-destructive/10 bg-destructive/10",
         className,
       )}
       {...props}

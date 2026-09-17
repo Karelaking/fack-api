@@ -1,5 +1,4 @@
 "use client";
-/* eslint-disable shadcn/no-restyle -- Suppressed at consumer */
 
 import * as React from "react";
 import { RiMoonLine, RiSunLine, RiComputerLine } from "@remixicon/react";
@@ -27,7 +26,6 @@ export const ThemeToggle = (): React.JSX.Element => {
             type="button"
             variant="outline"
             size="icon"
-            className="h-9 w-9 rounded-md"
             title="Toggle theme"
             aria-label="Toggle theme"
           />
@@ -39,24 +37,15 @@ export const ThemeToggle = (): React.JSX.Element => {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-36">
         <DropdownMenuGroup>
-          <DropdownMenuItem
-            onClick={() => setTheme("light")}
-            className="flex items-center gap-2"
-          >
+          <DropdownMenuItem onClick={() => setTheme("light")}>
             <RiSunLine className="h-4 w-4" />
             <span>Light</span>
           </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={() => setTheme("dark")}
-            className="flex items-center gap-2"
-          >
+          <DropdownMenuItem onClick={() => setTheme("dark")}>
             <RiMoonLine className="h-4 w-4" />
             <span>Dark</span>
           </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={() => setTheme("system")}
-            className="flex items-center gap-2"
-          >
+          <DropdownMenuItem onClick={() => setTheme("system")}>
             <RiComputerLine className="h-4 w-4" />
             <span>System</span>
           </DropdownMenuItem>

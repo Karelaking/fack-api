@@ -1,5 +1,4 @@
 "use client";
-/* eslint-disable shadcn/no-restyle -- Suppressed at consumer */
 
 import * as React from "react";
 import { RiAddLine, RiDeleteBin6Line } from "@remixicon/react";
@@ -70,13 +69,7 @@ export const HeadersEditor = ({
             Injected into mock responses on matching requests.
           </p>
         </div>
-        <Button
-          type="button"
-          size="sm"
-          variant="outline"
-          onClick={handleAdd}
-          className="h-7 gap-1 text-[11px] font-semibold"
-        >
+        <Button type="button" size="sm" variant="outline" onClick={handleAdd}>
           <RiAddLine className="h-3 w-3" />
           <span>Add Header</span>
         </Button>
@@ -115,7 +108,6 @@ export const HeadersEditor = ({
             size="xs"
             variant="secondary"
             onClick={handleAdd}
-            className="h-6.5 px-2 text-[10px] font-bold"
           >
             Add Custom Header
           </Button>
@@ -136,20 +128,20 @@ export const HeadersEditor = ({
                 onChange={(e) => handleChange(index, "key", e.target.value)}
                 placeholder="Header Name"
                 aria-label="Header Name"
-                className="h-8 font-mono text-xs font-semibold"
+                variant="mono"
               />
               <Input
                 value={row.value}
                 onChange={(e) => handleChange(index, "value", e.target.value)}
                 placeholder="Value"
                 aria-label="Header Value"
-                className="h-8 font-mono text-xs"
+                variant="mono"
               />
               <Button
                 type="button"
                 size="icon"
-                variant="ghost"
-                className="text-destructive hover:bg-destructive/10 h-8 w-8 shrink-0 transition-colors"
+                variant="destructive"
+                className="shrink-0"
                 title="Delete Header"
                 aria-label="Delete Header"
                 onClick={() => handleRemove(index)}

@@ -1,5 +1,4 @@
 "use client";
-/* eslint-disable shadcn/no-restyle -- Suppressed at consumer */
 
 import * as React from "react";
 import { RiTimeLine, RiAlertLine } from "@remixicon/react";
@@ -125,7 +124,7 @@ export function ChaosConfig({
 
         <div className="space-y-3">
           {/* Min Latency */}
-          <div className="space-y-1">
+          <div className="space-y-1 py-1">
             <div className="text-muted-foreground flex items-center justify-between text-[11px] font-medium">
               <span>Minimum Delay</span>
               <span>{latencyMin} ms</span>
@@ -137,12 +136,11 @@ export function ChaosConfig({
               min={0}
               max={10000}
               step={50}
-              className="py-1"
             />
           </div>
 
           {/* Max Latency */}
-          <div className="space-y-1">
+          <div className="space-y-1 py-1">
             <div className="text-muted-foreground flex items-center justify-between text-[11px] font-medium">
               <span>Maximum Delay</span>
               <span>{latencyMax} ms</span>
@@ -154,7 +152,6 @@ export function ChaosConfig({
               min={0}
               max={10000}
               step={50}
-              className="py-1"
             />
           </div>
         </div>
@@ -188,7 +185,7 @@ export function ChaosConfig({
               step={1}
               value={errorRate || ""}
               onChange={handleErrorRate}
-              className="h-8 w-20 text-xs font-medium"
+              className="w-20"
               placeholder="0"
             />
             <span className="text-muted-foreground text-[11px] leading-normal">

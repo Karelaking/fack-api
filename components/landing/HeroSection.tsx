@@ -1,5 +1,4 @@
 "use client";
-/* eslint-disable shadcn/no-restyle -- Suppressed at consumer */
 
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
@@ -15,7 +14,9 @@ const Hero3DModel = dynamic(
   {
     ssr: false,
     loading: (): React.JSX.Element => (
-      <Skeleton className="h-115 w-full rounded-3xl" />
+      <div className="h-115 w-full overflow-hidden rounded-3xl">
+        <Skeleton className="h-full w-full" />
+      </div>
     ),
   },
 );

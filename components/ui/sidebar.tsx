@@ -1,5 +1,4 @@
 "use client";
-/* eslint-disable shadcn/no-restyle -- Internal composition */
 
 import * as React from "react";
 import { mergeProps } from "@base-ui/react/merge-props";
