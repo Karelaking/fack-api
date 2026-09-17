@@ -119,12 +119,20 @@ function DialogFooter({
   );
 }
 
-function DialogTitle({ className, ...props }: DialogPrimitive.Title.Props) {
+function DialogTitle({
+  className,
+  variant = "default",
+  ...props
+}: DialogPrimitive.Title.Props & {
+  /** Visual variant of the dialog title */
+  variant?: "default" | "destructive";
+}) {
   return (
     <DialogPrimitive.Title
       data-slot="dialog-title"
       className={cn(
         "font-heading text-base leading-none font-medium",
+        variant === "destructive" && "text-destructive flex items-center gap-2",
         className,
       )}
       {...props}

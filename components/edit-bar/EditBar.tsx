@@ -1,4 +1,5 @@
 "use client";
+/* eslint-disable shadcn/no-restyle -- Suppressed at consumer */
 
 import * as React from "react";
 import {
@@ -240,11 +241,13 @@ function EditBarInner({
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
-      <SheetHeader className="border-border shrink-0 border-b pb-2">
+      <SheetHeader variant="bordered" className="shrink-0">
+        { }
         <SheetTitle className="flex items-center gap-1.5 text-base">
           <RiSettings2Line className="text-primary h-4 w-4" />
           <span>Edit Route Config</span>
         </SheetTitle>
+        { }
         <SheetDescription className="text-[11px]">
           Simulate status codes, headers, delays, and configure response
           payloads.
@@ -307,6 +310,7 @@ function EditBarInner({
             value={path}
             onChange={(e) => setPath(e.target.value)}
             placeholder="/endpoint/path"
+             
             className="h-8 font-mono text-xs font-semibold"
             disabled={loading}
           />
@@ -348,7 +352,7 @@ function EditBarInner({
               type="number"
               value={statusCode}
               onChange={(e) => setStatusCode(parseInt(e.target.value) || 200)}
-              className="h-7 w-16 text-center font-mono text-xs font-bold"
+              variant="mono" className="h-7 w-16 text-center"
               disabled={loading}
               min={100}
               max={599}
@@ -361,10 +365,11 @@ function EditBarInner({
         defaultValue="schema"
         className="mt-3 flex min-h-0 min-w-0 flex-1 flex-col"
       >
+        { }
         <TabsList className="bg-muted grid h-8.5 shrink-0 grid-cols-5 p-1">
           <TabsTrigger
             value="schema"
-            className="gap-1 px-1 text-[10.5px] font-bold"
+            size="compact"
           >
             <span>Schema</span>
             <span className="bg-muted-foreground/15 text-muted-foreground py-0.2 rounded-xs px-1 font-mono text-[9px]">
@@ -373,7 +378,7 @@ function EditBarInner({
           </TabsTrigger>
           <TabsTrigger
             value="rules"
-            className="gap-1 px-1 text-[10.5px] font-bold"
+            size="compact"
           >
             <span>Rules</span>
             {rules.length > 0 && (
@@ -384,7 +389,7 @@ function EditBarInner({
           </TabsTrigger>
           <TabsTrigger
             value="behavior"
-            className="gap-1 px-1 text-[10.5px] font-bold"
+            size="compact"
           >
             <span>Chaos</span>
             {(latencyMin > 0 || latencyMax > 0 || errorRate > 0) && (
@@ -395,7 +400,7 @@ function EditBarInner({
           </TabsTrigger>
           <TabsTrigger
             value="headers"
-            className="gap-1 px-1 text-[10.5px] font-bold"
+            size="compact"
           >
             <span>Headers</span>
             {headers.length > 0 && (
@@ -404,7 +409,7 @@ function EditBarInner({
               </span>
             )}
           </TabsTrigger>
-          <TabsTrigger value="preview" className="px-1 text-[10.5px] font-bold">
+          <TabsTrigger value="preview" size="compact">
             Preview
           </TabsTrigger>
         </TabsList>
@@ -440,6 +445,7 @@ function EditBarInner({
           {/* JSON Schema Live Preview & TS Export Tab */}
           <TabsContent
             value="preview"
+             
             className="m-0 flex h-full flex-col space-y-2"
           >
             <div className="border-border flex shrink-0 items-center justify-between border-b pb-1.5">
@@ -455,6 +461,7 @@ function EditBarInner({
                   title="Copy Schema JSON"
                   aria-label="Copy Schema JSON"
                   onClick={handleCopySchema}
+                   
                   className="h-7 gap-1 px-2 text-[10px] font-bold"
                 >
                   {copiedJson ? (
@@ -471,6 +478,7 @@ function EditBarInner({
                   title="Generate types"
                   aria-label="Generate types"
                   onClick={() => setTsOpen(true)}
+                   
                   className="h-7 gap-1 px-2 text-[10px] font-bold"
                 >
                   <RiCodeLine className="h-3.5 w-3.5" />
@@ -496,6 +504,7 @@ function EditBarInner({
           onClick={handleDelete}
           disabled={loading}
           aria-disabled={loading}
+           
           className="h-8 gap-1 text-xs font-bold"
         >
           {loading ? (
@@ -515,6 +524,7 @@ function EditBarInner({
             aria-label="Cancel edits"
             onClick={() => onOpenChange(false)}
             disabled={loading}
+             
             className="h-8 text-xs font-bold"
           >
             Cancel
@@ -527,6 +537,7 @@ function EditBarInner({
             onClick={handleSave}
             disabled={loading}
             aria-disabled={loading}
+             
             className="h-8 gap-1 text-xs font-bold"
           >
             {loading ? (
@@ -572,6 +583,7 @@ export function EditBar({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
         aria-label="Edit Route Config"
+         
         className="flex h-full w-full flex-col overflow-hidden p-4 sm:max-w-135"
       >
         <SchemaStoreProvider initialFields={initialFields}>

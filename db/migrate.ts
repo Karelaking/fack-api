@@ -1,25 +1,75 @@
 import { migrate } from "drizzle-orm/libsql/migrator";
 import { db } from "./index";
-
 import { dbLogger } from "@/lib/logger";
 
 /**
  * Runs pending database migrations.
- * Called at app startup to ensure the schema is current.
+ * Self-healing:
+ * - If database is empty, runs all migrations from scratch.
+ * - If database tables already exist (e.g. created via db:push) but __drizzle_migrations is unpopulated,
+ *   synchronizes __drizzle_migrations to the latest applied schema state so future migrations work seamlessly.
+ * - Catches duplicate column/table errors gracefully so the app never fails to start.
  */
-export async function runMigrations() {
+export async function runMigrations(): Promise<void> {
   try {
-    // Check if the "projects" table already exists in the database
-    const result = await db.$client.execute(
+    // 1. Check if the "projects" table exists
+    const tableCheck = await db.$client.execute(
       "SELECT name FROM sqlite_master WHERE type='table' AND name='projects'",
     );
 
-    if (result.rows.length === 0) {
-      dbLogger.info("Database tables do not exist. Running migrations...");
+    if (tableCheck.rows.length > 0) {
+      // Ensure __drizzle_migrations table exists
+      await db.$client.execute(`
+                CREATE TABLE IF NOT EXISTS __drizzle_migrations (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    hash text NOT NULL,
+                    created_at numeric
+                )
+            `);
+
+      // Check if projects already has is_caching_enabled column
+      const colCheck = await db.$client.execute("PRAGMA table_info(projects)");
+      const colNames = colCheck.rows.map((r) => r.name);
+
+      if (colNames.includes("is_caching_enabled")) {
+        // Ensure the 0003 migration (1784660622086) is recorded so Drizzle doesn't re-attempt
+        const recordCheck = await db.$client.execute({
+          sql: "SELECT id FROM __drizzle_migrations WHERE created_at = ?",
+          args: [1784660622086],
+        });
+
+        if (recordCheck.rows.length === 0) {
+          await db.$client.execute({
+            sql: `INSERT INTO __drizzle_migrations ("hash", "created_at") VALUES (?, ?)`,
+            args: [
+              "c9e814711db525e689171edd88cc8bd5520fc6e58f0c860697e3e017db686154",
+              1784660622086,
+            ],
+          });
+          dbLogger.info(
+            "Synchronized __drizzle_migrations: registered is_caching_enabled migration as applied.",
+          );
+        }
+      }
+    }
+
+    // 2. Run pending migrations safely
+    try {
       await migrate(db, { migrationsFolder: "./drizzle" });
-      dbLogger.success("Database migrations applied successfully.");
-    } else {
-      dbLogger.info("Database tables already exist. Skipping migration setup.");
+      dbLogger.success("Database migrations checked and applied successfully.");
+    } catch (migrationError: unknown) {
+      const message = String(migrationError);
+      if (
+        message.includes("duplicate column name") ||
+        message.includes("already exists")
+      ) {
+        dbLogger.warn(
+          "Database schema columns already present. Skipping duplicate migration:",
+          message,
+        );
+      } else {
+        throw migrationError;
+      }
     }
   } catch (error) {
     dbLogger.error("Failed to run database migrations:", error);

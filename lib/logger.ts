@@ -1,7 +1,10 @@
 import { createConsola, type ConsolaInstance } from "consola";
-import { type ILogger, LoggerRegistry } from "./logger-registry";
+import { type Logger, LoggerRegistry } from "./logger-registry";
 
-export interface ILogTransport {
+/**
+ * Transport contract for emitting log events across different log levels.
+ */
+export interface LogTransport {
   log(
     level: "info" | "success" | "warn" | "error" | "debug",
     tag: string,
@@ -10,20 +13,37 @@ export interface ILogTransport {
   ): void;
 }
 
-export class ConsolaTransport implements ILogTransport {
+/** Legacy alias to prevent breaking any callers */
+export type ILogTransport = LogTransport;
+
+/**
+ * Consola transport adapter that writes structured logs to the console.
+ * Caches tagged instances to avoid per-log allocation overhead.
+ */
+export class ConsolaTransport implements LogTransport {
   private instance: ConsolaInstance;
+  private taggedInstances = new Map<string, ConsolaInstance>();
 
   constructor(level: number) {
     this.instance = createConsola({ level });
   }
 
-  log(
+  private getTaggedInstance(tag: string): ConsolaInstance {
+    let tagged = this.taggedInstances.get(tag);
+    if (!tagged) {
+      tagged = this.instance.withTag(tag);
+      this.taggedInstances.set(tag, tagged);
+    }
+    return tagged;
+  }
+
+  public log(
     level: "info" | "success" | "warn" | "error" | "debug",
     tag: string,
     message: string,
     ...args: unknown[]
   ): void {
-    const loggerWithTag = this.instance.withTag(tag);
+    const loggerWithTag = this.getTaggedInstance(tag);
     switch (level) {
       case "error":
         loggerWithTag.error(message, ...args);
@@ -45,42 +65,50 @@ export class ConsolaTransport implements ILogTransport {
   }
 }
 
-export class ScopedLogger implements ILogger {
+/**
+ * ScopedLogger decorates a LogTransport with a fixed tag string.
+ */
+export class ScopedLogger implements Logger {
   constructor(
-    private transport: ILogTransport,
+    private transport: LogTransport,
     private tag: string,
   ) {}
 
-  info(message: string, ...args: unknown[]): void {
+  public info(message: string, ...args: unknown[]): void {
     this.transport.log("info", this.tag, message, ...args);
   }
 
-  success(message: string, ...args: unknown[]): void {
+  public success(message: string, ...args: unknown[]): void {
     this.transport.log("success", this.tag, message, ...args);
   }
 
-  warn(message: string, ...args: unknown[]): void {
+  public warn(message: string, ...args: unknown[]): void {
     this.transport.log("warn", this.tag, message, ...args);
   }
 
-  error(message: string, ...args: unknown[]): void {
+  public error(message: string, ...args: unknown[]): void {
     this.transport.log("error", this.tag, message, ...args);
   }
 
-  debug(message: string, ...args: unknown[]): void {
+  public debug(message: string, ...args: unknown[]): void {
     this.transport.log("debug", this.tag, message, ...args);
   }
 }
 
-export function registerConsolaProvider() {
+/**
+ * Registers the standard Consola provider with the LoggerRegistry.
+ */
+export function registerConsolaProvider(): void {
   const logLevel = process.env.LOG_LEVEL
     ? parseInt(process.env.LOG_LEVEL, 10)
     : 4;
   const transport = new ConsolaTransport(logLevel);
-  LoggerRegistry.setProvider((tag) => new ScopedLogger(transport, tag));
+  LoggerRegistry.setProvider(
+    (tag: string): Logger => new ScopedLogger(transport, tag),
+  );
 }
 
-// Legacy exports for database connection/migration files direct usage
+// Default transports and loggers
 const defaultLogLevel = process.env.LOG_LEVEL
   ? parseInt(process.env.LOG_LEVEL, 10)
   : 4;

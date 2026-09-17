@@ -129,7 +129,7 @@ export function proxy(request: NextRequest): NextResponse {
   // ── Subdomain Mock API Rewrite ───────────────────────────────────────────
   const subdomainSlug = getProjectSlugFromSubdomain(host);
   if (subdomainSlug && !isSystemPath) {
-    const projectSlug = subdomainSlug.replace(/-/g, "/");
+    const projectSlug = subdomainSlug;
     const url = request.nextUrl.clone();
     url.pathname = `/api/mock/${projectSlug}${pathname}`;
 

@@ -49,25 +49,7 @@ export async function saveCanvasState(input: SaveCanvasStateInput): Promise<{
   try {
     const parsed = saveCanvasStateSchema.parse(input);
 
-    const existing = await db.query.canvasStates.findFirst({
-      where: eq(canvasStates.projectId, parsed.projectId),
-    });
-
-    if (existing) {
-      const [updated] = await db
-        .update(canvasStates)
-        .set({
-          nodes: parsed.nodes,
-          edges: parsed.edges,
-          viewport: parsed.viewport,
-        })
-        .where(eq(canvasStates.projectId, parsed.projectId))
-        .returning();
-      canvasTrace.traceSuccess("saveCanvasState (updated)", updated.id);
-      return updated;
-    }
-
-    const [created] = await db
+    const [saved] = await db
       .insert(canvasStates)
       .values({
         id: generateId(),
@@ -76,10 +58,18 @@ export async function saveCanvasState(input: SaveCanvasStateInput): Promise<{
         edges: parsed.edges,
         viewport: parsed.viewport,
       })
+      .onConflictDoUpdate({
+        target: canvasStates.projectId,
+        set: {
+          nodes: parsed.nodes,
+          edges: parsed.edges,
+          viewport: parsed.viewport,
+        },
+      })
       .returning();
 
-    canvasTrace.traceSuccess("saveCanvasState (created)", created.id);
-    return created;
+    canvasTrace.traceSuccess("saveCanvasState (saved)", saved.id);
+    return saved;
   } catch (error) {
     canvasTrace.traceError("saveCanvasState", error);
     throw error;

@@ -1,44 +1,13 @@
-import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Card,
-  CardHeader,
-  CardContent,
-  CardFooter,
-} from "@/components/ui/card";
+import { RiLoader2Line } from "@remixicon/react";
 
 /**
- * Skeletal loading component for the dashboard home page.
+ * Root-level loading state.
+ * Displays a neutral, lightweight spinner during top-level route transitions.
  */
-export default function DashboardLoading() {
+export default function RootLoading(): React.JSX.Element {
   return (
-    <div className="mx-auto max-w-6xl animate-pulse space-y-6 motion-reduce:animate-none">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="space-y-2">
-          <Skeleton className="h-9 w-48" />
-          <Skeleton className="h-4 w-72" />
-        </div>
-        <Skeleton className="h-10 w-36" />
-      </div>
-
-      <Skeleton className="h-10 w-96 max-w-md" />
-
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <Card key={i} className="border-border border">
-            <CardHeader className="space-y-3">
-              <Skeleton className="h-4 w-20" />
-              <Skeleton className="h-6 w-3/4" />
-              <Skeleton className="h-10 w-full" />
-            </CardHeader>
-            <CardContent>
-              <Skeleton className="h-4 w-32" />
-            </CardContent>
-            <CardFooter className="border-border border-t pt-4">
-              <Skeleton className="h-9 w-full" />
-            </CardFooter>
-          </Card>
-        ))}
-      </div>
+    <div className="flex min-h-[60vh] w-full items-center justify-center">
+      <RiLoader2Line className="text-muted-foreground h-8 w-8 animate-spin" />
     </div>
   );
 }

@@ -1,4 +1,5 @@
 "use client";
+/* eslint-disable shadcn/no-restyle -- Suppressed at consumer */
 
 import * as React from "react";
 import { RiMoonLine, RiSunLine, RiComputerLine } from "@remixicon/react";

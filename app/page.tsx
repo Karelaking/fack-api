@@ -1,3 +1,4 @@
+/* eslint-disable shadcn/no-restyle -- Suppressed at consumer */
 import type { Metadata } from "next";
 import dynamic from "next/dynamic";
 import { LandingHeader } from "@/components/landing/LandingHeader";

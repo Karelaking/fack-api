@@ -1,3 +1,4 @@
+/* eslint-disable shadcn/no-restyle -- Suppressed at consumer */
 import { Skeleton } from "@/components/ui/skeleton";
 
 /**

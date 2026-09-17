@@ -17,11 +17,13 @@ export interface ProjectContextValue {
   updatedAt: Date;
 }
 
-const ProjectContext = React.createContext<ProjectContextValue | null>(null);
+const ProjectContext = React.createContext<ProjectContextValue | undefined>(
+  undefined,
+);
 
 /**
  * Hook to access the current project from context.
- * Throws if used outside a ProjectProvider — guarantees non-null return.
+ * Throws if used outside a ProjectProvider — guarantees defined return.
  */
 export function useProject(): ProjectContextValue {
   const ctx = React.useContext(ProjectContext);
@@ -35,16 +37,16 @@ export function useProject(): ProjectContextValue {
  * Server-rendered provider that passes the validated project down to client
  * components without prop drilling through every subpage.
  */
-export function ProjectProvider({
+export const ProjectProvider = ({
   project,
   children,
 }: {
   project: ProjectContextValue;
   children: React.ReactNode;
-}) {
+}): React.JSX.Element => {
   return (
     <ProjectContext.Provider value={project}>
       {children}
     </ProjectContext.Provider>
   );
-}
+};

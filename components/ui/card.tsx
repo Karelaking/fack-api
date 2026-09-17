@@ -5,14 +5,24 @@ import { cn } from "@/lib/utils";
 function Card({
   className,
   size = "default",
+  variant = "default",
   ...props
-}: React.ComponentProps<"div"> & { size?: "default" | "sm" }) {
+}: React.ComponentProps<"div"> & {
+  size?: "default" | "sm";
+  /** Visual variant of the card */
+  variant?: "default" | "dashed" | "interactive" | "danger";
+}) {
   return (
     <div
       data-slot="card"
       data-size={size}
       className={cn(
         "group/card bg-card text-card-foreground ring-foreground/10 flex flex-col gap-(--card-spacing) overflow-hidden rounded-xl py-(--card-spacing) text-sm ring-1 [--card-spacing:--spacing(4)] has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 data-[size=sm]:[--card-spacing:--spacing(3)] data-[size=sm]:has-data-[slot=card-footer]:pb-0 *:[img:first-child]:rounded-t-xl *:[img:last-child]:rounded-b-xl",
+        variant === "dashed" && "border border-dashed ring-0",
+        variant === "interactive" &&
+          "hover:border-primary/20 backdrop-blur-sm transition-all duration-300 hover:shadow-lg",
+        variant === "danger" &&
+          "border-destructive/30 bg-destructive/5 border ring-0",
         className,
       )}
       {...props}
@@ -33,12 +43,19 @@ function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
-function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
+function CardTitle({
+  className,
+  variant = "default",
+  ...props
+}: React.ComponentProps<"div"> & {
+  variant?: "default" | "destructive";
+}) {
   return (
     <div
       data-slot="card-title"
       className={cn(
         "font-heading text-base leading-snug font-medium group-data-[size=sm]/card:text-sm",
+        variant === "destructive" && "text-destructive flex items-center gap-2",
         className,
       )}
       {...props}

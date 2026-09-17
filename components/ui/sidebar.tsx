@@ -1,4 +1,5 @@
 "use client";
+/* eslint-disable shadcn/no-restyle -- Internal composition */
 
 import * as React from "react";
 import { mergeProps } from "@base-ui/react/merge-props";
@@ -187,7 +188,8 @@ function Sidebar({
           data-sidebar="sidebar"
           data-slot="sidebar"
           data-mobile="true"
-          className="bg-sidebar text-sidebar-foreground w-(--sidebar-width) p-0 [&>button]:hidden"
+          variant="sidebar"
+          className="w-(--sidebar-width) [&>button]:hidden"
           style={
             {
               "--sidebar-width": SIDEBAR_WIDTH_MOBILE,

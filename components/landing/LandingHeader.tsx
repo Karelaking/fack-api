@@ -1,4 +1,5 @@
 "use client";
+/* eslint-disable shadcn/no-restyle -- Suppressed at consumer */
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";

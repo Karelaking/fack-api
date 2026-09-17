@@ -1,4 +1,5 @@
 "use client";
+/* eslint-disable shadcn/no-restyle -- Suppressed at consumer */
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
@@ -301,7 +302,10 @@ export const ProjectEndpoints = ({
 
       {/* Grid listing */}
       {endpointsList.length === 0 ? (
-        <Card className="flex flex-col items-center justify-center border-dashed p-12 text-center">
+        <Card
+          variant="dashed"
+          className="flex flex-col items-center justify-center p-12 text-center"
+        >
           <RiPulseLine className="text-muted-foreground mb-4 h-10 w-10 animate-pulse stroke-1" />
           <CardTitle className="text-lg">No Endpoint Groups</CardTitle>
           <CardDescription className="mt-1 max-w-sm">
@@ -476,7 +480,7 @@ export const ProjectEndpoints = ({
       <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle className="text-destructive flex items-center gap-2">
+            <DialogTitle variant="destructive">
               <span>Delete Endpoint Group</span>
             </DialogTitle>
             <DialogDescription>

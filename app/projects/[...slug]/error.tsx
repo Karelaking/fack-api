@@ -47,7 +47,7 @@ export default function ProjectError({
           Try Again
         </Button>
         <Link
-          href="/"
+          href="/dashboard"
           className={buttonVariants({ variant: "outline", size: "sm" })}
         >
           <RiArrowLeftLine className="mr-2 h-4 w-4" />

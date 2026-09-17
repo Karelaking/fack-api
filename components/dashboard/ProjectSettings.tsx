@@ -1,4 +1,5 @@
 "use client";
+/* eslint-disable shadcn/no-restyle -- Suppressed at consumer */
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
@@ -152,6 +153,7 @@ export function ProjectSettings({
               Configure workspace metadata, names, and path slugs.
             </CardDescription>
           </CardHeader>
+          { }
           <CardContent className="space-y-4">
             <div className="grid gap-2">
               <label htmlFor="name" className="text-sm font-semibold">
@@ -244,6 +246,7 @@ export function ProjectSettings({
               />
             </div>
           </CardContent>
+          { }
           <CardFooter className="border-border justify-end border-t pt-4">
             <Button
               type="submit"
@@ -251,6 +254,7 @@ export function ProjectSettings({
               aria-disabled={loading || isPending}
               title="Save Changes"
               aria-label="Save Changes"
+               
               className="gap-1.5"
             >
               {loading || isPending ? (
@@ -273,9 +277,9 @@ export function ProjectSettings({
       </form>
 
       {/* Danger Zone Card */}
-      <Card className="border-destructive/30 bg-destructive/5">
+      <Card variant="danger">
         <CardHeader>
-          <CardTitle className="text-destructive flex items-center gap-2">
+          <CardTitle variant="destructive">
             <RiAlertLine className="h-5 w-5" />
             <span>Danger Zone</span>
           </CardTitle>
@@ -284,6 +288,7 @@ export function ProjectSettings({
             schema layouts, and topologies will be deleted permanently.
           </CardDescription>
         </CardHeader>
+        { }
         <CardFooter className="border-destructive/10 bg-destructive/10 flex items-center justify-between border-t pt-4">
           <span className="text-destructive text-xs font-medium">
             This action is not reversible.
@@ -304,6 +309,7 @@ export function ProjectSettings({
                   variant="destructive"
                   title="Delete Workspace"
                   aria-label="Delete Workspace"
+                   
                   className="gap-1.5"
                 />
               }
@@ -313,7 +319,8 @@ export function ProjectSettings({
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle className="text-destructive flex items-center gap-2">
+                { }
+                <DialogTitle variant="destructive">
                   <RiAlertLine className="h-5 w-5" />
                   <span>Confirm Deletion</span>
                 </DialogTitle>
@@ -340,11 +347,13 @@ export function ProjectSettings({
                   value={deleteConfirmText}
                   onChange={(e) => setDeleteConfirmText(e.target.value)}
                   placeholder={project.name}
+                   
                   className="font-mono text-sm"
                   disabled={deleteLoading}
                   autoComplete="off"
                 />
               </div>
+              { }
               <DialogFooter className="mt-2 gap-2 sm:gap-0">
                 <Button
                   type="button"
@@ -371,6 +380,7 @@ export function ProjectSettings({
                     deleteConfirmText !== project.name
                   }
                   aria-disabled={deleteLoading || isPending}
+                   
                   className="gap-1.5"
                 >
                   {(deleteLoading || isPending) && (

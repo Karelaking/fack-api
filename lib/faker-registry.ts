@@ -1,3 +1,13 @@
+/**
+ * Fack API's — Faker Provider Registry
+ *
+ * Implements an Object-Oriented Registry pattern for discovering and querying Faker.js providers.
+ * Provides:
+ * - O(1) provider lookups via a pre-indexed Map
+ * - Memoized category grouping computed once on initialization
+ * - Clean TypeScript typing and full backward compatibility
+ */
+
 import {
   staticProviderDefinitions,
   type FakerProvider,
@@ -12,36 +22,79 @@ export interface FakerCategory {
   providers: FakerProvider[];
 }
 
-// Compute once and cache
-const providerDefinitions: FakerProvider[] = staticProviderDefinitions;
-
 /**
- * Returns all providers grouped by category for the searchable dropdown.
+ * Registry service encapsulating lookup indexing and memoized category grouping.
  */
-export function getGroupedProviders(): FakerCategory[] {
-  const categoryMap = new Map<string, FakerProvider[]>();
+export class FakerRegistryService {
+  private static instance: FakerRegistryService | undefined;
 
-  for (const provider of providerDefinitions) {
-    const existing = categoryMap.get(provider.category) ?? [];
-    existing.push(provider);
-    categoryMap.set(provider.category, existing);
+  private readonly providers: FakerProvider[];
+  private readonly providerMap: Map<string, FakerProvider>;
+  private readonly groupedCategories: FakerCategory[];
+
+  private constructor() {
+    this.providers = staticProviderDefinitions;
+    this.providerMap = new Map<string, FakerProvider>();
+
+    const categoryMap = new Map<string, FakerProvider[]>();
+
+    for (const provider of this.providers) {
+      this.providerMap.set(provider.value, provider);
+
+      const existing = categoryMap.get(provider.category) ?? [];
+      existing.push(provider);
+      categoryMap.set(provider.category, existing);
+    }
+
+    this.groupedCategories = Array.from(categoryMap.entries())
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([name, providers]) => ({ name, providers }));
   }
 
-  return Array.from(categoryMap.entries())
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([name, providers]) => ({ name, providers }));
+  /**
+   * Singleton accessor for FakerRegistryService.
+   */
+  public static getInstance(): FakerRegistryService {
+    if (!FakerRegistryService.instance) {
+      FakerRegistryService.instance = new FakerRegistryService();
+    }
+    return FakerRegistryService.instance;
+  }
+
+  /**
+   * Returns all providers grouped by category in alphabetical order.
+   */
+  public getGroupedProviders(): FakerCategory[] {
+    return this.groupedCategories;
+  }
+
+  /**
+   * Returns a flat array of all registered Faker providers.
+   */
+  public getAllProviders(): FakerProvider[] {
+    return this.providers;
+  }
+
+  /**
+   * Finds a provider by its unique method path value in O(1) time.
+   */
+  public getProviderByValue(value: string): FakerProvider | undefined {
+    return this.providerMap.get(value);
+  }
 }
 
-/**
- * Returns a flat list of all available providers.
- */
+// ── Backward-Compatible Facade ───────────────────────────────────────────────
+
+const fakerRegistryService = FakerRegistryService.getInstance();
+
+export function getGroupedProviders(): FakerCategory[] {
+  return fakerRegistryService.getGroupedProviders();
+}
+
 export function getAllProviders(): FakerProvider[] {
-  return providerDefinitions;
+  return fakerRegistryService.getAllProviders();
 }
 
-/**
- * Looks up a provider by its Faker.js method path.
- */
 export function getProviderByValue(value: string): FakerProvider | undefined {
-  return providerDefinitions.find((p) => p.value === value);
+  return fakerRegistryService.getProviderByValue(value);
 }

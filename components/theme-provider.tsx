@@ -20,7 +20,9 @@ interface ThemeProviderProps {
   disableTransitionOnChange?: boolean;
 }
 
-const ThemeContext = React.createContext<ThemeContextValue | null>(null);
+const ThemeContext = React.createContext<ThemeContextValue | undefined>(
+  undefined,
+);
 
 function getSystemTheme(): ResolvedTheme {
   return window.matchMedia("(prefers-color-scheme: dark)").matches
@@ -28,23 +30,57 @@ function getSystemTheme(): ResolvedTheme {
     : "light";
 }
 
-function applyThemeClass(theme: ResolvedTheme) {
+function applyThemeClass(theme: ResolvedTheme): void {
   const root = document.documentElement;
   root.classList.toggle("dark", theme === "dark");
   root.style.colorScheme = theme;
 }
 
-function isTheme(value: string | null): value is Theme {
+function isTheme(value: string | undefined | null): value is Theme {
   return value === "light" || value === "dark" || value === "system";
 }
 
-export function ThemeProvider({
+const ThemeHotkeyListener = (): React.JSX.Element | null => {
+  const { resolvedTheme, setTheme } = useTheme();
+
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent): void => {
+      const target = e.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.tagName === "SELECT" ||
+          target.isContentEditable)
+      ) {
+        return;
+      }
+
+      // Requires Ctrl+Shift+D or Cmd+Shift+D to toggle theme (preventing accidental single 'd' keystroke)
+      if (
+        e.key.toLowerCase() === "d" &&
+        (e.metaKey || e.ctrlKey) &&
+        e.shiftKey
+      ) {
+        e.preventDefault();
+        setTheme(resolvedTheme === "dark" ? "light" : "dark");
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [resolvedTheme, setTheme]);
+
+  return null;
+};
+
+export const ThemeProvider = ({
   children,
   attribute = "class",
   defaultTheme = "system",
   enableSystem = true,
   storageKey = "theme",
-}: ThemeProviderProps) {
+}: ThemeProviderProps): React.JSX.Element => {
   const [theme, setThemeState] = React.useState<Theme>(() => {
     if (typeof window === "undefined") {
       return defaultTheme;
@@ -76,7 +112,7 @@ export function ThemeProvider({
     }
 
     const media = window.matchMedia("(prefers-color-scheme: dark)");
-    const listener = () => {
+    const listener = (): void => {
       const nextResolvedTheme = getSystemTheme();
       setSystemTheme(nextResolvedTheme);
     };
@@ -100,44 +136,9 @@ export function ThemeProvider({
       {children}
     </ThemeContext.Provider>
   );
-}
+};
 
-function ThemeHotkeyListener(): null {
-  const { resolvedTheme, setTheme } = useTheme();
-
-  React.useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      const target = e.target as HTMLElement | null;
-      if (
-        target &&
-        (target.tagName === "INPUT" ||
-          target.tagName === "TEXTAREA" ||
-          target.tagName === "SELECT" ||
-          target.isContentEditable)
-      ) {
-        return;
-      }
-
-      if (
-        (e.key.toLowerCase() === "d" &&
-          !e.ctrlKey &&
-          !e.metaKey &&
-          !e.altKey) ||
-        (e.key.toLowerCase() === "d" && (e.metaKey || e.ctrlKey) && e.shiftKey)
-      ) {
-        e.preventDefault();
-        setTheme(resolvedTheme === "dark" ? "light" : "dark");
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [resolvedTheme, setTheme]);
-
-  return null;
-}
-
-export function useTheme() {
+export function useTheme(): ThemeContextValue {
   const context = React.useContext(ThemeContext);
 
   if (!context) {

@@ -49,6 +49,9 @@ importers:
       json-schema-to-typescript:
         specifier: ^15.0.4
         version: 15.0.4
+      lru-cache:
+        specifier: ^11.5.2
+        version: 11.5.2
       lucide-react:
         specifier: ^1.41.0
         version: 1.41.0(react@19.2.7)

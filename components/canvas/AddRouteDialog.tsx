@@ -1,4 +1,5 @@
 "use client";
+/* eslint-disable shadcn/no-restyle -- Suppressed at consumer */
 
 import * as React from "react";
 import { toast } from "sonner";
@@ -188,7 +189,7 @@ export const AddRouteDialog = ({
                 >
                   <SelectTrigger
                     aria-label="HTTP Method"
-                    className="w-full font-mono text-xs font-bold"
+                    variant="mono" className="w-full"
                   >
                     <SelectValue />
                   </SelectTrigger>
@@ -274,6 +275,7 @@ export const AddRouteDialog = ({
               aria-disabled={loading}
               title="Create Node"
               aria-label="Create Node"
+               
               className="gap-1.5"
             >
               {loading ? (

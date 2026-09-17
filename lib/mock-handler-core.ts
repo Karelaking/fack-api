@@ -24,6 +24,7 @@ import {
   processQueryParameters,
   evaluateRules,
 } from "@/lib/mock-engine";
+import { findMatchingRoute } from "@/lib/route-matcher";
 import { LoggerRegistry } from "@/lib/logger-registry";
 import { MockResponseFormatterFactory } from "@/lib/mock-formatter";
 
@@ -42,17 +43,80 @@ function normalizePath(path: string): string {
   return res;
 }
 
+export interface ProcessMockRequestOptions {
+  project: Project;
+  requestPath: string;
+  request: NextRequest;
+  startTime: number;
+}
+
+/**
+ * Asynchronously persists request logs to Postgres (Supabase/Neon) or local SQLite.
+ */
+async function recordRequestLog(
+  project: Project,
+  request: NextRequest,
+  matchedMethod: string,
+  matchedPath: string,
+  statusCode: number,
+  startTime: number,
+  isError: boolean,
+  payload: unknown,
+): Promise<void> {
+  if (!project || !project.isLoggingEnabled || !process.env.LOGS_POSTGRES_URL) {
+    return;
+  }
+  const queryParams = JSON.stringify(
+    Object.fromEntries(request.nextUrl.searchParams),
+  );
+  const reqHeaders = JSON.stringify(Object.fromEntries(request.headers));
+  const resPayload =
+    typeof payload === "string"
+      ? payload
+      : JSON.stringify(payload).slice(0, 5000);
+
+  try {
+    if (sqlClient) {
+      await sqlClient`
+                INSERT INTO request_logs (id, project_id, timestamp, method, path, query_params, headers, status_code, latency, is_error, response_payload)
+                VALUES (${crypto.randomUUID()}, ${project.id}, ${Date.now()}, ${matchedMethod}, ${matchedPath || request.nextUrl.pathname}, ${queryParams}, ${reqHeaders}, ${statusCode}, ${Date.now() - startTime}, ${isError}, ${resPayload})
+            `;
+    } else {
+      const isErrorInt = isError ? 1 : 0;
+      await db.$client.execute({
+        sql: `INSERT INTO request_logs (id, project_id, timestamp, method, path, query_params, headers, status_code, latency, is_error, response_payload)
+                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        args: [
+          crypto.randomUUID(),
+          project.id,
+          Date.now(),
+          matchedMethod,
+          matchedPath || request.nextUrl.pathname,
+          queryParams,
+          reqHeaders,
+          statusCode,
+          Date.now() - startTime,
+          isErrorInt,
+          resPayload,
+        ],
+      });
+    }
+  } catch (e) {
+    mockLogger.error("Failed to save request log:", e);
+  }
+}
+
+/**
+ * Core processor for mock API requests.
+ * Uses route-matcher with Express-style dynamic parameters, chaos simulation,
+ * and JSON Schema Faker generation.
+ */
 export async function processMockRequest({
   project,
   requestPath,
   request,
   startTime,
-}: {
-  project: Project;
-  requestPath: string;
-  request: NextRequest;
-  startTime: number;
-}): Promise<Response> {
+}: ProcessMockRequestOptions): Promise<Response> {
   mockCoreTrace.traceCall(
     "processMockRequest",
     project.slug,
@@ -62,57 +126,23 @@ export async function processMockRequest({
   const matchedPath = requestPath;
   const matchedMethod = request.method;
 
-  const logRequest = async (
-    statusCode: number,
-    isError: boolean,
-    payload: unknown,
-  ) => {
-    if (!project || !project.isLoggingEnabled || !process.env.LOGS_POSTGRES_URL)
-      return;
-    const queryParams = JSON.stringify(
-      Object.fromEntries(request.nextUrl.searchParams),
+  const log = (status: number, isErr: boolean, data: unknown): void => {
+    recordRequestLog(
+      project,
+      request,
+      matchedMethod,
+      matchedPath,
+      status,
+      startTime,
+      isErr,
+      data,
     );
-    const reqHeaders = JSON.stringify(Object.fromEntries(request.headers));
-    const resPayload =
-      typeof payload === "string"
-        ? payload
-        : JSON.stringify(payload).slice(0, 5000);
-
-    try {
-      if (sqlClient) {
-        await sqlClient`
-          INSERT INTO request_logs (id, project_id, timestamp, method, path, query_params, headers, status_code, latency, is_error, response_payload)
-          VALUES (${crypto.randomUUID()}, ${project.id}, ${Date.now()}, ${matchedMethod}, ${matchedPath || request.nextUrl.pathname}, ${queryParams}, ${reqHeaders}, ${statusCode}, ${Date.now() - startTime}, ${isError}, ${resPayload})
-        `;
-      } else {
-        const isErrorInt = isError ? 1 : 0;
-        await db.$client.execute({
-          sql: `INSERT INTO request_logs (id, project_id, timestamp, method, path, query_params, headers, status_code, latency, is_error, response_payload)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-          args: [
-            crypto.randomUUID(),
-            project.id,
-            Date.now(),
-            matchedMethod,
-            matchedPath || request.nextUrl.pathname,
-            queryParams,
-            reqHeaders,
-            statusCode,
-            Date.now() - startTime,
-            isErrorInt,
-            resPayload,
-          ],
-        });
-      }
-    } catch (e) {
-      mockLogger.error("Failed to save request log:", e);
-    }
   };
 
   try {
     const method = request.method;
 
-    // ── 3. Load All Enabled Routes for This Project (with Cache) ─────────
+    // ── 1. Load All Enabled Routes for This Project (with Cache) ─────────
     let allRoutes = getCachedRoutes(project.id);
 
     if (!allRoutes) {
@@ -131,10 +161,11 @@ export async function processMockRequest({
       setCachedRoutes(project.id, allRoutes);
     }
 
-    // ── 4. Find Best Matching Route ──────────────────────────────────────
-    const route = allRoutes.find(
-      (r) => r.path === matchedPath && r.method === method && r.isEnabled,
-    );
+    // ── 2. Find Best Matching Route (Exact or Dynamic with Path Params) ───
+    const enabledRoutes = allRoutes.filter((r) => r.isEnabled);
+    const matchResult = findMatchingRoute(enabledRoutes, method, matchedPath);
+    const route = matchResult?.route;
+    const matchedParams = matchResult?.params ?? {};
 
     if (!route) {
       mockLogger.warn(
@@ -146,13 +177,12 @@ export async function processMockRequest({
         hint: `Verify that you have created a ${method} route for path "${matchedPath}" and enabled it.`,
       };
       const response = buildResponse(errBody, 404);
-      after(() => logRequest(404, true, errBody));
+      after(() => log(404, true, errBody));
       mockCoreTrace.traceSuccess("processMockRequest (route not found)", "404");
       return response;
     }
 
-    // ── 5. Evaluate Conditional Logic Rules ──────────────────────────────
-    const matchedParams: Record<string, string> = {}; // URL param matching not active for exact match paths
+    // ── 3. Evaluate Conditional Logic Rules ──────────────────────────────
     const ruleMatch = evaluateRules(
       route.conditionalRules,
       request,
@@ -161,7 +191,7 @@ export async function processMockRequest({
     if (ruleMatch) {
       const response = buildResponse(ruleMatch.body, ruleMatch.status);
       after(() =>
-        logRequest(ruleMatch.status, ruleMatch.status >= 400, ruleMatch.body),
+        log(ruleMatch.status, ruleMatch.status >= 400, ruleMatch.body),
       );
       mockCoreTrace.traceSuccess(
         "processMockRequest (conditional rule matched)",
@@ -170,14 +200,14 @@ export async function processMockRequest({
       return response;
     }
 
-    // ── 6. Simulated Error Injection ─────────────────────────────────────
+    // ── 4. Simulated Error Injection (Chaos Monkey) ──────────────────────
     if (shouldError(route.errorRate ?? 0)) {
       const response = buildErrorResponse(
         route.statusCode >= 400 ? route.statusCode : 500,
         "Simulated server error (Chaos Monkey)",
       );
       after(() =>
-        logRequest(
+        log(
           route.statusCode >= 400 ? route.statusCode : 500,
           true,
           "Simulated Chaos Monkey Error",
@@ -190,10 +220,10 @@ export async function processMockRequest({
       return response;
     }
 
-    // ── 7. Simulated Network Latency ─────────────────────────────────────
+    // ── 5. Simulated Network Latency ─────────────────────────────────────
     await applyLatency(route.latencyMin ?? 0, route.latencyMax ?? 0);
 
-    // ── 8. Schema Resolution & Payload Generation ─────────────────────────
+    // ── 6. Schema Resolution & Payload Generation ─────────────────────────
     let schema: Record<string, unknown> = {};
     try {
       schema = JSON.parse(route.responseSchema ?? "{}");
@@ -201,7 +231,7 @@ export async function processMockRequest({
       mockLogger.warn(`Invalid JSON schema for route ${route.id}`);
     }
 
-    // Parse pagination parameters (page, limit) to dynamically expand generated array size
+    // Parse pagination parameters (page, limit)
     const searchParams = request.nextUrl.searchParams;
     const pageParam = searchParams.get("page") || searchParams.get("_page");
     const limitParam =
@@ -210,7 +240,7 @@ export async function processMockRequest({
       searchParams.get("count");
 
     let limitValue: number | undefined = undefined;
-    let pageValue: number = 1;
+    let pageValue = 1;
 
     if (pageParam) {
       const parsedPage = parseInt(pageParam, 10);
@@ -228,7 +258,6 @@ export async function processMockRequest({
     let rawPayload: unknown;
     let isFromCache = false;
 
-    // Check if we should respond with a list of items (either configured as an array schema, or if pagination limit parameters are passed)
     const isArrayResponse =
       schema.type === "array" ||
       limitValue !== undefined ||
@@ -239,7 +268,6 @@ export async function processMockRequest({
     const cachingEnabled = project.isCachingEnabled !== false;
 
     if (isArrayResponse) {
-      // Determine array generator details from schema
       let itemSchema: Record<string, unknown> = {};
       if (
         schema.type === "array" &&
@@ -251,12 +279,10 @@ export async function processMockRequest({
         itemSchema = schema;
       }
 
-      // If limit is not specified but it's an array response, default limit to 10
       const effectiveLimit = limitValue !== undefined ? limitValue : 10;
 
       if (isPagedRequest) {
         if (cachingEnabled) {
-          // Paged route caching: previous, current, next page only
           let cachedPage = getCachedPageData(
             route.id,
             pageValue,
@@ -266,7 +292,6 @@ export async function processMockRequest({
 
           if (!cachedPage) {
             isFromCache = false;
-            // Generate data specifically for the requested page
             cachedPage = (await generatePayload(
               {
                 type: "array",
@@ -277,12 +302,10 @@ export async function processMockRequest({
             setCachedPageData(route.id, pageValue, effectiveLimit, cachedPage);
           }
 
-          // Prune the cache to keep only previous, current, and next page
           prunePageCache(route.id, pageValue, effectiveLimit);
-
           rawPayload = cachedPage;
 
-          // Prefetch next page in the background (post-response using 'after' hook)
+          // Prefetch next page asynchronously
           after(async () => {
             try {
               const nextPage = pageValue + 1;
@@ -293,7 +316,7 @@ export async function processMockRequest({
               );
               if (!hasNextCached) {
                 mockLogger.info(
-                  `Proactively prefetching and caching next page: ${nextPage}`,
+                  `Proactively prefetching next page: ${nextPage}`,
                 );
                 const nextPageData = (await generatePayload(
                   {
@@ -315,7 +338,6 @@ export async function processMockRequest({
             }
           });
         } else {
-          // Caching disabled: generate exactly effectiveLimit items for this request
           rawPayload = (await generatePayload(
             {
               type: "array",
@@ -326,11 +348,7 @@ export async function processMockRequest({
         }
       } else {
         if (cachingEnabled) {
-          // Standard list response: use old incremental generation logic
-          // Calculate total required items based on pagination request
           const requiredItemsCount = pageValue * effectiveLimit;
-
-          // Check route list cache first
           let cachedArray = getCachedMockData(route.id);
           isFromCache = true;
           if (!cachedArray) {
@@ -340,7 +358,6 @@ export async function processMockRequest({
 
           if (cachedArray.length < requiredItemsCount) {
             isFromCache = false;
-            // Incrementally generate new mock items in batches of 100 to reduce latency
             const deficit = requiredItemsCount - cachedArray.length;
             const generationCount = Math.max(
               100,
@@ -361,7 +378,6 @@ export async function processMockRequest({
 
           rawPayload = cachedArray;
         } else {
-          // Caching disabled: generate exactly the pageValue * effectiveLimit items
           const requiredItemsCount = pageValue * effectiveLimit;
           rawPayload = (await generatePayload(
             {
@@ -374,50 +390,21 @@ export async function processMockRequest({
       }
     } else {
       if (cachingEnabled) {
-        // Standard single-object mock payload generation
         let cachedObject = getCachedSingleMockData(route.id);
         isFromCache = true;
         if (!cachedObject) {
           isFromCache = false;
-          const params = {}; // exact matches have no path parameters
-          const targetSchema = schema;
-          cachedObject = await generatePayload(
-            {
-              ...targetSchema,
-              ...(Object.keys(params).length > 0 && {
-                properties: {
-                  ...(targetSchema.properties as
-                    Record<string, unknown> | undefined),
-                },
-              }),
-            },
-            limitValue,
-          );
+          cachedObject = await generatePayload(schema, limitValue);
           setCachedSingleMockData(route.id, cachedObject);
         }
         rawPayload = cachedObject;
       } else {
-        // Caching disabled: generate fresh single object
-        const params = {};
-        const targetSchema = schema;
-        rawPayload = await generatePayload(
-          {
-            ...targetSchema,
-            ...(Object.keys(params).length > 0 && {
-              properties: {
-                ...(targetSchema.properties as
-                  Record<string, unknown> | undefined),
-              },
-            }),
-          },
-          limitValue,
-        );
+        rawPayload = await generatePayload(schema, limitValue);
       }
     }
 
     let payload: unknown;
     if (isArrayResponse && isPagedRequest) {
-      // Strip pagination parameters from searchParams to prevent double-slicing
       const paramsForProcessing = new URLSearchParams(searchParams);
       paramsForProcessing.delete("page");
       paramsForProcessing.delete("_page");
@@ -429,7 +416,7 @@ export async function processMockRequest({
       payload = processQueryParameters(rawPayload, searchParams);
     }
 
-    // ── 9. Parse Custom Headers ──────────────────────────────────────────
+    // ── 7. Parse Custom Headers ──────────────────────────────────────────
     let customHeaders: Record<string, string> = {};
     try {
       customHeaders = JSON.parse(route.customHeaders ?? "{}");
@@ -437,7 +424,7 @@ export async function processMockRequest({
       mockLogger.warn(`Invalid custom headers for route ${route.id}`);
     }
 
-    // ── 10. Wrap Response using SOLID Formatter Factory ──────────────────
+    // ── 8. Wrap Response using SOLID Formatter Factory ───────────────────
     const latency = Date.now() - startTime;
     const queryRecord: Record<string, string> = {};
     for (const [key, value] of searchParams.entries()) {
@@ -479,7 +466,7 @@ export async function processMockRequest({
           : isArrayResponse
             ? 10
             : undefined,
-      pageValue: pageValue,
+      pageValue,
       totalCount,
     });
 
@@ -488,9 +475,7 @@ export async function processMockRequest({
       route.statusCode,
       customHeaders,
     );
-    after(() =>
-      logRequest(route.statusCode, route.statusCode >= 400, wrappedPayload),
-    );
+    after(() => log(route.statusCode, route.statusCode >= 400, wrappedPayload));
     mockCoreTrace.traceSuccess(
       "processMockRequest (successful mock response)",
       response.status,
@@ -500,7 +485,7 @@ export async function processMockRequest({
     mockCoreTrace.traceError("processMockRequest", error);
     const errBody = { error: true, message: "Internal mock server error" };
     const response = buildErrorResponse(500, errBody.message);
-    after(() => logRequest(500, true, errBody));
+    after(() => log(500, true, errBody));
     return response;
   }
 }

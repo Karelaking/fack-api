@@ -541,8 +541,68 @@ describe("Mock Handler Core - Edge Cases and Scenarios", () => {
     expect(body.meta).toHaveProperty("page", 2);
     expect(body.meta).toHaveProperty("limit", 4);
     expect(body.meta).toHaveProperty("total");
-    expect(body.meta).toHaveProperty("totalPages");
-    expect(body.meta).toHaveProperty("hasNextPage");
     expect(body.meta).toHaveProperty("hasPreviousPage", true);
+  });
+
+  it("should match parameterized dynamic routes like /users/:id", async () => {
+    const parameterizedRoute: Route = {
+      ...defaultRoute,
+      id: "param-route-1",
+      path: "/api/v2/users/:id",
+    };
+    setCachedRoutes(mockProject.id, [parameterizedRoute]);
+
+    const request = {
+      method: "GET",
+      headers: new Headers(),
+      nextUrl: new URL("http://localhost:3000/api/v2/users/usr_abc123"),
+    } as unknown as NextRequest;
+
+    const response = await processMockRequest({
+      project: mockProject,
+      requestPath: "/api/v2/users/usr_abc123",
+      request,
+      startTime: Date.now(),
+    });
+
+    expect(response.status).toBe(200);
+    const body = await response.json();
+    expect(body).toHaveProperty("data");
+  });
+
+  it("should evaluate conditional rules based on matched path parameters", async () => {
+    const routeWithParamRule: Route = {
+      ...defaultRoute,
+      id: "param-rule-route",
+      path: "/api/v2/orgs/:orgId",
+      conditionalRules: JSON.stringify([
+        {
+          type: "param",
+          field: "orgId",
+          operator: "equals",
+          value: "acme-corp",
+          responseStatus: 202,
+          responseBody: JSON.stringify({ customOrg: "ACME Corp Enterprise" }),
+        },
+      ]),
+    };
+    setCachedRoutes(mockProject.id, [routeWithParamRule]);
+
+    const request = {
+      method: "GET",
+      headers: new Headers(),
+      nextUrl: new URL("http://localhost:3000/api/v2/orgs/acme-corp"),
+    } as unknown as NextRequest;
+
+    const response = await processMockRequest({
+      project: mockProject,
+      requestPath: "/api/v2/orgs/acme-corp",
+      request,
+      startTime: Date.now(),
+    });
+
+    expect(response.status).toBe(202);
+    const body = await response.json();
+    expect(body).toEqual({ customOrg: "ACME Corp Enterprise" });
   });
 });

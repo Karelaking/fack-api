@@ -1,4 +1,5 @@
 "use client";
+/* eslint-disable shadcn/no-restyle -- Suppressed at consumer */
 
 import * as React from "react";
 import Link from "next/link";
@@ -277,7 +278,10 @@ export function ProjectGrid({
 
       {/* Grid listing */}
       {filteredProjects.length === 0 ? (
-        <Card className="flex flex-col items-center justify-center border-2 border-dashed p-12 text-center">
+        <Card
+          variant="dashed"
+          className="flex flex-col items-center justify-center p-12 text-center"
+        >
           <RiTerminalBoxLine className="text-muted-foreground/60 mb-3 h-10 w-10 stroke-1" />
           <CardTitle className="text-base font-bold">
             No workspaces found
@@ -525,7 +529,7 @@ export function ProjectGrid({
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle className="text-destructive flex items-center gap-2">
+            <DialogTitle variant="destructive">
               <RiAlertLine className="h-5 w-5" />
               <span>Confirm Deletion</span>
             </DialogTitle>

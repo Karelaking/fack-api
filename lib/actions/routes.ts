@@ -1,8 +1,8 @@
 "use server";
 
 import { db } from "@/db";
-import { routes } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { routes, endpoints, type Route, type Endpoint } from "@/db/schema";
+import { eq, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { generateId } from "@/lib/utils";
 import { clearCache } from "@/lib/cache";
@@ -16,7 +16,10 @@ import { LoggerRegistry } from "@/lib/logger-registry";
 
 const routesTrace = LoggerRegistry.getTrace("db-routes");
 
-export async function getRoutes(endpointId: string) {
+/**
+ * Retrieves all routes belonging to a specific endpoint group.
+ */
+export async function getRoutes(endpointId: string): Promise<Route[]> {
   routesTrace.traceCall("getRoutes", endpointId);
   try {
     const list = await db.query.routes.findMany({
@@ -31,7 +34,10 @@ export async function getRoutes(endpointId: string) {
   }
 }
 
-export async function getRouteById(id: string) {
+/**
+ * Retrieves a single route by its unique ID.
+ */
+export async function getRouteById(id: string): Promise<Route | undefined> {
   routesTrace.traceCall("getRouteById", id);
   try {
     const res = await db.query.routes.findFirst({
@@ -48,23 +54,48 @@ export async function getRouteById(id: string) {
   }
 }
 
-export async function getRoutesByProjectId(_projectId: string) {
-  routesTrace.traceCall("getRoutesByProjectId", _projectId);
+/**
+ * Retrieves all routes scoped to a specific project, preventing multi-tenant data leaks.
+ */
+export async function getRoutesByProjectId(
+  projectId: string,
+): Promise<(Route & { endpoint: Endpoint })[]> {
+  routesTrace.traceCall("getRoutesByProjectId", projectId);
   try {
+    const projectEndpoints = await db.query.endpoints.findMany({
+      where: eq(endpoints.projectId, projectId),
+      columns: { id: true },
+    });
+
+    if (projectEndpoints.length === 0) {
+      routesTrace.traceSuccess(
+        "getRoutesByProjectId",
+        "0 routes (no endpoints)",
+      );
+      return [];
+    }
+
+    const endpointIds = projectEndpoints.map((ep) => ep.id);
     const list = await db.query.routes.findMany({
+      where: inArray(routes.endpointId, endpointIds),
       with: {
         endpoint: true,
       },
+      orderBy: (routes, { asc }) => [asc(routes.path)],
     });
+
     routesTrace.traceSuccess("getRoutesByProjectId", `${list.length} routes`);
-    return list;
+    return list as (Route & { endpoint: Endpoint })[];
   } catch (error) {
     routesTrace.traceError("getRoutesByProjectId", error);
     throw error;
   }
 }
 
-export async function createRoute(input: CreateRouteInput) {
+/**
+ * Creates a new route under a designated endpoint.
+ */
+export async function createRoute(input: CreateRouteInput): Promise<Route> {
   routesTrace.traceCall(
     "createRoute",
     input.endpointId,
@@ -97,7 +128,10 @@ export async function createRoute(input: CreateRouteInput) {
   }
 }
 
-export async function updateRoute(input: UpdateRouteInput) {
+/**
+ * Updates route configuration properties.
+ */
+export async function updateRoute(input: UpdateRouteInput): Promise<Route> {
   routesTrace.traceCall("updateRoute", input.id, input.method, input.path);
   try {
     const parsed = updateRouteSchema.parse(input);
@@ -119,7 +153,10 @@ export async function updateRoute(input: UpdateRouteInput) {
   }
 }
 
-export async function deleteRoute(id: string) {
+/**
+ * Deletes a route by its ID.
+ */
+export async function deleteRoute(id: string): Promise<void> {
   routesTrace.traceCall("deleteRoute", id);
   try {
     await db.delete(routes).where(eq(routes.id, id));

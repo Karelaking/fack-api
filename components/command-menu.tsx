@@ -52,17 +52,29 @@ export function CommandMenu() {
       <CommandList>
         <CommandEmpty>No results found.</CommandEmpty>
         <CommandGroup heading="Navigation">
-          <CommandItem onSelect={() => runCommand(() => router.push("/"))}>
+          <CommandItem
+            onSelect={() => runCommand(() => router.push("/dashboard"))}
+          >
             <RiHomeLine className="mr-2 h-4 w-4" />
             <span>Go to Dashboard</span>
           </CommandItem>
-          <CommandItem onSelect={() => runCommand(() => router.push("/"))}>
+          <CommandItem
+            onSelect={() => runCommand(() => router.push("/dashboard"))}
+          >
             <RiFolderLine className="mr-2 h-4 w-4" />
             <span>Browse Projects</span>
           </CommandItem>
         </CommandGroup>
         <CommandGroup heading="Actions">
-          <CommandItem onSelect={() => runCommand(() => router.push("/"))}>
+          <CommandItem
+            onSelect={() =>
+              runCommand(() => {
+                window.dispatchEvent(
+                  new CustomEvent("open-new-project-dialog"),
+                );
+              })
+            }
+          >
             <RiAddLine className="mr-2 h-4 w-4" />
             <span>Create New Project</span>
             <CommandShortcut>⌘N</CommandShortcut>

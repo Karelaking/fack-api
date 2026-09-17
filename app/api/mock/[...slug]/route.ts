@@ -1,7 +1,7 @@
 import type { NextRequest } from "next/server";
 import { db } from "@/db";
 import { projects } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { buildResponse } from "@/lib/mock-engine";
 import { processMockRequest } from "@/lib/mock-handler-core";
 import { getCachedProjectBySlug, setCachedProjectBySlug } from "@/lib/cache";
@@ -76,20 +76,24 @@ async function handleMockRequest(
       }
     }
 
-    // Fallback to database query if not cached
+    // Fallback to database batch query if not cached
     if (!project) {
-      for (let i = slug.length; i > 0; i--) {
-        const candidateSlug = slug.slice(0, i).join("/");
-        mockLogger.debug(`Checking candidate slug: ${candidateSlug}`);
-        const foundProject = await db.query.projects.findFirst({
-          where: eq(projects.slug, candidateSlug),
-        });
-        if (foundProject) {
-          mockLogger.info(`Resolved project slug (DB): ${foundProject.slug}`);
-          project = foundProject;
-          requestPath = "/" + slug.slice(i).join("/");
-          setCachedProjectBySlug(candidateSlug, foundProject);
-          break;
+      const foundProjects = await db.query.projects.findMany({
+        where: inArray(projects.slug, candidates),
+      });
+
+      if (foundProjects.length > 0) {
+        // Find the longest candidate match (candidates is sorted from longest to shortest)
+        for (const candidateSlug of candidates) {
+          const match = foundProjects.find((p) => p.slug === candidateSlug);
+          if (match) {
+            mockLogger.info(`Resolved project slug (DB batch): ${match.slug}`);
+            project = match;
+            const segmentCount = candidateSlug.split("/").length;
+            requestPath = "/" + slug.slice(segmentCount).join("/");
+            setCachedProjectBySlug(candidateSlug, match);
+            break;
+          }
         }
       }
     }
