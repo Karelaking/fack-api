@@ -1,4 +1,6 @@
 import { migrate } from "drizzle-orm/libsql/migrator";
+import path from "node:path";
+import fs from "node:fs";
 import { db } from "./index";
 import { dbLogger } from "@/lib/logger";
 
@@ -54,8 +56,18 @@ export async function runMigrations(): Promise<void> {
     }
 
     // 2. Run pending migrations safely
+    const migrationsFolder = path.join(process.cwd(), "drizzle");
+    const journalPath = path.join(migrationsFolder, "meta", "_journal.json");
+
+    if (!fs.existsSync(journalPath)) {
+      dbLogger.warn(
+        `Migration journal file not found at ${journalPath}. Skipping file-based migrations.`,
+      );
+      return;
+    }
+
     try {
-      await migrate(db, { migrationsFolder: "./drizzle" });
+      await migrate(db, { migrationsFolder });
       dbLogger.success("Database migrations checked and applied successfully.");
     } catch (migrationError: unknown) {
       const message = String(migrationError);
@@ -68,11 +80,10 @@ export async function runMigrations(): Promise<void> {
           message,
         );
       } else {
-        throw migrationError;
+        dbLogger.error("Failed to apply database migration:", migrationError);
       }
     }
   } catch (error) {
     dbLogger.error("Failed to run database migrations:", error);
-    throw error;
   }
 }
