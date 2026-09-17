@@ -189,7 +189,8 @@ export const AddRouteDialog = ({
                 >
                   <SelectTrigger
                     aria-label="HTTP Method"
-                    variant="mono" className="w-full"
+                    variant="mono"
+                    className="w-full"
                   >
                     <SelectValue />
                   </SelectTrigger>
@@ -275,7 +276,7 @@ export const AddRouteDialog = ({
               aria-disabled={loading}
               title="Create Node"
               aria-label="Create Node"
-               
+
               className="gap-1.5"
             >
               {loading ? (
