@@ -1,3 +1,13 @@
+# [1.6.0](https://github.com/Karelaking/fack-api/compare/v1.5.0...v1.6.0) (2026-09-17)
+
+### Bug Fixes
+
+- **landing:** use BrandLogo component in LandingHeader navbar ([0a9d5e9](https://github.com/Karelaking/fack-api/commit/0a9d5e98ae8148dae12b8b884d7b8affb9ce8928))
+
+### Features
+
+- update branding with new logo and SVG graphics ([bad5dff](https://github.com/Karelaking/fack-api/commit/bad5dff3fb9ab5c01fb9928ef9d5373c4e9d24bd))
+
 # [1.5.0](https://github.com/Karelaking/fack-api/compare/v1.4.0...v1.5.0) (2026-09-07)
 
 ### Bug Fixes
