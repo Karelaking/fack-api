@@ -388,7 +388,7 @@ export interface ConditionalRule {
 export function evaluateRules(
   conditionalRulesJson: string | null | undefined,
   request: NextRequest,
-  params: Record<string, string>,
+  params: Record<string, string | string[]>,
 ): { status: number; body: unknown } | null {
   mockTrace.traceCall("evaluateRules", request.nextUrl.pathname);
   try {
@@ -407,7 +407,10 @@ export function evaluateRules(
       } else if (rule.type === "header") {
         incomingValue = request.headers.get(ruleKey);
       } else if (rule.type === "param") {
-        incomingValue = params[ruleKey] || null;
+        const paramVal = params[ruleKey];
+        incomingValue = Array.isArray(paramVal)
+          ? paramVal.join("/")
+          : (paramVal ?? null);
       }
 
       let isMatch = false;

@@ -4,6 +4,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useQueryState, parseAsBoolean } from "nuqs";
 import {
   RiAddLine,
   RiLoader2Line,
@@ -52,11 +53,24 @@ export const DashboardSidebar = ({
   const router = useRouter();
   const pathname = usePathname();
   const [projects, setProjects] = React.useState<Project[]>(initialProjects);
+  const [newProjectQuery, setNewProjectQuery] = useQueryState(
+    "new",
+    parseAsBoolean.withDefault(false),
+  );
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
   const [name, setName] = React.useState("");
   const [slug, setSlug] = React.useState("");
   const [description, setDescription] = React.useState("");
+
+  const isCreateOpen = dialogOpen || newProjectQuery;
+
+  const handleCreateOpenChange = (open: boolean) => {
+    setDialogOpen(open);
+    if (!open && newProjectQuery) {
+      void setNewProjectQuery(null);
+    }
+  };
 
   const [selectedRoute, setSelectedRoute] = React.useState<{
     id: string;
@@ -113,7 +127,7 @@ export const DashboardSidebar = ({
       });
       toast.success(`Project "${newProj.name}" created successfully!`);
       setProjects([newProj, ...projects]);
-      setDialogOpen(false);
+      handleCreateOpenChange(false);
       setName("");
       setSlug("");
       setDescription("");
@@ -369,7 +383,7 @@ export const DashboardSidebar = ({
       </Sidebar>
 
       {/* New Project Dialog */}
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <Dialog open={isCreateOpen} onOpenChange={handleCreateOpenChange}>
         <DialogContent className="sm:max-w-106.25">
           <form onSubmit={handleSubmit}>
             <DialogHeader>
@@ -440,7 +454,7 @@ export const DashboardSidebar = ({
                 variant="outline"
                 title="Cancel creation"
                 aria-label="Cancel creation"
-                onClick={() => setDialogOpen(false)}
+                onClick={() => handleCreateOpenChange(false)}
                 disabled={loading}
               >
                 Cancel

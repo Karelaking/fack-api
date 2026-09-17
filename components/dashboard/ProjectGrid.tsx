@@ -4,6 +4,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useQueryState, parseAsString, parseAsStringEnum } from "nuqs";
 import {
   RiTerminalBoxLine,
   RiCalendarLine,
@@ -61,8 +62,16 @@ export function ProjectGrid({
   const router = useRouter();
   const [projects, setProjects] =
     React.useState<ProjectWithRelations[]>(initialProjects);
-  const [search, setSearch] = React.useState("");
-  const [sortBy, setSortBy] = React.useState<"updated" | "name">("updated");
+  const [search, setSearch] = useQueryState(
+    "search",
+    parseAsString.withDefault(""),
+  );
+  const [sortBy, setSortBy] = useQueryState(
+    "sort",
+    parseAsStringEnum<"updated" | "name">(["updated", "name"]).withDefault(
+      "updated",
+    ),
+  );
 
   // Deletion states
   const [deleteProj, setDeleteProj] =
@@ -84,19 +93,6 @@ export function ProjectGrid({
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setProjects(initialProjects);
   }, [initialProjects]);
-
-  // Check URL parameter to trigger global open dialog
-  React.useEffect(() => {
-    if (
-      typeof window !== "undefined" &&
-      window.location.search.includes("new=true")
-    ) {
-      window.dispatchEvent(new CustomEvent("open-new-project-dialog"));
-      const url = new URL(window.location.href);
-      url.searchParams.delete("new");
-      window.history.replaceState({}, "", url.pathname + url.search);
-    }
-  }, []);
 
   React.useEffect(() => {
     if (editProj) {

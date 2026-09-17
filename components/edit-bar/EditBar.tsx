@@ -13,7 +13,6 @@ import {
   RiCheckLine,
 } from "@remixicon/react";
 import { toast } from "sonner";
-import { Badge } from "@/components/ui/badge";
 import { updateRoute, deleteRoute } from "@/lib/actions/routes";
 import { SchemaStoreProvider, useSchemaStore } from "@/stores/store-provider";
 import {

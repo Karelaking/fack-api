@@ -10,10 +10,17 @@
  */
 
 import { LRUCache } from "lru-cache";
+import { createStorage } from "unstorage";
 import type { Project, Route } from "@/db/schema";
 import { LoggerRegistry } from "@/lib/logger-registry";
 
 const cacheTrace = LoggerRegistry.getTrace("cache");
+
+/**
+ * Unified storage engine powered by unstorage.
+ * Enables mounting remote drivers (Redis, Upstash, Vercel KV) for distributed caching.
+ */
+export const storage = createStorage();
 
 export interface PageCacheEntry {
   page: number;

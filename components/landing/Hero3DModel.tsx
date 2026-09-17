@@ -5,7 +5,6 @@ import {
   Code2,
   Sparkles,
   Activity,
-  ArrowRight,
   Check,
   Terminal,
   Plus,

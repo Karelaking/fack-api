@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { clearRequestLogs, getRequestLogs } from "@/lib/actions/logs";
 import type { RequestLog } from "@/db/schema";
+import { useVirtualizer } from "@tanstack/react-virtual";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -88,6 +89,15 @@ export const ProjectLogs = ({
       return true;
     });
   }, [logs, search, statusFilter]);
+
+  const parentRef = React.useRef<HTMLDivElement>(null);
+
+  const rowVirtualizer = useVirtualizer({
+    count: filteredLogs.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 48,
+    overscan: 5,
+  });
 
   const getMethodBadgeClass = (method: string) => {
     switch (method.toUpperCase()) {
@@ -194,7 +204,7 @@ export const ProjectLogs = ({
       </div>
 
       {/* Main logs display grid */}
-      <div className="bg-card flex-1 overflow-y-auto border">
+      <div ref={parentRef} className="bg-card flex-1 overflow-y-auto border">
         {filteredLogs.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-3 py-20 text-center">
             <RiTerminalBoxLine className="text-muted-foreground/30 h-10 w-10" />
@@ -210,8 +220,16 @@ export const ProjectLogs = ({
             </div>
           </div>
         ) : (
-          <div className="divide-y">
-            {filteredLogs.map((log) => {
+          <div
+            style={{
+              height: `${rowVirtualizer.getTotalSize()}px`,
+              width: "100%",
+              position: "relative",
+            }}
+          >
+            {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+              const log = filteredLogs[virtualRow.index];
+              if (!log) return null;
               const isExpanded = expandedLogId === log.id;
 
               let parsedHeaders: Record<string, string> = {};
@@ -231,7 +249,19 @@ export const ProjectLogs = ({
               } catch {}
 
               return (
-                <div key={log.id} className="hover:bg-muted/10 transition-all">
+                <div
+                  key={log.id}
+                  data-index={virtualRow.index}
+                  ref={rowVirtualizer.measureElement}
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    width: "100%",
+                    transform: `translateY(${virtualRow.start}px)`,
+                  }}
+                  className="hover:bg-muted/10 border-border/40 border-b transition-all"
+                >
                   {/* Summary Bar */}
                   <div
                     role="button"

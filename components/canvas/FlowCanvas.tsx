@@ -21,6 +21,7 @@ import { toast } from "sonner";
 import { saveCanvasState } from "@/lib/actions/canvas";
 import { updateRoute } from "@/lib/actions/routes";
 import { useRouter } from "next/navigation";
+import { useQueryState, parseAsBoolean } from "nuqs";
 import { RouteNode } from "./RouteNode";
 import { LoggerRegistry } from "@/lib/logger-registry";
 
@@ -67,24 +68,25 @@ function FlowCanvasInner({
   const reactFlowInstance = useReactFlow();
   const router = useRouter();
   const { resolvedTheme } = useTheme();
+  const [newRouteQuery, setNewRouteQuery] = useQueryState(
+    "newRoute",
+    parseAsBoolean.withDefault(false),
+  );
   const [dialogOpen, setDialogOpen] = React.useState(false);
 
-  // Listen for global open-add-route event and query params
+  const isAddRouteOpen = dialogOpen || newRouteQuery;
+
+  const handleOpenChange = (open: boolean) => {
+    setDialogOpen(open);
+    if (!open && newRouteQuery) {
+      void setNewRouteQuery(null);
+    }
+  };
+
+  // Listen for global open-add-route event
   React.useEffect(() => {
     const handleOpen = () => setDialogOpen(true);
     window.addEventListener("open-add-route-dialog", handleOpen);
-
-    // Check if newRoute query parameter is present to open the dialog
-    if (
-      typeof window !== "undefined" &&
-      window.location.search.includes("newRoute=true")
-    ) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setDialogOpen(true);
-      const url = new URL(window.location.href);
-      url.searchParams.delete("newRoute");
-      window.history.replaceState({}, "", url.pathname + url.search);
-    }
 
     return () =>
       window.removeEventListener("open-add-route-dialog", handleOpen);
@@ -482,8 +484,8 @@ function FlowCanvasInner({
       </ReactFlow>
 
       <AddRouteDialog
-        open={dialogOpen}
-        onOpenChange={setDialogOpen}
+        open={isAddRouteOpen}
+        onOpenChange={handleOpenChange}
         endpoints={endpoints}
         onRouteAdded={handleRouteAdded}
       />

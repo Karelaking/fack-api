@@ -3,7 +3,10 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import { updateProjectSchema } from "@/lib/validators";
 import { LoggerRegistry } from "@/lib/logger-registry";
 
 const uiTrace = LoggerRegistry.getTrace("ui-project-settings");
@@ -52,70 +55,61 @@ export function ProjectSettings({
   isLogsDbConfigured,
 }: ProjectSettingsProps): React.JSX.Element {
   const router = useRouter();
-  const [loading, setLoading] = React.useState(false);
   const [deleteOpen, setDeleteOpen] = React.useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = React.useState("");
   const [deleteLoading, setDeleteLoading] = React.useState(false);
-
-  // Form states
-  const [name, setName] = React.useState(project.name);
-  const [slug, setSlug] = React.useState(project.slug);
-  const [description, setDescription] = React.useState(
-    project.description ?? "",
-  );
-  const [isLoggingEnabled, setIsLoggingEnabled] = React.useState(
-    isLogsDbConfigured ? project.isLoggingEnabled : false,
-  );
-  const [isCachingEnabled, setIsCachingEnabled] = React.useState(
-    project.isCachingEnabled !== false,
-  );
-
   const [isPending, startTransition] = React.useTransition();
 
-  const handleUpdate = (e: React.FormEvent): void => {
-    e.preventDefault();
-    if (!name.trim()) {
-      toast.error("Project name is required");
-      return;
-    }
-    if (!slug.trim()) {
-      toast.error("Project slug is required");
-      return;
-    }
-    const cleanedSlug = slug.trim().replace(/^\/+|\/+$/g, "");
-    if (!/^[a-z0-9_/-]+$/.test(cleanedSlug)) {
-      toast.error(
-        "Slug must be lowercase alphanumeric with hyphens, underscores, or slashes",
-      );
-      return;
-    }
+  const {
+    register,
+    handleSubmit,
+    control,
+    setValue,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    resolver: zodResolver(updateProjectSchema),
+    defaultValues: {
+      id: project.id,
+      name: project.name,
+      slug: project.slug,
+      description: project.description ?? "",
+      isLoggingEnabled: isLogsDbConfigured ? project.isLoggingEnabled : false,
+      isCachingEnabled: project.isCachingEnabled !== false,
+    },
+  });
 
-    uiTrace.traceCall("handleUpdate", name, cleanedSlug);
-    setLoading(true);
-    startTransition(async () => {
-      try {
-        const updated = await updateProject({
-          id: project.id,
-          name,
-          slug: cleanedSlug,
-          description,
-          isLoggingEnabled,
-          isCachingEnabled,
-        });
-        toast.success("Workspace settings updated!");
-        uiTrace.traceSuccess("handleUpdate", updated.slug);
-        router.refresh();
-        // Redirect if slug changed
-        if (updated.slug !== project.slug) {
-          router.push(`/projects/${updated.slug}/settings`);
-        }
-      } catch (err) {
-        toast.error("Failed to update workspace settings");
-        uiTrace.traceError("handleUpdate", err);
-      } finally {
-        setLoading(false);
+  const onUpdate = async (data: {
+    name?: string;
+    slug?: string;
+    description?: string;
+    isLoggingEnabled?: boolean;
+    isCachingEnabled?: boolean;
+  }): Promise<void> => {
+    const cleanedSlug = data.slug
+      ? data.slug.trim().replace(/^\/+|\/+$/g, "")
+      : project.slug;
+
+    uiTrace.traceCall("handleUpdate", data.name, cleanedSlug);
+    try {
+      const updated = await updateProject({
+        id: project.id,
+        name: data.name?.trim(),
+        slug: cleanedSlug,
+        description: data.description?.trim(),
+        isLoggingEnabled: data.isLoggingEnabled,
+        isCachingEnabled: data.isCachingEnabled,
+      });
+      toast.success("Workspace settings updated!");
+      uiTrace.traceSuccess("handleUpdate", updated.slug);
+      router.refresh();
+      // Redirect if slug changed
+      if (updated.slug !== project.slug) {
+        router.push(`/projects/${updated.slug}/settings`);
       }
-    });
+    } catch (err) {
+      toast.error("Failed to update workspace settings");
+      uiTrace.traceError("handleUpdate", err);
+    }
   };
 
   const handleDelete = (): void => {
@@ -145,7 +139,7 @@ export function ProjectSettings({
   return (
     <div className="mx-auto max-w-4xl space-y-6 p-4 md:p-6">
       {/* Settings Form Card */}
-      <form onSubmit={handleUpdate}>
+      <form onSubmit={handleSubmit(onUpdate)}>
         <Card>
           <CardHeader>
             <CardTitle>General Settings</CardTitle>
@@ -161,12 +155,16 @@ export function ProjectSettings({
               </label>
               <Input
                 id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                {...register("name")}
                 placeholder="Billing Microservice"
                 maxLength={100}
-                disabled={loading}
+                disabled={isSubmitting}
               />
+              {errors.name && (
+                <span className="text-destructive text-xs">
+                  {errors.name.message}
+                </span>
+              )}
             </div>
             <div className="grid gap-2">
               <label htmlFor="slug" className="text-sm font-semibold">
@@ -174,14 +172,21 @@ export function ProjectSettings({
               </label>
               <Input
                 id="slug"
-                value={slug}
-                onChange={(e) => setSlug(slugifyInput(e.target.value))}
+                {...register("slug", {
+                  onChange: (e) =>
+                    setValue("slug", slugifyInput(e.target.value)),
+                })}
                 placeholder="billing-microservice"
                 maxLength={100}
-                disabled={loading}
+                disabled={isSubmitting}
               />
+              {errors.slug && (
+                <span className="text-destructive text-xs">
+                  {errors.slug.message}
+                </span>
+              )}
               <span className="text-muted-foreground text-xs">
-                Determines the network mock base URL: `/{slug}/...`
+                Determines the network mock base URL: `/{project.slug}/...`
               </span>
             </div>
             <div className="grid gap-2">
@@ -190,13 +195,17 @@ export function ProjectSettings({
               </label>
               <Textarea
                 id="description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                {...register("description")}
                 placeholder="API virtualizer endpoints for billing tasks..."
                 maxLength={500}
-                disabled={loading}
+                disabled={isSubmitting}
                 className="h-24 resize-none"
               />
+              {errors.description && (
+                <span className="text-destructive text-xs">
+                  {errors.description.message}
+                </span>
+              )}
             </div>
             <div
               className={cn(
@@ -217,11 +226,17 @@ export function ProjectSettings({
                     : "Request logging is currently disabled because LOGS_POSTGRES_URL is not configured in environment variables."}
                 </span>
               </div>
-              <Switch
-                id="isLoggingEnabled"
-                checked={isLoggingEnabled}
-                onCheckedChange={setIsLoggingEnabled}
-                disabled={loading || !isLogsDbConfigured}
+              <Controller
+                control={control}
+                name="isLoggingEnabled"
+                render={({ field }) => (
+                  <Switch
+                    id="isLoggingEnabled"
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                    disabled={isSubmitting || !isLogsDbConfigured}
+                  />
+                )}
               />
             </div>
             <div className="bg-muted/10 flex items-center justify-between border p-4">
@@ -238,11 +253,17 @@ export function ProjectSettings({
                   efforts.
                 </span>
               </div>
-              <Switch
-                id="isCachingEnabled"
-                checked={isCachingEnabled}
-                onCheckedChange={setIsCachingEnabled}
-                disabled={loading}
+              <Controller
+                control={control}
+                name="isCachingEnabled"
+                render={({ field }) => (
+                  <Switch
+                    id="isCachingEnabled"
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                    disabled={isSubmitting}
+                  />
+                )}
               />
             </div>
           </CardContent>
@@ -250,14 +271,13 @@ export function ProjectSettings({
           <CardFooter className="border-border justify-end border-t pt-4">
             <Button
               type="submit"
-              disabled={loading || isPending || !name.trim() || !slug.trim()}
-              aria-disabled={loading || isPending}
+              disabled={isSubmitting}
+              aria-disabled={isSubmitting}
               title="Save Changes"
               aria-label="Save Changes"
-
               className="gap-1.5"
             >
-              {loading || isPending ? (
+              {isSubmitting ? (
                 <>
                   <RiLoader2Line
                     className="h-4 w-4 animate-spin"
