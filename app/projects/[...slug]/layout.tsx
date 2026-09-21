@@ -11,6 +11,7 @@ import { HeaderNewProjectButton } from "@/components/dashboard/HeaderNewProjectB
 import { MobileBottomNav } from "@/components/dashboard/MobileBottomNav";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { CommandMenu } from "@/components/command-menu";
+import { AiArchitectDialog } from "@/components/ai/AiArchitectDialog";
 
 interface ProjectLayoutProps {
   children: React.ReactNode;
@@ -95,7 +96,13 @@ export default async function ProjectLayout({
             <HeaderNewProjectButton />
           </header>
           <div className="bg-background flex-1 overflow-auto pb-14 md:pb-0">
-            <ProjectProvider project={project}>{children}</ProjectProvider>
+            <ProjectProvider project={project}>
+              {children}
+              <AiArchitectDialog
+                projectId={project.id}
+                projectSlug={project.slug}
+              />
+            </ProjectProvider>
           </div>
           <MobileBottomNav />
         </main>

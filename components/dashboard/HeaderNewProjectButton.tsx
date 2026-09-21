@@ -2,7 +2,12 @@
 
 import * as React from "react";
 import { usePathname } from "next/navigation";
-import { RiAddLine, RiSaveLine, RiLoader2Line } from "@remixicon/react";
+import {
+  RiAddLine,
+  RiSaveLine,
+  RiLoader2Line,
+  RiSparkling2Fill,
+} from "@remixicon/react";
 import { Button } from "@/components/ui/button";
 
 export function HeaderNewProjectButton(): React.JSX.Element | null {
@@ -35,6 +40,17 @@ export function HeaderNewProjectButton(): React.JSX.Element | null {
   if (isCanvasPage) {
     return (
       <div className="flex items-center gap-2">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          title="AI Architect"
+          aria-label="AI Architect"
+          onClick={() => triggerAction("open-ai-architect-dialog")}
+        >
+          <RiSparkling2Fill className="h-3.5 w-3.5 text-indigo-500" />
+          <span>AI Architect</span>
+        </Button>
         <Button
           type="button"
           variant="outline"
