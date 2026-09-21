@@ -1,3 +1,15 @@
+# [1.7.0](https://github.com/Karelaking/fack-api/compare/v1.6.0...v1.7.0) (2026-09-21)
+
+### Bug Fixes
+
+- **build:** conditionally omit standalone output on vercel to fix build ([0d6ee06](https://github.com/Karelaking/fack-api/commit/0d6ee068a7bdaa44fa03f594d97b3f96ed4a8f6b))
+- **db:** resolve missing journal file error during server startup on vercel ([a92db8a](https://github.com/Karelaking/fack-api/commit/a92db8ad9200faac75e0ac621b0c075a77768c80))
+
+### Features
+
+- integrate radix3, nuqs, react-hook-form, unstorage, and react-virtual ([18751d4](https://github.com/Karelaking/fack-api/commit/18751d404ad8dce5d9650dce80df819df6b3bded))
+- **proxy:** update subdomain slug handling for API rewrites ([5f87c4d](https://github.com/Karelaking/fack-api/commit/5f87c4dc8603e263648fbaa81b5d38bd8bd7eae6))
+
 # [1.6.0](https://github.com/Karelaking/fack-api/compare/v1.5.0...v1.6.0) (2026-09-17)
 
 ### Bug Fixes
