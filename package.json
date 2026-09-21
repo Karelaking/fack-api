@@ -31,7 +31,7 @@
     "drizzle-orm": "^0.45.2",
     "immer": "^11.1.15",
     "json-schema-faker": "^0.6.2",
-    "json-schema-to-typescript": "^15.0.4",
+    "json-schema-to-typescript": "^16.0.0",
     "lru-cache": "^11.5.2",
     "lucide-react": "^1.45.0",
     "nanoid": "^6.0.1",
