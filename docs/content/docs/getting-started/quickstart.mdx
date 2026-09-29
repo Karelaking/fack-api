@@ -1,0 +1,147 @@
+---
+title: First Mock API in 5 Minutes
+description: Step-by-step guide to creating your first mock workspace, endpoints, dynamic Faker.js schema, and testing with cURL.
+---
+
+This guide walks you through building and querying your first realistic mock REST API in less than 5 minutes. You will create a workspace, establish a user service endpoint group, attach a schema with Faker.js generators, and issue a live HTTP request.
+
+## Walkthrough
+
+<Steps>
+
+### Create a New Workspace
+
+From the Fack API dashboard at [http://localhost:3000](http://localhost:3000):
+
+1. Click the **"New Project"** (or **"New Workspace"**) button in the top navigation bar.
+2. Enter a name for your project, such as `Acme Store`.
+3. Provide a unique URL slug, such as `acme-store`.
+4. (Optional) Provide a brief description and click **"Create"**.
+
+The workspace slug is used directly in your mock API URLs:
+
+```text
+http://localhost:3000/<your-slug>/...
+```
+
+### Add an Endpoint Group
+
+Once inside your workspace, you will see the interactive visual canvas:
+
+1. Click **"Add Endpoint"** from the canvas header or right-click anywhere on the grid.
+2. In the dialog, set:
+   - **Name**: `User Service`
+   - **Base Path**: `/v1`
+3. Click **"Confirm"**.
+
+An endpoint node appears on the canvas. The `basePath` serves as a shared prefix for all routes attached to this group.
+
+### Add a GET Route
+
+With the `User Service` endpoint created:
+
+1. Click the **"+"** button on the endpoint card or drag out a connection handle to create a new route.
+2. Configure the route properties:
+   - **Method**: `GET`
+   - **Path**: `/users`
+   - **Status Code**: `200`
+3. Click **"Save"**.
+
+Your route is now mapped to `http://localhost:3000/acme-store/v1/users`.
+
+### Configure Schema Fields with Faker.js
+
+Open the route inspector to define the dynamic response structure:
+
+1. Select the `GET /users` node to open the **Edit Bar** drawer on the right.
+2. Switch to the **Schema Builder** tab.
+3. Add the following fields to your JSON schema:
+
+| Field Name | Type | Faker Provider | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | `string` | `string.uuid` | Generates a valid UUID v4 identifier |
+| `name` | `string` | `person.fullName` | Generates realistic first and last names |
+| `email` | `string` | `internet.email` | Generates RFC-compliant email addresses |
+
+4. Click **"Save Changes"**. Fack API automatically validates the schema and compiles it into the mock generation pipeline.
+
+### Test with cURL
+
+Open your terminal and test the live mock endpoint using `curl`:
+
+```bash title="Terminal"
+curl http://localhost:3000/acme-store/v1/users
+```
+
+You can also open `http://localhost:3000/acme-store/v1/users` directly in your browser or import it into Postman or Insomnia.
+
+</Steps>
+
+## Expected JSON Response Envelope
+
+Fack API standardizes all mock API outputs into a predictable response envelope containing your generated `data` along with execution `meta`:
+
+```json title="HTTP/1.1 200 OK"
+{
+  "data": {
+    "id": "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
+    "name": "Jordan Peterson",
+    "email": "jordan.peterson@example.org"
+  },
+  "meta": {
+    "routeId": "route_9f81a7b4",
+    "projectId": "proj_3c19d4e2",
+    "statusCode": 200,
+    "success": true,
+    "isFromCache": false,
+    "timestamp": "2026-09-22T01:25:34.102Z",
+    "latency": 4,
+    "method": "GET",
+    "path": "/v1/users",
+    "query": {}
+  }
+}
+```
+
+### Understanding the Metadata
+
+- **`data`**: Contains the synthesized payload evaluated against your Faker.js schema rules.
+- **`meta.latency`**: Measures real processing time in milliseconds, including any simulated delays.
+- **`meta.isFromCache`**: Indicates whether the response was served from memory via LRU caching.
+- **`meta.statusCode`**: The HTTP status code assigned to this execution.
+
+<Callout type="info">
+If your route schema is set to an array or list of items, the response envelope automatically switches to list formatting, including item `count`, pagination controls, and predictive prefetching metadata.
+</Callout>
+
+## Query Parameter Filtering & Pagination
+
+Fack API's mock engine includes built-in query parameter parsing without requiring manual code:
+
+```bash title="Terminal"
+# Request specific pagination slice
+curl "http://localhost:3000/acme-store/v1/users?page=1&limit=5"
+
+# Sort results by name in descending order
+curl "http://localhost:3000/acme-store/v1/users?sort=name&order=desc"
+```
+
+## Subdomain Access (Optional)
+
+In addition to path-based routing (`/<slug>/...`), Fack API supports clean subdomain routing during local development:
+
+```bash title="Terminal"
+curl http://acme-store.localhost:3000/v1/users
+```
+
+Subdomain routing strips the project slug from the URL path, mimicking production microservices.
+
+## Next Steps
+
+Now that your first mock endpoint is active, explore how to design complex graph topologies and simulate production turbulence:
+
+<Cards>
+  <Card title="Core Concepts" href="/docs/getting-started/concepts" description="Explore the data hierarchy and dual canvas/dashboard views." />
+  <Card title="Schema Builder" href="/docs/schemas" description="Browse 1,500+ Faker providers, nested objects, and arrays." />
+  <Card title="Chaos Engineering" href="/docs/chaos" description="Simulate network jitter, conditional errors, and rate limits." />
+</Cards>

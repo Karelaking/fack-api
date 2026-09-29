@@ -1,0 +1,174 @@
+---
+title: Deployment Guide
+description: Deploy and self-host Fack API on Docker, Vercel, or bare-metal Node.js environments.
+---
+
+Fack API is fully open-source and self-hostable. Whether you require on-premises data isolation, offline development environments, or an internal mock platform for your engineering organization, you can run Fack API across modern cloud providers, container clusters, or standalone servers.
+
+## Deployment Options
+
+Choose your deployment target below to view step-by-step setup instructions:
+
+<Tabs items={["Vercel", "Docker", "Node.js"]}>
+  <Tab value="Vercel">
+    Deploy Fack API as a serverless application connected to managed cloud databases:
+
+    <Steps>
+      <Step>
+        ### 1. Fork and Import
+        Fork the repository to your GitHub or GitLab account. In the [Vercel Dashboard](https://vercel.com/new), select **Import Git Repository** and choose your fork.
+      </Step>
+
+      <Step>
+        ### 2. Configure Environment Variables
+        Under **Settings** > **Environment Variables**, provide the following connection secrets:
+
+        ```bash title=".env"
+        # Cloud libSQL / Turso database connection
+        DATABASE_URL="libsql://fack-db-yourorg.turso.io"
+        TURSO_AUTH_TOKEN="your-turso-jwt-token"
+
+        # Cloud PostgreSQL for request logging (Neon or Supabase)
+        LOGS_POSTGRES_URL="postgresql://user:pass@ep-host.neon.tech/fack_logs?sslmode=require"
+
+        # Domain configuration for subdomain routing
+        APP_DOMAIN="mockapi.yourdomain.com"
+        ```
+      </Step>
+
+      <Step>
+        ### 3. Deploy
+        Click **Deploy**. Vercel will run `pnpm build` and deploy the application across global edge locations.
+      </Step>
+    </Steps>
+  </Tab>
+
+  <Tab value="Docker">
+    Run Fack API in a self-contained container with local SQLite or Docker Compose:
+
+    <Steps>
+      <Step>
+        ### 1. Build the Docker Image
+        Build the optimized Next.js standalone container:
+
+        ```bash
+        docker build -t fack-api .
+        ```
+      </Step>
+
+      <Step>
+        ### 2. Run Container with Persistent Volume
+        Mount a local directory to preserve the SQLite database file across container restarts:
+
+        ```bash
+        docker run -d \
+          -p 3000:3000 \
+          -v $(pwd)/data:/data \
+          -e DATABASE_URL="file:/data/fack.db" \
+          -e APP_DOMAIN="localhost:3000" \
+          --name fack-api \
+          fack-api
+        ```
+      </Step>
+
+      <Step>
+        ### 3. Full-Stack Docker Compose (Recommended)
+        Alternatively, start the complete stack (Fack API, PostgreSQL log store, and Nginx reverse proxy) in one command:
+
+        ```bash
+        docker compose up -d
+        ```
+      </Step>
+    </Steps>
+  </Tab>
+
+  <Tab value="Node.js">
+    Run directly on a Linux VM, VPS, or bare-metal host using Node.js 20+ and pnpm:
+
+    <Steps>
+      <Step>
+        ### 1. Clone and Install
+        Clone the repository and install dependencies:
+
+        ```bash
+        git clone https://github.com/Karelaking/fack-api.git
+        cd fack-api
+        pnpm install
+        ```
+      </Step>
+
+      <Step>
+        ### 2. Configure Environment
+        Create a `.env.local` configuration file:
+
+        ```bash title=".env.local"
+        DATABASE_URL="file:./data/fack.db"
+        PORT=3000
+        APP_DOMAIN="localhost:3000"
+        ```
+      </Step>
+
+      <Step>
+        ### 3. Push Database Schema
+        Initialize the SQLite tables:
+
+        ```bash
+        pnpm db:push
+        ```
+      </Step>
+
+      <Step>
+        ### 4. Build and Start
+        Compile the Next.js production build and start the server:
+
+        ```bash
+        pnpm build
+        pnpm start
+        ```
+      </Step>
+    </Steps>
+  </Tab>
+</Tabs>
+
+<Callout type="warn">
+  Local file-based SQLite (`file:./data/fack.db`) is not recommended for multi-instance or horizontally scaled production deployments due to filesystem locking. For multi-replica or auto-scaling clusters, use **Turso (libSQL)** for schema and endpoint state and **PostgreSQL** for request logging.
+</Callout>
+
+## Production Checklist
+
+Before rolling out Fack API to your organization, review the following operational considerations:
+
+- **Persistent Database**: Configure `DATABASE_URL` to point to a persistent storage mount (`-v ./data:/data`) or a managed Turso database to prevent data loss when containers cycle.
+- **Remote Telemetry**: Configure `LOGS_POSTGRES_URL` to offload request telemetry to PostgreSQL for high-volume endpoints and collaborative team debugging.
+- **Subdomain Routing**: Set `APP_DOMAIN` to your apex domain (e.g. `mockapi.dev`). When set, incoming requests with host headers like `project-slug.mockapi.dev` automatically route to the corresponding project.
+- **Reverse Proxy Buffering**: When deploying behind Nginx, Caddy, or Cloudflare, disable proxy buffering (`proxy_buffering off;` and `X-Accel-Buffering: no`). This allows Server-Sent Events (SSE) streaming for the AI API Architect to stream tokens smoothly without buffering delays.
+- **TLS / HTTPS**: Ensure SSL termination is enabled on port 443 with valid certificates for your root domain and wildcard subdomains (`*.yourdomain.com`).
+
+## Reverse Proxy Configuration (Nginx)
+
+Below is an example Nginx virtual host configuration supporting subdomain resolution and SSE streaming:
+
+```nginx title="nginx.conf"
+server {
+    listen 80;
+    server_name yourdomain.com *.yourdomain.com;
+
+    client_max_body_size 10M;
+
+    location / {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        # Disable buffering for AI streaming and Server-Sent Events
+        proxy_buffering off;
+        proxy_cache off;
+        add_header X-Accel-Buffering no;
+    }
+}
+```

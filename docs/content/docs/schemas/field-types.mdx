@@ -1,0 +1,165 @@
+---
+title: Field Types & Nesting
+description: Configure primitive data types, build deep object hierarchies, and define structured array collections in the Schema Builder.
+---
+
+The **Schema Builder** supports the core data types defined by the JSON Schema specification. You can combine primitive data types with nested objects and arrays to represent any RESTful resource or complex domain model.
+
+## Supported Field Types
+
+Use the type dropdown in the Edit Bar to assign a data type to any field:
+
+<TypeTable
+  type={{
+    string: {
+      description: 'Text values such as names, identifiers, sentences, or ISO timestamps.',
+      type: 'primitive',
+    },
+    number: {
+      description: 'Floating-point numerical values, decimal amounts, ratings, and coordinates.',
+      type: 'primitive',
+    },
+    integer: {
+      description: 'Whole numeric integers, sequence IDs, status codes, and counts.',
+      type: 'primitive',
+    },
+    boolean: {
+      description: 'Logical true or false binary values.',
+      type: 'primitive',
+    },
+    object: {
+      description: 'Nested key-value container supporting arbitrary levels of child fields.',
+      type: 'composite',
+    },
+    array: {
+      description: 'Ordered list of items with configurable element type (primitives or nested objects).',
+      type: 'composite',
+    },
+  }}
+/>
+
+## Structural Nesting
+
+Real-world API payloads rarely consist solely of flat key-value pairs. Fack API provides full support for composite nesting without arbitrary depth limits.
+
+### Nested Objects
+
+Selecting `object` as a field's type transforms it into a parent node. You can add child fields directly beneath it:
+
+- Child fields inherit full schema capabilities, including their own data types, nullability toggles, and Faker provider bindings.
+- Objects can contain other objects indefinitely (e.g., `user.organization.address.coordinates`).
+- When synthesized, child fields are placed in the parent's `properties` map.
+
+### Typed Array Collections
+
+Selecting `array` allows you to define the structure of list items through the **Item Type** setting:
+
+- **Primitive Arrays**: Configure elements as `string`, `number`, `integer`, or `boolean`. You can attach an **Item Provider** so Faker generates realistic values for each entry (e.g., an array of tag strings or integer IDs).
+- **Object Arrays**: Configure elements as `object`. This unlocks an entire child field tree inside the array items, allowing you to model lists of records like line items, comments, or transaction histories.
+
+<Callout type="info">
+When you toggle **Nullable** on a field, the synthesizer generates a JSON Schema union type such as `["string", "null"]` and excludes the property from the parent's `required` array. Non-nullable fields are strictly enforced and automatically added to `required`.
+</Callout>
+
+## Complete Example: Nested User Schema
+
+Here is an example representing a customer resource with a nested `address` object and an `orders` collection containing both scalar properties and a nested `items` array:
+
+### Synthesized JSON Schema
+
+When configured in the visual builder, `synthesizeSchema` generates the following JSON Schema:
+
+```json title="user-schema.json"
+{
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "x-faker": "string.uuid"
+    },
+    "name": {
+      "type": "string",
+      "x-faker": "person.fullName"
+    },
+    "email": {
+      "type": ["string", "null"],
+      "x-faker": "internet.email"
+    },
+    "address": {
+      "type": "object",
+      "properties": {
+        "street": {
+          "type": "string",
+          "x-faker": "location.streetAddress"
+        },
+        "city": {
+          "type": "string",
+          "x-faker": "location.city"
+        },
+        "zip": {
+          "type": "string",
+          "x-faker": "location.zipCode"
+        }
+      },
+      "required": ["street", "city", "zip"]
+    },
+    "orders": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "orderId": {
+            "type": "string",
+            "x-faker": "string.uuid"
+          },
+          "total": {
+            "type": "number",
+            "x-faker": "commerce.price"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "x-faker": "commerce.productName"
+            }
+          }
+        },
+        "required": ["orderId", "total", "items"]
+      }
+    }
+  },
+  "required": ["id", "name", "address", "orders"]
+}
+```
+
+### Generated Mock Payload
+
+During request execution, the mock engine evaluates the schema and synthesizes realistic, contextually coherent JSON:
+
+```json title="mock-response.json"
+{
+  "id": "e4b17f8a-9f56-4c28-bb83-8a30d52b9921",
+  "name": "Evelyn Vance",
+  "email": "evelyn.vance@example.net",
+  "address": {
+    "street": "742 Evergreen Terrace",
+    "city": "Springfield",
+    "zip": "97477"
+  },
+  "orders": [
+    {
+      "orderId": "38a16d80-5a34-4b53-9ef0-bbec48467ff1",
+      "total": 149.95,
+      "items": ["Ergonomic Steel Chair", "Wireless Noise-Cancelling Headphones"]
+    },
+    {
+      "orderId": "b153ec09-66c3-4d43-9831-294b0d01d1c8",
+      "total": 29.5,
+      "items": ["Handcrafted Ceramic Mug"]
+    }
+  ]
+}
+```
+
+To learn more about connecting your fields to contextual fake data generators, see the [Faker Data Providers](/docs/schemas/faker-providers) guide.

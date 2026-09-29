@@ -1,0 +1,126 @@
+---
+title: Environment Variables
+description: Configuration options and environment variables for local development, custom domains, database storage, and AI generation.
+---
+
+Fack API is designed to work out of the box with zero required environment variables for local development. However, for specialized workloads—such as remote request logging, custom apex domains, or AI-powered schema generation—several configuration options are available.
+
+<Callout type="info">
+No environment variables are required for basic usage. Fack API operates out of the box with embedded SQLite, so you can start developing immediately without configuring a database or secrets.
+</Callout>
+
+## Configuration Reference
+
+The following table documents all supported environment variables:
+
+<TypeTable
+  type={{
+    DATABASE_URL: {
+      type: "string",
+      default: '"file:./data/fack.db"',
+      description: "SQLite database path or libSQL URL for core workspace and route storage.",
+    },
+    LOGS_POSTGRES_URL: {
+      type: "string",
+      description: "PostgreSQL connection string for remote request logging (e.g., Neon, Supabase).",
+    },
+    APP_DOMAIN: {
+      type: "string",
+      description: "Custom apex domain used for subdomain-based project routing.",
+    },
+    NEXT_PUBLIC_APP_DOMAIN: {
+      type: "string",
+      description: "Public domain exposed to the client for sharing and preview URLs.",
+    },
+    LOG_LEVEL: {
+      type: "number",
+      default: "4",
+      description: "Consola log verbosity: 0 (silent), 1 (fatal), 2 (error), 3 (warn), 4 (info), 5 (trace).",
+    },
+    OPENAI_API_KEY: {
+      type: "string",
+      description: "OpenAI API key used by the AI API Architect to synthesize REST API designs.",
+    },
+    GOOGLE_GENERATIVE_AI_KEY: {
+      type: "string",
+      description: "Google Gemini API key used by the AI API Architect to synthesize REST API designs.",
+    },
+  }}
+/>
+
+## Example Configuration
+
+To configure environment variables locally, create a `.env.local` file in the repository root:
+
+```bash title=".env.local"
+# ─── Database Configuration ──────────────────────────────────────────────────
+# Default: file:./data/fack.db
+DATABASE_URL="file:./data/fack.db"
+
+# Optional: Remote PostgreSQL for high-volume request logging
+# LOGS_POSTGRES_URL="postgres://user:password@ep-cool-db.us-east-2.aws.neon.tech/neondb?sslmode=require"
+
+# ─── Custom Domain & Subdomain Routing ───────────────────────────────────────
+# When set, enables http://<slug>.<APP_DOMAIN>/... routing
+# APP_DOMAIN="fackapi.dev"
+# NEXT_PUBLIC_APP_DOMAIN="fackapi.dev"
+
+# ─── Logger Verbosity ────────────────────────────────────────────────────────
+# 0 = Silent, 1 = Fatal, 2 = Error, 3 = Warn, 4 = Info, 5 = Debug/Trace
+LOG_LEVEL=4
+
+# ─── AI API Architect ────────────────────────────────────────────────────────
+# Configure one or both providers to enable natural language API generation
+OPENAI_API_KEY="sk-proj-..."
+# GOOGLE_GENERATIVE_AI_KEY="AIzaSy..."
+```
+
+## Detailed Variable Breakdown
+
+### Database Storage (`DATABASE_URL`)
+
+Fack API uses `@libsql/client` and Drizzle ORM to interface with your database. You can supply:
+
+- A local file path: `file:./data/fack.db` (default)
+- A Turso or libSQL remote URL: `libsql://your-db.turso.io` (requires `DATABASE_AUTH_TOKEN`)
+- An absolute container path for Docker: `file:/data/fack.db`
+
+### Remote Request Logging (`LOGS_POSTGRES_URL`)
+
+While SQLite handles both metadata and telemetry locally, high-frequency mock testing can rapidly grow the local database. Providing a `LOGS_POSTGRES_URL` instructs the mock proxy engine to stream request logs into a separate PostgreSQL table:
+
+- Supports connection pooling strings from providers like **Neon**, **Supabase**, and **AWS RDS**.
+- Logging operations run asynchronously via Next.js `after()`, ensuring that database writes never block client responses.
+
+### Subdomain Routing (`APP_DOMAIN` & `NEXT_PUBLIC_APP_DOMAIN`)
+
+By default, Fack API matches subdomains on `.localhost` (e.g., `http://acme-store.localhost:3000`). If you deploy Fack API to a custom domain (e.g., `mock.mycompany.com`), set:
+
+- `APP_DOMAIN`: Evaluated by `proxy.ts` on incoming requests to extract the workspace slug.
+- `NEXT_PUBLIC_APP_DOMAIN`: Used by the React frontend to display clean copyable cURL commands and share links.
+
+### Log Verbosity (`LOG_LEVEL`)
+
+Fack API uses [Consola](https://github.com/unjs/consola) for structured server logs. Adjust verbosity as needed:
+
+| Level | Name | Description |
+| :--- | :--- | :--- |
+| `0` | Silent | Suppresses all logging output |
+| `1` | Fatal | Logs only critical unrecoverable process errors |
+| `2` | Error | Logs route matching and generation failures |
+| `3` | Warn | Logs deprecations, invalid fallback schemas, or warnings |
+| `4` | Info | Default. Logs startup, cache warmups, and route resolutions |
+| `5` | Trace | Detailed trace logs for debugging proxy rewrites and routing trees |
+
+### AI API Architect (`OPENAI_API_KEY` & `GOOGLE_GENERATIVE_AI_KEY`)
+
+The **AI API Architect** feature allows you to describe full API systems using natural language prompts (e.g., *"Create an e-commerce order fulfillment system with inventory, orders, and payment webhooks"*).
+
+Providing an OpenAI or Google Gemini API key unlocks the AI generation drawer in the Visual Canvas and Dashboard.
+
+## Next Steps
+
+<Cards>
+  <Card title="Quickstart Guide" href="/docs/getting-started/quickstart" description="Build and query your first mock API in under 5 minutes." />
+  <Card title="Core Concepts" href="/docs/getting-started/concepts" description="Explore the data hierarchy and dual canvas/dashboard views." />
+</Cards>

@@ -49,3 +49,7 @@ next-env.d.ts
 # graphify outputs
 /graphify-out/
 
+# fumadocs
+docs/.next/
+docs/.source/
+

@@ -1,0 +1,148 @@
+---
+title: Faker Data Providers
+description: Generate rich, realistic mock datasets with over 1,500 Faker.js data providers spanning 25+ specialized categories.
+---
+
+Fack API integrates the full power of **Faker.js**, giving you access to over 1,500 built-in data generators across 25+ domain categories. Instead of returning generic filler text like `"string"` or `"test"`, your mock endpoints return realistic names, valid email addresses, credit card numbers, geo-coordinates, and high-resolution images.
+
+## Searchable Provider Selector
+
+In the Edit Bar, each field features a data provider combobox selector:
+
+- **Categorized Search**: Filter through providers by category or start typing any keyword (e.g., "email", "avatar", "price") to filter instantly.
+- **Live Example Previews**: The selector displays live rendered sample values next to each provider name, allowing you to preview the format before assigning it.
+- **Zero Client Overhead**: Provider metadata is pre-indexed on initialization, allowing sub-millisecond lookups without bundling the entire Faker.js engine into client-side bundles.
+
+## Provider Categories & Methods
+
+Browse common providers by category below:
+
+<Accordions>
+  <Accordion title="Person (Names, Bios & Titles)">
+    Generate realistic human identities, job titles, and gender data:
+    - `person.fullName` — Complete personal name (e.g., `"Dr. Leslie Abbott"`)
+    - `person.firstName` — Given name (e.g., `"Marcus"`)
+    - `person.lastName` — Surname (e.g., `"Kowalski"`)
+    - `person.jobTitle` — Professional title (e.g., `"Principal Solutions Architect"`)
+    - `person.prefix` — Honorific prefix (e.g., `"Dr."`, `"Ms."`)
+  </Accordion>
+
+  <Accordion title="Internet (Credentials, Emails & URLs)">
+    Construct network identities, communication handles, and web resources:
+    - `internet.email` — Valid email address (e.g., `"devin.ortiz@acme.io"`)
+    - `internet.url` — Fully-qualified HTTPS URL (e.g., `"https://bright-summit.org"`)
+    - `internet.userName` — System or handle username (e.g., `"alex_tech99"`)
+    - `internet.password` — Alphanumeric password string (e.g., `"k8$Jv#92Lm"`)
+    - `internet.ipv4` — IPv4 network address (e.g., `"192.168.1.42"`)
+  </Accordion>
+
+  <Accordion title="Commerce (Products, Pricing & Departments)">
+    Populate e-commerce stores with product catalogs and inventories:
+    - `commerce.productName` — Marketable product title (e.g., `"Ergonomic Wooden Chair"`)
+    - `commerce.price` — Floating-point monetary price (e.g., `499.99`)
+    - `commerce.department` — Store department or category (e.g., `"Electronics"`)
+    - `commerce.productDescription` — Marketing product blurb
+    - `commerce.isbn` — Valid book ISBN string
+  </Accordion>
+
+  <Accordion title="Finance (Accounts, Currencies & Transactions)">
+    Simulate banking transactions, currencies, and account balances:
+    - `finance.accountNumber` — Bank account number (e.g., `"8923471029"`)
+    - `finance.currencyCode` — 3-letter ISO-4217 code (e.g., `"USD"`, `"EUR"`)
+    - `finance.transactionType` — Transaction label (e.g., `"deposit"`, `"withdrawal"`)
+    - `finance.amount` — Formatted financial amount
+    - `finance.iban` — International Bank Account Number
+  </Accordion>
+
+  <Accordion title="Location (Addresses, Cities & Coordinates)">
+    Produce realistic global geographical and postal data:
+    - `location.streetAddress` — Street address with number (e.g., `"742 Evergreen Terrace"`)
+    - `location.city` — Municipality or city name (e.g., `"San Francisco"`)
+    - `location.country` — Country name (e.g., `"Canada"`)
+    - `location.zipCode` — Postal or ZIP code (e.g., `"94103"`)
+    - `location.latitude` / `location.longitude` — Geographical coordinates
+  </Accordion>
+
+  <Accordion title="Lorem (Sentences, Paragraphs & Text)">
+    Produce natural-looking body copy, articles, and descriptions:
+    - `lorem.sentence` — Single sentence of placeholder text
+    - `lorem.paragraph` — Multi-sentence paragraph block
+    - `lorem.words` — Configurable count of random words
+    - `lorem.slug` — URL-friendly hyphenated slug (e.g., `"modern-cloud-architecture"`)
+  </Accordion>
+
+  <Accordion title="Image (Avatars & Stock Photos)">
+    Provide image URLs for profile pictures and media feeds:
+    - `image.avatar` — Profile portrait avatar image URL
+    - `image.urlSquare` — Fixed aspect ratio square stock photo URL
+    - `image.urlHD` — High-definition responsive photo URL
+  </Accordion>
+
+  <Accordion title="Date (Past, Future & Timestamps)">
+    Simulate time-series data and temporal event sequences:
+    - `date.past` — ISO timestamp in the past (e.g., `"2023-11-14T08:23:19.412Z"`)
+    - `date.future` — ISO timestamp in the future
+    - `date.recent` — ISO timestamp within the last few days
+    - `date.birthdate` — Realistic date of birth
+  </Accordion>
+
+  <Accordion title="Datatype & Numbers (UUIDs, Integers & Booleans)">
+    Fundamental machine-readable values and programmatic types:
+    - `datatype.uuid` / `string.uuid` — Canonical RFC-4122 UUID v4
+    - `datatype.boolean` — True or false boolean primitive
+    - `number.int` — Scaled whole integer
+    - `number.float` — Decimal floating-point number
+  </Accordion>
+</Accordions>
+
+## How Providers Map to JSON Schema
+
+When you assign a provider to a field, the Schema Builder annotates that property in the synthesized JSON Schema using the `x-faker` vendor extension:
+
+```json title="schema-with-faker.json"
+{
+  "type": "object",
+  "properties": {
+    "userId": {
+      "type": "string",
+      "format": "uuid",
+      "x-faker": "string.uuid"
+    },
+    "fullName": {
+      "type": "string",
+      "x-faker": "person.fullName"
+    },
+    "contactEmail": {
+      "type": "string",
+      "x-faker": "internet.email"
+    },
+    "walletBalance": {
+      "type": "number",
+      "x-faker": "finance.amount"
+    },
+    "registeredAt": {
+      "type": "string",
+      "x-faker": "date.past"
+    }
+  },
+  "required": ["userId", "fullName", "contactEmail", "walletBalance", "registeredAt"]
+}
+```
+
+### Runtime Evaluation
+
+During an HTTP request, Fack API's mock engine feeds the schema to `json-schema-faker`. The engine intercepts each `x-faker` attribute and executes the matching Faker.js generator:
+
+```json title="runtime-output.json"
+{
+  "userId": "c71a3962-95f3-42e1-a085-bfdbda01a550",
+  "fullName": "Sophia Martinez",
+  "contactEmail": "sophia.martinez@enterprise.org",
+  "walletBalance": 1420.75,
+  "registeredAt": "2024-03-12T14:48:32.190Z"
+}
+```
+
+<Callout type="info">
+When defining arrays of primitive items (such as tags or phone numbers), configure the **Item Provider** in the visual editor to bind `x-faker` directly to the `items` schema node.
+</Callout>

@@ -1,0 +1,17 @@
+{
+  "title": "Documentation",
+  "pages": [
+    "index",
+    "---Getting Started---",
+    "getting-started",
+    "---Platform Features---",
+    "canvas",
+    "schemas",
+    "mock-engine",
+    "chaos",
+    "---AI & Automation---",
+    "ai-architect",
+    "---Operations---",
+    "advanced"
+  ]
+}

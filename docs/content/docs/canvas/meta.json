@@ -1,0 +1,5 @@
+{
+  "title": "Visual Canvas",
+  "icon": "LayoutDashboard",
+  "pages": ["index", "nodes", "adding-routes", "endpoints"]
+}

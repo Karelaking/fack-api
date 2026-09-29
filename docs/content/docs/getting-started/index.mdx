@@ -1,0 +1,137 @@
+---
+title: Installation & Setup
+description: Learn how to install prerequisites, clone the repository, initialize the database, and launch Fack API locally.
+---
+
+Fack API is a self-hostable, developer-centric mock API platform. You can run the entire system locally with a single command without needing external container engines or cloud services.
+
+Follow this guide to install prerequisites, set up the project, and start your local development server.
+
+## Prerequisites
+
+Before installing Fack API, make sure your machine meets the following requirements:
+
+- **Node.js**: Version 20.0 or higher (`v20.x` or `v22.x` LTS recommended).
+- **pnpm**: Version 9.x or higher (Fack API uses pnpm workspaces).
+- **Git**: For source control and repository cloning.
+
+Verify your local environment by running:
+
+```bash title="Terminal"
+node -v
+pnpm -v
+git --version
+```
+
+<Callout type="info">
+If you do not have pnpm installed, you can enable it via Corepack with `corepack enable` or install it globally using `npm install -g pnpm`.
+</Callout>
+
+## Installation Walkthrough
+
+<Steps>
+
+### Clone the Repository
+
+Clone the Fack API repository from GitHub and navigate into the root directory:
+
+```bash title="Terminal"
+git clone https://github.com/Karelaking/fack-api.git
+cd fack-api
+```
+
+### Install Dependencies
+
+Install all package dependencies across the monorepo workspace:
+
+```bash title="Terminal"
+pnpm install
+```
+
+This installs core runtime packages including Next.js 16, React 19, Drizzle ORM, libSQL, and Faker.js.
+
+### Initialize the Database
+
+Fack API uses **Drizzle ORM** with **libSQL / SQLite** by default. Push the database schema to create the local SQLite database file:
+
+```bash title="Terminal"
+pnpm db:push
+```
+
+This command automatically creates the `./data/fack.db` file and generates all necessary tables (`projects`, `endpoints`, `routes`, `canvas_states`, and `request_logs`). No manual database migrations or SQL scripts are needed.
+
+### Start the Development Server
+
+Launch the Next.js development server:
+
+```bash title="Terminal"
+pnpm dev
+```
+
+The application will compile and start listening for connections:
+
+```bash title="Terminal Output"
+▲ Next.js 16.3.5
+- Local:        http://localhost:3000
+- Network:      http://192.168.1.100:3000
+
+✓ Ready in 1.4s
+```
+
+### Open the Dashboard
+
+Open your browser and navigate to [http://localhost:3000](http://localhost:3000). You will be greeted by the Fack API workspace dashboard, where you can immediately create your first mock API workspace.
+
+</Steps>
+
+## Database Architecture & Persistence
+
+Fack API features a flexible dual-engine database strategy designed for zero-friction local workflows and production scale.
+
+<Tabs items={["SQLite (Default)", "PostgreSQL (Optional Logs)"]}>
+
+<Tab value="SQLite (Default)">
+By default, Fack API stores all workspaces, endpoints, route definitions, visual canvas layouts, and request telemetry in a local SQLite database at `./data/fack.db`.
+
+- **Zero Configuration**: No passwords, ports, or background daemons required.
+- **Embedded Performance**: Powered by `@libsql/client`, offering sub-millisecond query execution.
+- **Self-Contained**: The `./data` folder can be backed up or committed as a fixture in testing workflows.
+</Tab>
+
+<Tab value="PostgreSQL (Optional Logs)">
+For high-traffic environments or distributed deployments, you can offload request logging to a dedicated PostgreSQL database (such as Neon, Supabase, or AWS RDS).
+
+Set the `LOGS_POSTGRES_URL` variable in your `.env.local` file:
+
+```bash title=".env.local"
+LOGS_POSTGRES_URL="postgres://user:password@ep-cool-db.us-east-2.aws.neon.tech/neondb?sslmode=require"
+```
+
+When configured, mock request telemetry is asynchronously offloaded to PostgreSQL using non-blocking background workers, keeping local mock response latencies minimal.
+</Tab>
+
+</Tabs>
+
+## Useful Development Commands
+
+Fack API comes with several convenience scripts defined in `package.json`:
+
+```bash title="Terminal"
+# Inspect and query the database visually using Drizzle Studio
+pnpm db:studio
+
+# Run the Vitest test suite
+pnpm test
+
+# Launch this documentation site locally on port 3001
+pnpm docs:dev
+```
+
+## Next Steps
+
+Now that Fack API is running locally, jump into the hands-on quickstart to create your first realistic mock service.
+
+<Cards>
+  <Card title="Quickstart Guide" href="/docs/getting-started/quickstart" description="Build and query your first mock user endpoint in under 5 minutes." />
+  <Card title="Core Concepts" href="/docs/getting-started/concepts" description="Learn about Workspaces, Endpoints, Routes, and the Visual Canvas." />
+</Cards>

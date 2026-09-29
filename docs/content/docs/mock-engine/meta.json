@@ -1,0 +1,12 @@
+{
+  "title": "Mock Engine",
+  "icon": "Zap",
+  "pages": [
+    "index",
+    "response-format",
+    "query-params",
+    "routing",
+    "cors",
+    "caching"
+  ]
+}

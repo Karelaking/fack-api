@@ -1,0 +1,135 @@
+---
+title: Filtering, Search & Sort
+description: Process query parameters in real time with exact property filters, global text search, multi-field sorting, and pagination.
+---
+
+The Fack API Mock Engine evaluates URL query parameters in real time against synthesized and cached datasets. Rather than returning rigid, static fixtures, the engine dynamically filters, searches, sorts, and slices collection items on the server before dispatching the response.
+
+If a route returns an object with nested array collections, query parameter operations are applied automatically across all contained array fields.
+
+## Supported Parameters
+
+The mock engine recognizes standard REST query conventions as well as JSON-Server style underscore prefixes (`_sort`, `_page`, `_limit`):
+
+<TypeTable
+  type={{
+    "[field]": {
+      description: "Any property name from your schema. Performs case-insensitive exact match filtering.",
+      type: "string",
+    },
+    q: {
+      description: "Global full-text search. Performs case-insensitive substring matching across all object properties.",
+      type: "string",
+    },
+    sort: {
+      description: "Property key used to sort records. Alias: _sort.",
+      type: "string",
+    },
+    order: {
+      description: "Sort direction: 'asc' for ascending or 'desc' for descending. Alias: _order. Default: 'asc'.",
+      type: "string",
+      default: "asc",
+    },
+    page: {
+      description: "Page index to retrieve (1-indexed). Alias: _page. Default: 1.",
+      type: "number",
+      default: 1,
+    },
+    limit: {
+      description: "Maximum number of items per page. Aliases: _limit, count. Default: 10.",
+      type: "number",
+      default: 10,
+    },
+  }}
+/>
+
+---
+
+## 1. Exact Field Filtering
+
+Any query parameter that does not match a reserved keyword (`q`, `sort`, `order`, `page`, `limit`) is treated as an exact property filter. The engine inspects every item in the dataset and performs case-insensitive equality checks.
+
+```bash title="Filter by status and category"
+curl -X GET "http://localhost:3000/acme-store/v1/products?status=active&category=electronics"
+```
+
+Multiple filter parameters act as an **AND** operation. An item must satisfy all specified property matches:
+
+```json title="Filtered Response (excerpt)"
+{
+  "data": [
+    {
+      "id": "prod_101",
+      "name": "Wireless Mechanical Keyboard",
+      "category": "electronics",
+      "status": "active"
+    }
+  ],
+  "meta": {
+    "count": 1,
+    "method": "GET",
+    "path": "/v1/products"
+  }
+}
+```
+
+---
+
+## 2. Full-Text Search
+
+Supply `?q=` to perform a case-insensitive global substring search. The engine recursively inspects all scalar property values of every item:
+
+```bash title="Search across all fields"
+curl -X GET "http://localhost:3000/acme-store/v1/users?q=cyberdyne"
+```
+
+If the search term appears in `email`, `company`, `bio`, or any other string or numeric field, that item is retained in the output collection.
+
+---
+
+## 3. Sorting & Ordering
+
+Sort array records by any top-level property using `sort` (or `_sort`) combined with `order` (or `_order`):
+
+```bash title="Sort products by price descending"
+curl -X GET "http://localhost:3000/acme-store/v1/products?sort=price&order=desc"
+```
+
+The sorting algorithm automatically handles:
+- **Numeric fields**: Evaluates numeric comparison (`valB - valA`).
+- **String fields**: Performs locale-aware case-insensitive alphabetical sorting.
+- **Null / Undefined fields**: Safely moves records with missing fields to the end of the collection.
+
+```bash title="Sort users by creation date ascending (JSON-Server syntax)"
+curl -X GET "http://localhost:3000/acme-store/v1/users?_sort=createdAt&_order=asc"
+```
+
+---
+
+## 4. Pagination & Slicing
+
+Paginate large mock collections by passing `page` and `limit` parameters:
+
+```bash title="Retrieve page 2 with 5 items per page"
+curl -X GET "http://localhost:3000/acme-store/v1/orders?page=2&limit=5"
+```
+
+You can also use `?count=N` as a shorthand to quickly cap the total number of items returned without full cursor computation:
+
+```bash title="Limit response to 3 items"
+curl -X GET "http://localhost:3000/acme-store/v1/posts?count=3"
+```
+
+---
+
+## 5. Combining Filters, Search & Pagination
+
+All query capabilities can be composed into a single request. The engine processes parameters in sequential order: **Filtering → Global Search → Sorting → Pagination**:
+
+```bash title="Combined query"
+curl -X GET "http://localhost:3000/acme-store/v1/products?category=electronics&q=pro&sort=price&order=desc&page=1&limit=10"
+```
+
+<Callout type="info">
+  When caching is enabled, the mock engine generates a comprehensive item pool once and performs all filtering and pagination operations in memory, ensuring sub-5ms response times.
+</Callout>

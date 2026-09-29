@@ -1,0 +1,167 @@
+---
+title: Request Logging
+description: Monitor, inspect, and debug mock API traffic in real time with dual-engine SQLite and PostgreSQL logging.
+---
+
+Every mock API call executed by the Fack API engine can be captured and inspected in real time. Fack API provides detailed visibility into mock consumer interactions, recording the exact HTTP method, path, query parameters, request headers, response status code, latency in milliseconds, error state, and the synthesized response payload.
+
+## Non-Blocking Telemetry with `after()`
+
+Request logging in Fack API is completely non-blocking. Database writes never penalize client response times because log serialization and storage execution run asynchronously using the Next.js `after()` lifecycle callback.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Client as HTTP Client
+    participant Engine as Mock Engine
+    participant Response as Response Stream
+    participant Worker as Next.js after()
+    participant Storage as Log Storage
+
+    Client->>Engine: GET /api/v1/users?limit=10
+    Engine->>Engine: Route match & schema synthesis
+    Engine->>Response: Flush HTTP 200 OK
+    Response-->>Client: Payload received (< 5ms)
+    Engine-)Worker: Hand off telemetry payload
+    Worker->>Storage: INSERT into request_logs
+```
+
+When an HTTP request finishes synthesis, the response envelope is immediately flushed to the client. The logging worker then persists the event in the background without blocking the network stream.
+
+## Dual-Engine Architecture
+
+Fack API features a dual-engine logging layer designed for seamless transition from local development to production scale:
+
+- **SQLite (Default)**: Embedded, file-based logging that works out of the box with zero external configuration or database setup.
+- **PostgreSQL**: Remote logging engine for production deployments and multi-user teams. It supports serverless connection pools like Neon, Supabase, and AWS RDS.
+
+Configure your preferred storage engine using environment variables:
+
+<Tabs items={["SQLite", "PostgreSQL"]}>
+  <Tab value="SQLite">
+    SQLite is the default logging engine. When `LOGS_POSTGRES_URL` is omitted, logs are written directly to your local database file (`/data/fack.db` or the path set in `DATABASE_URL`).
+
+    ```bash title=".env.local"
+    # Uses local SQLite file storage for application data and request logs
+    DATABASE_URL="file:./data/fack.db"
+    ```
+
+    Ideal for:
+    - Single-developer local development
+    - Standalone single-container Docker deployments
+    - Offline environments and rapid prototyping
+  </Tab>
+
+  <Tab value="PostgreSQL">
+    To enable high-concurrency remote logging, set the `LOGS_POSTGRES_URL` environment variable. Fack API connects using connection pooling and writes logs to the `request_logs` table in PostgreSQL.
+
+    ```bash title=".env.local"
+    # Remote PostgreSQL database for centralized telemetry
+    LOGS_POSTGRES_URL="postgresql://fack_user:fack_password@ep-green-pond-123456.us-east-2.aws.neon.tech/fack_logs?sslmode=require"
+    ```
+
+    Ideal for:
+    - Serverless deployments on Vercel or cloud runtimes
+    - Team environments sharing mock API endpoints
+    - Centralized telemetry and long-term log retention
+  </Tab>
+</Tabs>
+
+<Callout type="info">
+  If `LOGS_POSTGRES_URL` is defined but the connection temporarily fails, Fack API automatically logs the diagnostic error through the `LoggerRegistry` and falls back gracefully to SQLite execution.
+</Callout>
+
+## Log Record Structure
+
+Every logged request stores structured data mapped to the following schema:
+
+<TypeTable
+  type={{
+    id: {
+      description: 'Unique identifier for the log entry (CUID or auto-incrementing ID).',
+      type: 'string',
+    },
+    projectId: {
+      description: 'Foreign key referencing the parent project workspace.',
+      type: 'string',
+    },
+    timestamp: {
+      description: 'Epoch timestamp (in milliseconds) when the request was received.',
+      type: 'number',
+    },
+    method: {
+      description: 'HTTP method used by the client (GET, POST, PUT, DELETE, PATCH).',
+      type: 'string',
+    },
+    path: {
+      description: 'Concrete request path requested by the client (e.g. /v1/users/42).',
+      type: 'string',
+    },
+    queryParams: {
+      description: 'Serialized JSON string of URL query parameters and filter operators.',
+      type: 'string (JSON)',
+    },
+    headers: {
+      description: 'Serialized JSON string of incoming HTTP request headers.',
+      type: 'string (JSON)',
+    },
+    statusCode: {
+      description: 'HTTP response status code returned to the client (e.g. 200, 404, 500).',
+      type: 'number',
+    },
+    latency: {
+      description: 'Total request execution and synthesis duration in milliseconds.',
+      type: 'number',
+    },
+    isError: {
+      description: 'Flag indicating whether the request failed or triggered a chaos fault.',
+      type: 'boolean',
+    },
+    responsePayload: {
+      description: 'Serialized JSON string of the complete body sent to the client.',
+      type: 'string (JSON)',
+    },
+  }}
+/>
+
+## In-Dashboard Log Viewer
+
+The Fack API dashboard includes an integrated **Project Logs** inspector accessible from each project workspace.
+
+### High-Performance Virtualization
+
+The log list utilizes `@tanstack/react-virtual` to virtualize DOM elements. By rendering only the visible viewport items, the interface effortlessly handles hundreds of high-frequency log entries with smooth 60fps scrolling and negligible memory consumption.
+
+### Filtering and Search
+
+- **Path and Method Search**: Instant client-side search bar filters log entries by path fragment (e.g. `/orders`) or HTTP verb (`POST`).
+- **Status Code Chips**: One-click filter chips let you isolate traffic by HTTP status family:
+  - `All`: Full traffic stream
+  - `2xx`: Successful requests
+  - `3xx`: Redirects
+  - `4xx`: Client errors and schema validation mismatches
+  - `5xx`: Server errors and chaos fault injections
+
+### Collapsible JSON Inspectors
+
+Clicking on any log row expands an interactive inspector with formatted, syntax-highlighted views for:
+- Query parameters dictionary
+- Inbound request headers
+- Synthesized response JSON payload
+
+### One-Click Purge
+
+Click **Clear Logs** in the toolbar to purge all stored logs for the current project. The server action executes a bulk deletion against the active engine (PostgreSQL or SQLite) and triggers Next.js path revalidation to update the UI instantly.
+
+## Toggling Logging Per Project
+
+Request logging can be enabled or disabled on a per-project basis:
+
+1. Open your project workspace.
+2. Navigate to **Project Settings**.
+3. Toggle the **Request Logging** (`isLoggingEnabled`) switch.
+4. Click **Save Changes**.
+
+<Callout type="warn">
+  When running high-throughput stress tests or synthetic benchmarking against your mock endpoints, consider disabling `isLoggingEnabled` temporarily to eliminate database write concurrency.
+</Callout>

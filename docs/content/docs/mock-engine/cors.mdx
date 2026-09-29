@@ -1,0 +1,91 @@
+---
+title: CORS & Proxy Headers
+description: Zero-configuration Cross-Origin Resource Sharing (CORS) and edge proxy headers for universal client consumption.
+---
+
+One of the most persistent hurdles frontend developers face when building against mock APIs is Cross-Origin Resource Sharing (CORS) blocks. When your React, Vue, Svelte, or React Native app runs on `http://localhost:5173` or `http://localhost:3000`, the browser prohibits fetching resources from another origin unless the server explicitly grants permission.
+
+The Fack API Mock Engine eliminates this friction with **zero-configuration edge-level CORS handling**.
+
+## Preflight Interception (HTTP 204)
+
+Whenever a client browser sends an `OPTIONS` preflight request to verify cross-origin permissions, the edge proxy (`proxy.ts`) short-circuits the request immediately. 
+
+The mock engine does not invoke the database or execute route-matching logic during preflight calls. Instead, it returns an instant `HTTP 204 No Content` response containing permissive access-control headers.
+
+```bash title="Testing CORS preflight with cURL"
+curl -I -X OPTIONS "http://localhost:3000/acme-shop/v1/users" \
+  -H "Origin: http://localhost:5173" \
+  -H "Access-Control-Request-Method: POST" \
+  -H "Access-Control-Request-Headers: Authorization, Content-Type"
+```
+
+```http title="Edge Proxy 204 Response"
+HTTP/1.1 204 No Content
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Methods: GET, POST, PUT, DELETE, PATCH, OPTIONS
+Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With
+Access-Control-Max-Age: 86400
+```
+
+---
+
+## Default Header Reference
+
+Every mock response emitted by Fack API includes standard headers designed to maximize client interoperability and prevent unwanted caching:
+
+<TypeTable
+  type={{
+    "Access-Control-Allow-Origin": {
+      description: "Allows any origin (*) to consume the mock endpoint.",
+      type: "string",
+      default: "*",
+    },
+    "Access-Control-Allow-Methods": {
+      description: "Permitted HTTP methods for cross-origin requests.",
+      type: "string",
+      default: "GET, POST, PUT, DELETE, PATCH, OPTIONS",
+    },
+    "Access-Control-Allow-Headers": {
+      description: "Accepted request headers, including authentication tokens and JSON payloads.",
+      type: "string",
+      default: "Content-Type, Authorization, X-Requested-With",
+    },
+    "Access-Control-Max-Age": {
+      description: "Instructs the browser to cache preflight OPTIONS checks for 24 hours (86,400s).",
+      type: "string",
+      default: "86400",
+    },
+    "X-Accel-Buffering": {
+      description: "Disables proxy buffering in Nginx and reverse proxies for real-time streaming.",
+      type: "string",
+      default: "no",
+    },
+    "Cache-Control": {
+      description: "Prevents intermediate proxies and browsers from caching dynamic mock responses.",
+      type: "string",
+      default: "no-store, no-cache, must-revalidate, proxy-revalidate",
+    },
+    "X-Powered-By": {
+      description: "Identifies the response runtime.",
+      type: "string",
+      default: "Fack API's",
+    },
+  }}
+/>
+
+<Callout type="info">
+  Permissive cross-origin headers (`*`) are intentional. Fack API is designed for development, testing, and staging workflows where multiple frontend dev servers, mobile simulators, and CI test suites need seamless access without maintaining origin allowlists.
+</Callout>
+
+---
+
+## Custom Route Headers
+
+In addition to the default CORS and proxy headers, individual routes can inject custom HTTP response headers via the Route Editor canvas:
+
+- Simulating rate-limiting headers: `X-RateLimit-Limit: 100`, `X-RateLimit-Remaining: 42`
+- Simulating authentication headers: `X-Auth-Token: mock_bearer_9941`
+- Content negotiation: Custom `ETag` or vendor content types
+
+When custom headers are configured on a route, they are merged into the response headers alongside the default CORS headers. If a conflict occurs, custom route headers take precedence.

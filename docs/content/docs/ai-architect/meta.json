@@ -1,0 +1,5 @@
+{
+  "title": "AI API Architect",
+  "icon": "Bot",
+  "pages": ["index", "prompts", "pipeline", "templates"]
+}

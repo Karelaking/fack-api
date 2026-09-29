@@ -1,0 +1,36 @@
+---
+title: Advanced Topics
+description: Explore request logging architecture, relational database schemas, and self-hosting deployment options for Fack API.
+---
+
+The **Advanced Topics** section covers the internal operations, data persistence, and deployment strategies that power Fack API. Whether you are debugging edge traffic, extending the underlying database model, or running Fack API on your own infrastructure, these guides provide the necessary technical foundation.
+
+## Operational Guides
+
+<Cards>
+  <Card
+    title="Request Logging"
+    href="/docs/advanced/logging"
+    description="Monitor and debug API calls with dual-engine SQLite and PostgreSQL telemetry."
+  />
+  <Card
+    title="Database Schema"
+    href="/docs/advanced/database"
+    description="Understand the Drizzle ORM entity relationships, table schemas, and migration workflows."
+  />
+  <Card
+    title="Deployment Guide"
+    href="/docs/advanced/self-hosting"
+    description="Self-host Fack API on your own infrastructure using Docker, Vercel, or Node.js."
+  />
+</Cards>
+
+## Architectural Pillars
+
+Fack API is designed around three core operational principles:
+
+- **Non-Blocking Telemetry**: Telemetry and logs run asynchronously via Next.js background workers, ensuring zero overhead on mock response latency.
+- **Database Portability**: Unified Drizzle ORM layer allows transparent execution across local SQLite, libSQL/Turso edge databases, and PostgreSQL.
+- **Flexible Infrastructure**: Deploy as a single self-contained Docker container, a serverless cluster on Vercel, or a standalone Node.js process behind your preferred reverse proxy.
+
+For configuration instructions, select one of the topics above or explore the [Mock Engine](/docs/mock-engine) documentation.

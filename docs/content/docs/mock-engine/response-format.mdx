@@ -1,0 +1,186 @@
+---
+title: Response Envelope
+description: Standardized JSON envelope structure for single objects, static lists, and paginated mock endpoints.
+---
+
+Every mock API response emitted by Fack API is wrapped in a consistent **`{ data, meta }` envelope**. Standardizing the response structure simplifies client integration, makes frontend state management straightforward, and surfaces runtime metadata like execution latency, caching status, and pagination cursors.
+
+The mock engine uses an object-oriented **Formatter Factory** (`MockResponseFormatterFactory`) that automatically chooses the correct formatter based on the route schema type and request query parameters:
+
+- **Single Object Formatter**: Non-array records (e.g. `/users/:id`, `/auth/profile`).
+- **List Formatter**: Array endpoints queried without pagination (e.g. `/categories`).
+- **Paged List Formatter**: Array endpoints queried with `page` or `limit` parameters.
+
+---
+
+## 1. Single Object Response
+
+When a route represents an individual resource, the object is placed under `data`, with execution telemetry in `meta`.
+
+```json title="GET /api/mock/acme-shop/v1/users/usr_49102"
+{
+  "data": {
+    "id": "usr_49102",
+    "name": "Sarah Connor",
+    "email": "sarah.connor@cyberdyne.io",
+    "role": "Lead Architect",
+    "avatar": "https://picsum.photos/150/150?random=4819"
+  },
+  "meta": {
+    "routeId": "rte_a1b2c3d4",
+    "projectId": "prj_98765432",
+    "statusCode": 200,
+    "success": true,
+    "isFromCache": true,
+    "timestamp": "2026-09-22T01:14:00.000Z",
+    "latency": 3,
+    "method": "GET",
+    "path": "/v1/users/usr_49102",
+    "query": {}
+  }
+}
+```
+
+---
+
+## 2. List Response
+
+When querying an array endpoint without pagination parameters, the `ListObjectsFormatter` returns the items inside `data` with a `count` property in `meta`.
+
+```json title="GET /api/mock/acme-shop/v1/categories"
+{
+  "data": [
+    { "id": "cat_1", "slug": "audio", "title": "Audio & Headphones" },
+    { "id": "cat_2", "slug": "keyboards", "title": "Mechanical Keyboards" }
+  ],
+  "meta": {
+    "count": 2,
+    "routeId": "rte_c9d8e7f6",
+    "projectId": "prj_98765432",
+    "statusCode": 200,
+    "success": true,
+    "isFromCache": true,
+    "timestamp": "2026-09-22T01:14:00.000Z",
+    "latency": 2,
+    "method": "GET",
+    "path": "/v1/categories",
+    "query": {}
+  }
+}
+```
+
+---
+
+## 3. Paginated List Response
+
+When the request specifies `?page=N&limit=X` (or aliases `?_page=N&_limit=X`), the `PagedListFormatter` slices the data array and computes cursor boundaries.
+
+```json title="GET /api/mock/acme-shop/v1/products?page=2&limit=10"
+{
+  "data": [
+    { "id": "prod_11", "name": "Headset Pro", "price": 299.99, "inStock": true },
+    { "id": "prod_12", "name": "Tenkeyless Keyboard", "price": 149.00, "inStock": false }
+  ],
+  "meta": {
+    "total": 100,
+    "page": 2,
+    "limit": 10,
+    "totalPages": 10,
+    "hasNextPage": true,
+    "hasPreviousPage": true,
+    "routeId": "rte_f5e4d3c2",
+    "projectId": "prj_98765432",
+    "statusCode": 200,
+    "success": true,
+    "isFromCache": false,
+    "timestamp": "2026-09-22T01:14:00.000Z",
+    "latency": 6,
+    "method": "GET",
+    "path": "/v1/products",
+    "query": { "page": "2", "limit": "10" }
+  }
+}
+```
+
+---
+
+## Metadata Reference
+
+The `meta` object exposes diagnostic, routing, and pagination properties:
+
+<TypeTable
+  type={{
+    routeId: {
+      description: "Database ID of the matched mock route configuration.",
+      type: "string",
+    },
+    projectId: {
+      description: "UUID of the project that owns this route.",
+      type: "string",
+    },
+    statusCode: {
+      description: "HTTP status code configured on the route (e.g. 200, 201).",
+      type: "number",
+    },
+    success: {
+      description: "Boolean indicator whether statusCode is in the 2xx range.",
+      type: "boolean",
+    },
+    isFromCache: {
+      description: "True if served from the in-memory LRU cache.",
+      type: "boolean",
+    },
+    timestamp: {
+      description: "ISO 8601 UTC timestamp when response was generated.",
+      type: "string",
+    },
+    latency: {
+      description: "Total server-side processing duration in milliseconds.",
+      type: "number",
+    },
+    method: {
+      description: "HTTP method matched for the request (GET, POST, etc.).",
+      type: "string",
+    },
+    path: {
+      description: "Concrete request path relative to the project root.",
+      type: "string",
+    },
+    query: {
+      description: "Map of parsed query parameters provided by the client.",
+      type: "Record<string, string>",
+    },
+    count: {
+      description: "Number of items in data array (List responses only).",
+      type: "number",
+    },
+    total: {
+      description: "Total records available (Paginated responses only).",
+      type: "number",
+    },
+    page: {
+      description: "Current active page number, 1-indexed (Paginated only).",
+      type: "number",
+    },
+    limit: {
+      description: "Requested items per page (Paginated only).",
+      type: "number",
+    },
+    totalPages: {
+      description: "Total calculated page count: Math.ceil(total / limit).",
+      type: "number",
+    },
+    hasNextPage: {
+      description: "True if page < totalPages; another page exists.",
+      type: "boolean",
+    },
+    hasPreviousPage: {
+      description: "True if page > 1; a previous page exists.",
+      type: "boolean",
+    },
+  }}
+/>
+
+<Callout type="info">
+  When consuming mock endpoints with Axios or fetch, you can configure a response interceptor to unwrap `response.data.data` as your primary data model while inspecting `response.data.meta` for pagination state.
+</Callout>

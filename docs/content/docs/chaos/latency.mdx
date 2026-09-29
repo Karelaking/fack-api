@@ -1,0 +1,131 @@
+---
+title: Latency Injection
+description: Inject asynchronous artificial delays and network jitter into mock routes to test UI loading states, skeletons, and request timeouts.
+---
+
+Production APIs rarely respond instantaneously. Mobile handoffs, cold starts, and database lock contention introduce dynamic variations in response times.
+
+**Latency Injection** in Fack API simulates real-world latency by pausing the mock execution before generating and delivering the response payload. Delays are completely non-blocking, implemented asynchronously with native JavaScript timers so concurrent mock endpoints remain unaffected.
+
+## Configuring Latency Sliders
+
+In the **Edit Bar**, select the **Chaos Config** section of any route node to adjust response timing.
+
+You can specify a **minimum** and **maximum** delay range between **0ms** and **30,000ms** (30 seconds):
+
+- **Dual-Range Sliders**: Drag the lower handle for minimum latency and the upper handle for maximum latency.
+- **Numeric Precision Inputs**: Type exact values into the `Min (ms)` and `Max (ms)` number fields.
+- **Validation**: If `latencyMin` is adjusted higher than `latencyMax`, the engine automatically bumps `latencyMax` to match.
+
+```mermaid
+flowchart LR
+    A["Incoming Request"] --> B["Evaluate Min & Max Range"]
+    B --> C["Generate Random Jitter Delay\nMath.random() * (max - min) + min"]
+    C --> D["Async Sleep via setTimeout()"]
+    D --> E["Synthesize Schema & Return 200 OK"]
+```
+
+## Quick Simulation Presets
+
+The Chaos Config panel includes one-click presets designed to mirror real-world connection environments:
+
+| Preset | Min | Max | Target Environment & Use Case |
+| :--- | :--- | :--- | :--- |
+| **Normal** | `0ms` | `0ms` | Local development with zero artificial delay |
+| **Fast 4G** | `50ms` | `150ms` | Typical urban mobile connection |
+| **Slow 3G** | `1,000ms` | `2,000ms` | Stress-testing loading spinners and skeleton screens |
+| **Flaky** | `200ms` | `500ms` | Intermittent network hiccups and jitter |
+| **Severe** | `2,000ms` | `4,000ms` | Verifying frontend `AbortController` and timeout guards |
+
+## Jitter Randomization
+
+To ensure tests don't assume a constant round-trip duration, Fack API randomizes the actual latency for every single HTTP request:
+
+```ts title="lib/mock-engine.ts"
+const effectiveMin = Math.max(0, min);
+const effectiveMax = Math.max(effectiveMin, max);
+const delay =
+  Math.floor(Math.random() * (effectiveMax - effectiveMin + 1)) +
+  effectiveMin;
+
+await new Promise((resolve) => setTimeout(resolve, delay));
+```
+
+The resulting duration is logged in the response metadata under `meta.latency`, allowing you to inspect execution timing programmatically.
+
+## Verifying Timing with cURL
+
+You can measure round-trip latency directly from the command line using `curl` with timing format variables:
+
+```bash title="Terminal"
+curl -w "\nHTTP Status: %{http_code}\nTime Total:  %{time_total}s\n" \
+  -s -o /dev/null \
+  http://localhost:3000/api/mock/acme/v1/products
+```
+
+Output for a route configured with **Slow 3G** (`1,000ms` to `2,000ms`):
+
+```text
+HTTP Status: 200
+Time Total:  1.428s
+```
+
+You can also inspect the internal server timer returned in the [Response Envelope](/docs/mock-engine/response-format):
+
+```json title="GET /api/mock/acme/v1/products"
+{
+  "data": [ ... ],
+  "meta": {
+    "statusCode": 200,
+    "latency": 1412,
+    "isFromCache": false,
+    "timestamp": "2026-09-22T01:14:10.000Z"
+  }
+}
+```
+
+## Testing Client-Side Timeouts
+
+Configuring a **Severe** delay (e.g., `3,000ms` to `5,000ms`) enables you to test how your frontend handles network timeouts using native `AbortController` signals:
+
+```ts title="src/api/client.ts"
+export async function fetchUsersWithTimeout(timeoutMs = 2500) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const res = await fetch("http://localhost:3000/api/mock/acme/v1/users", {
+      signal: controller.signal,
+    });
+    return await res.json();
+  } catch (err: unknown) {
+    if ((err as Error).name === "AbortError") {
+      console.warn("Request exceeded 2.5s timeout window; aborted.");
+    }
+    throw err;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+```
+
+<Callout type="info">
+  Latency is applied *after* [Conditional Rules](/docs/chaos/rules) evaluation. If a request triggers a conditional rule, the response is delivered immediately without applying the route's latency delay.
+</Callout>
+
+## Configuration Reference
+
+<TypeTable
+  type={{
+    latencyMin: {
+      description: "Minimum delay in milliseconds injected before response generation (0 - 30,000).",
+      type: "number",
+      default: "0",
+    },
+    latencyMax: {
+      description: "Maximum delay in milliseconds. Jitter is calculated uniformly between min and max (0 - 30,000).",
+      type: "number",
+      default: "0",
+    },
+  }}
+/>

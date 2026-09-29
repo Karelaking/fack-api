@@ -1,0 +1,5 @@
+{
+  "title": "Advanced",
+  "icon": "Settings",
+  "pages": ["index", "logging", "database", "self-hosting"]
+}

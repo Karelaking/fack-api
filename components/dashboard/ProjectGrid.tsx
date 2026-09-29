@@ -44,6 +44,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type ProjectWithRelations = Project & {
   endpoints?: (Endpoint & {
@@ -222,7 +229,7 @@ export function ProjectGrid({
   };
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6 p-4 md:p-6">
+    <div className="max-w-8xl mx-auto space-y-6 p-6 md:p-6 lg:px-12">
       {/* Upper header section */}
       <div className="border-border/40 flex flex-col gap-4 border-b pb-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
@@ -260,20 +267,20 @@ export function ProjectGrid({
           />
         </InputGroup>
 
-        <div className="flex items-center gap-2 self-end text-xs sm:self-auto">
-          <label htmlFor="sort-by-select" className="text-muted-foreground">
-            Sort by:
-          </label>
-          <select
-            id="sort-by-select"
-            aria-label="Sort by"
+        <div className="flex items-center gap-2 self-end text-sm sm:self-auto">
+          <span className="text-muted-foreground">Sort by:</span>
+          <Select
             value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as "updated" | "name")}
-            className="bg-card border-border text-foreground border px-2 py-1 font-medium focus:outline-none"
+            onValueChange={(value) => setSortBy(value as "updated" | "name")}
           >
-            <option value="updated">Last Updated</option>
-            <option value="name">Project Name</option>
-          </select>
+            <SelectTrigger size="sm" aria-label="Sort by">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="updated">Last Updated</SelectItem>
+              <SelectItem value="name">Project Name</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 

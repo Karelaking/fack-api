@@ -1,0 +1,105 @@
+---
+title: Creating Routes
+description: Step-by-step guide to adding mock REST routes using the Quick Add modal dialog and the Endpoints dashboard.
+---
+
+Mock API routes represent specific HTTP endpoints capable of generating dynamic synthetic responses. You can create routes directly from the **Visual Canvas** using the Quick Add modal, or through the **Endpoints** dashboard.
+
+## Using the Quick Add Route Dialog
+
+The Quick Add dialog allows you to quickly register new route nodes without leaving the canvas workspace.
+
+<Steps>
+  <Step>
+    ### Open the Quick Add Dialog
+    In the top-right header of the canvas workspace, click the **Add Route** button (`+`). Alternatively, trigger the dialog by opening the canvas with the URL query parameter `?newRoute=true` or pressing the workspace shortcut.
+  </Step>
+
+  <Step>
+    ### Select the Target Endpoint Group
+    From the **Endpoint Group** dropdown, choose the parent service group that will house the new route. 
+
+    If no endpoint groups exist yet, create one first in the [Managing Service Endpoints](/docs/canvas/endpoints) tab. The route inherits the parent group's `basePath`.
+  </Step>
+
+  <Step>
+    ### Choose the HTTP Method
+    Select the appropriate HTTP verb from the **Method** selector:
+    - `GET` — Retrieve data or query entities
+    - `POST` — Submit payload data or trigger actions
+    - `PUT` — Replace a full resource record
+    - `DELETE` — Remove or archive a resource
+    - `PATCH` — Apply partial modifications to a resource
+  </Step>
+
+  <Step>
+    ### Enter the Route Sub-Path
+    Specify the relative sub-path for the route (e.g., `/users/:id` or `/checkout/sessions`). Fack API automatically ensures a leading slash.
+
+    Dynamic route parameters use the colon syntax (`:paramName`). These parameters are captured during mock routing and can be referenced in conditional rules or response templates.
+  </Step>
+
+  <Step>
+    ### Select Default Status Code
+    Specify the HTTP response code returned for standard requests. Common options include:
+    - `200 OK` — Standard successful response
+    - `201 Created` — Successful resource creation
+    - `204 No Content` — Successful request with empty response body
+    - `400 Bad Request` — Client error / validation rejection
+    - `401 Unauthorized` — Authentication required
+    - `404 Not Found` — Resource missing
+    - `500 Internal Server Error` — Server exception simulation
+  </Step>
+
+  <Step>
+    ### Configure Starter Schema & Templates
+    Toggle **Generate Starter Schema** to pre-populate the route with a production-ready JSON Schema object containing standard fields:
+    - `id` (UUID via `string.uuid`)
+    - `createdAt` (Past timestamp via `date.past`)
+    - `updatedAt` (Recent timestamp via `date.recent`)
+
+    When disabled, an empty schema `{}` is created, allowing you to configure custom response models in the [Schema Builder](/docs/schemas).
+  </Step>
+
+  <Step>
+    ### Confirm and Place Node on Canvas
+    Click **Create Node**. The new route is instantiated in the database, attached to the parent endpoint container, and immediately placed in the canvas viewport.
+  </Step>
+</Steps>
+
+## Dynamic Route Parameter Syntax
+
+Fack API's mock routing engine uses a high-performance radix tree matcher that supports parameterized segments and wildcard tokens:
+
+| Pattern | Example Request | Matches | Extracted Parameters |
+| :--- | :--- | :--- | :--- |
+| `/:id` | `/users/usr_10293` | Yes | `{ "id": "usr_10293" }` |
+| `/orgs/:orgId/teams/:teamId` | `/orgs/acme/teams/engineering` | Yes | `{ "orgId": "acme", "teamId": "engineering" }` |
+| `/files/*path` | `/files/media/2026/header.png` | Yes | `{ "path": "media/2026/header.png" }` |
+
+```json title="Example Dynamic Route Parameter Binding"
+{
+  "request": {
+    "url": "https://api.fack.internal/ecommerce/v1/users/usr_4812",
+    "method": "GET"
+  },
+  "extractedParams": {
+    "id": "usr_4812"
+  }
+}
+```
+
+<Callout type="info">
+Dynamic parameters can be referenced inside the [Schema Builder](/docs/schemas) and [Chaos Engine](/docs/chaos) conditional evaluation rules.
+</Callout>
+
+## Alternative: Endpoints Dashboard Management
+
+While the visual canvas provides graphical composition, you can also manage and create routes from the **Endpoints Dashboard** (`/projects/[slug]/endpoints`):
+
+- **Tabular Route Overview**: View all routes grouped by parent microservice in a structured table.
+- **Bulk Route Creation**: Rapidly scaffold multiple endpoints without dragging nodes.
+- **Quick Cloning**: Duplicate existing routes to test different response scenarios.
+- **Route Filtering**: Filter routes by HTTP method, path pattern, or enabled status.
+
+Both views share the same underlying database records, so changes made in the dashboard instantly reflect when switching back to the [Visual Canvas](/docs/canvas).
