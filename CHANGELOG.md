@@ -1,3 +1,19 @@
+# [1.9.0](https://github.com/Karelaking/fack-api/compare/v1.8.0...v1.9.0) (2026-10-05)
+
+### Bug Fixes
+
+- make entire project card clickable by fixing layer stack and z-indexes ([eb9178b](https://github.com/Karelaking/fack-api/commit/eb9178ba00bd56937076abdb4cf6bc7acb69cae2))
+- prevent project card horizontal overflow in list layout ([3a38e5a](https://github.com/Karelaking/fack-api/commit/3a38e5a403d15822d11b7db2690b85060bd2722a))
+- remove restyle utilities from SidebarHeader ([f9c9dbb](https://github.com/Karelaking/fack-api/commit/f9c9dbbf6f3a8fee16583ffcbe46006444abba84))
+- restore sidebar flex layout for links and fix text truncation ([cb3825a](https://github.com/Karelaking/fack-api/commit/cb3825a7b68b79b3cb7d3f9f184d5fea473afa5b))
+
+### Features
+
+- add project switcher button to the topbar ([a4deb7e](https://github.com/Karelaking/fack-api/commit/a4deb7e8cf021f720df47819d7a166874d472b2e))
+- implement vercel-like global dashboard sidebar with relevant mock api links ([3ccbc76](https://github.com/Karelaking/fack-api/commit/3ccbc76389110afeb23ddee76ca2c5925074482b))
+- make layout grid/list toggle functional and tighten grid spacing ([71f59bd](https://github.com/Karelaking/fack-api/commit/71f59bdc8791bde38e5fdc24182b9627ed694744))
+- replicate Vercel layout with usage widgets and modern grid styling ([5e3893b](https://github.com/Karelaking/fack-api/commit/5e3893b9369de8de4b54b969e828c553cd533484))
+
 # [1.8.0](https://github.com/Karelaking/fack-api/compare/v1.7.0...v1.8.0) (2026-10-05)
 
 ### Features
