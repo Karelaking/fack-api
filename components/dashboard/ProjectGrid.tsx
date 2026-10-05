@@ -6,14 +6,17 @@ import { useRouter } from "next/navigation";
 import { useQueryState, parseAsString, parseAsStringEnum } from "nuqs";
 import {
   RiTerminalBoxLine,
-  RiCalendarLine,
   RiSearchLine,
   RiLoader2Line,
   RiDeleteBin6Line,
   RiSettings3Line,
   RiAddLine,
-  RiStackLine,
-  RiPulseLine,
+  RiCheckLine,
+  RiGitBranchLine,
+  RiGithubFill,
+  RiLayoutGridLine,
+  RiListUnordered,
+  RiFilter3Line,
 } from "@remixicon/react";
 import { toast } from "sonner";
 import { deleteProject, updateProject } from "@/lib/actions/projects";
@@ -22,12 +25,6 @@ import type { Project, Endpoint, Route } from "@/db/schema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from "@/components/ui/input-group";
-import { Card, CardTitle, CardDescription } from "@/components/ui/card";
-import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -35,13 +32,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 type ProjectWithRelations = Project & {
   endpoints?: (Endpoint & {
@@ -184,208 +174,270 @@ export function ProjectGrid({
     window.dispatchEvent(new CustomEvent("open-new-project-dialog"));
   };
 
-  // Color theme generator based on project ID hash
-  const getThemeColors = (id: string) => {
-    const hash = id
-      .split("")
-      .reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    const themes = [
-      {
-        bg: "bg-indigo-500/10 text-indigo-500 dark:text-indigo-400 border-indigo-500/20",
-        accent: "from-indigo-500/60 to-indigo-500/10",
-        dot: "bg-indigo-500",
-      },
-      {
-        bg: "bg-emerald-500/10 text-emerald-500 dark:text-emerald-400 border-emerald-500/20",
-        accent: "from-emerald-500/60 to-emerald-500/10",
-        dot: "bg-emerald-500",
-      },
-      {
-        bg: "bg-blue-500/10 text-blue-500 dark:text-blue-400 border-blue-500/20",
-        accent: "from-blue-500/60 to-blue-500/10",
-        dot: "bg-blue-500",
-      },
-      {
-        bg: "bg-rose-500/10 text-rose-500 dark:text-rose-400 border-rose-500/20",
-        accent: "from-rose-500/60 to-rose-500/10",
-        dot: "bg-rose-500",
-      },
-      {
-        bg: "bg-purple-500/10 text-purple-500 dark:text-purple-400 border-purple-500/20",
-        accent: "from-purple-500/60 to-purple-500/10",
-        dot: "bg-purple-500",
-      },
-    ];
-    return themes[hash % themes.length];
-  };
-
   return (
-    <div className="max-w-8xl mx-auto space-y-8 p-6 md:p-6 lg:px-12">
-      {/* Upper header section */}
-      <div>
-        <h1 className="font-heading text-foreground text-2xl font-bold tracking-tight">
-          Dashboard
-        </h1>
-      </div>
-
-      {/* Search & Sort Filters */}
-      <div className="flex flex-col items-center justify-between gap-3 sm:flex-row">
-        <InputGroup className="w-full sm:max-w-xs">
-          <InputGroupAddon>
-            <RiSearchLine className="text-muted-foreground h-3.5 w-3.5" />
-          </InputGroupAddon>
-          <InputGroupInput
+    <div className="mx-auto max-w-[1400px] space-y-8 p-4 md:p-8">
+      {/* Search Bar Row */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+        <div className="relative flex-1">
+          <RiSearchLine className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
+          <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search workspaces..."
+            placeholder="Search Projects..."
             aria-label="Search workspaces"
+            className="border-border/40 bg-card/30 focus-visible:ring-primary/20 h-10 w-full rounded-md border pr-12 pl-9 transition-colors outline-none"
           />
-        </InputGroup>
-
-        <div className="flex items-center gap-2 self-end text-sm sm:self-auto">
-          <span className="text-muted-foreground">Sort by:</span>
-          <Select
-            value={sortBy}
-            onValueChange={(value) => setSortBy(value as "updated" | "name")}
+          <div className="absolute top-1/2 right-2 flex -translate-y-1/2 items-center">
+            <kbd className="bg-muted text-muted-foreground hidden h-5 items-center justify-center rounded-[4px] border px-1.5 font-mono text-[10px] font-medium sm:flex">
+              /
+            </kbd>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            className="border-border/40 bg-card/30 hover:bg-muted flex h-10 w-10 items-center justify-center rounded-md border transition-colors"
           >
-            <SelectTrigger size="sm" aria-label="Sort by">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="updated">Last Updated</SelectItem>
-              <SelectItem value="name">Project Name</SelectItem>
-            </SelectContent>
-          </Select>
+            <RiFilter3Line className="text-muted-foreground h-4 w-4" />
+          </button>
+          <div className="border-border/40 bg-card/30 flex h-10 items-center rounded-md border p-1">
+            <button
+              type="button"
+              className="bg-muted flex h-7 w-7 items-center justify-center rounded-sm shadow-sm transition-colors"
+            >
+              <RiLayoutGridLine className="text-foreground h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              className="hover:bg-muted flex h-7 w-7 items-center justify-center rounded-sm transition-colors"
+            >
+              <RiListUnordered className="text-muted-foreground h-4 w-4" />
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Grid listing */}
-      {filteredProjects.length === 0 ? (
-        <Card variant="dashed">
-          <div className="flex flex-col items-center justify-center p-12 text-center">
-            <RiTerminalBoxLine className="text-muted-foreground/60 mb-3 h-10 w-10 stroke-1" />
-            <CardTitle>No workspaces found</CardTitle>
-            <CardDescription className="mt-1.5">
-              <span className="block max-w-xs leading-relaxed">
+      {/* Main Grid Layout */}
+      <div className="flex flex-col gap-8 lg:flex-row lg:gap-10">
+        {/* Left Sidebar (Widgets) */}
+        <div className="flex w-full shrink-0 flex-col gap-8 lg:w-[320px]">
+          {/* Usage */}
+          <div className="space-y-4">
+            <h3 className="text-foreground text-sm font-semibold tracking-tight">
+              Usage
+            </h3>
+            <div className="bg-card/30 border-border/40 rounded-xl border p-0">
+              <div className="border-border/40 flex items-center justify-between border-b px-4 py-3">
+                <span className="text-foreground text-sm font-medium">
+                  Last 30 days
+                </span>
+                <button
+                  type="button"
+                  className="border-border text-foreground hover:bg-muted rounded-md border px-3 py-1 text-xs font-medium shadow-sm transition-colors"
+                >
+                  Upgrade
+                </button>
+              </div>
+              <div className="flex flex-col space-y-3 px-4 py-4 text-xs">
+                <div className="flex items-center justify-between">
+                  <div className="text-muted-foreground flex items-center gap-2">
+                    <div className="h-3 w-3 rounded-full border-[3px] border-blue-500/80" />
+                    <span>Functions Storage</span>
+                  </div>
+                  <span className="text-muted-foreground">
+                    <span className="text-foreground font-medium">3.9 GB</span>{" "}
+                    / 10 GB
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="text-muted-foreground flex items-center gap-2">
+                    <div className="h-3 w-3 rounded-full border-[3px] border-zinc-500/50" />
+                    <span>Deployment Storage</span>
+                  </div>
+                  <span className="text-muted-foreground">
+                    <span className="text-foreground font-medium">1.09 GB</span>{" "}
+                    / 10 GB
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="text-muted-foreground flex items-center gap-2">
+                    <div className="h-3 w-3 rounded-full border-[3px] border-blue-500/30" />
+                    <span>Fluid Active CPU</span>
+                  </div>
+                  <span className="text-muted-foreground">
+                    <span className="text-foreground font-medium">17m 58s</span>{" "}
+                    / 4h
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Alerts */}
+          <div className="space-y-4">
+            <h3 className="text-foreground text-sm font-semibold tracking-tight">
+              Alerts
+            </h3>
+            <div className="bg-card/30 border-border/40 flex flex-col items-center justify-center space-y-3 rounded-xl border px-4 py-8 text-center">
+              <h4 className="text-foreground text-sm font-medium">
+                Get alerted for anomalies
+              </h4>
+              <p className="text-muted-foreground max-w-[200px] text-xs leading-relaxed">
+                Automatically monitor your projects for anomalies and get
+                notified.
+              </p>
+              <button
+                type="button"
+                className="border-border text-foreground hover:bg-muted mt-2 rounded-md border px-3 py-1.5 text-xs font-medium shadow-sm transition-colors"
+              >
+                Upgrade to Pro
+              </button>
+            </div>
+          </div>
+
+          {/* Recent Previews */}
+          <div className="space-y-4">
+            <h3 className="text-foreground text-sm font-semibold tracking-tight">
+              Recent Previews
+            </h3>
+            <div className="flex flex-col gap-3">
+              {[1, 2].map((i) => (
+                <div
+                  key={i}
+                  className="bg-card/30 border-border/40 flex flex-col gap-2 rounded-xl border p-4"
+                >
+                  <div className="flex items-start gap-2">
+                    <div className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-indigo-500/20 text-indigo-500">
+                      <RiGitBranchLine className="h-2.5 w-2.5" />
+                    </div>
+                    <span className="text-foreground line-clamp-2 text-sm leading-tight font-medium">
+                      chore(deps-dev): bump the dev-dependencies...
+                    </span>
+                  </div>
+                  <div className="mt-2 flex items-center gap-2 text-xs">
+                    <div className="bg-muted/50 text-muted-foreground flex items-center gap-1 rounded px-1.5 py-0.5">
+                      <RiCheckLine className="h-3 w-3 text-emerald-500" />
+                      <span>Preview</span>
+                    </div>
+                    <div className="bg-muted/50 text-muted-foreground flex items-center gap-1 rounded px-1.5 py-0.5">
+                      <RiGithubFill className="h-3 w-3" />
+                      <span>#{50 + i}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Right Content (Projects Grid) */}
+        <div className="flex-1 space-y-4">
+          <h3 className="text-foreground text-sm font-semibold tracking-tight">
+            Projects
+          </h3>
+
+          {filteredProjects.length === 0 ? (
+            <div className="bg-card/30 border-border/40 flex flex-col items-center justify-center rounded-xl border border-dashed p-12 text-center">
+              <RiTerminalBoxLine className="text-muted-foreground/50 mb-4 h-12 w-12" />
+              <h4 className="text-foreground text-lg font-medium">
+                No workspaces found
+              </h4>
+              <p className="text-muted-foreground mt-2 max-w-sm text-sm">
                 {search
                   ? "No workspaces match your search keyword. Try adjusting your query."
-                  : "Get started by creating your first mock API workspace namespace."}
-              </span>
-            </CardDescription>
-            {!search && (
-              <Button
-                type="button"
-                onClick={triggerCreateProject}
-                title="Create Project"
-                aria-label="Create Project"
-                className="mt-5"
-              >
-                <RiAddLine className="h-4 w-4" />
-                <span>Create Workspace</span>
-              </Button>
-            )}
-          </div>
-        </Card>
-      ) : (
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {filteredProjects.map((proj) => {
-            const theme = getThemeColors(proj.id);
-            const routesCount =
-              proj.endpoints?.reduce(
-                (acc, e) => acc + (e.routes?.length ?? 0),
-                0,
-              ) ?? 0;
-            const groupsCount = proj.endpoints?.length ?? 0;
-
-            return (
-              <div
-                key={proj.id}
-                className="group bg-card text-card-foreground hover:border-primary/30 relative flex min-h-44 flex-col overflow-hidden rounded-xl border shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg"
-              >
-                {/* Stretched link for making the entire card clickable */}
-                <Link
-                  href={`/projects/${proj.slug}/canvas`}
-                  className="absolute inset-0 z-0"
-                >
-                  <span className="sr-only">Enter Workspace {proj.name}</span>
-                </Link>
-
-                {/* Subtle top accent gradient */}
+                  : "Get started by creating your first workspace."}
+              </p>
+              {!search && (
+                <Button onClick={triggerCreateProject} className="mt-6">
+                  <RiAddLine className="mr-2 h-4 w-4" />
+                  Create Workspace
+                </Button>
+              )}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+              {filteredProjects.map((proj) => (
                 <div
-                  className={`absolute top-0 right-0 left-0 h-1 bg-linear-to-r opacity-60 transition-opacity group-hover:opacity-100 ${theme.accent}`}
-                />
+                  key={proj.id}
+                  className="bg-card/30 border-border/40 hover:border-border group relative flex flex-col justify-between overflow-hidden rounded-xl border p-5 transition-colors"
+                >
+                  <Link
+                    href={`/projects/${proj.slug}/canvas`}
+                    className="absolute inset-0 z-0"
+                  >
+                    <span className="sr-only">Enter Workspace {proj.name}</span>
+                  </Link>
 
-                <div className="flex flex-1 flex-col p-5">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="relative z-10 flex flex-col space-y-1">
-                      <h3 className="text-foreground font-heading group-hover:text-primary line-clamp-1 text-lg font-bold tracking-tight capitalize transition-colors">
-                        {proj.name}
-                      </h3>
-                      <div className="flex items-center">
-                        <span className="border-border/40 bg-muted/50 text-muted-foreground text-micro group-hover:bg-muted inline-flex items-center rounded-sm border px-1.5 py-0.5 font-mono font-medium transition-colors">
-                          /{proj.slug}
+                  <div className="relative z-10 flex items-start justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-b from-zinc-700 to-zinc-900 text-white shadow-sm ring-1 ring-white/10 dark:from-zinc-800 dark:to-zinc-950">
+                        <RiTerminalBoxLine className="h-5 w-5" />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-foreground group-hover:text-primary font-bold transition-colors">
+                          {proj.name}
+                        </span>
+                        <span className="text-muted-foreground text-xs">
+                          {proj.slug}.fackapi.com
                         </span>
                       </div>
                     </div>
 
-                    <div className="bg-background/80 border-border/50 duration-fast relative z-10 flex items-center gap-1 rounded-md border p-0.5 opacity-0 shadow-sm backdrop-blur-sm transition-opacity group-hover:opacity-100">
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon-xs"
-                        className="h-7 w-7"
-                        title="Workspace Settings"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          setEditProj(proj);
-                        }}
-                      >
-                        <RiSettings3Line className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon-xs"
-                        className="h-7 w-7"
-                        title="Delete Workspace"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          setDeleteProj(proj);
-                        }}
-                      >
-                        <RiDeleteBin6Line className="h-4 w-4" />
-                      </Button>
+                    {/* Status Checkmark */}
+                    <div className="border-border/40 bg-card flex h-6 w-6 shrink-0 items-center justify-center rounded-full border shadow-sm">
+                      <RiCheckLine className="h-3.5 w-3.5 text-blue-500" />
                     </div>
                   </div>
 
-                  <p className="text-muted-foreground pointer-events-none relative z-10 mt-3 line-clamp-2 flex-1 text-sm leading-relaxed">
-                    {proj.description || "No description provided."}
-                  </p>
+                  <div className="text-muted-foreground relative z-10 mt-6 flex flex-col gap-2 text-xs">
+                    <div className="flex items-center gap-1.5">
+                      <RiGitBranchLine className="h-3.5 w-3.5 shrink-0" />
+                      <span className="truncate">
+                        {proj.description || "Update routes for " + proj.name}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <RiGithubFill className="text-foreground h-3.5 w-3.5 shrink-0" />
+                      <span className="truncate">
+                        Karelaking/{proj.slug} •{" "}
+                        {formatRelativeTime(proj.updatedAt)}
+                      </span>
+                    </div>
+                  </div>
 
-                  <div className="border-border/20 pointer-events-none relative z-10 mt-5 flex items-center justify-between border-t pt-4">
-                    <div className="flex items-center gap-2.5">
-                      <div className="bg-primary/5 text-primary/90 text-mini flex items-center gap-1.5 rounded-sm px-1.5 py-0.5 font-semibold">
-                        <RiStackLine className="h-3.5 w-3.5 shrink-0" />
-                        <span>{groupsCount}</span>
-                      </div>
-                      <div className="bg-success/5 text-success/90 text-mini flex items-center gap-1.5 rounded-sm px-1.5 py-0.5 font-semibold">
-                        <RiPulseLine className="h-3.5 w-3.5 shrink-0" />
-                        <span>{routesCount}</span>
-                      </div>
-                    </div>
-                    <div className="text-muted-foreground/70 text-micro flex items-center gap-1 font-medium">
-                      <RiCalendarLine className="h-3 w-3 shrink-0" />
-                      <span>{formatRelativeTime(proj.updatedAt)}</span>
-                    </div>
+                  {/* Hover Actions (Edit/Delete) overlay */}
+                  <div className="pointer-events-none absolute right-4 bottom-4 z-20 flex items-center gap-1 opacity-0 transition-opacity group-hover:pointer-events-auto group-hover:opacity-100">
+                    <button
+                      type="button"
+                      className="border-border text-muted-foreground hover:text-foreground bg-card/80 hover:bg-muted flex h-7 w-7 items-center justify-center rounded-md border shadow-sm backdrop-blur-sm transition-colors"
+                      title="Workspace Settings"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setEditProj(proj);
+                      }}
+                    >
+                      <RiSettings3Line className="h-3.5 w-3.5" />
+                    </button>
+                    <button
+                      type="button"
+                      className="border-border text-muted-foreground hover:text-destructive bg-card/80 hover:bg-muted flex h-7 w-7 items-center justify-center rounded-md border shadow-sm backdrop-blur-sm transition-colors"
+                      title="Delete Workspace"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setDeleteProj(proj);
+                      }}
+                    >
+                      <RiDeleteBin6Line className="h-3.5 w-3.5" />
+                    </button>
                   </div>
                 </div>
-              </div>
-            );
-          })}
+              ))}
+            </div>
+          )}
         </div>
-      )}
-
+      </div>
       {/* Edit Settings Dialog */}
+
       <Dialog
         open={!!editProj}
         onOpenChange={(open) => {
