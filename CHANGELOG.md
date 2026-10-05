@@ -1,3 +1,9 @@
+# [1.8.0](https://github.com/Karelaking/fack-api/compare/v1.7.0...v1.8.0) (2026-10-05)
+
+### Features
+
+- **design:** implement unified design language system ([f262d73](https://github.com/Karelaking/fack-api/commit/f262d7347f2960cbc9cd7f46a2a5c29f9a400a6a))
+
 # [1.7.0](https://github.com/Karelaking/fack-api/compare/v1.6.0...v1.7.0) (2026-09-21)
 
 ### Bug Fixes
