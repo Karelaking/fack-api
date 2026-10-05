@@ -3,6 +3,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { RootSidebar } from "@/components/dashboard/RootSidebar";
 import { MobileBottomNav } from "@/components/dashboard/MobileBottomNav";
 import { CreateProjectDialog } from "@/components/dashboard/CreateProjectDialog";
+import { HeaderNewProjectButton } from "@/components/dashboard/HeaderNewProjectButton";
 import { CommandMenu } from "@/components/command-menu";
 
 export const dynamic = "force-dynamic";
@@ -25,8 +26,9 @@ export default async function DashboardLayout({
 
         {/* Main Content Area */}
         <main className="relative flex min-w-0 flex-1 flex-col overflow-hidden">
-          <header className="border-border/10 flex h-14 shrink-0 items-center gap-2 border-b px-4">
+          <header className="border-border/10 flex h-14 shrink-0 items-center justify-between border-b px-4">
             <SidebarTrigger className="-ml-1 h-8 w-8" />
+            <HeaderNewProjectButton />
           </header>
           <div className="bg-background flex-1 overflow-auto pb-14 md:pb-0">
             {children}

@@ -222,24 +222,10 @@ export function ProjectGrid({
   return (
     <div className="max-w-8xl mx-auto space-y-8 p-6 md:p-6 lg:px-12">
       {/* Upper header section */}
-      <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="font-heading text-foreground text-2xl font-bold tracking-tight">
-            Dashboard
-          </h1>
-        </div>
-
-        <Button
-          type="button"
-          onClick={triggerCreateProject}
-          title="Create New Project"
-          aria-label="Create New Project"
-          size="default"
-          className="shrink-0 self-start sm:self-auto"
-        >
-          <RiAddLine className="mr-2 h-4 w-4" />
-          <span>New Project</span>
-        </Button>
+      <div>
+        <h1 className="font-heading text-foreground text-2xl font-bold tracking-tight">
+          Dashboard
+        </h1>
       </div>
 
       {/* Search & Sort Filters */}
