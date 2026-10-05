@@ -363,12 +363,12 @@ export function ProjectGrid({
                 >
                   <Link
                     href={`/projects/${proj.slug}/canvas`}
-                    className="absolute inset-0 z-0"
+                    className="absolute inset-0 z-10"
                   >
                     <span className="sr-only">Enter Workspace {proj.name}</span>
                   </Link>
 
-                  <div className="relative z-10 flex items-start justify-between">
+                  <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3">
                       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-b from-zinc-700 to-zinc-900 text-white shadow-sm ring-1 ring-white/10 dark:from-zinc-800 dark:to-zinc-950">
                         <RiTerminalBoxLine className="h-5 w-5" />
@@ -389,7 +389,7 @@ export function ProjectGrid({
                     </div>
                   </div>
 
-                  <div className="text-muted-foreground relative z-10 mt-6 flex flex-col gap-2 text-xs">
+                  <div className="text-muted-foreground mt-6 flex flex-col gap-2 text-xs">
                     <div className="flex items-center gap-1.5">
                       <RiGitBranchLine className="h-3.5 w-3.5 shrink-0" />
                       <span className="truncate">
@@ -413,6 +413,7 @@ export function ProjectGrid({
                       title="Workspace Settings"
                       onClick={(e) => {
                         e.preventDefault();
+                        e.stopPropagation();
                         setEditProj(proj);
                       }}
                     >
@@ -424,6 +425,7 @@ export function ProjectGrid({
                       title="Delete Workspace"
                       onClick={(e) => {
                         e.preventDefault();
+                        e.stopPropagation();
                         setDeleteProj(proj);
                       }}
                     >
