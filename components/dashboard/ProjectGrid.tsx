@@ -178,7 +178,7 @@ export function ProjectGrid({
   };
 
   return (
-    <div className="mx-auto max-w-350 space-y-8 p-4 md:p-8">
+    <div className="mx-auto max-w-350 space-y-8 p-8">
       {/* Search Bar Row */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
         <div className="relative flex-1">

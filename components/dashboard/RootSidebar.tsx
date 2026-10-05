@@ -31,7 +31,7 @@ import {
 const mainNavItems = [
   {
     title: "Projects",
-    href: "/",
+    href: "/dashboard",
     icon: RiLayoutGridLine,
   },
   {
