@@ -343,7 +343,7 @@ export function ProjectGrid({
         </div>
 
         {/* Right Content (Projects Grid) */}
-        <div className="flex-1 space-y-4">
+        <div className="min-w-0 flex-1 space-y-4">
           <h3 className="text-foreground text-sm font-semibold tracking-tight">
             Projects
           </h3>
@@ -387,15 +387,15 @@ export function ProjectGrid({
                   </Link>
 
                   <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-3">
+                    <div className="flex min-w-0 items-center gap-3">
                       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-b from-zinc-700 to-zinc-900 text-white shadow-sm ring-1 ring-white/10 dark:from-zinc-800 dark:to-zinc-950">
                         <RiTerminalBoxLine className="h-5 w-5" />
                       </div>
-                      <div className="flex flex-col">
-                        <span className="text-foreground group-hover:text-primary font-bold transition-colors">
+                      <div className="flex min-w-0 flex-col">
+                        <span className="text-foreground group-hover:text-primary truncate font-bold transition-colors">
                           {proj.name}
                         </span>
-                        <span className="text-muted-foreground text-xs">
+                        <span className="text-muted-foreground truncate text-xs">
                           {proj.slug}.fackapi.com
                         </span>
                       </div>
@@ -407,14 +407,14 @@ export function ProjectGrid({
                     </div>
                   </div>
 
-                  <div className="text-muted-foreground mt-6 flex flex-col gap-2 text-xs">
-                    <div className="flex items-center gap-1.5">
+                  <div className="text-muted-foreground mt-6 flex min-w-0 flex-col gap-2 text-xs">
+                    <div className="flex min-w-0 items-center gap-1.5">
                       <RiGitBranchLine className="h-3.5 w-3.5 shrink-0" />
                       <span className="truncate">
                         {proj.description || "Update routes for " + proj.name}
                       </span>
                     </div>
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex min-w-0 items-center gap-1.5">
                       <RiGithubFill className="text-foreground h-3.5 w-3.5 shrink-0" />
                       <span className="truncate">
                         Karelaking/{proj.slug} •{" "}
