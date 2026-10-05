@@ -79,6 +79,8 @@ export function ProjectGrid({
   const [editDescription, setEditDescription] = React.useState("");
   const [editLoading, setEditLoading] = React.useState(false);
 
+  const [viewMode, setViewMode] = React.useState<"grid" | "list">("grid");
+
   // Sync initial projects
   React.useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -203,22 +205,32 @@ export function ProjectGrid({
           <div className="border-border/40 bg-card/30 flex h-10 items-center rounded-md border p-1">
             <button
               type="button"
-              className="bg-muted flex h-7 w-7 items-center justify-center rounded-sm shadow-sm transition-colors"
+              onClick={() => setViewMode("grid")}
+              className={`flex h-7 w-7 items-center justify-center rounded-sm transition-colors ${
+                viewMode === "grid" ? "bg-muted shadow-sm" : "hover:bg-muted"
+              }`}
             >
-              <RiLayoutGridLine className="text-foreground h-4 w-4" />
+              <RiLayoutGridLine
+                className={`h-4 w-4 ${viewMode === "grid" ? "text-foreground" : "text-muted-foreground"}`}
+              />
             </button>
             <button
               type="button"
-              className="hover:bg-muted flex h-7 w-7 items-center justify-center rounded-sm transition-colors"
+              onClick={() => setViewMode("list")}
+              className={`flex h-7 w-7 items-center justify-center rounded-sm transition-colors ${
+                viewMode === "list" ? "bg-muted shadow-sm" : "hover:bg-muted"
+              }`}
             >
-              <RiListUnordered className="text-muted-foreground h-4 w-4" />
+              <RiListUnordered
+                className={`h-4 w-4 ${viewMode === "list" ? "text-foreground" : "text-muted-foreground"}`}
+              />
             </button>
           </div>
         </div>
       </div>
 
       {/* Main Grid Layout */}
-      <div className="flex flex-col gap-8 lg:flex-row lg:gap-10">
+      <div className="flex flex-col gap-8 lg:flex-row lg:gap-6">
         {/* Left Sidebar (Widgets) */}
         <div className="flex w-full shrink-0 flex-col gap-8 lg:w-[320px]">
           {/* Usage */}
@@ -355,7 +367,13 @@ export function ProjectGrid({
               )}
             </div>
           ) : (
-            <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+            <div
+              className={
+                viewMode === "grid"
+                  ? "grid grid-cols-1 gap-4 xl:grid-cols-2"
+                  : "flex flex-col gap-4"
+              }
+            >
               {filteredProjects.map((proj) => (
                 <div
                   key={proj.id}
