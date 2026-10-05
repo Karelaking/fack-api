@@ -77,7 +77,7 @@ export function HeaderNewProjectButton(): React.JSX.Element | null {
     <Button
       type="button"
       size="sm"
-      variant="outline"
+      variant="default"
       title="Create New Project"
       aria-label="Create New Project"
       onClick={handleNewProjectClick}
