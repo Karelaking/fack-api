@@ -314,7 +314,7 @@ export function ProjectGrid({
             return (
               <div
                 key={proj.id}
-                className="group bg-card text-card-foreground hover:border-primary/30 relative flex min-h-[11rem] flex-col overflow-hidden rounded-xl border shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg"
+                className="group bg-card text-card-foreground hover:border-primary/30 relative flex min-h-44 flex-col overflow-hidden rounded-xl border shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg"
               >
                 {/* Stretched link for making the entire card clickable */}
                 <Link
