@@ -58,7 +58,7 @@ export function ProjectGrid({
     "search",
     parseAsString.withDefault(""),
   );
-  const [sortBy, setSortBy] = useQueryState(
+  const [sortBy] = useQueryState(
     "sort",
     parseAsStringEnum<"updated" | "name">(["updated", "name"]).withDefault(
       "updated",
@@ -178,7 +178,7 @@ export function ProjectGrid({
   };
 
   return (
-    <div className="mx-auto max-w-[1400px] space-y-8 p-4 md:p-8">
+    <div className="mx-auto max-w-350 space-y-8 p-4 md:p-8">
       {/* Search Bar Row */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
         <div className="relative flex-1">
@@ -191,7 +191,7 @@ export function ProjectGrid({
             className="border-border/40 bg-card/30 focus-visible:ring-primary/20 h-10 w-full rounded-md border pr-12 pl-9 transition-colors outline-none"
           />
           <div className="absolute top-1/2 right-2 flex -translate-y-1/2 items-center">
-            <kbd className="bg-muted text-muted-foreground hidden h-5 items-center justify-center rounded-[4px] border px-1.5 font-mono text-[10px] font-medium sm:flex">
+            <kbd className="bg-muted text-muted-foreground hidden h-5 items-center justify-center rounded-lg border px-1.5 font-mono text-[10px] font-medium sm:flex">
               /
             </kbd>
           </div>
@@ -295,7 +295,7 @@ export function ProjectGrid({
               <h4 className="text-foreground text-sm font-medium">
                 Get alerted for anomalies
               </h4>
-              <p className="text-muted-foreground max-w-[200px] text-xs leading-relaxed">
+              <p className="text-muted-foreground max-w-50 text-xs leading-relaxed">
                 Automatically monitor your projects for anomalies and get
                 notified.
               </p>
