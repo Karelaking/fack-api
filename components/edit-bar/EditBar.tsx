@@ -51,28 +51,25 @@ const METHOD_THEMES: Record<
   { active: string; inactive: string }
 > = {
   GET: {
-    active:
-      "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/40 shadow-xs",
+    active: "bg-method-get/15 text-method-get border-method-get/40 shadow-xs",
     inactive: "text-muted-foreground hover:text-foreground hover:bg-muted/60",
   },
   POST: {
     active:
-      "bg-blue-500/15 text-blue-700 dark:text-blue-400 border-blue-500/40 shadow-xs",
+      "bg-method-post/15 text-method-post border-method-post/40 shadow-xs",
     inactive: "text-muted-foreground hover:text-foreground hover:bg-muted/60",
   },
   PUT: {
-    active:
-      "bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/40 shadow-xs",
+    active: "bg-method-put/15 text-method-put border-method-put/40 shadow-xs",
     inactive: "text-muted-foreground hover:text-foreground hover:bg-muted/60",
   },
   DELETE: {
     active:
-      "bg-rose-500/15 text-rose-700 dark:text-rose-400 border-rose-500/40 shadow-xs",
+      "bg-method-delete/15 text-method-delete border-method-delete/40 shadow-xs",
     inactive: "text-muted-foreground hover:text-foreground hover:bg-muted/60",
   },
   PATCH: {
-    active:
-      "bg-purple-500/15 text-purple-700 dark:text-purple-400 border-purple-500/40 shadow-xs",
+    active: "bg-primary/15 text-primary border-primary/40 shadow-xs",
     inactive: "text-muted-foreground hover:text-foreground hover:bg-muted/60",
   },
 };
@@ -270,7 +267,7 @@ function EditBarInner({
                   onClick={() => setMethod(m)}
                   disabled={loading}
                   className={cn(
-                    "cursor-pointer border px-2 py-0.5 text-[10px] font-extrabold tracking-wider uppercase transition-all duration-150 select-none",
+                    "text-mini duration-fast cursor-pointer border px-2 py-0.5 font-extrabold tracking-wider uppercase transition-all select-none",
                     isActive
                       ? theme.active
                       : cn("border-transparent", theme.inactive),
@@ -284,7 +281,7 @@ function EditBarInner({
 
           {/* Route Enabled Toggle */}
           <div className="flex items-center gap-2">
-            <span className="text-muted-foreground text-[10px] font-bold tracking-wider uppercase">
+            <span className="text-muted-foreground text-mini font-bold tracking-wider uppercase">
               {isEnabled ? "Active" : "Disabled"}
             </span>
             <Switch
@@ -301,7 +298,7 @@ function EditBarInner({
         <div className="space-y-1">
           <label
             htmlFor="route-path"
-            className="text-muted-foreground block text-[10px] font-bold tracking-wider uppercase"
+            className="text-muted-foreground text-mini block font-bold tracking-wider uppercase"
           >
             Route Path
           </label>
@@ -318,7 +315,7 @@ function EditBarInner({
         {/* Row 3: Status Code with Quick Presets */}
         <div className="flex flex-wrap items-center justify-between gap-2 pt-0.5">
           <div className="flex items-center gap-1">
-            <span className="text-muted-foreground mr-1 text-[10px] font-bold tracking-wider uppercase">
+            <span className="text-muted-foreground text-mini mr-1 font-bold tracking-wider uppercase">
               Status:
             </span>
             {STATUS_PRESETS.map((code) => (
@@ -328,7 +325,7 @@ function EditBarInner({
                 onClick={() => setStatusCode(code)}
                 disabled={loading}
                 className={cn(
-                  "cursor-pointer border px-1.5 py-0.5 font-mono text-[10px] font-bold transition-colors",
+                  "text-mini cursor-pointer border px-1.5 py-0.5 font-mono font-bold transition-colors",
                   statusCode === code
                     ? "bg-primary text-primary-foreground border-primary"
                     : "bg-background text-muted-foreground hover:text-foreground hover:bg-muted border-border",
@@ -342,7 +339,7 @@ function EditBarInner({
           <div className="flex items-center gap-1.5">
             <label
               htmlFor="route-status"
-              className="text-muted-foreground text-[10px] font-bold uppercase"
+              className="text-muted-foreground text-mini font-bold uppercase"
             >
               Custom:
             </label>
@@ -365,18 +362,18 @@ function EditBarInner({
         defaultValue="schema"
         className="mt-3 flex min-h-0 min-w-0 flex-1 flex-col"
       >
-        {}
+        {/* Tabs */}
         <TabsList className="grid shrink-0 grid-cols-5">
           <TabsTrigger value="schema" size="compact">
             <span>Schema</span>
-            <span className="bg-muted-foreground/15 text-muted-foreground py-0.2 rounded-xs px-1 font-mono text-[9px]">
+            <span className="bg-muted-foreground/15 text-muted-foreground py-0.2 text-micro rounded-xs px-1 font-mono">
               {fields.length}
             </span>
           </TabsTrigger>
           <TabsTrigger value="rules" size="compact">
             <span>Rules</span>
             {rules.length > 0 && (
-              <span className="bg-primary/15 text-primary py-0.2 rounded-xs px-1 font-mono text-[9px] font-extrabold">
+              <span className="bg-primary/15 text-primary py-0.2 text-micro rounded-xs px-1 font-mono font-extrabold">
                 {rules.length}
               </span>
             )}
@@ -384,7 +381,7 @@ function EditBarInner({
           <TabsTrigger value="behavior" size="compact">
             <span>Chaos</span>
             {(latencyMin > 0 || latencyMax > 0 || errorRate > 0) && (
-              <span className="py-0.2 rounded-xs bg-amber-500/15 px-1 font-mono text-[9px] font-bold text-amber-600 dark:text-amber-400">
+              <span className="bg-warning/15 text-warning py-0.2 text-micro rounded-xs px-1 font-mono font-bold">
                 ON
               </span>
             )}
@@ -392,7 +389,7 @@ function EditBarInner({
           <TabsTrigger value="headers" size="compact">
             <span>Headers</span>
             {headers.length > 0 && (
-              <span className="py-0.2 rounded-xs bg-blue-500/15 px-1 font-mono text-[9px] font-extrabold text-blue-600 dark:text-blue-400">
+              <span className="bg-info/15 text-info py-0.2 text-micro rounded-xs px-1 font-mono font-extrabold">
                 {headers.length}
               </span>
             )}
@@ -448,7 +445,7 @@ function EditBarInner({
                     onClick={handleCopySchema}
                   >
                     {copiedJson ? (
-                      <RiCheckLine className="h-3.5 w-3.5 text-emerald-500" />
+                      <RiCheckLine className="text-success h-3.5 w-3.5" />
                     ) : (
                       <RiFileCopyLine className="h-3.5 w-3.5" />
                     )}
@@ -467,7 +464,7 @@ function EditBarInner({
                   </Button>
                 </div>
               </div>
-              <div className="bg-muted min-h-0 flex-1 overflow-auto border p-2 font-mono text-[10px]">
+              <div className="bg-muted text-mini min-h-0 flex-1 overflow-auto border p-2 font-mono">
                 <pre>{schemaPreview}</pre>
               </div>
             </div>

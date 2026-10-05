@@ -265,7 +265,7 @@ export const FieldEditor = ({
             onCheckedChange={handleNullableChange}
             aria-label="Nullable"
           />
-          <span className="text-muted-foreground text-[9px] font-semibold uppercase">
+          <span className="text-muted-foreground text-micro font-semibold uppercase">
             Null
           </span>
         </div>
@@ -283,7 +283,7 @@ export const FieldEditor = ({
         {/* Array Options */}
         {isArray && (
           <div className="flex min-w-37.5 flex-1 items-center gap-1.5">
-            <span className="text-muted-foreground shrink-0 text-[9px] font-bold uppercase">
+            <span className="text-muted-foreground text-micro shrink-0 font-bold uppercase">
               Items:
             </span>
             <Select
@@ -374,7 +374,7 @@ export const FieldEditor = ({
       {/* Custom Category Image Parameter Inputs */}
       {isCustomImage && (
         <div className="flex items-center gap-2 pb-1 pl-7 text-xs">
-          <span className="text-muted-foreground shrink-0 text-[9px] font-bold uppercase">
+          <span className="text-muted-foreground text-micro shrink-0 font-bold uppercase">
             Category Name:
           </span>
           <Input
@@ -390,7 +390,7 @@ export const FieldEditor = ({
 
       {isCustomArrayItemImage && (
         <div className="flex items-center gap-2 pb-1 pl-7 text-xs">
-          <span className="text-muted-foreground shrink-0 text-[9px] font-bold uppercase">
+          <span className="text-muted-foreground text-micro shrink-0 font-bold uppercase">
             Array Item Category:
           </span>
           <Input

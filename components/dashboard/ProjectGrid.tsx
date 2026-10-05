@@ -7,7 +7,6 @@ import { useQueryState, parseAsString, parseAsStringEnum } from "nuqs";
 import {
   RiTerminalBoxLine,
   RiCalendarLine,
-  RiArrowRightLine,
   RiSearchLine,
   RiLoader2Line,
   RiDeleteBin6Line,
@@ -15,27 +14,19 @@ import {
   RiAddLine,
   RiStackLine,
   RiPulseLine,
-  RiMagicLine,
 } from "@remixicon/react";
 import { toast } from "sonner";
 import { deleteProject, updateProject } from "@/lib/actions/projects";
-import { cn, formatRelativeTime } from "@/lib/utils";
+import { formatRelativeTime } from "@/lib/utils";
 import type { Project, Endpoint, Route } from "@/db/schema";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group";
-import {
-  Card,
-  CardTitle,
-  CardDescription,
-  CardHeader,
-  CardContent,
-  CardFooter,
-} from "@/components/ui/card";
+import { Card, CardTitle, CardDescription } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -229,15 +220,13 @@ export function ProjectGrid({
   };
 
   return (
-    <div className="max-w-8xl mx-auto space-y-6 p-6 md:p-6 lg:px-12">
+    <div className="max-w-8xl mx-auto space-y-8 p-6 md:p-6 lg:px-12">
       {/* Upper header section */}
-      <div className="border-border/40 flex flex-col gap-4 border-b pb-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
-          <p className="text-muted-foreground mt-0.5 text-xs">
-            Manage your isolated API namespaces and simulate response schema
-            endpoints.
-          </p>
+          <h1 className="font-heading text-foreground text-2xl font-bold tracking-tight">
+            Dashboard
+          </h1>
         </div>
 
         <Button
@@ -245,10 +234,10 @@ export function ProjectGrid({
           onClick={triggerCreateProject}
           title="Create New Project"
           aria-label="Create New Project"
-          size="lg"
-          className="shrink-0"
+          size="default"
+          className="shrink-0 self-start sm:self-auto"
         >
-          <RiAddLine className="h-4 w-4" />
+          <RiAddLine className="mr-2 h-4 w-4" />
           <span>New Project</span>
         </Button>
       </div>
@@ -323,105 +312,88 @@ export function ProjectGrid({
             const groupsCount = proj.endpoints?.length ?? 0;
 
             return (
-              <Card
+              <div
                 key={proj.id}
-                variant="interactive"
-                className="group relative flex flex-col justify-between overflow-hidden"
+                className="group bg-card text-card-foreground hover:border-primary/30 relative flex min-h-[11rem] flex-col overflow-hidden rounded-xl border shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg"
               >
-                {/* Visual Header Accent Gradient */}
+                {/* Stretched link for making the entire card clickable */}
+                <Link
+                  href={`/projects/${proj.slug}/canvas`}
+                  className="absolute inset-0 z-0"
+                >
+                  <span className="sr-only">Enter Workspace {proj.name}</span>
+                </Link>
+
+                {/* Subtle top accent gradient */}
                 <div
-                  className={`h-1.5 w-full bg-linear-to-r ${theme.accent}`}
+                  className={`absolute top-0 right-0 left-0 h-1 bg-linear-to-r opacity-60 transition-opacity group-hover:opacity-100 ${theme.accent}`}
                 />
 
-                <CardHeader>
-                  <div className="flex items-center justify-between gap-2">
-                    <div
-                      className={`flex h-7 w-7 shrink-0 items-center justify-center border ${theme.bg}`}
-                    >
-                      <RiTerminalBoxLine className="h-3.5 w-3.5" />
+                <div className="flex flex-1 flex-col p-5">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="relative z-10 flex flex-col space-y-1">
+                      <h3 className="text-foreground font-heading group-hover:text-primary line-clamp-1 text-lg font-bold tracking-tight capitalize transition-colors">
+                        {proj.name}
+                      </h3>
+                      <div className="flex items-center">
+                        <span className="border-border/40 bg-muted/50 text-muted-foreground text-micro group-hover:bg-muted inline-flex items-center rounded-sm border px-1.5 py-0.5 font-mono font-medium transition-colors">
+                          /{proj.slug}
+                        </span>
+                      </div>
                     </div>
 
-                    <div className="flex items-center gap-1 transition-opacity group-hover:opacity-100 sm:opacity-0">
+                    <div className="bg-background/80 border-border/50 duration-fast relative z-10 flex items-center gap-1 rounded-md border p-0.5 opacity-0 shadow-sm backdrop-blur-sm transition-opacity group-hover:opacity-100">
                       <Button
                         type="button"
                         variant="ghost"
                         size="icon-xs"
+                        className="h-7 w-7"
                         title="Workspace Settings"
-                        aria-label="Workspace Settings"
-                        onClick={() => setEditProj(proj)}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setEditProj(proj);
+                        }}
                       >
-                        <RiSettings3Line className="h-3.5 w-3.5" />
+                        <RiSettings3Line className="h-4 w-4" />
                       </Button>
                       <Button
                         type="button"
                         variant="ghost"
                         size="icon-xs"
+                        className="h-7 w-7"
                         title="Delete Workspace"
-                        aria-label="Delete Workspace"
-                        onClick={() => setDeleteProj(proj)}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setDeleteProj(proj);
+                        }}
                       >
-                        <RiDeleteBin6Line className="h-3.5 w-3.5" />
+                        <RiDeleteBin6Line className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>
 
-                  <div className="mt-3 space-y-1">
-                    <Link
-                      href={`/projects/${proj.slug}/canvas`}
-                      className="hover:text-primary line-clamp-1 flex items-center gap-1.5 text-sm font-bold transition-colors"
-                    >
-                      <span>{proj.name}</span>
-                      <RiMagicLine className="text-primary h-3.5 w-3.5 shrink-0 opacity-0 transition-opacity group-hover:opacity-100" />
-                    </Link>
-                    <span className="text-muted-foreground bg-muted border-border/40 inline-flex max-w-full truncate border px-1.5 py-0.5 font-mono text-[9px] font-semibold">
-                      /{proj.slug}
-                    </span>
-                  </div>
+                  <p className="text-muted-foreground pointer-events-none relative z-10 mt-3 line-clamp-2 flex-1 text-sm leading-relaxed">
+                    {proj.description || "No description provided."}
+                  </p>
 
-                  <CardDescription className="mt-2 min-h-8">
-                    <span className="line-clamp-2 block leading-relaxed">
-                      {proj.description || "No description provided."}
-                    </span>
-                  </CardDescription>
-                </CardHeader>
-
-                <CardContent>
-                  <div className="flex flex-col gap-2">
-                    <div className="text-muted-foreground flex items-center gap-1.5 text-[10px] font-semibold">
-                      <RiCalendarLine className="h-3.5 w-3.5 shrink-0" />
-                      <span>Updated {formatRelativeTime(proj.updatedAt)}</span>
-                    </div>
-
-                    <div className="border-border/40 text-muted-foreground/80 flex items-center gap-3 border-t pt-2 text-[10px] font-semibold">
-                      <div className="flex items-center gap-1">
-                        <RiStackLine className="text-primary/80 h-3.5 w-3.5 shrink-0" />
-                        <span>
-                          {groupsCount} {groupsCount === 1 ? "group" : "groups"}
-                        </span>
+                  <div className="border-border/20 pointer-events-none relative z-10 mt-5 flex items-center justify-between border-t pt-4">
+                    <div className="flex items-center gap-2.5">
+                      <div className="bg-primary/5 text-primary/90 text-mini flex items-center gap-1.5 rounded-sm px-1.5 py-0.5 font-semibold">
+                        <RiStackLine className="h-3.5 w-3.5 shrink-0" />
+                        <span>{groupsCount}</span>
                       </div>
-                      <div className="flex items-center gap-1">
-                        <RiPulseLine className="h-3.5 w-3.5 shrink-0 text-emerald-500/80" />
-                        <span>
-                          {routesCount} {routesCount === 1 ? "route" : "routes"}
-                        </span>
+                      <div className="bg-success/5 text-success/90 text-mini flex items-center gap-1.5 rounded-sm px-1.5 py-0.5 font-semibold">
+                        <RiPulseLine className="h-3.5 w-3.5 shrink-0" />
+                        <span>{routesCount}</span>
                       </div>
                     </div>
+                    <div className="text-muted-foreground/70 text-micro flex items-center gap-1 font-medium">
+                      <RiCalendarLine className="h-3 w-3 shrink-0" />
+                      <span>{formatRelativeTime(proj.updatedAt)}</span>
+                    </div>
                   </div>
-                </CardContent>
-
-                <CardFooter className="mt-1">
-                  <Link
-                    href={`/projects/${proj.slug}/canvas`}
-                    className={cn(
-                      buttonVariants({ variant: "ghost", size: "sm" }),
-                      "hover:bg-primary/5 hover:text-primary group/btn w-full justify-between px-2 font-bold",
-                    )}
-                  >
-                    <span>Enter Workspace</span>
-                    <RiArrowRightLine className="h-3.5 w-3.5 transition-transform group-hover/btn:translate-x-1" />
-                  </Link>
-                </CardFooter>
-              </Card>
+                </div>
+              </div>
             );
           })}
         </div>

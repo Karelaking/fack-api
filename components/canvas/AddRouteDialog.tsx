@@ -213,7 +213,6 @@ export const AddRouteDialog = ({
                     >
                       <SelectTrigger
                         aria-label="HTTP Method"
-                        variant="mono"
                         className="w-full"
                       >
                         <SelectValue />

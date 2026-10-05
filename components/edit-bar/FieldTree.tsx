@@ -109,7 +109,7 @@ export function FieldTree(): React.JSX.Element {
             <RiFileCodeLine className="text-primary h-3.5 w-3.5" />
             <span>Response Schema Fields</span>
           </h3>
-          <p className="text-muted-foreground pr-4 text-[10px] leading-normal">
+          <p className="text-muted-foreground text-mini pr-4 leading-normal">
             Configure keys, types, and mock datatypes. Drag and drop rows to
             reorder.
           </p>
@@ -133,7 +133,7 @@ export function FieldTree(): React.JSX.Element {
           <div className="text-xs font-semibold">
             No schema fields configured
           </div>
-          <p className="text-muted-foreground max-w-64 text-[10px] leading-normal">
+          <p className="text-muted-foreground text-mini max-w-64 leading-normal">
             An empty schema returns `{}`. Start by adding a single blank field
             or initialize with a common starter template.
           </p>
