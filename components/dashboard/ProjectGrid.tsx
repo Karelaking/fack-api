@@ -32,6 +32,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Clock11Icon } from "lucide-react";
 
 type ProjectWithRelations = Project & {
   endpoints?: (Endpoint & {
@@ -377,7 +378,7 @@ export function ProjectGrid({
               {filteredProjects.map((proj) => (
                 <div
                   key={proj.id}
-                  className="bg-card/30 border-border/40 hover:border-border group relative flex flex-col justify-between overflow-hidden rounded-xl border p-5 transition-colors"
+                  className="bg-card/30 border-border/40 hover:border-border group relative flex flex-col justify-between overflow-hidden rounded-xl border p-6 transition-colors"
                 >
                   <Link
                     href={`/projects/${proj.slug}/canvas`}
@@ -388,7 +389,7 @@ export function ProjectGrid({
 
                   <div className="flex items-start justify-between">
                     <div className="flex min-w-0 items-center gap-3">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-b from-zinc-700 to-zinc-900 text-white shadow-sm ring-1 ring-white/10 dark:from-zinc-800 dark:to-zinc-950">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-linear-to-b from-zinc-700 to-zinc-900 text-white shadow-sm ring-1 ring-white/10 dark:from-zinc-800 dark:to-zinc-950">
                         <RiTerminalBoxLine className="h-5 w-5" />
                       </div>
                       <div className="flex min-w-0 flex-col">
@@ -401,54 +402,47 @@ export function ProjectGrid({
                       </div>
                     </div>
 
-                    {/* Status Checkmark */}
-                    <div className="border-border/40 bg-card flex h-6 w-6 shrink-0 items-center justify-center rounded-full border shadow-sm">
-                      <RiCheckLine className="h-3.5 w-3.5 text-blue-500" />
+                    {/* Quick Actions */}
+                    <div className="relative z-20 flex shrink-0 items-center gap-1">
+                      <button
+                        type="button"
+                        className="border-border text-muted-foreground hover:text-foreground hover:bg-muted bg-card flex h-7 w-7 items-center justify-center rounded-md border shadow-sm transition-colors"
+                        title="Workspace Settings"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setEditProj(proj);
+                        }}
+                      >
+                        <RiSettings3Line className="h-3.5 w-3.5" />
+                      </button>
+                      <button
+                        type="button"
+                        className="border-border text-muted-foreground hover:text-destructive hover:bg-muted bg-card flex h-7 w-7 items-center justify-center rounded-md border shadow-sm transition-colors"
+                        title="Delete Workspace"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setDeleteProj(proj);
+                        }}
+                      >
+                        <RiDeleteBin6Line className="h-3.5 w-3.5" />
+                      </button>
                     </div>
                   </div>
 
                   <div className="text-muted-foreground mt-6 flex min-w-0 flex-col gap-2 text-xs">
-                    <div className="flex min-w-0 items-center gap-1.5">
-                      <RiGitBranchLine className="h-3.5 w-3.5 shrink-0" />
-                      <span className="truncate">
+                    <div className="flex min-w-0 items-start gap-1.5">
+                      <span className="line-clamp-2 min-h-8">
                         {proj.description || "Update routes for " + proj.name}
                       </span>
                     </div>
-                    <div className="flex min-w-0 items-center gap-1.5">
-                      <RiGithubFill className="text-foreground h-3.5 w-3.5 shrink-0" />
+                    <div className="flex min-w-0 items-end gap-1.5">
+                      <Clock11Icon className="text-muted-foreground h-3.5 w-3.5 shrink-0" />
                       <span className="truncate">
-                        Karelaking/{proj.slug} •{" "}
                         {formatRelativeTime(proj.updatedAt)}
                       </span>
                     </div>
-                  </div>
-
-                  {/* Hover Actions (Edit/Delete) overlay */}
-                  <div className="pointer-events-none absolute right-4 bottom-4 z-20 flex items-center gap-1 opacity-0 transition-opacity group-hover:pointer-events-auto group-hover:opacity-100">
-                    <button
-                      type="button"
-                      className="border-border text-muted-foreground hover:text-foreground bg-card/80 hover:bg-muted flex h-7 w-7 items-center justify-center rounded-md border shadow-sm backdrop-blur-sm transition-colors"
-                      title="Workspace Settings"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        setEditProj(proj);
-                      }}
-                    >
-                      <RiSettings3Line className="h-3.5 w-3.5" />
-                    </button>
-                    <button
-                      type="button"
-                      className="border-border text-muted-foreground hover:text-destructive bg-card/80 hover:bg-muted flex h-7 w-7 items-center justify-center rounded-md border shadow-sm backdrop-blur-sm transition-colors"
-                      title="Delete Workspace"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        setDeleteProj(proj);
-                      }}
-                    >
-                      <RiDeleteBin6Line className="h-3.5 w-3.5" />
-                    </button>
                   </div>
                 </div>
               ))}
