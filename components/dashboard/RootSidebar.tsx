@@ -107,7 +107,7 @@ export function RootSidebar(): React.JSX.Element {
               placeholder="Find"
               className="border-border/40 bg-background text-foreground placeholder:text-muted-foreground focus:ring-primary pointer-events-none h-9 w-full cursor-pointer rounded-md border py-1 pr-8 pl-9 text-sm focus:ring-1 focus:outline-none"
             />
-            <div className="border-border bg-muted/50 text-muted-foreground pointer-events-none absolute top-1/2 right-3.5 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-[4px] border text-[10px] font-medium uppercase">
+            <div className="border-border bg-muted/50 text-muted-foreground pointer-events-none absolute top-1/2 right-3.5 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-lg border text-[10px] font-medium uppercase">
               F
             </div>
           </div>

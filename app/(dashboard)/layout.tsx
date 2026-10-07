@@ -26,7 +26,7 @@ export default async function DashboardLayout({
 
         {/* Main Content Area */}
         <main className="relative flex min-w-0 flex-1 flex-col overflow-hidden">
-          <header className="border-border/10 flex h-14 shrink-0 items-center border-b px-6">
+          <header className="border-border/10 bg-background/60 absolute inset-x-0 top-0 z-10 flex h-14 items-center border-b px-6 backdrop-blur-md">
             <div className="flex flex-1 items-center justify-start">
               <SidebarTrigger className="-ml-1 h-8 w-8" />
             </div>
@@ -35,7 +35,7 @@ export default async function DashboardLayout({
               <HeaderNewProjectButton />
             </div>
           </header>
-          <div className="bg-background flex-1 overflow-auto pb-14 md:pb-0">
+          <div className="flex-1 overflow-auto pt-14 pb-14 md:pb-0">
             {children}
           </div>
           <MobileBottomNav />

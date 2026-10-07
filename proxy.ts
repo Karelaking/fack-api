@@ -93,21 +93,28 @@ export function proxy(request: NextRequest): NextResponse {
   proxyTrace.traceCall("proxy", request.method, pathname, host);
 
   // ── Detect System/Dashboard Paths ────────────────────────────────────────
+  const systemPrefixes = [
+    "/dashboard",
+    "/activity",
+    "/analytics",
+    "/domains",
+    "/keys",
+    "/settings",
+    "/projects",
+    "/api/typescript",
+    "/api/mock",
+    "/_next",
+    "/opengraph-image",
+  ];
+
+  const systemExactPaths = new Set(["/", "/robots.txt", "/sitemap.xml"]);
+
   const isSystemPath =
-    pathname === "/" ||
-    pathname === "/dashboard" ||
-    pathname.startsWith("/dashboard/") ||
-    pathname.startsWith("/projects/") ||
-    pathname.startsWith("/api/typescript/") ||
-    pathname.startsWith("/api/mock/") ||
-    pathname.startsWith("/_next/") ||
-    pathname === "/opengraph-image" ||
-    pathname.startsWith("/opengraph-image/") ||
-    pathname === "/robots.txt" ||
-    pathname === "/sitemap.xml" ||
-    pathname.match(
-      /\.(?:svg|png|jpg|jpeg|gif|webp|css|js|ico|txt|xml|json)$/,
-    ) !== null;
+    systemExactPaths.has(pathname) ||
+    systemPrefixes.some(
+      (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
+    ) ||
+    /\.(?:svg|png|jpg|jpeg|gif|webp|css|js|ico|txt|xml|json)$/.test(pathname);
 
   // ── CORS Preflight ───────────────────────────────────────────────────────
   // Handle OPTIONS requests for mock API paths or custom domain endpoints
