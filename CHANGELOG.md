@@ -1,3 +1,14 @@
+# [1.10.0](https://github.com/Karelaking/fack-api/compare/v1.9.0...v1.10.0) (2026-10-07)
+
+### Bug Fixes
+
+- resolve dashboard 404s and add glassmorphic header ([255c5d2](https://github.com/Karelaking/fack-api/commit/255c5d227a11a908ee99571e2d5df38fe7873287))
+- resolve hydration mismatch in use-mobile hook ([461fd39](https://github.com/Karelaking/fack-api/commit/461fd394b8fac943b462255a3fe045d1873c9c66))
+
+### Features
+
+- implement beautifully styled placeholder pages for all sidebar links ([5e6706b](https://github.com/Karelaking/fack-api/commit/5e6706b3540316b87963ca5f7fde7d9cb1fd5628))
+
 # [1.9.0](https://github.com/Karelaking/fack-api/compare/v1.8.0...v1.9.0) (2026-10-05)
 
 ### Bug Fixes
