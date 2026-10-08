@@ -4,6 +4,7 @@ import { relations } from "drizzle-orm";
 // ─── Projects ────────────────────────────────────────────────────────────────
 export const projects = sqliteTable("projects", {
   id: text("id").primaryKey(),
+  userId: text("user_id").notNull().default("system"),
   name: text("name").notNull(),
   slug: text("slug").notNull().unique(),
   description: text("description").default(""),
