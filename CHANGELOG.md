@@ -1,3 +1,9 @@
+# [1.11.0](https://github.com/Karelaking/fack-api/compare/v1.10.0...v1.11.0) (2026-10-08)
+
+### Features
+
+- **ui:** redesign edit sidebar and improve field insertion logic ([4141141](https://github.com/Karelaking/fack-api/commit/4141141ba63111d3d249a9cfeb8e1b81aaadcfb3))
+
 # [1.10.0](https://github.com/Karelaking/fack-api/compare/v1.9.0...v1.10.0) (2026-10-07)
 
 ### Bug Fixes
