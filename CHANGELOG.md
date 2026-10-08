@@ -1,3 +1,9 @@
+# [1.12.0](https://github.com/Karelaking/fack-api/compare/v1.11.2...v1.12.0) (2026-10-08)
+
+### Features
+
+- **auth:** implement role-based access control for projects ([8c1f0b2](https://github.com/Karelaking/fack-api/commit/8c1f0b2cb4ca4376ddc7f00d2b8d6d9658593290))
+
 ## [1.11.2](https://github.com/Karelaking/fack-api/compare/v1.11.1...v1.11.2) (2026-10-08)
 
 ### Bug Fixes
