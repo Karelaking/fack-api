@@ -51,95 +51,83 @@ export const RouteNode = ({
 }: RouteNodeProps): React.ReactElement => {
   const method = data.method.toUpperCase();
 
-  // Method-specific color configurations: [leftBorder, text/badge, bg, shadow/glow, dot]
-  const themeMap: Record<
-    string,
-    {
-      border: string;
-      text: string;
-      bg: string;
-      glow: string;
-      dot: string;
-      badge: string;
-    }
-  > = {
-    GET: {
-      border: "border-l-emerald-500",
-      text: "text-emerald-700 dark:text-emerald-400",
-      bg: "bg-emerald-500/5",
-      glow: "hover:shadow-emerald-500/10 hover:border-emerald-500/40",
-      dot: "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]",
-      badge:
-        "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/25",
-    },
-    POST: {
-      border: "border-l-blue-500",
-      text: "text-blue-700 dark:text-blue-400",
-      bg: "bg-blue-500/5",
-      glow: "hover:shadow-blue-500/10 hover:border-blue-500/40",
-      dot: "bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.6)]",
-      badge:
-        "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/25",
-    },
-    PUT: {
-      border: "border-l-amber-500",
-      text: "text-amber-700 dark:text-amber-400",
-      bg: "bg-amber-500/5",
-      glow: "hover:shadow-amber-500/10 hover:border-amber-500/40",
-      dot: "bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.6)]",
-      badge:
-        "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/25",
-    },
-    DELETE: {
-      border: "border-l-rose-500",
-      text: "text-rose-700 dark:text-rose-400",
-      bg: "bg-rose-500/5",
-      glow: "hover:shadow-rose-500/10 hover:border-rose-500/40",
-      dot: "bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.6)]",
-      badge:
-        "bg-rose-500/10 text-rose-700 dark:text-rose-400 border-rose-500/25",
-    },
-    PATCH: {
-      border: "border-l-purple-500",
-      text: "text-purple-700 dark:text-purple-400",
-      bg: "bg-purple-500/5",
-      glow: "hover:shadow-purple-500/10 hover:border-purple-500/40",
-      dot: "bg-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.6)]",
-      badge:
-        "bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-500/25",
-    },
-  };
+  const getRouteVariants = (method: string) => ({
+    wrapper: cn({
+      "border-l-method-get hover:shadow-method-get/10 hover:border-method-get/40":
+        method === "GET",
+      "border-l-method-post hover:shadow-method-post/10 hover:border-method-post/40":
+        method === "POST",
+      "border-l-method-put hover:shadow-method-put/10 hover:border-method-put/40":
+        method === "PUT",
+      "border-l-method-delete hover:shadow-method-delete/10 hover:border-method-delete/40":
+        method === "DELETE",
+      "border-l-method-patch hover:shadow-method-patch/10 hover:border-method-patch/40":
+        method === "PATCH",
+      "border-l-muted-foreground hover:border-muted/40": ![
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE",
+        "PATCH",
+      ].includes(method),
+    }),
+    badge: cn({
+      "bg-method-get/10 text-method-get border-method-get/25": method === "GET",
+      "bg-method-post/10 text-method-post border-method-post/25":
+        method === "POST",
+      "bg-method-put/10 text-method-put border-method-put/25": method === "PUT",
+      "bg-method-delete/10 text-method-delete border-method-delete/25":
+        method === "DELETE",
+      "bg-method-patch/10 text-method-patch border-method-patch/25":
+        method === "PATCH",
+      "bg-muted/10 text-muted-foreground border-border/20": ![
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE",
+        "PATCH",
+      ].includes(method),
+    }),
+    dot: cn({
+      "bg-method-get shadow-[0_0_8px_var(--color-method-get)]":
+        method === "GET",
+      "bg-method-post shadow-[0_0_8px_var(--color-method-post)]":
+        method === "POST",
+      "bg-method-put shadow-[0_0_8px_var(--color-method-put)]":
+        method === "PUT",
+      "bg-method-delete shadow-[0_0_8px_var(--color-method-delete)]":
+        method === "DELETE",
+      "bg-method-patch shadow-[0_0_8px_var(--color-method-patch)]":
+        method === "PATCH",
+      "bg-muted-foreground": ![
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE",
+        "PATCH",
+      ].includes(method),
+    }),
+  });
 
-  const theme = themeMap[method] || {
-    border: "border-l-slate-500",
-    text: "text-slate-700 dark:text-slate-300",
-    bg: "bg-slate-500/5",
-    glow: "hover:border-slate-500/40",
-    dot: "bg-slate-500",
-    badge:
-      "bg-slate-500/10 text-slate-700 dark:text-slate-300 border-slate-500/20",
-  };
+  const variants = getRouteVariants(method);
 
   // Status code colors and icons
-  let statusBadgeClass =
-    "bg-slate-100 text-slate-700 dark:bg-slate-900 dark:text-slate-300 border-slate-200 dark:border-slate-800";
+  let statusBadgeClass = "bg-muted/30 text-muted-foreground border-border/40";
   let StatusIcon = RiPulseLine;
 
   if (data.statusCode >= 200 && data.statusCode < 300) {
-    statusBadgeClass =
-      "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20";
+    statusBadgeClass = "bg-success/10 text-success border-success/20";
     StatusIcon = RiCheckboxCircleLine;
   } else if (data.statusCode >= 300 && data.statusCode < 400) {
-    statusBadgeClass =
-      "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20";
+    statusBadgeClass = "bg-warning/10 text-warning border-warning/20";
     StatusIcon = RiFlashlightLine;
   } else if (data.statusCode >= 400 && data.statusCode < 500) {
     statusBadgeClass =
-      "bg-rose-500/10 text-rose-700 dark:text-rose-400 border-rose-500/20";
+      "bg-destructive/10 text-destructive border-destructive/20";
     StatusIcon = RiAlertLine;
   } else if (data.statusCode >= 500) {
     statusBadgeClass =
-      "bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-500/20 animate-pulse";
+      "bg-destructive/10 text-destructive border-destructive/20 animate-pulse";
     StatusIcon = RiShieldCrossLine;
   }
 
@@ -197,13 +185,12 @@ export const RouteNode = ({
         }
       }}
       className={cn(
-        "bg-card border-border flex w-52 cursor-pointer flex-col border border-l-4 shadow-xs transition-all duration-200 select-none",
-        theme.border,
-        theme.glow,
+        "bg-card border-border flex w-70 cursor-pointer flex-col overflow-hidden rounded-xl border border-l-4 shadow-sm transition-all duration-200 select-none",
+        variants.wrapper,
         selected
-          ? "border-primary ring-primary/20 shadow-primary/5 -translate-y-1 scale-[1.01] shadow-lg ring-2"
+          ? "border-primary ring-primary/20 shadow-primary/5 -translate-y-1 scale-[1.02] shadow-lg ring-4"
           : "hover:-translate-y-0.5 hover:shadow-md",
-        !data.isEnabled && "opacity-60 grayscale-15",
+        !data.isEnabled && "opacity-60 grayscale-[0.5]",
       )}
     >
       {/* Node handles for connections */}
@@ -211,27 +198,27 @@ export const RouteNode = ({
         type="target"
         position={Position.Left}
         className={cn(
-          "bg-background! -left-1.5! h-2.5 w-2.5 border-2 transition-colors duration-200",
+          "bg-background! -left-1.75! h-3 w-3 border-2 transition-colors duration-200",
           selected
             ? "border-primary scale-110"
             : "border-muted-foreground/50 hover:border-primary",
         )}
       />
 
-      {/* Main header block */}
-      <div className="border-border/80 dark:border-border/40 flex items-center justify-between border-b px-2.5 py-1.5">
-        <div className="flex items-center gap-1">
+      {/* Header: Status and Controls */}
+      <div className="border-border/40 bg-muted/10 flex items-center justify-between border-b px-3 py-2">
+        <div className="flex items-center gap-2">
           {/* Method Badge with glowing indicator dot */}
           <span
             className={cn(
-              "flex shrink-0 items-center gap-0.5 border px-1 py-0 text-[8.5px] font-extrabold tracking-wider",
-              theme.badge,
+              "flex shrink-0 items-center gap-1.5 rounded-md border px-1.5 py-0.5 text-[9px] font-extrabold tracking-wider",
+              variants.badge,
             )}
           >
             <span
               className={cn(
-                "h-1 w-1 shrink-0 rounded-full",
-                theme.dot,
+                "h-1.5 w-1.5 shrink-0 rounded-full",
+                variants.dot,
                 data.isEnabled && "animate-pulse",
               )}
             />
@@ -241,18 +228,18 @@ export const RouteNode = ({
           {/* Status code view */}
           <span
             className={cn(
-              "flex shrink-0 items-center gap-0.5 border px-1 py-0.5 font-mono text-[8px] font-bold",
+              "flex shrink-0 items-center gap-1 rounded-md border px-1.5 py-0.5 font-mono text-[10px] font-bold",
               statusBadgeClass,
             )}
           >
-            <StatusIcon className="h-2.5 w-2.5 shrink-0" />
+            <StatusIcon className="h-3 w-3 shrink-0" />
             {data.statusCode}
           </span>
         </div>
 
-        {/* Actions block: Edit Button & Toggle Switch */}
+        {/* Actions block: Toggle Switch */}
         <div
-          className="flex items-center gap-0.5"
+          className="flex items-center gap-1"
           onPointerDown={(e) => e.stopPropagation()}
         >
           <Button
@@ -272,60 +259,59 @@ export const RouteNode = ({
             checked={data.isEnabled}
             onCheckedChange={handleToggle}
             aria-label="Toggle Route Enabled"
-            className="-mr-1 scale-[0.6]"
+            className="-mr-1 scale-[0.7]"
           />
         </div>
       </div>
 
-      {/* Path & Config Display */}
-      <div className="flex flex-col gap-1.5 px-2.5 py-2">
-        <span className="text-foreground bg-muted/60 hover:bg-muted dark:bg-muted/30 border-border/70 dark:border-border/30 line-clamp-1 border px-1.5 py-0.5 font-mono text-[10.5px] leading-normal font-bold break-all transition-colors">
+      {/* Body: Title & Description */}
+      <div className="flex flex-col gap-1 px-4 py-3">
+        <span className="text-foreground line-clamp-1 text-sm font-semibold tracking-tight">
           {data.path}
         </span>
-
-        {/* Info indicators */}
-        {(schemaKeysCount > 0 || headersKeysCount > 0 || rulesCount > 0) && (
-          <div className="mt-0.5 flex flex-wrap gap-1">
-            {schemaKeysCount > 0 && (
-              <span className="inline-flex items-center gap-0.5 border border-emerald-500/25 bg-emerald-500/10 px-1 py-0.5 text-[8px] font-bold text-emerald-700 dark:text-emerald-400">
-                <RiCodeLine className="h-3 w-3 shrink-0" />
-                <span>JSON ({schemaKeysCount})</span>
-              </span>
-            )}
-            {headersKeysCount > 0 && (
-              <span className="inline-flex items-center gap-0.5 border border-blue-500/25 bg-blue-500/10 px-1 py-0.5 text-[8px] font-bold text-blue-700 dark:text-blue-400">
-                <RiEqualizerLine className="h-3 w-3 shrink-0" />
-                <span>Headers ({headersKeysCount})</span>
-              </span>
-            )}
-            {rulesCount > 0 && (
-              <span className="inline-flex items-center gap-0.5 border border-purple-500/25 bg-purple-500/10 px-1 py-0.5 text-[8px] font-bold text-purple-700 dark:text-purple-400">
-                <RiGitBranchLine className="h-3 w-3 shrink-0" />
-                <span>Rules ({rulesCount})</span>
-              </span>
-            )}
-          </div>
-        )}
+        <span className="text-muted-foreground line-clamp-1 font-mono text-[10px]">
+          {data.mockUrl}
+        </span>
       </div>
 
-      {/* Node Footer indicators */}
-      {(hasLatency || hasErrors) && (
-        <div className="bg-muted/50 dark:bg-muted/30 border-border/80 dark:border-border/30 text-muted-foreground flex items-center justify-between border-t px-2.5 py-1 text-[8px] font-bold">
-          {hasLatency ? (
-            <div className="flex items-center gap-0.5 border border-amber-500/25 bg-amber-500/10 px-1 py-0.5 text-amber-700 dark:text-amber-400">
-              <RiTimeLine className="h-2.5 w-2.5 shrink-0 text-amber-600 dark:text-amber-400" />
+      {/* Footer: Metadata Indicators */}
+      {(schemaKeysCount > 0 ||
+        headersKeysCount > 0 ||
+        rulesCount > 0 ||
+        hasLatency ||
+        hasErrors) && (
+        <div className="border-border/40 bg-muted/20 flex flex-wrap items-center gap-2 border-t px-4 py-2.5">
+          {schemaKeysCount > 0 && (
+            <div className="text-muted-foreground flex items-center gap-1 text-[10px] font-medium">
+              <RiCodeLine className="text-success h-3.5 w-3.5 shrink-0" />
+              <span>JSON</span>
+            </div>
+          )}
+          {headersKeysCount > 0 && (
+            <div className="text-muted-foreground flex items-center gap-1 text-[10px] font-medium">
+              <RiEqualizerLine className="text-info h-3.5 w-3.5 shrink-0" />
+              <span>Hdrs</span>
+            </div>
+          )}
+          {rulesCount > 0 && (
+            <div className="text-muted-foreground flex items-center gap-1 text-[10px] font-medium">
+              <RiGitBranchLine className="text-primary h-3.5 w-3.5 shrink-0" />
+              <span>Rules</span>
+            </div>
+          )}
+          {hasLatency && (
+            <div className="text-muted-foreground flex items-center gap-1 text-[10px] font-medium">
+              <RiTimeLine className="text-warning h-3.5 w-3.5 shrink-0" />
               <span>
                 {data.latencyMin === data.latencyMax
                   ? `${data.latencyMin}ms`
                   : `${data.latencyMin}-${data.latencyMax}ms`}
               </span>
             </div>
-          ) : (
-            <div />
           )}
           {hasErrors && (
-            <div className="flex items-center gap-0.5 border border-rose-500/25 bg-rose-500/10 px-1 py-0.5 text-rose-700 dark:text-rose-400">
-              <RiAlertLine className="h-2.5 w-2.5 shrink-0 animate-pulse text-rose-600 dark:text-rose-400" />
+            <div className="text-muted-foreground flex items-center gap-1 text-[10px] font-medium">
+              <RiAlertLine className="text-destructive h-3.5 w-3.5 shrink-0 animate-pulse" />
               <span>{data.errorRate}% Err</span>
             </div>
           )}

@@ -14,7 +14,10 @@ export interface SchemaActions {
   /** Replaces the entire schema field list with a new tree */
   setSchema: (fields: SchemaField[]) => void;
   /** Adds a new field. If parentId is specified, adds it as a child of that object */
-  addField: (parentId?: string) => void;
+  addField: (
+    parentId?: string,
+    initialData?: Partial<Omit<SchemaField, "id">>,
+  ) => void;
   /** Removes a field from the tree by ID */
   removeField: (id: string) => void;
   /** Updates properties of a field by ID */
@@ -51,18 +54,30 @@ export const createSchemaStore = (initialFields: SchemaField[] = []) => {
           state.fields = [];
         }),
 
-      addField: (parentId) =>
+      addField: (parentId, initialData) =>
         set((state) => {
           const newField: SchemaField = {
             id: `field-${generateId(6)}`,
             name: `field_${state.fields.length + 1}`,
             type: "string",
             nullable: false,
+            ...initialData,
           };
 
           if (!parentId) {
             // Add to root level
-            state.fields.push(newField);
+            // Find the index of the first default trailing field (createdAt, updatedAt)
+            // so we can insert the new field *before* them (in between user fields and default fields)
+            const targetIndex = state.fields.findIndex((f) => {
+              const lower = f.name.toLowerCase().replace(/_/g, "");
+              return lower === "createdat" || lower === "updatedat";
+            });
+
+            if (targetIndex !== -1) {
+              state.fields.splice(targetIndex, 0, newField);
+            } else {
+              state.fields.push(newField);
+            }
             return;
           }
 

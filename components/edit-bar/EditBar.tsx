@@ -236,15 +236,13 @@ function EditBarInner({
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
-      <SheetHeader variant="bordered" className="shrink-0">
-        {}
+      <SheetHeader className="mx-2 mt-2 shrink-0">
         <SheetTitle>
           <span className="flex items-center gap-1.5">
-            <RiSettings2Line className="text-primary h-4 w-4" />
-            <span>Edit Route Config</span>
+            <RiSettings2Line className="text-primary h-5 w-5" />
+            <span className="text-xl">Edit Route Config</span>
           </span>
         </SheetTitle>
-        {}
         <SheetDescription>
           Simulate status codes, headers, delays, and configure response
           payloads.
@@ -252,11 +250,11 @@ function EditBarInner({
       </SheetHeader>
 
       {/* Sleek SaaS Route Header (Method Chips, Path Input, Status Code & Enable Toggle) */}
-      <div className="bg-muted/20 border-border mt-3 shrink-0 space-y-2.5 border p-3">
+      <div className="border-border/60 bg-muted/10 mx-6 mt-1 mb-2 shrink-0 space-y-3 rounded-lg border p-4 shadow-sm">
         {/* Row 1: Method Selector Chips + Route Enabled Toggle */}
         <div className="flex flex-wrap items-center justify-between gap-2">
           {/* Method Chips */}
-          <div className="flex items-center gap-1">
+          <div className="border-border/50 bg-background/50 flex items-center gap-0.5 rounded-md border p-1 shadow-xs">
             {HTTP_METHODS.map((m) => {
               const isActive = method === m;
               const theme = METHOD_THEMES[m];
@@ -267,7 +265,7 @@ function EditBarInner({
                   onClick={() => setMethod(m)}
                   disabled={loading}
                   className={cn(
-                    "text-mini duration-fast cursor-pointer border px-2 py-0.5 font-extrabold tracking-wider uppercase transition-all select-none",
+                    "text-mini duration-fast cursor-pointer rounded-sm border px-2.5 py-1 font-bold tracking-wider uppercase transition-all select-none",
                     isActive
                       ? theme.active
                       : cn("border-transparent", theme.inactive),
@@ -314,32 +312,34 @@ function EditBarInner({
 
         {/* Row 3: Status Code with Quick Presets */}
         <div className="flex flex-wrap items-center justify-between gap-2 pt-0.5">
-          <div className="flex items-center gap-1">
-            <span className="text-muted-foreground text-mini mr-1 font-bold tracking-wider uppercase">
+          <div className="flex items-center gap-1.5">
+            <span className="text-muted-foreground mr-1 text-xs font-medium tracking-wider uppercase">
               Status:
             </span>
-            {STATUS_PRESETS.map((code) => (
-              <button
-                key={code}
-                type="button"
-                onClick={() => setStatusCode(code)}
-                disabled={loading}
-                className={cn(
-                  "text-mini cursor-pointer border px-1.5 py-0.5 font-mono font-bold transition-colors",
-                  statusCode === code
-                    ? "bg-primary text-primary-foreground border-primary"
-                    : "bg-background text-muted-foreground hover:text-foreground hover:bg-muted border-border",
-                )}
-              >
-                {code}
-              </button>
-            ))}
+            <div className="flex items-center gap-1">
+              {STATUS_PRESETS.map((code) => (
+                <button
+                  key={code}
+                  type="button"
+                  onClick={() => setStatusCode(code)}
+                  disabled={loading}
+                  className={cn(
+                    "text-mini cursor-pointer rounded-sm border px-2 py-0.5 font-mono font-medium transition-colors",
+                    statusCode === code
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "bg-background text-muted-foreground hover:text-foreground hover:bg-muted border-border/80",
+                  )}
+                >
+                  {code}
+                </button>
+              ))}
+            </div>
           </div>
 
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-2">
             <label
               htmlFor="route-status"
-              className="text-muted-foreground text-mini font-bold uppercase"
+              className="text-muted-foreground text-xs font-medium tracking-wider uppercase"
             >
               Custom:
             </label>
@@ -349,7 +349,7 @@ function EditBarInner({
               value={statusCode}
               onChange={(e) => setStatusCode(parseInt(e.target.value) || 200)}
               variant="mono"
-              className="h-7 w-16 text-center"
+              className="h-8 w-16 text-center"
               disabled={loading}
               min={100}
               max={599}
@@ -360,7 +360,7 @@ function EditBarInner({
 
       <Tabs
         defaultValue="schema"
-        className="mt-3 flex min-h-0 min-w-0 flex-1 flex-col"
+        className="mx-6 mt-2 flex min-h-0 min-w-0 flex-1 flex-col"
       >
         {/* Tabs */}
         <TabsList className="grid shrink-0 grid-cols-5">
@@ -473,7 +473,7 @@ function EditBarInner({
       </Tabs>
 
       {/* Save panel footer triggers */}
-      <div className="border-border bg-card mt-auto flex shrink-0 items-center justify-between border-t pt-3">
+      <div className="border-border bg-card mt-auto flex shrink-0 items-center justify-between border-t px-6 py-4">
         <Button
           type="button"
           variant="destructive"

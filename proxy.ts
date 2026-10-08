@@ -7,7 +7,6 @@
  */
 
 import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
 import { LoggerRegistry } from "@/lib/logger-registry";
 
 const proxyTrace = LoggerRegistry.getTrace("proxy");
@@ -84,10 +83,27 @@ function getProjectSlugFromSubdomain(host: string): string | null {
   return subdomain;
 }
 
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+
+const isProtectedRoute = createRouteMatcher([
+  "/dashboard(.*)",
+  "/activity(.*)",
+  "/analytics(.*)",
+  "/domains(.*)",
+  "/keys(.*)",
+  "/settings(.*)",
+  "/projects(.*)",
+]);
+
 /**
  * Next.js Proxy function — runs before every matched request.
+ * Wrapped with clerkMiddleware to enforce authentication on dashboard routes.
  */
-export function proxy(request: NextRequest): NextResponse {
+export const proxy = clerkMiddleware(async (auth, request) => {
+  if (isProtectedRoute(request)) {
+    await auth.protect();
+  }
+
   const { pathname } = request.nextUrl;
   const host = request.headers.get("host") || "";
   proxyTrace.traceCall("proxy", request.method, pathname, host);
@@ -173,7 +189,7 @@ export function proxy(request: NextRequest): NextResponse {
   // All other requests (dashboard, static files, etc.) proceed normally
   proxyTrace.traceSuccess("proxy (Pass through)", "NextResponse.next()");
   return NextResponse.next();
-}
+});
 
 /**
  * Proxy matcher configuration.

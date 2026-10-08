@@ -1,5 +1,6 @@
 "use server";
 
+import { cache } from "react";
 import { db } from "@/db";
 import { sqlClient } from "@/db/postgres";
 import type { RequestLog } from "@/db/schema";
@@ -8,7 +9,9 @@ import { LoggerRegistry } from "@/lib/logger-registry";
 
 const logsTrace = LoggerRegistry.getTrace("db-logs");
 
-export async function getRequestLogs(projectId: string): Promise<RequestLog[]> {
+export const getRequestLogs = cache(async function getRequestLogs(
+  projectId: string,
+): Promise<RequestLog[]> {
   logsTrace.traceCall("getRequestLogs", projectId);
   if (sqlClient) {
     try {
@@ -72,7 +75,7 @@ export async function getRequestLogs(projectId: string): Promise<RequestLog[]> {
     logsTrace.traceError("getRequestLogs (SQLite)", err);
     return [];
   }
-}
+});
 
 export async function clearRequestLogs(projectId: string): Promise<void> {
   logsTrace.traceCall("clearRequestLogs", projectId);

@@ -5,7 +5,6 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useQueryState, parseAsBoolean } from "nuqs";
 import {
-  RiAddLine,
   RiLoader2Line,
   RiGitBranchLine,
   RiPulseLine,
@@ -158,95 +157,67 @@ export const DashboardSidebar = ({
         <SidebarContent>
           <SidebarGroup className="mt-1">
             <SidebarGroupLabel className="flex items-center justify-between">
-              <span>Active Projects</span>
-              <Button
-                size="icon-xs"
-                variant="ghost"
-                title="Create Project"
-                aria-label="Create Project"
-                onClick={() => setDialogOpen(true)}
-              >
-                <RiAddLine className="h-3.5 w-3.5" />
-              </Button>
+              <span>Project Menu</span>
             </SidebarGroupLabel>
             <SidebarGroupContent className="mt-1">
-              {projects.length === 0 ? (
-                <div className="text-muted-foreground px-3 py-2 text-xs italic">
-                  No projects created yet.
-                </div>
-              ) : (
-                <SidebarMenu>
-                  {projects.map((proj) => {
-                    const isProjectActive = pathname.startsWith(
-                      `/projects/${proj.slug}`,
-                    );
-                    return (
-                      <SidebarMenuItem key={proj.id}>
-                        <SidebarMenuButton
-                          isActive={isProjectActive}
-                          render={
-                            <Link
-                              href={`/projects/${proj.slug}/canvas`}
-                              aria-label={proj.name}
-                            />
-                          }
-                        >
-                          <span className="truncate font-semibold">
-                            {proj.name}
-                          </span>
-                        </SidebarMenuButton>
+              {(() => {
+                const activeProject = projects.find((proj) =>
+                  pathname.startsWith(`/projects/${proj.slug}`),
+                );
 
-                        {isProjectActive && (
-                          <div className="border-border/60 mt-1 ml-3.5 space-y-1 border-l py-1 pl-2.5">
-                            {[
-                              {
-                                name: "Canvas",
-                                path: "canvas",
-                                icon: RiGitBranchLine,
-                              },
-                              {
-                                name: "Endpoints",
-                                path: "endpoints",
-                                icon: RiPulseLine,
-                              },
-                              {
-                                name: "Logs",
-                                path: "logs",
-                                icon: RiFileHistoryLine,
-                              },
-                              {
-                                name: "Settings",
-                                path: "settings",
-                                icon: RiSettings2Line,
-                              },
-                            ].map((subItem) => {
-                              const Icon = subItem.icon;
-                              const isSubActive = pathname.endsWith(
-                                `/${subItem.path}`,
-                              );
-                              return (
-                                <Link
-                                  key={subItem.path}
-                                  href={`/projects/${proj.slug}/${subItem.path}`}
-                                  className={cn(
-                                    "flex items-center gap-2 px-2.5 py-1 text-xs font-medium transition-all select-none",
-                                    isSubActive
-                                      ? "bg-primary/10 text-primary font-semibold"
-                                      : "text-muted-foreground hover:text-foreground hover:bg-accent/40",
-                                  )}
-                                >
-                                  <Icon className="h-3.5 w-3.5 shrink-0" />
-                                  <span>{subItem.name}</span>
-                                </Link>
-                              );
-                            })}
-                          </div>
-                        )}
-                      </SidebarMenuItem>
-                    );
-                  })}
-                </SidebarMenu>
-              )}
+                if (!activeProject) {
+                  return (
+                    <div className="text-muted-foreground px-3 py-2 text-xs italic">
+                      No active project.
+                    </div>
+                  );
+                }
+
+                return (
+                  <SidebarMenu>
+                    {[
+                      {
+                        name: "Canvas",
+                        path: "canvas",
+                        icon: RiGitBranchLine,
+                      },
+                      {
+                        name: "Endpoints",
+                        path: "endpoints",
+                        icon: RiPulseLine,
+                      },
+                      {
+                        name: "Logs",
+                        path: "logs",
+                        icon: RiFileHistoryLine,
+                      },
+                      {
+                        name: "Settings",
+                        path: "settings",
+                        icon: RiSettings2Line,
+                      },
+                    ].map((subItem) => {
+                      const Icon = subItem.icon;
+                      const isSubActive = pathname.endsWith(`/${subItem.path}`);
+                      return (
+                        <SidebarMenuItem key={subItem.path}>
+                          <SidebarMenuButton
+                            isActive={isSubActive}
+                            render={
+                              <Link
+                                href={`/projects/${activeProject.slug}/${subItem.path}`}
+                              />
+                            }
+                          >
+                            <Icon className="h-4 w-4 shrink-0" />
+                            <span>{subItem.name}</span>
+                          </SidebarMenuButton>
+                        </SidebarMenuItem>
+                      );
+                    })}
+                  </SidebarMenu>
+                );
+              })()}
             </SidebarGroupContent>
           </SidebarGroup>
 

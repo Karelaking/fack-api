@@ -37,7 +37,7 @@ export default function AnalyticsPage(): React.JSX.Element {
         ))}
       </div>
 
-      <div className="border-border/50 bg-card flex min-h-[300px] flex-col items-center justify-center rounded-xl border p-8 text-center shadow-sm">
+      <div className="border-border/50 bg-card flex min-h-75 flex-col items-center justify-center rounded-xl border p-8 text-center shadow-sm">
         <RiBarChartBoxLine className="text-muted-foreground/30 mb-4 h-12 w-12" />
         <h3 className="text-lg font-medium">Insufficient Data</h3>
         <p className="text-muted-foreground mt-1 max-w-sm text-sm">

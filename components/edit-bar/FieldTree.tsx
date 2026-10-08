@@ -4,6 +4,7 @@ import * as React from "react";
 import { RiAddLine, RiQuestionLine, RiFileCodeLine } from "@remixicon/react";
 import { useSchemaStore } from "@/stores/store-provider";
 import { FieldEditor } from "./FieldEditor";
+import { FieldSettingsModal } from "./FieldSettingsModal";
 import { Button } from "@/components/ui/button";
 
 import { toast } from "sonner";
@@ -94,6 +95,8 @@ export function FieldTree(): React.JSX.Element {
   const addField = useSchemaStore((state) => state.addField);
   const setSchema = useSchemaStore((state) => state.setSchema);
 
+  const [modalOpen, setModalOpen] = React.useState(false);
+
   const handleLoadStarter = (starter: SchemaField[], label: string) => {
     // Generate fresh IDs for starter fields
     const fresh = starter.map((f) => ({ ...f, id: crypto.randomUUID() }));
@@ -101,15 +104,19 @@ export function FieldTree(): React.JSX.Element {
     toast.success(`Loaded ${label} template schema`);
   };
 
+  const handleAddRootField = (data: Partial<Omit<SchemaField, "id">>) => {
+    addField(undefined, data);
+  };
+
   return (
-    <div className="space-y-3">
-      <div className="border-border flex items-center justify-between border-b pb-2">
-        <div className="space-y-0.5">
-          <h3 className="flex items-center gap-1.5 text-xs font-semibold">
-            <RiFileCodeLine className="text-primary h-3.5 w-3.5" />
+    <div className="space-y-4 pt-1">
+      <div className="border-border flex items-start justify-between gap-4 border-b pb-3">
+        <div className="flex-1 space-y-1">
+          <h3 className="flex items-center gap-1.5 text-sm font-semibold">
+            <RiFileCodeLine className="text-primary h-4 w-4" />
             <span>Response Schema Fields</span>
           </h3>
-          <p className="text-muted-foreground text-mini pr-4 leading-normal">
+          <p className="text-muted-foreground max-w-[90%] text-xs leading-relaxed">
             Configure keys, types, and mock datatypes. Drag and drop rows to
             reorder.
           </p>
@@ -117,11 +124,12 @@ export function FieldTree(): React.JSX.Element {
         <Button
           type="button"
           size="sm"
+          className="shrink-0"
           title="Add Root Field"
           aria-label="Add Root Field"
-          onClick={() => addField()}
+          onClick={() => setModalOpen(true)}
         >
-          <RiAddLine className="h-3 w-3" />
+          <RiAddLine className="mr-1 h-4 w-4" />
           <span>Add Field</span>
         </Button>
       </div>
@@ -142,7 +150,7 @@ export function FieldTree(): React.JSX.Element {
               type="button"
               size="xs"
               variant="default"
-              onClick={() => addField()}
+              onClick={() => setModalOpen(true)}
             >
               Add Blank Field
             </Button>
@@ -171,6 +179,13 @@ export function FieldTree(): React.JSX.Element {
           ))}
         </div>
       )}
+
+      <FieldSettingsModal
+        open={modalOpen}
+        onOpenChange={setModalOpen}
+        onSave={handleAddRootField}
+        title="Add Root Field"
+      />
     </div>
   );
 }

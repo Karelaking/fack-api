@@ -7,6 +7,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
+import { ClerkProvider } from "@clerk/nextjs";
 
 const inter = Inter({
   variable: "--font-sans",
@@ -41,27 +42,29 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${inter.variable} ${GeistMono.variable} h-full antialiased`}
-      suppressHydrationWarning
-    >
-      <body className="bg-background text-foreground flex min-h-full flex-col">
-        <NuqsAdapter>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <TooltipProvider>
-              <Analytics />
-              {children}
-              <Toaster position="top-right" richColors />
-            </TooltipProvider>
-          </ThemeProvider>
-        </NuqsAdapter>
-      </body>
-    </html>
+    <ClerkProvider>
+      <html
+        lang="en"
+        className={`${inter.variable} ${GeistMono.variable} h-full antialiased`}
+        suppressHydrationWarning
+      >
+        <body className="bg-background text-foreground flex min-h-full flex-col">
+          <NuqsAdapter>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange
+            >
+              <TooltipProvider>
+                <Analytics />
+                {children}
+                <Toaster position="top-right" richColors />
+              </TooltipProvider>
+            </ThemeProvider>
+          </NuqsAdapter>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

@@ -1,5 +1,6 @@
 "use server";
 
+import { cache } from "react";
 import { db } from "@/db";
 import { projects } from "@/db/schema";
 import { eq } from "drizzle-orm";
@@ -10,7 +11,7 @@ import {
   setCachedProjectsList,
   getCachedProjectBySlug,
   setCachedProjectBySlug,
-  clearCache,
+  clearProjectCache,
 } from "@/lib/cache";
 import {
   createProjectSchema,
@@ -22,7 +23,9 @@ import { LoggerRegistry } from "@/lib/logger-registry";
 
 const projectsTrace = LoggerRegistry.getTrace("db-projects");
 
-export async function getProjects(): Promise<(typeof projects.$inferSelect)[]> {
+export const getProjects = cache(async function getProjects(): Promise<
+  (typeof projects.$inferSelect)[]
+> {
   projectsTrace.traceCall("getProjects");
   const cached = getCachedProjectsList();
   if (cached) {
@@ -63,9 +66,9 @@ export async function getProjects(): Promise<(typeof projects.$inferSelect)[]> {
     projectsTrace.traceError("getProjects", error);
     throw error;
   }
-}
+});
 
-export async function getProjectBySlug(
+export const getProjectBySlug = cache(async function getProjectBySlug(
   slug: string,
 ): Promise<typeof projects.$inferSelect | undefined> {
   projectsTrace.traceCall("getProjectBySlug", slug);
@@ -99,9 +102,9 @@ export async function getProjectBySlug(
     projectsTrace.traceError("getProjectBySlug", error);
     throw error;
   }
-}
+});
 
-export async function getProjectById(
+export const getProjectById = cache(async function getProjectById(
   id: string,
 ): Promise<typeof projects.$inferSelect | undefined> {
   projectsTrace.traceCall("getProjectById", id);
@@ -118,7 +121,7 @@ export async function getProjectById(
     projectsTrace.traceError("getProjectById", error);
     throw error;
   }
-}
+});
 
 export async function createProject(
   input: CreateProjectInput,
@@ -154,7 +157,7 @@ export async function createProject(
       })
       .returning();
 
-    clearCache();
+    clearProjectCache(project.id, project.slug);
     revalidatePath("/");
     projectsTrace.traceSuccess("createProject", project.name);
     return project;
@@ -190,7 +193,7 @@ export async function updateProject(
       .where(eq(projects.id, id))
       .returning();
 
-    clearCache();
+    clearProjectCache(project.id, project.slug);
     revalidatePath("/");
     projectsTrace.traceSuccess("updateProject", project.name);
     return project;
@@ -203,8 +206,13 @@ export async function updateProject(
 export async function deleteProject(id: string): Promise<void> {
   projectsTrace.traceCall("deleteProject", id);
   try {
+    const existing = await db.query.projects.findFirst({
+      where: eq(projects.id, id),
+    });
     await db.delete(projects).where(eq(projects.id, id));
-    clearCache();
+    if (existing) {
+      clearProjectCache(id, existing.slug);
+    }
     revalidatePath("/");
     projectsTrace.traceSuccess("deleteProject", "void");
   } catch (error) {

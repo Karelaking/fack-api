@@ -1,11 +1,12 @@
 "use server";
 
+import { cache } from "react";
 import { db } from "@/db";
 import { endpoints } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { generateId } from "@/lib/utils";
-import { clearCache } from "@/lib/cache";
+import { clearProjectCache } from "@/lib/cache";
 import {
   createEndpointSchema,
   updateEndpointSchema,
@@ -16,7 +17,9 @@ import { LoggerRegistry } from "@/lib/logger-registry";
 
 const endpointsTrace = LoggerRegistry.getTrace("db-endpoints");
 
-export async function getEndpoints(projectId: string) {
+export const getEndpoints = cache(async function getEndpoints(
+  projectId: string,
+) {
   endpointsTrace.traceCall("getEndpoints", projectId);
   try {
     const list = await db.query.endpoints.findMany({
@@ -32,7 +35,7 @@ export async function getEndpoints(projectId: string) {
     endpointsTrace.traceError("getEndpoints", error);
     throw error;
   }
-}
+});
 
 export async function getEndpointById(id: string): Promise<
   | {
@@ -99,7 +102,7 @@ export async function createEndpoint(
       })
       .returning();
 
-    clearCache();
+    clearProjectCache(endpoint.projectId);
     revalidatePath("/");
     endpointsTrace.traceSuccess("createEndpoint", endpoint.name);
     return endpoint;
@@ -123,7 +126,7 @@ export async function updateEndpoint(
       .where(eq(endpoints.id, id))
       .returning();
 
-    clearCache();
+    clearProjectCache(endpoint.projectId);
     revalidatePath("/");
     endpointsTrace.traceSuccess("updateEndpoint", endpoint.name);
     return endpoint;
@@ -136,8 +139,13 @@ export async function updateEndpoint(
 export async function deleteEndpoint(id: string): Promise<void> {
   endpointsTrace.traceCall("deleteEndpoint", id);
   try {
+    const existing = await db.query.endpoints.findFirst({
+      where: eq(endpoints.id, id),
+    });
     await db.delete(endpoints).where(eq(endpoints.id, id));
-    clearCache();
+    if (existing) {
+      clearProjectCache(existing.projectId);
+    }
     revalidatePath("/");
     endpointsTrace.traceSuccess("deleteEndpoint", "void");
   } catch (error) {

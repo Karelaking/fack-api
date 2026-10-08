@@ -1,6 +1,6 @@
 {
   "name": "fack-api",
-  "version": "1.10.0",
+  "version": "1.10.1",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -20,9 +20,11 @@
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
+    "@clerk/nextjs": "^7.9.11",
     "@faker-js/faker": "^10.5.0",
     "@hookform/resolvers": "^5.9.1",
     "@libsql/client": "^0.18.0",
+    "@radix-ui/react-slot": "^1.4.0",
     "@remixicon/react": "^4.9.0",
     "@tanstack/react-virtual": "^3.14.13",
     "@vercel/analytics": "^2.0.1",

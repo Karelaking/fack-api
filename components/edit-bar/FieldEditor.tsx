@@ -8,66 +8,21 @@ import {
   RiArrowUpLine,
   RiArrowDownLine,
   RiDragMove2Line,
+  RiEditLine,
 } from "@remixicon/react";
 import { useSchemaStore } from "@/stores/store-provider";
-import { FakerProviderSelect } from "./FakerProviderSelect";
 import type { SchemaField } from "@/lib/schema-synthesizer";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { FieldSettingsModal } from "./FieldSettingsModal";
 
 interface FieldEditorProps {
   field: SchemaField;
   depth: number;
 }
 
-const FIELD_TYPES = [
-  "string",
-  "number",
-  "integer",
-  "boolean",
-  "object",
-  "array",
-] as const;
-const ARRAY_ITEM_TYPES = [
-  "string",
-  "number",
-  "integer",
-  "boolean",
-  "object",
-] as const;
-
-function isFieldType(value: unknown): value is SchemaField["type"] {
-  return (
-    typeof value === "string" &&
-    (FIELD_TYPES as readonly string[]).includes(value)
-  );
-}
-
-function isArrayItemType(
-  value: unknown,
-): value is Exclude<SchemaField["arrayItemType"], undefined> {
-  return (
-    typeof value === "string" &&
-    (ARRAY_ITEM_TYPES as readonly string[]).includes(value)
-  );
-}
-
 let activeDraggedFieldId: string | null = null;
 
-/**
- * Recursive field row editor in the JSON Schema Builder tree.
- * Automatically displays conditional selectors based on data types.
- */
 export const FieldEditor = ({
   field,
   depth,
@@ -77,91 +32,13 @@ export const FieldEditor = ({
   const addField = useSchemaStore((state) => state.addField);
   const moveField = useSchemaStore((state) => state.moveField);
   const reorderField = useSchemaStore((state) => state.reorderField);
+
   const [isDragOver, setIsDragOver] = React.useState(false);
-
-  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    updateField(field.id, { name: e.target.value });
-  };
-
-  const handleTypeChange = (value: SchemaField["type"]) => {
-    updateField(field.id, { type: value });
-  };
-
-  const handleNullableChange = (checked: boolean) => {
-    updateField(field.id, { nullable: checked });
-  };
-
-  const handleFakerChange = (value: string) => {
-    updateField(field.id, { fakerProvider: value });
-  };
-
-  const handleArrayItemTypeChange = (value: SchemaField["arrayItemType"]) => {
-    updateField(field.id, { arrayItemType: value });
-  };
-
-  const handleArrayItemFakerChange = (value: string) => {
-    updateField(field.id, { arrayItemFakerProvider: value });
-  };
+  const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
+  const [isAddChildModalOpen, setIsAddChildModalOpen] = React.useState(false);
 
   const isObject = field.type === "object";
   const isArray = field.type === "array";
-  const isPrimitive = !isObject && !isArray;
-
-  const isCustomImage =
-    isPrimitive &&
-    (field.fakerProvider === "image.customCategory" ||
-      (field.fakerProvider?.startsWith("image.customCategory:") ?? false));
-
-  const isCustomArrayItemImage =
-    isArray &&
-    field.arrayItemType === "string" &&
-    (field.arrayItemFakerProvider === "image.customCategory" ||
-      (field.arrayItemFakerProvider?.startsWith("image.customCategory:") ??
-        false));
-
-  const customCategoryName = React.useMemo(() => {
-    if (isCustomImage) {
-      if (field.fakerProvider?.startsWith("image.customCategory:")) {
-        return field.fakerProvider.slice("image.customCategory:".length);
-      }
-    }
-    return "";
-  }, [isCustomImage, field.fakerProvider]);
-
-  const customArrayItemCategoryName = React.useMemo(() => {
-    if (isCustomArrayItemImage) {
-      if (field.arrayItemFakerProvider?.startsWith("image.customCategory:")) {
-        return field.arrayItemFakerProvider.slice(
-          "image.customCategory:".length,
-        );
-      }
-    }
-    return "";
-  }, [isCustomArrayItemImage, field.arrayItemFakerProvider]);
-
-  const handleCustomCategoryChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    const val = e.target.value;
-    if (val) {
-      updateField(field.id, { fakerProvider: `image.customCategory:${val}` });
-    } else {
-      updateField(field.id, { fakerProvider: "image.customCategory" });
-    }
-  };
-
-  const handleCustomArrayItemCategoryChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    const val = e.target.value;
-    if (val) {
-      updateField(field.id, {
-        arrayItemFakerProvider: `image.customCategory:${val}`,
-      });
-    } else {
-      updateField(field.id, { arrayItemFakerProvider: "image.customCategory" });
-    }
-  };
 
   const handleDragStart = (event: React.DragEvent<HTMLElement>) => {
     activeDraggedFieldId = field.id;
@@ -196,7 +73,7 @@ export const FieldEditor = ({
       {/* Field Row */}
       <div
         className={cn(
-          "border-border bg-card/65 hover:border-muted-foreground/15 relative flex flex-wrap items-center gap-1.5 border px-2 py-1.5 transition-all",
+          "border-border bg-card/65 hover:border-muted-foreground/15 relative flex flex-wrap items-center gap-2 rounded-md border px-3 py-2 shadow-sm transition-all",
           isDragOver && "border-primary/60 bg-primary/5",
           depth > 0 && "ml-3",
         )}
@@ -220,106 +97,21 @@ export const FieldEditor = ({
           <RiDragMove2Line className="h-3.5 w-3.5" />
         </span>
 
-        {/* Field Name */}
-        <Input
-          value={field.name}
-          onChange={handleNameChange}
-          placeholder="Field key"
-          aria-label="Field key"
-          size="sm"
-          variant="mono"
-          className="w-30 shrink-0"
-        />
-
-        {/* Field Type */}
-        <Select
-          value={field.type}
-          onValueChange={(val) => {
-            if (isFieldType(val)) handleTypeChange(val);
-          }}
-        >
-          <SelectTrigger
-            size="sm"
-            aria-label="Field Type"
-            className="w-20 shrink-0"
-          >
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              <SelectItem value="string">String</SelectItem>
-              <SelectItem value="number">Number</SelectItem>
-              <SelectItem value="integer">Integer</SelectItem>
-              <SelectItem value="boolean">Boolean</SelectItem>
-              <SelectItem value="object">Object</SelectItem>
-              <SelectItem value="array">Array</SelectItem>
-            </SelectGroup>
-          </SelectContent>
-        </Select>
-
-        {/* Nullable Switch */}
-        <div className="flex shrink-0 items-center gap-1 px-0.5">
-          <Switch
-            size="sm"
-            checked={field.nullable}
-            onCheckedChange={handleNullableChange}
-            aria-label="Nullable"
-          />
-          <span className="text-muted-foreground text-micro font-semibold uppercase">
-            Null
+        {/* Field Name & Type display */}
+        <div className="flex flex-1 items-center gap-2 overflow-hidden">
+          <span className="truncate font-mono text-sm font-semibold">
+            {field.name}
           </span>
-        </div>
-
-        {/* Faker.js Provider Select (Primitives only) */}
-        {isPrimitive && (
-          <div className="min-w-30 flex-1">
-            <FakerProviderSelect
-              value={field.fakerProvider || undefined}
-              onValueChange={handleFakerChange}
-            />
-          </div>
-        )}
-
-        {/* Array Options */}
-        {isArray && (
-          <div className="flex min-w-37.5 flex-1 items-center gap-1.5">
-            <span className="text-muted-foreground text-micro shrink-0 font-bold uppercase">
-              Items:
+          <span className="text-muted-foreground bg-muted rounded px-1.5 py-0.5 text-xs font-medium">
+            {field.type}
+            {isArray && field.arrayItemType && ` (${field.arrayItemType})`}
+          </span>
+          {field.nullable && (
+            <span className="text-muted-foreground/70 text-[10px] font-bold tracking-wider uppercase">
+              NULL
             </span>
-            <Select
-              value={field.arrayItemType || "string"}
-              onValueChange={(val) => {
-                if (isArrayItemType(val)) handleArrayItemTypeChange(val);
-              }}
-            >
-              <SelectTrigger
-                size="sm"
-                aria-label="Array Item Type"
-                className="w-20 shrink-0"
-              >
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectItem value="string">String</SelectItem>
-                  <SelectItem value="number">Number</SelectItem>
-                  <SelectItem value="integer">Integer</SelectItem>
-                  <SelectItem value="boolean">Boolean</SelectItem>
-                  <SelectItem value="object">Object</SelectItem>
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-
-            {field.arrayItemType !== "object" && (
-              <div className="min-w-25 flex-1">
-                <FakerProviderSelect
-                  value={field.arrayItemFakerProvider || undefined}
-                  onValueChange={handleArrayItemFakerChange}
-                />
-              </div>
-            )}
-          </div>
-        )}
+          )}
+        </div>
 
         {/* Action Controls */}
         <div className="ml-auto flex shrink-0 items-center gap-0.5">
@@ -345,6 +137,18 @@ export const FieldEditor = ({
             <RiArrowDownLine className="h-3.5 w-3.5" />
           </Button>
 
+          {/* Edit Button */}
+          <Button
+            type="button"
+            size="icon-sm"
+            variant="ghost"
+            title="Edit Field"
+            aria-label="Edit Field"
+            onClick={() => setIsEditModalOpen(true)}
+          >
+            <RiEditLine className="h-3.5 w-3.5" />
+          </Button>
+
           {/* Add Child Button (Only for Object type, or Array items of type Object) */}
           {(isObject || (isArray && field.arrayItemType === "object")) && (
             <Button
@@ -353,7 +157,7 @@ export const FieldEditor = ({
               variant="outline"
               title="Add Child Field"
               aria-label="Add Child Field"
-              onClick={() => addField(field.id)}
+              onClick={() => setIsAddChildModalOpen(true)}
             >
               <RiAddLine className="h-3.5 w-3.5" />
             </Button>
@@ -371,38 +175,20 @@ export const FieldEditor = ({
         </div>
       </div>
 
-      {/* Custom Category Image Parameter Inputs */}
-      {isCustomImage && (
-        <div className="flex items-center gap-2 pb-1 pl-7 text-xs">
-          <span className="text-muted-foreground text-micro shrink-0 font-bold uppercase">
-            Category Name:
-          </span>
-          <Input
-            value={customCategoryName}
-            onChange={handleCustomCategoryChange}
-            placeholder="e.g. puppy, nature, architecture"
-            aria-label="Category Name"
-            size="sm"
-            className="w-48 shrink-0"
-          />
-        </div>
-      )}
+      <FieldSettingsModal
+        open={isEditModalOpen}
+        onOpenChange={setIsEditModalOpen}
+        initialData={field}
+        onSave={(updates) => updateField(field.id, updates)}
+        title="Edit Field"
+      />
 
-      {isCustomArrayItemImage && (
-        <div className="flex items-center gap-2 pb-1 pl-7 text-xs">
-          <span className="text-muted-foreground text-micro shrink-0 font-bold uppercase">
-            Array Item Category:
-          </span>
-          <Input
-            value={customArrayItemCategoryName}
-            onChange={handleCustomArrayItemCategoryChange}
-            placeholder="e.g. puppy, nature, architecture"
-            aria-label="Array Item Category"
-            size="sm"
-            className="w-48 shrink-0"
-          />
-        </div>
-      )}
+      <FieldSettingsModal
+        open={isAddChildModalOpen}
+        onOpenChange={setIsAddChildModalOpen}
+        onSave={(data) => addField(field.id, data)}
+        title="Add Child Field"
+      />
 
       {/* Recursive Children (Object Children) */}
       {isObject && field.children && field.children.length > 0 && (

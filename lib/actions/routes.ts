@@ -1,11 +1,12 @@
 "use server";
 
+import { cache } from "react";
 import { db } from "@/db";
 import { routes, endpoints, type Route, type Endpoint } from "@/db/schema";
 import { eq, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { generateId } from "@/lib/utils";
-import { clearCache } from "@/lib/cache";
+import { clearProjectCache, clearRouteCache } from "@/lib/cache";
 import {
   createRouteSchema,
   updateRouteSchema,
@@ -19,7 +20,9 @@ const routesTrace = LoggerRegistry.getTrace("db-routes");
 /**
  * Retrieves all routes belonging to a specific endpoint group.
  */
-export async function getRoutes(endpointId: string): Promise<Route[]> {
+export const getRoutes = cache(async function getRoutes(
+  endpointId: string,
+): Promise<Route[]> {
   routesTrace.traceCall("getRoutes", endpointId);
   try {
     const list = await db.query.routes.findMany({
@@ -32,12 +35,14 @@ export async function getRoutes(endpointId: string): Promise<Route[]> {
     routesTrace.traceError("getRoutes", error);
     throw error;
   }
-}
+});
 
 /**
  * Retrieves a single route by its unique ID.
  */
-export async function getRouteById(id: string): Promise<Route | undefined> {
+export const getRouteById = cache(async function getRouteById(
+  id: string,
+): Promise<Route | undefined> {
   routesTrace.traceCall("getRouteById", id);
   try {
     const res = await db.query.routes.findFirst({
@@ -52,12 +57,12 @@ export async function getRouteById(id: string): Promise<Route | undefined> {
     routesTrace.traceError("getRouteById", error);
     throw error;
   }
-}
+});
 
 /**
  * Retrieves all routes scoped to a specific project, preventing multi-tenant data leaks.
  */
-export async function getRoutesByProjectId(
+export const getRoutesByProjectId = cache(async function getRoutesByProjectId(
   projectId: string,
 ): Promise<(Route & { endpoint: Endpoint })[]> {
   routesTrace.traceCall("getRoutesByProjectId", projectId);
@@ -90,7 +95,7 @@ export async function getRoutesByProjectId(
     routesTrace.traceError("getRoutesByProjectId", error);
     throw error;
   }
-}
+});
 
 /**
  * Creates a new route under a designated endpoint.
@@ -118,7 +123,14 @@ export async function createRoute(input: CreateRouteInput): Promise<Route> {
       })
       .returning();
 
-    clearCache();
+    const parentEndpoint = await db.query.endpoints.findFirst({
+      where: eq(endpoints.id, route.endpointId),
+      columns: { projectId: true },
+    });
+    if (parentEndpoint) {
+      clearProjectCache(parentEndpoint.projectId);
+    }
+    clearRouteCache(route.id);
     revalidatePath("/");
     routesTrace.traceSuccess("createRoute", `${route.method} ${route.path}`);
     return route;
@@ -143,7 +155,14 @@ export async function updateRoute(input: UpdateRouteInput): Promise<Route> {
       .where(eq(routes.id, id))
       .returning();
 
-    clearCache();
+    const parentEndpoint = await db.query.endpoints.findFirst({
+      where: eq(endpoints.id, route.endpointId),
+      columns: { projectId: true },
+    });
+    if (parentEndpoint) {
+      clearProjectCache(parentEndpoint.projectId);
+    }
+    clearRouteCache(route.id);
     revalidatePath("/");
     routesTrace.traceSuccess("updateRoute", `${route.method} ${route.path}`);
     return route;
@@ -159,8 +178,17 @@ export async function updateRoute(input: UpdateRouteInput): Promise<Route> {
 export async function deleteRoute(id: string): Promise<void> {
   routesTrace.traceCall("deleteRoute", id);
   try {
+    const route = await db.query.routes.findFirst({
+      where: eq(routes.id, id),
+      with: { endpoint: { columns: { projectId: true } } },
+    });
     await db.delete(routes).where(eq(routes.id, id));
-    clearCache();
+    if (route) {
+      clearRouteCache(route.id);
+      if (route.endpoint) {
+        clearProjectCache(route.endpoint.projectId);
+      }
+    }
     revalidatePath("/");
     routesTrace.traceSuccess("deleteRoute", "void");
   } catch (error) {

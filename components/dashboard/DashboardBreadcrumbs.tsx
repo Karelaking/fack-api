@@ -24,7 +24,7 @@ interface DashboardBreadcrumbsProps {
   projects?: ProjectItem[];
 }
 
-type ProjectTab = "canvas" | "endpoints" | "settings";
+type ProjectTab = "canvas" | "endpoints" | "settings" | "logs";
 type BreadcrumbItem = {
   label: string;
   href: Route;
@@ -32,7 +32,7 @@ type BreadcrumbItem = {
 };
 
 function normalizeTab(tab: string | undefined): ProjectTab {
-  if (tab === "endpoints" || tab === "settings") {
+  if (tab === "endpoints" || tab === "settings" || tab === "logs") {
     return tab;
   }
 
@@ -106,6 +106,16 @@ export function DashboardBreadcrumbs({
     });
   }
 
+  // Determine the active tab to use for cross-project navigation
+  let activeTab: string | undefined = undefined;
+  if (segments.length > 2) {
+    const lastSegment = segments[segments.length - 1];
+    const subpages = new Set(["canvas", "endpoints", "logs", "settings"]);
+    if (subpages.has(lastSegment)) {
+      activeTab = lastSegment;
+    }
+  }
+
   return (
     <div className="flex items-center gap-4">
       <nav className="text-muted-foreground flex items-center gap-1.5 text-sm font-medium select-none">
@@ -154,7 +164,7 @@ export function DashboardBreadcrumbs({
                                 className="w-full cursor-pointer justify-between"
                                 onClick={() =>
                                   router.push(
-                                    getProjectTabHref(p.slug, segments[2]),
+                                    getProjectTabHref(p.slug, activeTab),
                                   )
                                 }
                               >
@@ -208,7 +218,7 @@ export function DashboardBreadcrumbs({
                               className="w-full cursor-pointer justify-between"
                               onClick={() =>
                                 router.push(
-                                  getProjectTabHref(p.slug, segments[2]),
+                                  getProjectTabHref(p.slug, activeTab),
                                 )
                               }
                             >

@@ -3,6 +3,8 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { ProfileDialog } from "@/components/dashboard/ProfileDialog";
+import { useUser } from "@clerk/nextjs";
 import {
   RiLayoutGridLine,
   RiFileList3Line,
@@ -66,36 +68,33 @@ const configNavItems = [
 
 export function RootSidebar(): React.JSX.Element {
   const pathname = usePathname();
+  const { user } = useUser();
 
   return (
-    <Sidebar variant="sidebar">
+    <Sidebar variant="sidebar" collapsible="icon">
       <SidebarHeader>
         <div className="flex flex-col gap-4 px-2 pt-2">
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton size="lg">
-                <div className="flex w-full min-w-0 items-center justify-between">
-                  <div className="flex min-w-0 items-center gap-2">
-                    <div className="bg-primary/20 text-primary flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-xs font-semibold">
-                      W
-                    </div>
-                    <span className="truncate text-sm font-medium">
-                      Mradul Kumar&apos;s Workspace
-                    </span>
-                  </div>
-                  <div className="flex shrink-0 items-center gap-2">
-                    <span className="bg-secondary text-secondary-foreground flex h-5 items-center justify-center rounded-sm px-1.5 text-[10px]">
-                      Hobby
-                    </span>
-                    <RiArrowUpDownLine className="text-muted-foreground h-4 w-4 shrink-0" />
-                  </div>
+                <div className="bg-primary/20 text-primary flex aspect-square size-8 items-center justify-center rounded-lg">
+                  <span className="text-sm font-bold">W</span>
                 </div>
+                <div className="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
+                  <span className="truncate font-semibold">
+                    Mradul Kumar&apos;s Workspace
+                  </span>
+                  <span className="text-muted-foreground truncate text-xs">
+                    Hobby
+                  </span>
+                </div>
+                <RiArrowUpDownLine className="ml-auto h-4 w-4 shrink-0 group-data-[collapsible=icon]:hidden" />
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
 
           <div
-            className="relative cursor-pointer px-2"
+            className="relative cursor-pointer px-2 group-data-[collapsible=icon]:hidden"
             onClick={() =>
               window.dispatchEvent(new CustomEvent("open-command-menu"))
             }
@@ -168,16 +167,27 @@ export function RootSidebar(): React.JSX.Element {
       </SidebarContent>
 
       <SidebarFooter>
-        <div className="border-border/40 flex w-full min-w-0 items-center justify-between border-t p-4">
-          <div className="flex min-w-0 items-center gap-2">
-            <div className="bg-primary/10 text-primary flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold">
-              MK
-            </div>
-            <span className="truncate text-sm font-medium tracking-wide uppercase">
-              Mradul Kumar
-            </span>
-          </div>
-          <div className="text-muted-foreground flex items-center gap-1">
+        <div className="border-border/40 flex w-full min-w-0 items-center justify-between border-t p-4 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-2">
+          <ProfileDialog>
+            <button className="hover:bg-muted focus-visible:ring-primary -ml-1 flex min-w-0 flex-1 cursor-pointer items-center gap-2 rounded-md p-1 text-left transition-colors outline-none group-data-[collapsible=icon]:ml-0 focus-visible:ring-2">
+              {user?.imageUrl ? (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img
+                  src={user.imageUrl}
+                  alt="Profile"
+                  className="h-7 w-7 shrink-0 rounded-full object-cover"
+                />
+              ) : (
+                <div className="bg-primary/10 text-primary flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold">
+                  {user?.firstName?.charAt(0) || "U"}
+                </div>
+              )}
+              <span className="flex-1 truncate text-sm font-medium tracking-wide uppercase group-data-[collapsible=icon]:hidden">
+                {user?.fullName || "User"}
+              </span>
+            </button>
+          </ProfileDialog>
+          <div className="text-muted-foreground flex shrink-0 items-center gap-1 group-data-[collapsible=icon]:hidden">
             <button className="hover:bg-muted hover:text-foreground flex h-7 w-7 items-center justify-center rounded-md transition-colors">
               <RiMoreFill className="h-4 w-4" />
             </button>

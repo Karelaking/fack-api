@@ -50,6 +50,67 @@ export interface ProcessMockRequestOptions {
   startTime: number;
 }
 
+interface LogEntry {
+  id: string;
+  project_id: string;
+  timestamp: number;
+  method: string;
+  path: string;
+  query_params: string;
+  headers: string;
+  status_code: number;
+  latency: number;
+  is_error: boolean | number;
+  response_payload: string;
+}
+
+const logQueue: LogEntry[] = [];
+let isFlushing = false;
+
+async function flushLogQueue(): Promise<void> {
+  if (isFlushing || logQueue.length === 0) return;
+  isFlushing = true;
+
+  const batch = [...logQueue];
+  logQueue.length = 0; // clear queue
+
+  try {
+    if (sqlClient) {
+      // postgres.js supports array insertion
+      await sqlClient`
+        INSERT INTO request_logs ${sqlClient(batch)}
+      `;
+    } else {
+      // @libsql/client supports batching
+      const statements = batch.map((entry) => ({
+        sql: `INSERT INTO request_logs (id, project_id, timestamp, method, path, query_params, headers, status_code, latency, is_error, response_payload) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        args: [
+          entry.id,
+          entry.project_id,
+          entry.timestamp,
+          entry.method,
+          entry.path,
+          entry.query_params,
+          entry.headers,
+          entry.status_code,
+          entry.latency,
+          entry.is_error,
+          entry.response_payload,
+        ],
+      }));
+      await db.$client.batch(statements);
+    }
+  } catch (e) {
+    mockLogger.error("Failed to batch insert request logs:", e);
+  } finally {
+    isFlushing = false;
+    // If more items were added during flush, try to flush again
+    if (logQueue.length > 0) {
+      flushLogQueue();
+    }
+  }
+}
+
 /**
  * Asynchronously persists request logs to Postgres (Supabase/Neon) or local SQLite.
  */
@@ -75,35 +136,23 @@ async function recordRequestLog(
       ? payload
       : JSON.stringify(payload).slice(0, 5000);
 
-  try {
-    if (sqlClient) {
-      await sqlClient`
-                INSERT INTO request_logs (id, project_id, timestamp, method, path, query_params, headers, status_code, latency, is_error, response_payload)
-                VALUES (${crypto.randomUUID()}, ${project.id}, ${Date.now()}, ${matchedMethod}, ${matchedPath || request.nextUrl.pathname}, ${queryParams}, ${reqHeaders}, ${statusCode}, ${Date.now() - startTime}, ${isError}, ${resPayload})
-            `;
-    } else {
-      const isErrorInt = isError ? 1 : 0;
-      await db.$client.execute({
-        sql: `INSERT INTO request_logs (id, project_id, timestamp, method, path, query_params, headers, status_code, latency, is_error, response_payload)
-                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        args: [
-          crypto.randomUUID(),
-          project.id,
-          Date.now(),
-          matchedMethod,
-          matchedPath || request.nextUrl.pathname,
-          queryParams,
-          reqHeaders,
-          statusCode,
-          Date.now() - startTime,
-          isErrorInt,
-          resPayload,
-        ],
-      });
-    }
-  } catch (e) {
-    mockLogger.error("Failed to save request log:", e);
-  }
+  logQueue.push({
+    id: crypto.randomUUID(),
+    project_id: project.id,
+    timestamp: Date.now(),
+    method: matchedMethod,
+    path: matchedPath || request.nextUrl.pathname,
+    query_params: queryParams,
+    headers: reqHeaders,
+    status_code: statusCode,
+    latency: Date.now() - startTime,
+    is_error: sqlClient ? isError : isError ? 1 : 0,
+    response_payload: resPayload,
+  });
+
+  // Next.js after() context keeps the function alive. We can flush immediately.
+  // Because it's async and we have a lock (isFlushing), concurrent requests will batch together!
+  await flushLogQueue();
 }
 
 /**
