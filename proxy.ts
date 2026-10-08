@@ -95,107 +95,105 @@ const isProtectedRoute = createRouteMatcher([
   "/projects(.*)",
 ]);
 
+// Force Turbopack/Webpack to statically analyze and inline these variables into the Edge bundle
+const _dummyPublishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+const _dummySecretKey = process.env.CLERK_SECRET_KEY;
+
 /**
  * Next.js Proxy function — runs before every matched request.
  * Wrapped with clerkMiddleware to enforce authentication on dashboard routes.
  */
-export const proxy = clerkMiddleware(
-  async (auth, request) => {
-    if (isProtectedRoute(request)) {
-      await auth.protect();
-    }
+export const proxy = clerkMiddleware(async (auth, request) => {
+  if (isProtectedRoute(request)) {
+    await auth.protect();
+  }
 
-    const { pathname } = request.nextUrl;
-    const host = request.headers.get("host") || "";
-    proxyTrace.traceCall("proxy", request.method, pathname, host);
+  const { pathname } = request.nextUrl;
+  const host = request.headers.get("host") || "";
+  proxyTrace.traceCall("proxy", request.method, pathname, host);
 
-    // ── Detect System/Dashboard Paths ────────────────────────────────────────
-    const systemPrefixes = [
-      "/dashboard",
-      "/activity",
-      "/analytics",
-      "/domains",
-      "/keys",
-      "/settings",
-      "/projects",
-      "/api/typescript",
-      "/api/mock",
-      "/_next",
-      "/opengraph-image",
-    ];
+  // ── Detect System/Dashboard Paths ────────────────────────────────────────
+  const systemPrefixes = [
+    "/dashboard",
+    "/activity",
+    "/analytics",
+    "/domains",
+    "/keys",
+    "/settings",
+    "/projects",
+    "/api/typescript",
+    "/api/mock",
+    "/_next",
+    "/opengraph-image",
+  ];
 
-    const systemExactPaths = new Set(["/", "/robots.txt", "/sitemap.xml"]);
+  const systemExactPaths = new Set(["/", "/robots.txt", "/sitemap.xml"]);
 
-    const isSystemPath =
-      systemExactPaths.has(pathname) ||
-      systemPrefixes.some(
-        (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
-      ) ||
-      /\.(?:svg|png|jpg|jpeg|gif|webp|css|js|ico|txt|xml|json)$/.test(pathname);
+  const isSystemPath =
+    systemExactPaths.has(pathname) ||
+    systemPrefixes.some(
+      (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
+    ) ||
+    /\.(?:svg|png|jpg|jpeg|gif|webp|css|js|ico|txt|xml|json)$/.test(pathname);
 
-    // ── CORS Preflight ───────────────────────────────────────────────────────
-    // Handle OPTIONS requests for mock API paths or custom domain endpoints
-    if (request.method === "OPTIONS" && !isSystemPath) {
-      proxyTrace.traceSuccess("proxy (CORS Preflight OPTIONS)", "204");
-      return new NextResponse(null, {
-        status: 204,
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods":
-            "GET, POST, PUT, DELETE, PATCH, OPTIONS",
-          "Access-Control-Allow-Headers":
-            "Content-Type, Authorization, X-Requested-With",
-          "Access-Control-Max-Age": "86400",
-        },
-      });
-    }
+  // ── CORS Preflight ───────────────────────────────────────────────────────
+  // Handle OPTIONS requests for mock API paths or custom domain endpoints
+  if (request.method === "OPTIONS" && !isSystemPath) {
+    proxyTrace.traceSuccess("proxy (CORS Preflight OPTIONS)", "204");
+    return new NextResponse(null, {
+      status: 204,
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods":
+          "GET, POST, PUT, DELETE, PATCH, OPTIONS",
+        "Access-Control-Allow-Headers":
+          "Content-Type, Authorization, X-Requested-With",
+        "Access-Control-Max-Age": "86400",
+      },
+    });
+  }
 
-    // ── Subdomain Mock API Rewrite ───────────────────────────────────────────
-    const subdomainSlug = getProjectSlugFromSubdomain(host);
-    if (subdomainSlug && !isSystemPath) {
-      const projectSlug = subdomainSlug;
-      const url = request.nextUrl.clone();
-      url.pathname = `/api/mock/${projectSlug}${pathname}`;
+  // ── Subdomain Mock API Rewrite ───────────────────────────────────────────
+  const subdomainSlug = getProjectSlugFromSubdomain(host);
+  if (subdomainSlug && !isSystemPath) {
+    const projectSlug = subdomainSlug;
+    const url = request.nextUrl.clone();
+    url.pathname = `/api/mock/${projectSlug}${pathname}`;
 
-      proxyTrace.traceSuccess("proxy (Subdomain rewrite)", url.pathname);
-      const response = NextResponse.rewrite(url);
-      response.headers.set("X-Accel-Buffering", "no");
-      response.headers.set(
-        "Cache-Control",
-        "no-store, no-cache, must-revalidate, proxy-revalidate",
-      );
-      response.headers.set("Pragma", "no-cache");
-      response.headers.set("Expires", "0");
-      return response;
-    }
+    proxyTrace.traceSuccess("proxy (Subdomain rewrite)", url.pathname);
+    const response = NextResponse.rewrite(url);
+    response.headers.set("X-Accel-Buffering", "no");
+    response.headers.set(
+      "Cache-Control",
+      "no-store, no-cache, must-revalidate, proxy-revalidate",
+    );
+    response.headers.set("Pragma", "no-cache");
+    response.headers.set("Expires", "0");
+    return response;
+  }
 
-    // ── Mock API Rewrite (No Prefix /mock) ──────────────────────────────────
-    if (!isSystemPath) {
-      const url = request.nextUrl.clone();
-      url.pathname = `/api/mock${pathname}`;
+  // ── Mock API Rewrite (No Prefix /mock) ──────────────────────────────────
+  if (!isSystemPath) {
+    const url = request.nextUrl.clone();
+    url.pathname = `/api/mock${pathname}`;
 
-      proxyTrace.traceSuccess("proxy (Standard path rewrite)", url.pathname);
-      const response = NextResponse.rewrite(url);
-      response.headers.set("X-Accel-Buffering", "no");
-      response.headers.set(
-        "Cache-Control",
-        "no-store, no-cache, must-revalidate, proxy-revalidate",
-      );
-      response.headers.set("Pragma", "no-cache");
-      response.headers.set("Expires", "0");
-      return response;
-    }
+    proxyTrace.traceSuccess("proxy (Standard path rewrite)", url.pathname);
+    const response = NextResponse.rewrite(url);
+    response.headers.set("X-Accel-Buffering", "no");
+    response.headers.set(
+      "Cache-Control",
+      "no-store, no-cache, must-revalidate, proxy-revalidate",
+    );
+    response.headers.set("Pragma", "no-cache");
+    response.headers.set("Expires", "0");
+    return response;
+  }
 
-    // ── Pass Through ─────────────────────────────────────────────────────────
-    // All other requests (dashboard, static files, etc.) proceed normally
-    proxyTrace.traceSuccess("proxy (Pass through)", "NextResponse.next()");
-    return NextResponse.next();
-  },
-  {
-    publishableKey: process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
-    secretKey: process.env.CLERK_SECRET_KEY,
-  },
-);
+  // ── Pass Through ─────────────────────────────────────────────────────────
+  // All other requests (dashboard, static files, etc.) proceed normally
+  proxyTrace.traceSuccess("proxy (Pass through)", "NextResponse.next()");
+  return NextResponse.next();
+});
 
 /**
  * Proxy matcher configuration.

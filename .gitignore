@@ -55,3 +55,4 @@ docs/.source/
 
 v11
 .env
+.env*
