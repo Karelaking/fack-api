@@ -54,3 +54,4 @@ docs/.next/
 docs/.source/
 
 v11
+.env
