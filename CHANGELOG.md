@@ -1,3 +1,9 @@
+## [1.11.2](https://github.com/Karelaking/fack-api/compare/v1.11.1...v1.11.2) (2026-10-08)
+
+### Bug Fixes
+
+- **auth:** remove explicit Clerk key injection in proxy ([c55c177](https://github.com/Karelaking/fack-api/commit/c55c17785ee21b902a4ef0cc720f878277feef86))
+
 ## [1.11.1](https://github.com/Karelaking/fack-api/compare/v1.11.0...v1.11.1) (2026-10-08)
 
 ### Bug Fixes
