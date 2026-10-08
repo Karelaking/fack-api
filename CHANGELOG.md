@@ -1,3 +1,9 @@
+## [1.11.1](https://github.com/Karelaking/fack-api/compare/v1.11.0...v1.11.1) (2026-10-08)
+
+### Bug Fixes
+
+- **auth:** pass Clerk keys explicitly in proxy ([4499ca3](https://github.com/Karelaking/fack-api/commit/4499ca324b70912dde53ef448af97edc745dc126))
+
 # [1.11.0](https://github.com/Karelaking/fack-api/compare/v1.10.0...v1.11.0) (2026-10-08)
 
 ### Features
