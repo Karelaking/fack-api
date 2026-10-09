@@ -162,6 +162,41 @@ async function recordRequestLog(
   await flushLogQueue();
 }
 
+function triggerWebhooks(route: CachedRoute, projectId: string) {
+  const webhooks = route.webhooks;
+  if (!webhooks || webhooks.length === 0) return;
+
+  after(() => {
+    for (const webhook of webhooks) {
+      setTimeout(async () => {
+        try {
+          const body =
+            webhook.payloadTemplate && webhook.payloadTemplate !== "{}"
+              ? webhook.payloadTemplate
+              : undefined;
+
+          const parsedBody = body
+            ? body.replace(/{{projectId}}/g, projectId)
+            : undefined;
+
+          await fetch(webhook.url, {
+            method: webhook.method,
+            headers: parsedBody ? { "Content-Type": "application/json" } : {},
+            body: ["POST", "PUT", "PATCH"].includes(webhook.method)
+              ? parsedBody
+              : undefined,
+          });
+          mockLogger.info(
+            `Webhook triggered successfully: ${webhook.method} ${webhook.url}`,
+          );
+        } catch (err) {
+          mockLogger.error(`Failed to trigger webhook ${webhook.url}`, err);
+        }
+      }, webhook.delayMs || 0);
+    }
+  });
+}
+
 /**
  * Core processor for mock API requests.
  * Uses route-matcher with Express-style dynamic parameters, chaos simulation,
@@ -304,6 +339,42 @@ export async function processMockRequest({
       (route.latencyMin ?? 0) * latencyMultiplier,
       (route.latencyMax ?? 0) * latencyMultiplier,
     );
+
+    // ── 5.5 Handlebars Templating Bypass ────────────────────────────────
+    if (route.responseTemplate && route.responseTemplate.trim() !== "") {
+      const { renderTemplate } = await import("@/lib/template-engine");
+      const queryObj: Record<string, string> = {};
+      for (const [k, v] of request.nextUrl.searchParams.entries()) {
+        queryObj[k] = v;
+      }
+
+      let bodyData = {};
+      try {
+        bodyData = await request.clone().json();
+      } catch {}
+
+      const rawPayload = renderTemplate(route.responseTemplate, {
+        request: { body: bodyData, query: queryObj, params: matchedParams },
+      });
+
+      let customHeaders: Record<string, string> = {};
+      try {
+        customHeaders = JSON.parse(route.customHeaders ?? "{}");
+      } catch {}
+
+      const response = buildResponse(
+        rawPayload,
+        route.statusCode,
+        customHeaders,
+      );
+      after(() => log(route.statusCode, route.statusCode >= 400, rawPayload));
+      mockCoreTrace.traceSuccess(
+        "processMockRequest (template response)",
+        response.status,
+      );
+      triggerWebhooks(route as CachedRoute, project.id);
+      return response;
+    }
 
     // ── 6. Schema Resolution & Payload Generation ─────────────────────────
     let schema: Record<string, unknown> = {};
@@ -625,41 +696,7 @@ export async function processMockRequest({
     );
 
     // ── 9. Trigger Webhooks ──────────────────────────────────────────────
-    const webhooks = (route as CachedRoute).webhooks;
-    if (webhooks && webhooks.length > 0) {
-      after(() => {
-        for (const webhook of webhooks) {
-          setTimeout(async () => {
-            try {
-              const body =
-                webhook.payloadTemplate && webhook.payloadTemplate !== "{}"
-                  ? webhook.payloadTemplate
-                  : undefined;
-
-              // Extremely basic template interpolation (can be expanded later)
-              const parsedBody = body
-                ? body.replace(/{{projectId}}/g, project.id)
-                : undefined;
-
-              await fetch(webhook.url, {
-                method: webhook.method,
-                headers: parsedBody
-                  ? { "Content-Type": "application/json" }
-                  : {},
-                body: ["POST", "PUT", "PATCH"].includes(webhook.method)
-                  ? parsedBody
-                  : undefined,
-              });
-              mockLogger.info(
-                `Webhook triggered successfully: ${webhook.method} ${webhook.url}`,
-              );
-            } catch (err) {
-              mockLogger.error(`Failed to trigger webhook ${webhook.url}`, err);
-            }
-          }, webhook.delayMs || 0);
-        }
-      });
-    }
+    triggerWebhooks(route as CachedRoute, project.id);
 
     return response;
   } catch (error) {

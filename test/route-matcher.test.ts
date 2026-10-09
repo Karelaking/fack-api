@@ -26,6 +26,7 @@ describe("Route Matcher", () => {
       conditionalRules: null,
       customHeaders: null,
       responseSchema: "{}",
+      responseTemplate: null,
     },
     {
       id: "2",
@@ -42,6 +43,7 @@ describe("Route Matcher", () => {
       conditionalRules: null,
       customHeaders: null,
       responseSchema: "{}",
+      responseTemplate: null,
     },
     {
       id: "3",
@@ -58,6 +60,7 @@ describe("Route Matcher", () => {
       conditionalRules: null,
       customHeaders: null,
       responseSchema: "{}",
+      responseTemplate: null,
     },
     {
       id: "4",
@@ -74,6 +77,7 @@ describe("Route Matcher", () => {
       conditionalRules: null,
       customHeaders: null,
       responseSchema: "{}",
+      responseTemplate: null,
     },
   ];
 

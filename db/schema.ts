@@ -72,6 +72,7 @@ export const routes = sqliteTable("routes", {
   path: text("path").notNull(),
   statusCode: integer("status_code").notNull().default(200),
   responseSchema: text("response_schema").default("{}"),
+  responseTemplate: text("response_template"),
   latencyMin: integer("latency_min").default(0),
   latencyMax: integer("latency_max").default(0),
   errorRate: real("error_rate").default(0),
