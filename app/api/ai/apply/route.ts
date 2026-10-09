@@ -22,8 +22,15 @@ import type {
   GeneratedApi,
 } from "@/lib/types/ai.type";
 import { buildApiChangeSet } from "@/lib/ai/ai-validator.service";
-import { projects, generationProposals, generationTasks } from "@/db/schema";
+import {
+  projects,
+  generationProposals,
+  generationTasks,
+  projectRevisions,
+} from "@/db/schema";
 import { eq } from "drizzle-orm";
+import { nanoid } from "nanoid";
+import { generateOpenApi } from "@/lib/services/openapi.service";
 
 export const dynamic = "force-dynamic";
 
@@ -279,20 +286,38 @@ export async function POST(request: NextRequest): Promise<Response> {
       }
 
       // 6. Update Project version and Task Status
+      const nextVersion = project.version + 1;
       await tx
         .update(projects)
-        .set({ version: project.version + 1 })
+        .set({ version: nextVersion })
         .where(eq(projects.id, projectId));
 
       await tx
         .update(generationTasks)
-        .set({ status: "completed" }) // Already completed at generation, but could mark "applied"
+        .set({ status: "completed" })
         .where(eq(generationTasks.id, proposal.taskId));
 
       // 7. Reconcile and calculate new Canvas positions
       const refreshedEndpoints = await getEndpointsByProjectId(projectId, tx);
       const canvasLayout = computeCanvasLayout(refreshedEndpoints);
       await persistCanvasState(projectId, canvasLayout, tx);
+
+      // 8. Snapshot Version History
+      const projectForOpenApi = {
+        ...project,
+        endpoints: refreshedEndpoints,
+      };
+      const openApiSnapshot = JSON.stringify(
+        generateOpenApi(projectForOpenApi),
+      );
+
+      await tx.insert(projectRevisions).values({
+        id: nanoid(),
+        projectId,
+        version: nextVersion,
+        description: `Applied AI API Specification (Proposal ${proposalId})`,
+        snapshot: openApiSnapshot,
+      });
     });
 
     // Clear server-side caches

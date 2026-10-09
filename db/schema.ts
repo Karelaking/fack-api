@@ -31,6 +31,7 @@ export const projectsRelations = relations(projects, ({ many, one }) => ({
   }),
   generationTasks: many(generationTasks),
   generationProposals: many(generationProposals),
+  revisions: many(projectRevisions),
 }));
 
 // ─── Endpoints ───────────────────────────────────────────────────────────────
@@ -110,6 +111,30 @@ export const canvasStatesRelations = relations(canvasStates, ({ one }) => ({
   }),
 }));
 
+// ─── Project Revisions ────────────────────────────────────────────────────────
+export const projectRevisions = sqliteTable("project_revisions", {
+  id: text("id").primaryKey(),
+  projectId: text("project_id")
+    .notNull()
+    .references(() => projects.id, { onDelete: "cascade" }),
+  version: integer("version").notNull(),
+  description: text("description").notNull(),
+  snapshot: text("snapshot").notNull(), // OpenAPI or structured JSON of the state
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
+    .$defaultFn(() => new Date()),
+});
+
+export const projectRevisionsRelations = relations(
+  projectRevisions,
+  ({ one }) => ({
+    project: one(projects, {
+      fields: [projectRevisions.projectId],
+      references: [projects.id],
+    }),
+  }),
+);
+
 // ─── Generation Tasks ────────────────────────────────────────────────────────
 export const generationTasks = sqliteTable("generation_tasks", {
   id: text("id").primaryKey(),
@@ -186,6 +211,8 @@ export type GenerationTask = typeof generationTasks.$inferSelect;
 export type NewGenerationTask = typeof generationTasks.$inferInsert;
 export type GenerationProposal = typeof generationProposals.$inferSelect;
 export type NewGenerationProposal = typeof generationProposals.$inferInsert;
+export type ProjectRevision = typeof projectRevisions.$inferSelect;
+export type NewProjectRevision = typeof projectRevisions.$inferInsert;
 
 export interface RequestLog {
   id: string;
