@@ -11,14 +11,17 @@ export async function GET(
   context: { params: Promise<{ slug: string }> },
 ) {
   try {
-    const { slug: projectId } = await context.params;
+    const { slug: projectSlug } = await context.params;
 
     const project = await db.query.projects.findFirst({
-      where: eq(projects.id, projectId),
+      where: eq(projects.slug, projectSlug),
     });
 
     if (!project) {
-      return NextResponse.json({ error: "Project not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Project not found", debugId: projectSlug },
+        { status: 404 },
+      );
     }
 
     const projectEndpoints = await db.query.endpoints.findMany({

@@ -377,7 +377,7 @@ export function ProjectSettings({
             type="button"
             variant="outline"
             onClick={() => {
-              window.open(`/api/projects/${project.id}/export`, "_blank");
+              window.open(`/api/projects/${project.slug}/export`, "_blank");
             }}
           >
             <RiDownloadCloud2Line className="mr-2 h-4 w-4" />
