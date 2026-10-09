@@ -9,6 +9,10 @@
  */
 
 import { generateObject } from "ai";
+import { nanoid } from "nanoid";
+import { eq } from "drizzle-orm";
+import { db } from "@/db";
+import { projects, generationTasks, generationProposals } from "@/db/schema";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { createOpenAI } from "@ai-sdk/openai";
 import type {
@@ -146,6 +150,25 @@ export async function generateApiSpecification(
       onProgress({ id, label, status, detail });
     }
   };
+
+  let taskId: string | undefined;
+  let expectedVersion = 1;
+
+  if (projectId) {
+    taskId = nanoid();
+    const projectRow = await db.query.projects.findFirst({
+      where: eq(projects.id, projectId),
+    });
+    if (projectRow) {
+      expectedVersion = projectRow.version;
+    }
+    await db.insert(generationTasks).values({
+      id: taskId,
+      projectId,
+      prompt: prompt.trim(),
+      status: "pending",
+    });
+  }
 
   try {
     // ── Phase 1: Understand Requirements ──────────────────────────────────
@@ -297,6 +320,28 @@ When modifying, preserve existing resource conventions where appropriate, avoid 
 
     const durationMs = Date.now() - startTime;
 
+    let proposalId: string | undefined;
+    if (taskId && projectId) {
+      proposalId = nanoid();
+      await db.insert(generationProposals).values({
+        id: proposalId,
+        taskId,
+        projectId,
+        baseProjectVersion: expectedVersion,
+        payload: JSON.stringify({
+          generatedApi: validatedApi,
+          changeSet,
+        }),
+      });
+      await db
+        .update(generationTasks)
+        .set({
+          status: "completed",
+          providerMetadata: modelUsed,
+        })
+        .where(eq(generationTasks.id, taskId));
+    }
+
     return {
       success: true,
       generation: validatedApi,
@@ -306,11 +351,22 @@ When modifying, preserve existing resource conventions where appropriate, avoid 
       modelUsed,
       detailedPrompt: detailedSpec.detailedPrompt,
       detailedSummary: detailedSpec.summary,
+      proposalId,
+      expectedVersion,
     };
   } catch (err) {
     const errorMessage =
       err instanceof Error ? err.message : "Unknown generation error";
     emitProgress("complete", `Generation failed: ${errorMessage}`, "failed");
+    if (taskId) {
+      await db
+        .update(generationTasks)
+        .set({
+          status: "failed",
+          error: errorMessage,
+        })
+        .where(eq(generationTasks.id, taskId));
+    }
     throw err;
   }
 }

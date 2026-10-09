@@ -111,6 +111,10 @@ export const AiArchitectDialog = ({
   const [detailedSummary, setDetailedSummary] = React.useState<
     string | undefined
   >();
+  const [proposalId, setProposalId] = React.useState<string | undefined>();
+  const [expectedVersion, setExpectedVersion] = React.useState<
+    number | undefined
+  >();
   const [resolutions, setResolutions] = React.useState<
     Record<string, "replace" | "skip" | "modify">
   >({});
@@ -128,6 +132,8 @@ export const AiArchitectDialog = ({
     setConflicts([]);
     setDetailedPrompt(undefined);
     setDetailedSummary(undefined);
+    setProposalId(undefined);
+    setExpectedVersion(undefined);
     setResolutions({});
     setProgressSteps(DEFAULT_PROGRESS_STEPS);
   };
@@ -224,6 +230,8 @@ export const AiArchitectDialog = ({
             setConflicts(data.conflicts || []);
             setDetailedPrompt(data.detailedPrompt);
             setDetailedSummary(data.detailedSummary);
+            setProposalId(data.proposalId);
+            setExpectedVersion(data.expectedVersion);
             toast.success("API architecture generated successfully!");
           } else if (event === "error") {
             throw new Error(data.message || "Generation error");
@@ -246,98 +254,20 @@ export const AiArchitectDialog = ({
       return;
     }
 
-    if (!generatedApi || !changeSet) {
-      toast.error("No generated API to apply");
+    if (!proposalId || expectedVersion === undefined) {
+      toast.error("No valid proposal to apply");
       return;
     }
 
     setIsApplying(true);
     try {
-      // Build the atomic ApiChange list from changeSet
-      const changes = [
-        ...changeSet.endpointsToCreate.map((ep) => ({
-          type: "CREATE_ENDPOINT" as const,
-          endpoint: {
-            name: ep.name,
-            description: ep.description,
-            basePath: ep.basePath,
-          },
-        })),
-        ...changeSet.routesToCreate.map((r) => {
-          const cleanPath =
-            r.route.path && r.route.path.trim()
-              ? r.route.path.trim().startsWith("/")
-                ? r.route.path.trim()
-                : `/${r.route.path.trim()}`
-              : "/";
-
-          return {
-            type: "CREATE_ROUTE" as const,
-            endpointName: r.endpointName,
-            endpointId: r.endpointId,
-            route: {
-              method: r.route.method,
-              path: cleanPath,
-              statusCode: r.route.statusCode,
-              responseSchema: JSON.stringify(
-                {
-                  type: "object",
-                  properties: Object.fromEntries(
-                    r.route.properties.map((p) => [
-                      p.name,
-                      {
-                        type: p.type,
-                        ...(p.fakerProvider
-                          ? {
-                              "x-faker": p.fakerProvider,
-                              faker: p.fakerProvider,
-                            }
-                          : {}),
-                      },
-                    ]),
-                  ),
-                  required: r.route.properties
-                    .filter((p) => !p.nullable)
-                    .map((p) => p.name),
-                },
-                undefined,
-                2,
-              ),
-              latencyMin: r.route.latency.min,
-              latencyMax: r.route.latency.max,
-              errorRate: r.route.errorRate,
-            },
-          };
-        }),
-        ...changeSet.routesToUpdate.map((r) => {
-          const cleanPath =
-            r.proposedRoute.path && r.proposedRoute.path.trim()
-              ? r.proposedRoute.path.trim().startsWith("/")
-                ? r.proposedRoute.path.trim()
-                : `/${r.proposedRoute.path.trim()}`
-              : "/";
-
-          return {
-            type: "UPDATE_ROUTE" as const,
-            routeId: r.routeId,
-            changes: {
-              method: r.proposedRoute.method,
-              path: cleanPath,
-              statusCode: r.proposedRoute.statusCode,
-              latencyMin: r.proposedRoute.latency.min,
-              latencyMax: r.proposedRoute.latency.max,
-              errorRate: r.proposedRoute.errorRate,
-            },
-          };
-        }),
-      ];
-
       const response = await fetch("/api/ai/apply", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           projectId,
-          changes,
+          proposalId,
+          expectedVersion,
           resolutions,
         }),
       });

@@ -175,11 +175,14 @@ export interface GenerateApiResponse {
   detailedPrompt?: string;
   detailedSummary?: string;
   error?: string;
+  proposalId?: string;
+  expectedVersion?: number;
 }
 
 export interface ApplyApiRequest {
   projectId: string;
-  changes: ApiChange[];
+  proposalId: string;
+  expectedVersion: number;
   resolutions?: Record<string, "replace" | "skip" | "modify">;
 }
 

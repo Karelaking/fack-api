@@ -1,12 +1,3 @@
-/**
- * Fack AI API Architect — Apply Route Handler
- *
- * POST /api/ai/apply
- *
- * Executes user-approved API changes inside an atomic database transaction
- * with full rollback on failure, synchronizing the visual canvas layout.
- */
-
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
 import { clearCache } from "@/lib/cache";
@@ -18,30 +9,35 @@ import {
   createRouteRecord,
   updateRouteRecord,
   deleteRouteRecord,
+  getRoutesByProjectId,
 } from "@/lib/services/route.service";
 import {
   computeCanvasLayout,
   persistCanvasState,
 } from "@/lib/services/canvas.service";
-import type { ApplyApiRequest, ApplyApiResponse } from "@/lib/types/ai.type";
+import type {
+  ApplyApiRequest,
+  ApplyApiResponse,
+  ApiChangeSet,
+  GeneratedApi,
+} from "@/lib/types/ai.type";
+import { buildApiChangeSet } from "@/lib/ai/ai-validator.service";
+import { projects, generationProposals, generationTasks } from "@/db/schema";
+import { eq } from "drizzle-orm";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest): Promise<Response> {
   try {
     const body = (await request.json()) as ApplyApiRequest;
-    const { projectId, changes } = body;
+    const { projectId, proposalId, expectedVersion, resolutions } = body;
 
-    if (!projectId) {
+    if (!projectId || !proposalId || expectedVersion === undefined) {
       return NextResponse.json(
-        { success: false, error: "projectId is required" },
-        { status: 400 },
-      );
-    }
-
-    if (!changes || !Array.isArray(changes) || changes.length === 0) {
-      return NextResponse.json(
-        { success: false, error: "No changes provided to apply" },
+        {
+          success: false,
+          error: "projectId, proposalId, and expectedVersion are required",
+        },
         { status: 400 },
       );
     }
@@ -53,14 +49,135 @@ export async function POST(request: NextRequest): Promise<Response> {
 
     // Execute all mutations atomically inside a single transaction
     await db.transaction(async (tx) => {
-      // Pre-fetch current endpoints in project
+      // 1. Verify Project Version (Optimistic Concurrency)
+      const project = await tx.query.projects.findFirst({
+        where: eq(projects.id, projectId),
+      });
+
+      if (!project) {
+        throw new Error("Project not found");
+      }
+
+      if (project.version !== expectedVersion) {
+        throw new Error(
+          `Project state has changed (version mismatch). Please re-generate the proposal.`,
+        );
+      }
+
+      // 2. Fetch Generation Proposal
+      const proposal = await tx.query.generationProposals.findFirst({
+        where: eq(generationProposals.id, proposalId),
+      });
+
+      if (!proposal) {
+        throw new Error("Proposal not found");
+      }
+
+      if (proposal.projectId !== projectId) {
+        throw new Error("Proposal does not belong to this project");
+      }
+
+      const payload = JSON.parse(proposal.payload) as {
+        generatedApi: GeneratedApi;
+        changeSet: ApiChangeSet;
+      };
+
+      // 3. Re-calculate change set with user resolutions
       const existingEndpoints = await getEndpointsByProjectId(projectId, tx);
+      const existingRoutes = await getRoutesByProjectId(projectId, tx);
+
+      const changeSet = buildApiChangeSet(
+        payload.generatedApi,
+        existingEndpoints,
+        existingRoutes,
+        resolutions,
+      );
+
+      // We map changeSet to standard format expected below
+      const changes = [
+        ...changeSet.endpointsToCreate.map((ep) => ({
+          type: "CREATE_ENDPOINT" as const,
+          endpoint: {
+            name: ep.name,
+            description: ep.description,
+            basePath: ep.basePath,
+          },
+        })),
+        ...changeSet.routesToCreate.map((r) => {
+          const cleanPath =
+            r.route.path && r.route.path.trim()
+              ? r.route.path.trim().startsWith("/")
+                ? r.route.path.trim()
+                : `/${r.route.path.trim()}`
+              : "/";
+
+          return {
+            type: "CREATE_ROUTE" as const,
+            endpointName: r.endpointName,
+            endpointId: r.endpointId,
+            route: {
+              method: r.route.method,
+              path: cleanPath,
+              statusCode: r.route.statusCode,
+              responseSchema: JSON.stringify(
+                {
+                  type: "object",
+                  properties: Object.fromEntries(
+                    r.route.properties.map((p) => [
+                      p.name,
+                      {
+                        type: p.type,
+                        ...(p.fakerProvider
+                          ? {
+                              "x-faker": p.fakerProvider,
+                              faker: p.fakerProvider,
+                            }
+                          : {}),
+                      },
+                    ]),
+                  ),
+                  required: r.route.properties
+                    .filter((p) => !p.nullable)
+                    .map((p) => p.name),
+                },
+                undefined,
+                2,
+              ),
+              latencyMin: r.route.latency.min,
+              latencyMax: r.route.latency.max,
+              errorRate: r.route.errorRate,
+            },
+          };
+        }),
+        ...changeSet.routesToUpdate.map((r) => {
+          const cleanPath =
+            r.proposedRoute.path && r.proposedRoute.path.trim()
+              ? r.proposedRoute.path.trim().startsWith("/")
+                ? r.proposedRoute.path.trim()
+                : `/${r.proposedRoute.path.trim()}`
+              : "/";
+
+          return {
+            type: "UPDATE_ROUTE" as const,
+            routeId: r.routeId,
+            changes: {
+              method: r.proposedRoute.method,
+              path: cleanPath,
+              statusCode: r.proposedRoute.statusCode,
+              latencyMin: r.proposedRoute.latency.min,
+              latencyMax: r.proposedRoute.latency.max,
+              errorRate: r.proposedRoute.errorRate,
+            },
+          };
+        }),
+      ];
+
       const endpointNameToIdMap = new Map<string, string>();
       for (const ep of existingEndpoints) {
         endpointNameToIdMap.set(ep.name.trim().toLowerCase(), ep.id);
       }
 
-      // 1. Process CREATE_ENDPOINT changes first
+      // 4. Process CREATE_ENDPOINT changes first
       for (const change of changes) {
         if (change.type === "CREATE_ENDPOINT") {
           const normalizedName = change.endpoint.name.trim().toLowerCase();
@@ -80,7 +197,7 @@ export async function POST(request: NextRequest): Promise<Response> {
         }
       }
 
-      // 2. Process route operations (CREATE, UPDATE, DELETE)
+      // 5. Process route operations (CREATE, UPDATE, DELETE)
       for (const change of changes) {
         if (change.type === "CREATE_ROUTE") {
           let targetEndpointId = change.endpointId;
@@ -161,7 +278,18 @@ export async function POST(request: NextRequest): Promise<Response> {
         }
       }
 
-      // 3. Reconcile and calculate new Canvas positions
+      // 6. Update Project version and Task Status
+      await tx
+        .update(projects)
+        .set({ version: project.version + 1 })
+        .where(eq(projects.id, projectId));
+
+      await tx
+        .update(generationTasks)
+        .set({ status: "completed" }) // Already completed at generation, but could mark "applied"
+        .where(eq(generationTasks.id, proposal.taskId));
+
+      // 7. Reconcile and calculate new Canvas positions
       const refreshedEndpoints = await getEndpointsByProjectId(projectId, tx);
       const canvasLayout = computeCanvasLayout(refreshedEndpoints);
       await persistCanvasState(projectId, canvasLayout, tx);

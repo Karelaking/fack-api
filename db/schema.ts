@@ -20,6 +20,7 @@ export const projects = sqliteTable("projects", {
   isCachingEnabled: integer("is_caching_enabled", { mode: "boolean" })
     .notNull()
     .default(true),
+  version: integer("version").notNull().default(1),
 });
 
 export const projectsRelations = relations(projects, ({ many, one }) => ({
@@ -28,6 +29,8 @@ export const projectsRelations = relations(projects, ({ many, one }) => ({
     fields: [projects.id],
     references: [canvasStates.projectId],
   }),
+  generationTasks: many(generationTasks),
+  generationProposals: many(generationProposals),
 }));
 
 // ─── Endpoints ───────────────────────────────────────────────────────────────
@@ -107,6 +110,69 @@ export const canvasStatesRelations = relations(canvasStates, ({ one }) => ({
   }),
 }));
 
+// ─── Generation Tasks ────────────────────────────────────────────────────────
+export const generationTasks = sqliteTable("generation_tasks", {
+  id: text("id").primaryKey(),
+  projectId: text("project_id")
+    .notNull()
+    .references(() => projects.id, { onDelete: "cascade" }),
+  prompt: text("prompt").notNull(),
+  status: text("status", {
+    enum: ["pending", "active", "completed", "failed"],
+  })
+    .notNull()
+    .default("pending"),
+  providerMetadata: text("provider_metadata"),
+  error: text("error"),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
+    .$defaultFn(() => new Date()),
+  updatedAt: integer("updated_at", { mode: "timestamp" })
+    .notNull()
+    .$defaultFn(() => new Date()),
+});
+
+export const generationTasksRelations = relations(
+  generationTasks,
+  ({ one, many }) => ({
+    project: one(projects, {
+      fields: [generationTasks.projectId],
+      references: [projects.id],
+    }),
+    proposals: many(generationProposals),
+  }),
+);
+
+// ─── Generation Proposals ────────────────────────────────────────────────────
+export const generationProposals = sqliteTable("generation_proposals", {
+  id: text("id").primaryKey(),
+  taskId: text("task_id")
+    .notNull()
+    .references(() => generationTasks.id, { onDelete: "cascade" }),
+  projectId: text("project_id")
+    .notNull()
+    .references(() => projects.id, { onDelete: "cascade" }),
+  baseProjectVersion: integer("base_project_version").notNull(),
+  payload: text("payload").notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
+    .$defaultFn(() => new Date()),
+});
+
+export const generationProposalsRelations = relations(
+  generationProposals,
+  ({ one }) => ({
+    task: one(generationTasks, {
+      fields: [generationProposals.taskId],
+      references: [generationTasks.id],
+    }),
+    project: one(projects, {
+      fields: [generationProposals.projectId],
+      references: [projects.id],
+    }),
+  }),
+);
+
 // ─── Type Exports ────────────────────────────────────────────────────────────
 export type Project = typeof projects.$inferSelect;
 export type NewProject = typeof projects.$inferInsert;
@@ -116,6 +182,10 @@ export type Route = typeof routes.$inferSelect;
 export type NewRoute = typeof routes.$inferInsert;
 export type CanvasState = typeof canvasStates.$inferSelect;
 export type NewCanvasState = typeof canvasStates.$inferInsert;
+export type GenerationTask = typeof generationTasks.$inferSelect;
+export type NewGenerationTask = typeof generationTasks.$inferInsert;
+export type GenerationProposal = typeof generationProposals.$inferSelect;
+export type NewGenerationProposal = typeof generationProposals.$inferInsert;
 
 export interface RequestLog {
   id: string;
