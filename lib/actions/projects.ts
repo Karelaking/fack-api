@@ -3,7 +3,7 @@
 import { cache } from "react";
 import { db } from "@/db";
 import { projects } from "@/db/schema";
-import { eq, and } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { generateId, slugify } from "@/lib/utils";
 import { auth } from "@clerk/nextjs/server";

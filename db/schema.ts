@@ -198,6 +198,30 @@ export const generationProposalsRelations = relations(
   }),
 );
 
+// ─── Mock State (Stateful Workflows) ─────────────────────────────────────────
+export const mockStates = sqliteTable("mock_states", {
+  id: text("id").primaryKey(),
+  projectId: text("project_id")
+    .notNull()
+    .references(() => projects.id, { onDelete: "cascade" }),
+  collection: text("collection").notNull(),
+  itemKey: text("item_key").notNull(),
+  data: text("data").notNull(), // JSON blob
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
+    .$defaultFn(() => new Date()),
+  updatedAt: integer("updated_at", { mode: "timestamp" })
+    .notNull()
+    .$defaultFn(() => new Date()),
+});
+
+export const mockStatesRelations = relations(mockStates, ({ one }) => ({
+  project: one(projects, {
+    fields: [mockStates.projectId],
+    references: [projects.id],
+  }),
+}));
+
 // ─── Type Exports ────────────────────────────────────────────────────────────
 export type Project = typeof projects.$inferSelect;
 export type NewProject = typeof projects.$inferInsert;
@@ -213,6 +237,8 @@ export type GenerationProposal = typeof generationProposals.$inferSelect;
 export type NewGenerationProposal = typeof generationProposals.$inferInsert;
 export type ProjectRevision = typeof projectRevisions.$inferSelect;
 export type NewProjectRevision = typeof projectRevisions.$inferInsert;
+export type MockState = typeof mockStates.$inferSelect;
+export type NewMockState = typeof mockStates.$inferInsert;
 
 export interface RequestLog {
   id: string;

@@ -43,6 +43,13 @@
       "when": 1791541273127,
       "tag": "0005_slow_red_wolf",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1791557672408,
+      "tag": "0006_mighty_hellcat",
+      "breakpoints": true
     }
   ]
 }

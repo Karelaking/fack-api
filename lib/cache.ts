@@ -253,9 +253,13 @@ export function setCachedProjectBySlug(slug: string, project: Project): void {
   cacheTrace.traceSuccess("setCachedProjectBySlug", "void");
 }
 
-export function getCachedRoutes(projectId: string): Route[] | undefined {
+export type CachedRoute = Route & {
+  endpoint?: { id: string; basePath: string; name: string };
+};
+
+export function getCachedRoutes(projectId: string): CachedRoute[] | undefined {
   cacheTrace.traceCall("getCachedRoutes", projectId);
-  const res = cacheManager.getRoutes(projectId);
+  const res = cacheManager.getRoutes(projectId) as CachedRoute[] | undefined;
   cacheTrace.traceSuccess(
     "getCachedRoutes",
     res ? `${res.length} routes` : "undefined",
@@ -263,9 +267,12 @@ export function getCachedRoutes(projectId: string): Route[] | undefined {
   return res;
 }
 
-export function setCachedRoutes(projectId: string, routes: Route[]): void {
+export function setCachedRoutes(
+  projectId: string,
+  routes: CachedRoute[],
+): void {
   cacheTrace.traceCall("setCachedRoutes", projectId, `${routes.length} routes`);
-  cacheManager.setRoutes(projectId, routes);
+  cacheManager.setRoutes(projectId, routes as Route[]);
   cacheTrace.traceSuccess("setCachedRoutes", "void");
 }
 

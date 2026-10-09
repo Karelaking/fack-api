@@ -14,6 +14,7 @@ import {
   getCachedPageData,
   setCachedPageData,
   prunePageCache,
+  type CachedRoute,
 } from "@/lib/cache";
 import {
   generatePayload,
@@ -24,6 +25,12 @@ import {
   processQueryParameters,
   evaluateRules,
 } from "@/lib/mock-engine";
+import {
+  saveMockItem,
+  getMockItem,
+  getMockCollection,
+  deleteMockItem,
+} from "@/lib/stateful-mock";
 import { findMatchingRoute } from "@/lib/route-matcher";
 import { LoggerRegistry } from "@/lib/logger-registry";
 import { MockResponseFormatterFactory } from "@/lib/mock-formatter";
@@ -204,6 +211,7 @@ export async function processMockRequest({
       allRoutes = projectEndpoints.flatMap((e) =>
         e.routes.map((r) => ({
           ...r,
+          endpoint: { id: e.id, basePath: e.basePath, name: e.name },
           path: normalizePath(e.basePath + r.path),
         })),
       );
@@ -449,6 +457,67 @@ export async function processMockRequest({
         rawPayload = cachedObject;
       } else {
         rawPayload = await generatePayload(schema, limitValue);
+      }
+    }
+
+    // ── 6.5 Stateful Workflows ──────────────────────────────────────────
+    const endpoint = (route as CachedRoute).endpoint;
+    if (endpoint) {
+      const collection = endpoint.basePath;
+      const rawItemId = matchedParams.id;
+      const itemId = Array.isArray(rawItemId) ? rawItemId[0] : rawItemId;
+
+      if (method === "POST" || method === "PUT" || method === "PATCH") {
+        let requestBody: Record<string, unknown> = {};
+        try {
+          requestBody = await request.clone().json();
+        } catch {
+          // ignore
+        }
+
+        const mergedPayload = {
+          ...(rawPayload && typeof rawPayload === "object" ? rawPayload : {}),
+          ...requestBody,
+        };
+
+        const savedItem = await saveMockItem(
+          project.id,
+          collection,
+          mergedPayload,
+          itemId,
+        );
+        rawPayload = savedItem;
+      } else if (method === "DELETE") {
+        if (itemId) {
+          await deleteMockItem(project.id, collection, itemId);
+          rawPayload = { success: true, message: `Item ${itemId} deleted` };
+        }
+      } else if (method === "GET") {
+        if (itemId) {
+          const savedItem = await getMockItem(project.id, collection, itemId);
+          if (savedItem) {
+            rawPayload = {
+              ...(rawPayload && typeof rawPayload === "object"
+                ? rawPayload
+                : {}),
+              ...savedItem,
+            };
+          }
+        } else if (isArrayResponse) {
+          const savedItems = await getMockCollection(project.id, collection);
+          if (savedItems.length > 0) {
+            const generatedArray = Array.isArray(rawPayload) ? rawPayload : [];
+            let combined = [...savedItems, ...generatedArray];
+
+            // Very basic mock pagination adjustment
+            if (isPagedRequest) {
+              const start = (pageValue - 1) * (limitValue ?? 10);
+              const end = start + (limitValue ?? 10);
+              combined = combined.slice(start, end);
+            }
+            rawPayload = combined;
+          }
+        }
       }
     }
 
