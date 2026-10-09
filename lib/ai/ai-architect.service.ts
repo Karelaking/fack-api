@@ -74,8 +74,8 @@ function resolveAiModel():
   if (geminiKey) {
     const google = createGoogleGenerativeAI({ apiKey: geminiKey });
     return {
-      model: google("gemini-2.5-flash"),
-      name: "gemini-2.5-flash",
+      model: google("gemini-3.8-flash"),
+      name: "gemini-3.8-flash",
     };
   }
 
