@@ -48,6 +48,7 @@ describe("Mock Handler Core - Edge Cases and Scenarios", () => {
     path: "/api/v2/users",
     isEnabled: true,
     responseTemplate: null,
+    isAuthRequired: false,
     responseSchema: JSON.stringify({
       type: "object",
       properties: {

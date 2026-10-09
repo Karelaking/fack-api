@@ -276,6 +276,47 @@ export async function processMockRequest({
       return response;
     }
 
+    // ── 2.5 Authentication Simulation (JWT) ──────────────────────────────
+    if (route.isAuthRequired) {
+      const authHeader = request.headers.get("Authorization");
+      if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        const errBody = {
+          error: true,
+          message: "Unauthorized",
+          hint: "Missing or invalid Bearer token. Generate one at /_auth/token",
+        };
+        const response = buildErrorResponse(401, errBody.message);
+        after(() => log(401, true, errBody));
+        mockCoreTrace.traceError(
+          "processMockRequest (unauthorized)",
+          "No token provided",
+        );
+        return response;
+      }
+
+      const token = authHeader.split(" ")[1];
+      try {
+        const { jwtVerify } = await import("jose");
+        const secret = new TextEncoder().encode(
+          process.env.JWT_SECRET || project.id,
+        );
+        await jwtVerify(token, secret);
+      } catch (_err) {
+        const errBody = {
+          error: true,
+          message: "Unauthorized",
+          hint: "Invalid or expired Bearer token.",
+        };
+        const response = buildErrorResponse(401, errBody.message);
+        after(() => log(401, true, errBody));
+        mockCoreTrace.traceError(
+          "processMockRequest (unauthorized)",
+          "Invalid token",
+        );
+        return response;
+      }
+    }
+
     // ── 3. Evaluate Conditional Logic Rules ──────────────────────────────
     const ruleMatch = evaluateRules(
       route.conditionalRules,

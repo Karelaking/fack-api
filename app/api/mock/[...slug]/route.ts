@@ -111,6 +111,39 @@ async function handleMockRequest(
       );
     }
 
+    // ── System Auth Endpoint Interception ──────────────────────────────
+    if (requestPath === "/_auth/token" && request.method === "POST") {
+      const { SignJWT } = await import("jose");
+      // Use a consistent secret per project so tokens validate across requests
+      const secret = new TextEncoder().encode(
+        process.env.JWT_SECRET || project.id,
+      );
+
+      let body: Record<string, unknown> = {};
+      try {
+        body = await request.clone().json();
+      } catch {}
+
+      const payload = {
+        sub: body.userId || "mock_user_123",
+        email: body.email || "user@example.com",
+        role: body.role || "user",
+        ...body,
+      };
+
+      const token = await new SignJWT(payload)
+        .setProtectedHeader({ alg: "HS256" })
+        .setIssuedAt()
+        .setIssuer(`fack-api:${project.slug}`)
+        .setExpirationTime("1h")
+        .sign(secret);
+
+      return buildResponse(
+        { token, type: "Bearer", expiresIn: 3600, payload },
+        200,
+      );
+    }
+
     const res = await processMockRequest({
       project,
       requestPath,

@@ -78,6 +78,9 @@ export const routes = sqliteTable("routes", {
   errorRate: real("error_rate").default(0),
   customHeaders: text("custom_headers").default("{}"),
   conditionalRules: text("conditional_rules").default("[]"),
+  isAuthRequired: integer("is_auth_required", { mode: "boolean" })
+    .notNull()
+    .default(false),
   isEnabled: integer("is_enabled", { mode: "boolean" }).notNull().default(true),
   createdAt: integer("created_at", { mode: "timestamp" })
     .notNull()

@@ -39,6 +39,7 @@
     "drizzle-orm": "^0.45.3",
     "geist": "^1.7.2",
     "immer": "^11.1.15",
+    "jose": "^6.2.12",
     "json-schema-faker": "^0.6.2",
     "json-schema-to-typescript": "^16.0.0",
     "lru-cache": "^11.5.3",

@@ -1,0 +1,1 @@
+ALTER TABLE `routes` ADD `is_auth_required` integer DEFAULT false NOT NULL;

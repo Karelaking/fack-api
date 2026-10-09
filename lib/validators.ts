@@ -98,6 +98,7 @@ export const updateRouteSchema = z.object({
   errorRate: z.number().min(0).max(100).optional(),
   customHeaders: z.string().optional(),
   conditionalRules: z.string().optional(),
+  isAuthRequired: z.boolean().optional(),
   isEnabled: z.boolean().optional(),
 });
 

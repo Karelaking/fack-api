@@ -27,6 +27,7 @@ describe("Route Matcher", () => {
       customHeaders: null,
       responseSchema: "{}",
       responseTemplate: null,
+      isAuthRequired: false,
     },
     {
       id: "2",
@@ -44,6 +45,7 @@ describe("Route Matcher", () => {
       customHeaders: null,
       responseSchema: "{}",
       responseTemplate: null,
+      isAuthRequired: false,
     },
     {
       id: "3",
@@ -61,6 +63,7 @@ describe("Route Matcher", () => {
       customHeaders: null,
       responseSchema: "{}",
       responseTemplate: null,
+      isAuthRequired: false,
     },
     {
       id: "4",
@@ -78,6 +81,7 @@ describe("Route Matcher", () => {
       customHeaders: null,
       responseSchema: "{}",
       responseTemplate: null,
+      isAuthRequired: false,
     },
   ];
 

@@ -1,0 +1,1 @@
+ALTER TABLE `routes` ADD `response_template` text;
