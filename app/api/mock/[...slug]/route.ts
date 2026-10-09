@@ -125,9 +125,9 @@ async function handleMockRequest(
       } catch {}
 
       const payload = {
-        sub: body.userId || "mock_user_123",
-        email: body.email || "user@example.com",
-        role: body.role || "user",
+        sub: String(body.userId || "mock_user_123"),
+        email: String(body.email || "user@example.com"),
+        role: String(body.role || "user"),
         ...body,
       };
 

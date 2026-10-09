@@ -42,6 +42,7 @@
     "jose": "^6.2.12",
     "json-schema-faker": "^0.6.2",
     "json-schema-to-typescript": "^16.0.0",
+    "jszip": "^3.10.2",
     "lru-cache": "^11.5.3",
     "lucide-react": "^1.49.0",
     "nanoid": "^6.0.1",

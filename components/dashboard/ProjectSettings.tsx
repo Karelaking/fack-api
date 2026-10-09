@@ -11,6 +11,7 @@ import { LoggerRegistry } from "@/lib/logger-registry";
 const uiTrace = LoggerRegistry.getTrace("ui-project-settings");
 import {
   RiLoader2Line,
+  RiDownloadCloud2Line,
   RiDeleteBin6Line,
   RiSaveLine,
   RiAlertLine,
@@ -351,6 +352,39 @@ export function ProjectSettings({
           </CardFooter>
         </Card>
       </form>
+
+      {/* Code Export Card */}
+      <Card>
+        <CardHeader>
+          <CardTitle>
+            <RiDownloadCloud2Line className="text-primary h-5 w-5" />
+            <span>Export Codebase</span>
+          </CardTitle>
+          <CardDescription>
+            Download a production-ready Express.js + TypeScript backend
+            generated from your visual routes.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="text-muted-foreground mb-4 text-sm">
+            The exported project includes a fully configured{" "}
+            <code>package.json</code>, <code>tsconfig.json</code>, and route
+            handlers mapped to your designed schema.
+          </p>
+        </CardContent>
+        <CardFooter className="justify-end">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => {
+              window.open(`/api/projects/${project.id}/export`, "_blank");
+            }}
+          >
+            <RiDownloadCloud2Line className="mr-2 h-4 w-4" />
+            Download ZIP
+          </Button>
+        </CardFooter>
+      </Card>
 
       {/* Danger Zone Card */}
       <Card variant="danger">

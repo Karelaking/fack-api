@@ -76,6 +76,9 @@ importers:
       json-schema-to-typescript:
         specifier: ^16.0.0
         version: 16.0.0
+      jszip:
+        specifier: ^3.10.2
+        version: 3.10.2
       lru-cache:
         specifier: ^11.5.3
         version: 11.5.3
@@ -6873,6 +6876,12 @@ packages:
       }
     engines: { node: ">= 4" }
 
+  immediate@3.0.6:
+    resolution:
+      {
+        integrity: sha512-XXOFtyqDjNDAQxVfYxuF7g9Il/IbWmmlQg2MYKOH8ExIT1qg6xc4zyS3HaEEATgs1btfzxq15ciUiY7gjSXRGQ==,
+      }
+
   immer@11.1.18:
     resolution:
       {
@@ -7554,6 +7563,12 @@ packages:
       }
     engines: { node: ">=4.0" }
 
+  jszip@3.10.2:
+    resolution:
+      {
+        integrity: sha512-3l+rb15IOWtUhU0H5MFqES/T6Kh7abYwjosBey/vD6hDt8zoEffkSC5Ws5SGtgVw3gBx2NEbhTeSW1+kWkpyTQ==,
+      }
+
   keyv@4.5.4:
     resolution:
       {
@@ -7601,6 +7616,12 @@ packages:
       }
     cpu: [x64, arm64, wasm32, arm]
     os: [darwin, linux, win32]
+
+  lie@3.3.0:
+    resolution:
+      {
+        integrity: sha512-UaiMJzeWRlEujzAuw5LokY1L5ecNQYZKfmyZ9L7wDHb/p5etKaxXhohBcrw0EYby+G/NA52vRSN4N39dxHAIwQ==,
+      }
 
   lightningcss-android-arm64@1.32.0:
     resolution:
@@ -9017,6 +9038,12 @@ packages:
       }
     engines: { node: ">=6" }
 
+  pako@1.0.11:
+    resolution:
+      {
+        integrity: sha512-4hLB8Py4zZce5s4yd9XzopqwVv/yGNhV1Bl8NTmCq1763HeK2+EwVTv+leGeL13Dnh2wfbqowVPXCIO0z4taYw==,
+      }
+
   parent-module@1.0.1:
     resolution:
       {
@@ -9867,6 +9894,12 @@ packages:
         integrity: sha512-RJRdvCo6IAnPdsvP/7m6bsQqNnn1FCBX5ZNtFL98MmFF/4xAIJTIg1YbHW5DC2W5SKZanrC6i4HsJqlajw/dZw==,
       }
     engines: { node: ">= 0.4" }
+
+  setimmediate@1.0.5:
+    resolution:
+      {
+        integrity: sha512-MATJdZp8sLqDl/68LfQmbP8zKPLQNV6BIZoIgrscFDQ+RsvK/BxeDQOgyxKKoh0y/8h3BqVFnCqQ/gd+reiIXA==,
+      }
 
   setprototypeof@1.2.0:
     resolution:
@@ -15322,6 +15355,8 @@ snapshots:
 
   ignore@7.0.9: {}
 
+  immediate@3.0.6: {}
+
   immer@11.1.18: {}
 
   import-fresh@3.3.1:
@@ -15651,6 +15686,13 @@ snapshots:
       object.assign: 4.1.7
       object.values: 1.2.1
 
+  jszip@3.10.2:
+    dependencies:
+      lie: 3.3.0
+      pako: 1.0.11
+      readable-stream: 2.3.8
+      setimmediate: 1.0.5
+
   keyv@4.5.4:
     dependencies:
       json-buffer: 3.0.1
@@ -15684,6 +15726,10 @@ snapshots:
       "@libsql/linux-x64-gnu": 0.5.29
       "@libsql/linux-x64-musl": 0.5.29
       "@libsql/win32-x64-msvc": 0.5.29
+
+  lie@3.3.0:
+    dependencies:
+      immediate: 3.0.6
 
   lightningcss-android-arm64@1.32.0:
     optional: true
@@ -16686,6 +16732,8 @@ snapshots:
 
   p-try@2.2.0: {}
 
+  pako@1.0.11: {}
+
   parent-module@1.0.1:
     dependencies:
       callsites: 3.1.0
@@ -17261,6 +17309,8 @@ snapshots:
       dunder-proto: 1.0.1
       es-errors: 1.3.0
       es-object-atoms: 1.1.2
+
+  setimmediate@1.0.5: {}
 
   setprototypeof@1.2.0: {}
 
