@@ -20,6 +20,7 @@ import type {
   ApplyApiResponse,
   ApiChangeSet,
   GeneratedApi,
+  ApiChange,
 } from "@/lib/types/ai.type";
 import { buildApiChangeSet } from "@/lib/ai/ai-validator.service";
 import {

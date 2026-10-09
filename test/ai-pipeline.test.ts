@@ -107,8 +107,9 @@ describe("AI API Architect — Multi-Stage Pipeline", () => {
       expect(stepIds).toContain("complete");
 
       // Verify generated endpoints exist and are valid
-      expect(result.generation.endpoints.length).toBeGreaterThan(0);
-      for (const ep of result.generation.endpoints) {
+      expect(result.generation).toBeDefined();
+      expect(result.generation!.endpoints.length).toBeGreaterThan(0);
+      for (const ep of result.generation!.endpoints) {
         expect(ep.routes.length).toBeGreaterThan(0);
         for (const route of ep.routes) {
           expect(route.path.startsWith("/")).toBe(true);

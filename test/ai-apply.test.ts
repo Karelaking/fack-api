@@ -11,9 +11,11 @@ describe("AI API Architect — Generation & Canvas Layout Coordination", () => {
     });
 
     expect(result.success).toBe(true);
-    expect(result.generation.endpoints.length).toBeGreaterThanOrEqual(1);
+    expect(result.generation).toBeDefined();
+    expect(result.changeSet).toBeDefined();
+    expect(result.generation!.endpoints.length).toBeGreaterThanOrEqual(1);
 
-    const allRoutes = result.generation.endpoints.flatMap((ep) => ep.routes);
+    const allRoutes = result.generation!.endpoints.flatMap((ep) => ep.routes);
     expect(allRoutes.length).toBeGreaterThan(0);
 
     // Check REST conventions
@@ -23,9 +25,9 @@ describe("AI API Architect — Generation & Canvas Layout Coordination", () => {
     expect(hasPostRoute).toBe(true);
 
     // Check ChangeSet summary
-    expect(result.changeSet.summary.routesCount).toBe(allRoutes.length);
-    expect(result.changeSet.summary.endpointsCount).toBe(
-      result.generation.endpoints.length,
+    expect(result.changeSet!.summary.routesCount).toBe(allRoutes.length);
+    expect(result.changeSet!.summary.endpointsCount).toBe(
+      result.generation!.endpoints.length,
     );
   });
 
