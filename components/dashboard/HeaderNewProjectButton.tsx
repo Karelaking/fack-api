@@ -7,6 +7,7 @@ import {
   RiSaveLine,
   RiLoader2Line,
   RiSparkling2Fill,
+  RiDownloadLine,
 } from "@remixicon/react";
 import { Button } from "@/components/ui/button";
 
@@ -50,6 +51,21 @@ export function HeaderNewProjectButton(): React.JSX.Element | null {
         >
           <RiSparkling2Fill className="h-3.5 w-3.5 text-indigo-500" />
           <span>AI Architect</span>
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          title="Export OpenAPI"
+          aria-label="Export OpenAPI"
+          onClick={() => {
+            if (segments[1]) {
+              window.open(`/api/projects/${segments[1]}/openapi`, "_blank");
+            }
+          }}
+        >
+          <RiDownloadLine className="h-3.5 w-3.5" />
+          <span>Export OpenAPI</span>
         </Button>
         <Button
           type="button"
