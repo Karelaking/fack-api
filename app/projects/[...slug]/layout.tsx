@@ -12,6 +12,7 @@ import { MobileBottomNav } from "@/components/dashboard/MobileBottomNav";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { CommandMenu } from "@/components/command-menu";
 import { AiArchitectDialog } from "@/components/ai/AiArchitectDialog";
+import { ImportOpenApiDialog } from "@/components/ai/ImportOpenApiDialog";
 
 interface ProjectLayoutProps {
   children: React.ReactNode;
@@ -102,6 +103,7 @@ export default async function ProjectLayout({
                 projectId={project.id}
                 projectSlug={project.slug}
               />
+              <ImportOpenApiDialog projectId={project.id} />
             </ProjectProvider>
           </div>
           <MobileBottomNav />

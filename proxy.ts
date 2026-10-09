@@ -96,8 +96,8 @@ const isProtectedRoute = createRouteMatcher([
 ]);
 
 // Force Turbopack/Webpack to statically analyze and inline these variables into the Edge bundle
-const _dummyPublishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
-const _dummySecretKey = process.env.CLERK_SECRET_KEY;
+// const _dummyPublishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+// const _dummySecretKey = process.env.CLERK_SECRET_KEY;
 
 /**
  * Next.js Proxy function — runs before every matched request.
@@ -124,6 +124,7 @@ export const proxy = clerkMiddleware(async (auth, request) => {
     "/api/typescript",
     "/api/mock",
     "/api/ai",
+    "/api/import",
     "/_next",
     "/opengraph-image",
   ];

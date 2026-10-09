@@ -8,6 +8,7 @@ import {
   RiLoader2Line,
   RiSparkling2Fill,
   RiDownloadLine,
+  RiUploadCloud2Line,
 } from "@remixicon/react";
 import { Button } from "@/components/ui/button";
 
@@ -51,6 +52,17 @@ export function HeaderNewProjectButton(): React.JSX.Element | null {
         >
           <RiSparkling2Fill className="h-3.5 w-3.5 text-indigo-500" />
           <span>AI Architect</span>
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          title="Import OpenAPI"
+          aria-label="Import OpenAPI"
+          onClick={() => triggerAction("open-import-openapi-dialog")}
+        >
+          <RiUploadCloud2Line className="h-3.5 w-3.5 text-blue-500" />
+          <span>Import OpenAPI</span>
         </Button>
         <Button
           type="button"
