@@ -8,10 +8,10 @@ import type { CachedRoute } from "@/lib/cache";
 
 export async function GET(
   request: NextRequest,
-  context: { params: Promise<{ id: string }> },
+  context: { params: Promise<{ slug: string }> },
 ) {
   try {
-    const { id: projectId } = await context.params;
+    const { slug: projectId } = await context.params;
 
     const project = await db.query.projects.findFirst({
       where: eq(projects.id, projectId),
