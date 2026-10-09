@@ -31,6 +31,14 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import type { Scenario } from "@/db/schema";
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -43,6 +51,7 @@ import {
 interface ProjectSettingsProps {
   project: Project;
   isLogsDbConfigured: boolean;
+  scenarios: Scenario[];
 }
 
 /**
@@ -52,6 +61,7 @@ interface ProjectSettingsProps {
 export function ProjectSettings({
   project,
   isLogsDbConfigured,
+  scenarios,
 }: ProjectSettingsProps): React.JSX.Element {
   const router = useRouter();
   const [deleteOpen, setDeleteOpen] = React.useState(false);
@@ -74,6 +84,7 @@ export function ProjectSettings({
       description: project.description ?? "",
       isLoggingEnabled: isLogsDbConfigured ? project.isLoggingEnabled : false,
       isCachingEnabled: project.isCachingEnabled !== false,
+      activeScenarioId: project.activeScenarioId,
     },
   });
 
@@ -83,6 +94,7 @@ export function ProjectSettings({
     description?: string;
     isLoggingEnabled?: boolean;
     isCachingEnabled?: boolean;
+    activeScenarioId?: string | null;
   }): Promise<void> => {
     const cleanedSlug = data.slug
       ? data.slug.trim().replace(/^\/+|\/+$/g, "")
@@ -97,6 +109,7 @@ export function ProjectSettings({
         description: data.description?.trim(),
         isLoggingEnabled: data.isLoggingEnabled,
         isCachingEnabled: data.isCachingEnabled,
+        activeScenarioId: data.activeScenarioId,
       });
       toast.success("Workspace settings updated!");
       uiTrace.traceSuccess("handleUpdate", updated.slug);
@@ -263,6 +276,49 @@ export function ProjectSettings({
                       onCheckedChange={field.onChange}
                       disabled={isSubmitting}
                     />
+                  )}
+                />
+              </div>
+
+              <div className="bg-muted/10 flex items-center justify-between border p-4">
+                <div className="space-y-0.5">
+                  <label
+                    htmlFor="activeScenarioId"
+                    className="block text-sm font-semibold"
+                  >
+                    Chaos Monkey Profile
+                  </label>
+                  <span className="text-muted-foreground block text-xs leading-normal">
+                    Apply project-wide latency or error modifiers to test
+                    frontend resilience.
+                  </span>
+                </div>
+                <Controller
+                  control={control}
+                  name="activeScenarioId"
+                  render={({ field }) => (
+                    <Select
+                      value={field.value || "none"}
+                      onValueChange={(val) =>
+                        field.onChange(val === "none" ? null : val)
+                      }
+                      disabled={isSubmitting}
+                    >
+                      <SelectTrigger
+                        className="w-[200px]"
+                        id="activeScenarioId"
+                      >
+                        <SelectValue placeholder="Select a scenario" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">None (Disabled)</SelectItem>
+                        {scenarios.map((s) => (
+                          <SelectItem key={s.id} value={s.id}>
+                            {s.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   )}
                 />
               </div>

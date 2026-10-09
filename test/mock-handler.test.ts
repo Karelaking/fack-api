@@ -36,6 +36,7 @@ describe("Mock Handler Core - Edge Cases and Scenarios", () => {
     description: "",
     isLoggingEnabled: false,
     isCachingEnabled: false,
+    activeScenarioId: null,
     createdAt: new Date(),
     updatedAt: new Date(),
   };

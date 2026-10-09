@@ -29,6 +29,7 @@ describe("Mock Data Caching", () => {
     description: "",
     isLoggingEnabled: true,
     isCachingEnabled: true,
+    activeScenarioId: null,
     createdAt: new Date(),
     updatedAt: new Date(),
   };

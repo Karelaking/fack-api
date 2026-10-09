@@ -111,10 +111,20 @@ async function SubpageContent({
 
     case "settings": {
       const isLogsDbConfigured = !!process.env.LOGS_POSTGRES_URL;
+      const { getScenarios, seedDefaultScenarios } =
+        await import("@/lib/actions/scenarios");
+      let scenariosList = await getScenarios(project.id);
+
+      if (scenariosList.length === 0) {
+        await seedDefaultScenarios(project.id);
+        scenariosList = await getScenarios(project.id);
+      }
+
       return (
         <ProjectSettings
           project={project}
           isLogsDbConfigured={isLogsDbConfigured}
+          scenarios={scenariosList}
         />
       );
     }

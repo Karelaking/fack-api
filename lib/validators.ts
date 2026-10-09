@@ -49,6 +49,7 @@ export const updateProjectSchema = z.object({
     .optional(),
   isLoggingEnabled: z.boolean().optional(),
   isCachingEnabled: z.boolean().optional(),
+  activeScenarioId: z.string().nullable().optional(),
 });
 
 // ─── Endpoint ────────────────────────────────────────────────────────────────

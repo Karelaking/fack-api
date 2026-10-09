@@ -1,7 +1,7 @@
 import type { NextRequest } from "next/server";
 import { db } from "@/db";
 import { sqlClient } from "@/db/postgres";
-import { endpoints, type Project } from "@/db/schema";
+import { endpoints, type Project, scenarios } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { after } from "next/server";
 import {
@@ -257,8 +257,25 @@ export async function processMockRequest({
       return response;
     }
 
+    // ── 3.5 Active Scenario Check ────────────────────────────────────────
+    let activeScenario = null;
+    if (project.activeScenarioId) {
+      activeScenario = await db.query.scenarios.findFirst({
+        where: eq(scenarios.id, project.activeScenarioId),
+      });
+    }
+
     // ── 4. Simulated Error Injection (Chaos Monkey) ──────────────────────
-    if (shouldError(route.errorRate ?? 0)) {
+    let finalErrorRate = route.errorRate ?? 0;
+    if (activeScenario && activeScenario.forcedErrorRate > 0) {
+      // if forced error rate is 0.5, the baseline error rate increases
+      finalErrorRate = Math.min(
+        1.0,
+        finalErrorRate + activeScenario.forcedErrorRate,
+      );
+    }
+
+    if (shouldError(finalErrorRate)) {
       const response = buildErrorResponse(
         route.statusCode >= 400 ? route.statusCode : 500,
         "Simulated server error (Chaos Monkey)",
@@ -278,7 +295,13 @@ export async function processMockRequest({
     }
 
     // ── 5. Simulated Network Latency ─────────────────────────────────────
-    await applyLatency(route.latencyMin ?? 0, route.latencyMax ?? 0);
+    const latencyMultiplier = activeScenario
+      ? activeScenario.latencyMultiplier
+      : 1.0;
+    await applyLatency(
+      (route.latencyMin ?? 0) * latencyMultiplier,
+      (route.latencyMax ?? 0) * latencyMultiplier,
+    );
 
     // ── 6. Schema Resolution & Payload Generation ─────────────────────────
     let schema: Record<string, unknown> = {};

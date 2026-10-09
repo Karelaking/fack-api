@@ -50,6 +50,13 @@
       "when": 1791557672408,
       "tag": "0006_mighty_hellcat",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1791558273858,
+      "tag": "0007_material_scarecrow",
+      "breakpoints": true
     }
   ]
 }

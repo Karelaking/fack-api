@@ -21,6 +21,7 @@ export const projects = sqliteTable("projects", {
     .notNull()
     .default(true),
   version: integer("version").notNull().default(1),
+  activeScenarioId: text("active_scenario_id"),
 });
 
 export const projectsRelations = relations(projects, ({ many, one }) => ({
@@ -222,6 +223,31 @@ export const mockStatesRelations = relations(mockStates, ({ one }) => ({
   }),
 }));
 
+// ─── Scenarios ───────────────────────────────────────────────────────────────
+export const scenarios = sqliteTable("scenarios", {
+  id: text("id").primaryKey(),
+  projectId: text("project_id")
+    .notNull()
+    .references(() => projects.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  description: text("description").default(""),
+  latencyMultiplier: real("latency_multiplier").notNull().default(1.0),
+  forcedErrorRate: real("forced_error_rate").notNull().default(0), // 0 to 1
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
+    .$defaultFn(() => new Date()),
+  updatedAt: integer("updated_at", { mode: "timestamp" })
+    .notNull()
+    .$defaultFn(() => new Date()),
+});
+
+export const scenariosRelations = relations(scenarios, ({ one }) => ({
+  project: one(projects, {
+    fields: [scenarios.projectId],
+    references: [projects.id],
+  }),
+}));
+
 // ─── Type Exports ────────────────────────────────────────────────────────────
 export type Project = typeof projects.$inferSelect;
 export type NewProject = typeof projects.$inferInsert;
@@ -239,6 +265,8 @@ export type ProjectRevision = typeof projectRevisions.$inferSelect;
 export type NewProjectRevision = typeof projectRevisions.$inferInsert;
 export type MockState = typeof mockStates.$inferSelect;
 export type NewMockState = typeof mockStates.$inferInsert;
+export type Scenario = typeof scenarios.$inferSelect;
+export type NewScenario = typeof scenarios.$inferInsert;
 
 export interface RequestLog {
   id: string;
