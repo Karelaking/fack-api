@@ -41,10 +41,6 @@ import {
   getRoutesByProjectId,
   type RouteWithEndpoint,
 } from "@/lib/services/route.service";
-import {
-  synthesizeFallbackApi,
-  synthesizeDetailedPrompt,
-} from "./ai-fallback-synthesizer.constant";
 
 export interface GenerateApiOptions {
   projectId?: string;
@@ -123,15 +119,16 @@ export async function expandUserPrompt(
 
       return result.object;
     } catch (llmError) {
-      console.warn(
-        "[Fack AI] LLM prompt expansion failed, falling back to deterministic synthesizer:",
-        llmError,
+      console.error("[Fack AI] LLM prompt expansion failed:", llmError);
+      throw new Error(
+        `LLM expansion failed: ${llmError instanceof Error ? llmError.message : String(llmError)}`,
       );
-      return synthesizeDetailedPrompt(cleanPrompt);
     }
   }
 
-  return synthesizeDetailedPrompt(cleanPrompt);
+  throw new Error(
+    "No AI API keys configured. Please set GEMINI_API_KEY or OPENAI_API_KEY in your environment variables to use AI Architect.",
+  );
 }
 
 /**
@@ -283,16 +280,15 @@ When modifying, preserve existing resource conventions where appropriate, avoid 
         });
         rawGeneratedApi = result.object;
       } catch (llmError) {
-        console.warn(
-          "[Fack AI] LLM call failed, falling back to deterministic synthesizer:",
-          llmError,
+        console.error("[Fack AI] LLM call failed:", llmError);
+        throw new Error(
+          `LLM generation failed: ${llmError instanceof Error ? llmError.message : String(llmError)}`,
         );
-        rawGeneratedApi = synthesizeFallbackApi(cleanPrompt);
-        modelUsed = `${modelConfig.name} (fallback: synthesizer)`;
       }
     } else {
-      // Offline / API key not configured -> use built-in domain synthesizer
-      rawGeneratedApi = synthesizeFallbackApi(cleanPrompt);
+      throw new Error(
+        "No AI API keys configured. Please set GEMINI_API_KEY or OPENAI_API_KEY.",
+      );
     }
 
     emitProgress(
