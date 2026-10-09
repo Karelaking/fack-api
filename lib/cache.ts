@@ -11,7 +11,7 @@
 
 import { LRUCache } from "lru-cache";
 import { createStorage } from "unstorage";
-import type { Project, Route } from "@/db/schema";
+import type { Project, Route, Webhook } from "@/db/schema";
 import { LoggerRegistry } from "@/lib/logger-registry";
 
 const cacheTrace = LoggerRegistry.getTrace("cache");
@@ -255,6 +255,7 @@ export function setCachedProjectBySlug(slug: string, project: Project): void {
 
 export type CachedRoute = Route & {
   endpoint?: { id: string; basePath: string; name: string };
+  webhooks?: Webhook[];
 };
 
 export function getCachedRoutes(projectId: string): CachedRoute[] | undefined {

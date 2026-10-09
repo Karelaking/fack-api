@@ -86,11 +86,12 @@ export const routes = sqliteTable("routes", {
     .$defaultFn(() => new Date()),
 });
 
-export const routesRelations = relations(routes, ({ one }) => ({
+export const routesRelations = relations(routes, ({ one, many }) => ({
   endpoint: one(endpoints, {
     fields: [routes.endpointId],
     references: [endpoints.id],
   }),
+  webhooks: many(webhooks),
 }));
 
 // ─── Canvas States ───────────────────────────────────────────────────────────
@@ -248,6 +249,32 @@ export const scenariosRelations = relations(scenarios, ({ one }) => ({
   }),
 }));
 
+// ─── Webhooks (Outbound Callbacks) ───────────────────────────────────────────
+export const webhooks = sqliteTable("webhooks", {
+  id: text("id").primaryKey(),
+  routeId: text("route_id")
+    .notNull()
+    .references(() => routes.id, { onDelete: "cascade" }),
+  url: text("url").notNull(),
+  method: text("method", {
+    enum: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+  })
+    .notNull()
+    .default("POST"),
+  payloadTemplate: text("payload_template").default("{}"),
+  delayMs: integer("delay_ms").notNull().default(0),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
+    .$defaultFn(() => new Date()),
+});
+
+export const webhooksRelations = relations(webhooks, ({ one }) => ({
+  route: one(routes, {
+    fields: [webhooks.routeId],
+    references: [routes.id],
+  }),
+}));
+
 // ─── Type Exports ────────────────────────────────────────────────────────────
 export type Project = typeof projects.$inferSelect;
 export type NewProject = typeof projects.$inferInsert;
@@ -267,6 +294,8 @@ export type MockState = typeof mockStates.$inferSelect;
 export type NewMockState = typeof mockStates.$inferInsert;
 export type Scenario = typeof scenarios.$inferSelect;
 export type NewScenario = typeof scenarios.$inferInsert;
+export type Webhook = typeof webhooks.$inferSelect;
+export type NewWebhook = typeof webhooks.$inferInsert;
 
 export interface RequestLog {
   id: string;

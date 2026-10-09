@@ -205,7 +205,9 @@ export async function processMockRequest({
       const projectEndpoints = await db.query.endpoints.findMany({
         where: eq(endpoints.projectId, project.id),
         with: {
-          routes: true,
+          routes: {
+            with: { webhooks: true },
+          },
         },
       });
       allRoutes = projectEndpoints.flatMap((e) =>
@@ -621,6 +623,44 @@ export async function processMockRequest({
       "processMockRequest (successful mock response)",
       response.status,
     );
+
+    // ── 9. Trigger Webhooks ──────────────────────────────────────────────
+    const webhooks = (route as CachedRoute).webhooks;
+    if (webhooks && webhooks.length > 0) {
+      after(() => {
+        for (const webhook of webhooks) {
+          setTimeout(async () => {
+            try {
+              const body =
+                webhook.payloadTemplate && webhook.payloadTemplate !== "{}"
+                  ? webhook.payloadTemplate
+                  : undefined;
+
+              // Extremely basic template interpolation (can be expanded later)
+              const parsedBody = body
+                ? body.replace(/{{projectId}}/g, project.id)
+                : undefined;
+
+              await fetch(webhook.url, {
+                method: webhook.method,
+                headers: parsedBody
+                  ? { "Content-Type": "application/json" }
+                  : {},
+                body: ["POST", "PUT", "PATCH"].includes(webhook.method)
+                  ? parsedBody
+                  : undefined,
+              });
+              mockLogger.info(
+                `Webhook triggered successfully: ${webhook.method} ${webhook.url}`,
+              );
+            } catch (err) {
+              mockLogger.error(`Failed to trigger webhook ${webhook.url}`, err);
+            }
+          }, webhook.delayMs || 0);
+        }
+      });
+    }
+
     return response;
   } catch (error) {
     mockCoreTrace.traceError("processMockRequest", error);
