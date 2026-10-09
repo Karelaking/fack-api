@@ -101,7 +101,7 @@ export async function POST(request: NextRequest): Promise<Response> {
       );
 
       // We map changeSet to standard format expected below
-      const changes = [
+      const changes: ApiChange[] = [
         ...changeSet.endpointsToCreate.map((ep) => ({
           type: "CREATE_ENDPOINT" as const,
           endpoint: {

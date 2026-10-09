@@ -18,11 +18,13 @@ import type {
   GeneratedApi,
   GeneratedEndpoint,
   GeneratedRoute,
+  ApiChangeSet,
 } from "@/lib/types/ai.type";
 import { convertPropertiesToJsonSchema } from "@/lib/services/schema.service";
 
 interface ApiChangeSetPreviewProps {
   api: GeneratedApi;
+  changeSet?: ApiChangeSet;
   detailedPrompt?: string;
   detailedSummary?: string;
 }
@@ -38,6 +40,7 @@ const METHOD_COLOR_CLASSES: Record<string, string> = {
 
 export const ApiChangeSetPreview = ({
   api,
+  changeSet,
   detailedPrompt,
   detailedSummary,
 }: ApiChangeSetPreviewProps): React.JSX.Element => {
@@ -66,9 +69,33 @@ export const ApiChangeSetPreview = ({
           )}
         </div>
         <div className="flex items-center gap-2">
-          <Badge variant="secondary">{api.endpoints.length} Endpoints</Badge>
-          <Badge variant="secondary">{totalRoutes} Routes</Badge>
-          <Badge variant="secondary">{totalProperties} Fields</Badge>
+          {changeSet ? (
+            <>
+              {changeSet.routesToCreate.length > 0 && (
+                <span className="focus:ring-ring inline-flex items-center rounded-md border border-transparent bg-emerald-500/15 px-2.5 py-0.5 text-xs font-semibold text-emerald-600 transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none">
+                  +{changeSet.routesToCreate.length} Routes
+                </span>
+              )}
+              {changeSet.routesToUpdate.length > 0 && (
+                <span className="focus:ring-ring inline-flex items-center rounded-md border border-transparent bg-amber-500/15 px-2.5 py-0.5 text-xs font-semibold text-amber-600 transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none">
+                  ~{changeSet.routesToUpdate.length} Modified
+                </span>
+              )}
+              {changeSet.routesToDelete.length > 0 && (
+                <span className="focus:ring-ring inline-flex items-center rounded-md border border-transparent bg-rose-500/15 px-2.5 py-0.5 text-xs font-semibold text-rose-600 transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none">
+                  -{changeSet.routesToDelete.length} Deleted
+                </span>
+              )}
+            </>
+          ) : (
+            <>
+              <Badge variant="secondary">
+                {api.endpoints.length} Endpoints
+              </Badge>
+              <Badge variant="secondary">{totalRoutes} Routes</Badge>
+              <Badge variant="secondary">{totalProperties} Fields</Badge>
+            </>
+          )}
         </div>
       </div>
 

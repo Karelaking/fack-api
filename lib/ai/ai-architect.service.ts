@@ -54,14 +54,17 @@ export interface GenerateApiOptions {
 
 export interface GenerateApiExecutionResult {
   success: boolean;
-  generation: GeneratedApi;
-  changeSet: ApiChangeSet;
-  conflicts: RouteConflict[];
-  durationMs: number;
-  modelUsed: string;
+  generation?: GeneratedApi;
+  changeSet?: ApiChangeSet;
+  conflicts?: RouteConflict[];
+  durationMs?: number;
+  modelUsed?: string;
   detailedPrompt?: string;
   detailedSummary?: string;
   error?: string;
+  proposalId?: string;
+  expectedVersion?: number;
+  clarificationRequest?: string;
 }
 
 /**
@@ -235,6 +238,24 @@ When modifying, preserve existing resource conventions where appropriate, avoid 
       "completed",
       detailedSpec.summary,
     );
+
+    if (detailedSpec.isAmbiguous && detailedSpec.clarificationRequest) {
+      emitProgress("complete", "Clarification needed", "completed");
+
+      if (taskId) {
+        await db
+          .update(generationTasks)
+          .set({ status: "completed" })
+          .where(eq(generationTasks.id, taskId));
+      }
+
+      return {
+        success: true,
+        clarificationRequest: detailedSpec.clarificationRequest,
+        detailedPrompt: detailedSpec.detailedPrompt,
+        detailedSummary: detailedSpec.summary,
+      };
+    }
 
     // ── Phase 4: Design API Endpoints & Routes ─────────────────────────────
     emitProgress(

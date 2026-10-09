@@ -138,6 +138,8 @@ export interface DetailedPromptResult {
   detailedPrompt: string;
   summary: string;
   entities: string[];
+  isAmbiguous?: boolean;
+  clarificationRequest?: string;
 }
 
 export type GenerationProgressStatus =
@@ -177,6 +179,7 @@ export interface GenerateApiResponse {
   error?: string;
   proposalId?: string;
   expectedVersion?: number;
+  clarificationRequest?: string;
 }
 
 export interface ApplyApiRequest {

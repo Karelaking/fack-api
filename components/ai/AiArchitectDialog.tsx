@@ -111,6 +111,9 @@ export const AiArchitectDialog = ({
   const [detailedSummary, setDetailedSummary] = React.useState<
     string | undefined
   >();
+  const [clarificationRequest, setClarificationRequest] = React.useState<
+    string | undefined
+  >();
   const [proposalId, setProposalId] = React.useState<string | undefined>();
   const [expectedVersion, setExpectedVersion] = React.useState<
     number | undefined
@@ -132,6 +135,7 @@ export const AiArchitectDialog = ({
     setConflicts([]);
     setDetailedPrompt(undefined);
     setDetailedSummary(undefined);
+    setClarificationRequest(undefined);
     setProposalId(undefined);
     setExpectedVersion(undefined);
     setResolutions({});
@@ -225,14 +229,19 @@ export const AiArchitectDialog = ({
               }),
             );
           } else if (event === "complete") {
-            setGeneratedApi(data.generation);
-            setChangeSet(data.changeSet);
-            setConflicts(data.conflicts || []);
-            setDetailedPrompt(data.detailedPrompt);
-            setDetailedSummary(data.detailedSummary);
-            setProposalId(data.proposalId);
-            setExpectedVersion(data.expectedVersion);
-            toast.success("API architecture generated successfully!");
+            if (data.clarificationRequest) {
+              setClarificationRequest(data.clarificationRequest);
+              toast.info("Clarification needed");
+            } else {
+              setGeneratedApi(data.generation);
+              setChangeSet(data.changeSet);
+              setConflicts(data.conflicts || []);
+              setDetailedPrompt(data.detailedPrompt);
+              setDetailedSummary(data.detailedSummary);
+              setProposalId(data.proposalId);
+              setExpectedVersion(data.expectedVersion);
+              toast.success("API architecture generated successfully!");
+            }
           } else if (event === "error") {
             throw new Error(data.message || "Generation error");
           }
@@ -348,6 +357,16 @@ export const AiArchitectDialog = ({
                 isGenerating={isGenerating}
               />
 
+              {clarificationRequest && (
+                <div className="rounded-xl border border-amber-500/20 bg-amber-500/10 p-4 text-sm text-amber-700 dark:text-amber-400">
+                  <div className="mb-2 flex items-center gap-2 font-semibold">
+                    <RiSparkling2Fill className="size-4" />
+                    <span>Clarification Needed</span>
+                  </div>
+                  <p>{clarificationRequest}</p>
+                </div>
+              )}
+
               {isGenerating && <GenerationProgress steps={progressSteps} />}
             </div>
           ) : (
@@ -364,6 +383,7 @@ export const AiArchitectDialog = ({
               {/* Generated Specification Preview */}
               <ApiChangeSetPreview
                 api={generatedApi}
+                changeSet={changeSet}
                 detailedPrompt={detailedPrompt}
                 detailedSummary={detailedSummary}
               />

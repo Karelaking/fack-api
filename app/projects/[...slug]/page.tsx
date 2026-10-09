@@ -13,6 +13,7 @@ import { ProjectEndpoints } from "@/components/dashboard/ProjectEndpoints";
 import { ProjectLogs } from "@/components/dashboard/ProjectLogs";
 import { ProjectSettings } from "@/components/dashboard/ProjectSettings";
 import { SubpageLoading } from "./_components/SubpageLoading";
+import type { Project } from "@/db/schema";
 
 export const dynamic = "force-dynamic";
 
@@ -64,16 +65,7 @@ async function SubpageContent({
   project,
 }: {
   subpage: ProjectSubpage;
-  project: {
-    id: string;
-    slug: string;
-    name: string;
-    isLoggingEnabled: boolean;
-    isCachingEnabled: boolean;
-    description: string | null;
-    createdAt: Date;
-    updatedAt: Date;
-  };
+  project: Project;
 }) {
   switch (subpage) {
     case "canvas": {

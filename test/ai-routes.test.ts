@@ -5,34 +5,37 @@ import { NextRequest } from "next/server";
 
 describe("AI API Architect — Route Handlers & Proxy Dispatching", () => {
   describe("proxy.ts system path matching", () => {
-    it("should treat /api/ai/generate as a system path and pass through without rewrite", () => {
+    it("should treat /api/ai/generate as a system path and pass through without rewrite", async () => {
       const req = new NextRequest("http://localhost:3000/api/ai/generate", {
         method: "POST",
       });
-      const res = proxy(req);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const res = (await proxy(req, {} as any)) as any;
 
       // If rewritten, headers or internal url would change to /api/mock/...
       // For a pass-through, proxy returns NextResponse.next()
       expect(res.headers.get("x-middleware-rewrite")).toBeNull();
     });
 
-    it("should treat /api/ai/apply as a system path and pass through without rewrite", () => {
+    it("should treat /api/ai/apply as a system path and pass through without rewrite", async () => {
       const req = new NextRequest("http://localhost:3000/api/ai/apply", {
         method: "POST",
       });
-      const res = proxy(req);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const res = (await proxy(req, {} as any)) as any;
 
       expect(res.headers.get("x-middleware-rewrite")).toBeNull();
     });
 
-    it("should rewrite non-system mock routes to /api/mock/...", () => {
+    it("should rewrite non-system mock routes to /api/mock/...", async () => {
       const req = new NextRequest(
         "http://localhost:3000/ecommerce-project/products",
         {
           method: "GET",
         },
       );
-      const res = proxy(req);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const res = (await proxy(req, {} as any)) as any;
 
       expect(res.headers.get("x-middleware-rewrite")).toContain(
         "/api/mock/ecommerce-project/products",

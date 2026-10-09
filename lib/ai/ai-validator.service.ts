@@ -89,6 +89,18 @@ export const detailedPromptSchema = z.object({
     .describe(
       "The exhaustive technical markdown specification detailing all endpoints, models, and routes",
     ),
+  isAmbiguous: z
+    .boolean()
+    .optional()
+    .describe(
+      "True if the prompt is too vague or lacks sufficient domain context to generate a meaningful API without hallucinating",
+    ),
+  clarificationRequest: z
+    .string()
+    .optional()
+    .describe(
+      "If ambiguous, ask a clarifying question to the user to get more details",
+    ),
 });
 
 // ─── Semantic Validation ──────────────────────────────────────────────────────
