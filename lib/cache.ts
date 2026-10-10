@@ -13,6 +13,7 @@ import { LRUCache } from "lru-cache";
 import { createStorage } from "unstorage";
 import type { Project, Route, Webhook } from "@/db/schema";
 import { LoggerRegistry } from "@/lib/logger-registry";
+import { clearMatcherCache } from "@/lib/route-matcher";
 
 const cacheTrace = LoggerRegistry.getTrace("cache");
 
@@ -189,6 +190,7 @@ export class CacheManager {
    */
   public invalidateProject(projectId: string, projectSlug?: string): void {
     this.projectRoutesCache.delete(projectId);
+    clearMatcherCache();
     this.projectListCache.delete("all_projects");
     if (projectSlug) {
       this.projectBySlugCache.delete(projectSlug);
@@ -202,6 +204,7 @@ export class CacheManager {
     this.routeMockDataCache.delete(routeId);
     this.routeSingleMockDataCache.delete(routeId);
     this.routePageCache.delete(routeId);
+    clearMatcherCache();
   }
 
   /**
@@ -214,6 +217,7 @@ export class CacheManager {
     this.routeMockDataCache.clear();
     this.routeSingleMockDataCache.clear();
     this.routePageCache.clear();
+    clearMatcherCache();
   }
 }
 

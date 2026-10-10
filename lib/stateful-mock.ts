@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { db } from "@/db";
 import { mockStates } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
@@ -6,7 +5,7 @@ import { nanoid } from "nanoid";
 
 export interface MockStateItem {
   id: string; // The primary key (from the payload, or generated)
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /**
@@ -15,10 +14,11 @@ export interface MockStateItem {
 export async function saveMockItem(
   projectId: string,
   collection: string,
-  payload: Record<string, any>,
+  payload: Record<string, unknown>,
   itemKey?: string,
 ): Promise<MockStateItem> {
-  const finalKey = itemKey ?? payload.id ?? nanoid();
+  const payloadId = typeof payload.id === "string" ? payload.id : undefined;
+  const finalKey = itemKey ?? payloadId ?? nanoid();
   const finalPayload = { ...payload, id: finalKey };
 
   // Delete existing if any (upsert behavior)

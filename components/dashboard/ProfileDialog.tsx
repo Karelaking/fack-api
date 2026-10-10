@@ -109,7 +109,8 @@ export function ProfileDialog({ children }: { children: React.ReactNode }) {
         } catch (nameError) {
           const err = nameError as Record<string, unknown>;
           const errors = err.errors as
-            Array<{ longMessage?: string; message?: string }> | undefined;
+            | Array<{ longMessage?: string; message?: string }>
+            | undefined;
           const errorMessage =
             errors?.[0]?.longMessage ||
             errors?.[0]?.message ||
@@ -162,7 +163,6 @@ export function ProfileDialog({ children }: { children: React.ReactNode }) {
               </h4>
               <div className="flex items-center gap-6">
                 {user?.imageUrl ? (
-                  /* eslint-disable-next-line @next/next/no-img-element */
                   <img
                     src={user.imageUrl}
                     alt="Profile"
@@ -179,7 +179,7 @@ export function ProfileDialog({ children }: { children: React.ReactNode }) {
                     Upload via Clerk is currently limited in custom UI.
                   </p>
                   <div className="flex gap-2 pt-1">
-                    <Button variant="outline" size="sm" disabled>
+                    <Button type="button" variant="outline" size="sm" disabled>
                       Upload new
                     </Button>
                   </div>
@@ -194,7 +194,7 @@ export function ProfileDialog({ children }: { children: React.ReactNode }) {
                     <FormItem>
                       <FormLabel>First Name</FormLabel>
                       <FormControl>
-                        <Input {...field} />
+                        <Input autoComplete="given-name" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -208,7 +208,7 @@ export function ProfileDialog({ children }: { children: React.ReactNode }) {
                     <FormItem>
                       <FormLabel>Last Name</FormLabel>
                       <FormControl>
-                        <Input {...field} />
+                        <Input autoComplete="family-name" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -220,6 +220,7 @@ export function ProfileDialog({ children }: { children: React.ReactNode }) {
                   <FormControl>
                     <Input
                       type="email"
+                      autoComplete="email"
                       value={user?.primaryEmailAddress?.emailAddress || ""}
                       disabled
                     />

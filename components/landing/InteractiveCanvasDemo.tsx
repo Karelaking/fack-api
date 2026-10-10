@@ -133,6 +133,7 @@ export const InteractiveCanvasDemo = (): React.JSX.Element => {
           error: "Internal Server Error",
           status: 500,
           message: "Chaos injection active: simulated backend failure.",
+          // eslint-disable-next-line react/purity
           timestamp: new Date().toISOString(),
         },
         undefined,

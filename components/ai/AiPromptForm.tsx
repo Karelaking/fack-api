@@ -47,7 +47,11 @@ export const AiPromptForm = ({
   isGenerating,
 }: AiPromptFormProps): React.JSX.Element => {
   return (
-    <form onSubmit={onSubmit} className="flex flex-col gap-4">
+    <form
+      onSubmit={onSubmit}
+      aria-busy={isGenerating}
+      className="flex flex-col gap-4"
+    >
       <div className="flex flex-col gap-2">
         <label
           htmlFor="ai-prompt-textarea"
@@ -61,6 +65,8 @@ export const AiPromptForm = ({
           value={prompt}
           onChange={(e) => onPromptChange(e.target.value)}
           rows={4}
+          required
+          minLength={1}
           className="resize-none"
           disabled={isGenerating}
         />

@@ -49,9 +49,7 @@
       "indexes": {
         "canvas_states_project_id_unique": {
           "name": "canvas_states_project_id_unique",
-          "columns": [
-            "project_id"
-          ],
+          "columns": ["project_id"],
           "isUnique": true
         }
       },
@@ -60,12 +58,8 @@
           "name": "canvas_states_project_id_projects_id_fk",
           "tableFrom": "canvas_states",
           "tableTo": "projects",
-          "columnsFrom": [
-            "project_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["project_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -135,12 +129,8 @@
           "name": "endpoints_project_id_projects_id_fk",
           "tableFrom": "endpoints",
           "tableTo": "projects",
-          "columnsFrom": [
-            "project_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["project_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -199,9 +189,7 @@
       "indexes": {
         "projects_slug_unique": {
           "name": "projects_slug_unique",
-          "columns": [
-            "slug"
-          ],
+          "columns": ["slug"],
           "isUnique": true
         }
       },
@@ -318,12 +306,8 @@
           "name": "routes_endpoint_id_endpoints_id_fk",
           "tableFrom": "routes",
           "tableTo": "endpoints",
-          "columnsFrom": [
-            "endpoint_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["endpoint_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }

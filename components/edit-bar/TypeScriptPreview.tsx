@@ -54,7 +54,7 @@ export function TypeScriptPreview({
 
   React.useEffect(() => {
     if (open) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+      // eslint-disable-next-line react/set-state-in-effect
       fetchCode();
     }
   }, [open, fetchCode]);

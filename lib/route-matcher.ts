@@ -15,6 +15,7 @@
  */
 
 import { createRouter } from "radix3";
+import { LRUCache } from "lru-cache";
 import type { Route } from "@/db/schema";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -37,6 +38,64 @@ interface MatchTarget {
   wildcardKeys: string[];
 }
 
+interface CompiledMatcher {
+  router: ReturnType<typeof createRouter<MatchTarget>>;
+  routeMap: Map<string, RouteDefinition>;
+}
+
+const matcherCache = new LRUCache<string, CompiledMatcher>({
+  max: 500,
+});
+
+function getMatcherCacheKey(routes: RouteDefinition[], method: string): string {
+  return `${method}:${routes
+    .map(
+      (route) =>
+        `${route.id}:${route.path}:${route.method}:${route.updatedAt?.getTime() ?? ""}`,
+    )
+    .join("|")}`;
+}
+
+function compileMatcher(
+  routes: RouteDefinition[],
+  method: string,
+): CompiledMatcher | null {
+  const methodRoutes = routes.filter(
+    (route) => route.method.toUpperCase() === method,
+  );
+  if (methodRoutes.length === 0) return null;
+
+  const cacheKey = getMatcherCacheKey(methodRoutes, method);
+  const cached = matcherCache.get(cacheKey);
+  if (cached) return cached;
+
+  const router = createRouter<MatchTarget>({ strictTrailingSlash: false });
+  const routeMap = new Map<string, RouteDefinition>();
+
+  for (const route of methodRoutes) {
+    routeMap.set(route.id, route);
+    let radixPath = route.path;
+    const wildcardKeys: string[] = [];
+
+    if (radixPath.includes("/*")) {
+      radixPath = radixPath.replace(/\/\*([a-zA-Z0-9_]+)/g, (_, name) => {
+        wildcardKeys.push(name);
+        return `/**:${name}`;
+      });
+    }
+
+    try {
+      router.insert(radixPath, { routeId: route.id, wildcardKeys });
+    } catch (error) {
+      console.warn(`[fack-api] Invalid route pattern "${route.path}":`, error);
+    }
+  }
+
+  const compiled = { router, routeMap };
+  matcherCache.set(cacheKey, compiled);
+  return compiled;
+}
+
 // ─── Public API ──────────────────────────────────────────────────────────────
 
 /**
@@ -53,38 +112,13 @@ export function findMatchingRoute(
   path: string,
 ): RouteMatchResult | null {
   const upperMethod = method.toUpperCase();
-  const methodRoutes = routes.filter(
-    (r) => r.method.toUpperCase() === upperMethod,
-  );
-  if (methodRoutes.length === 0) return null;
+  const compiled = compileMatcher(routes, upperMethod);
+  if (!compiled) return null;
 
-  const router = createRouter<MatchTarget>({ strictTrailingSlash: false });
-  const routeMap = new Map<string, RouteDefinition>();
-
-  for (const route of methodRoutes) {
-    routeMap.set(route.id, route);
-    let radixPath = route.path;
-    const wildcardKeys: string[] = [];
-
-    // Convert Express-style wildcards (e.g., "/files/*path") to Radix3 named wildcard ("/**:path")
-    if (radixPath.includes("/*")) {
-      radixPath = radixPath.replace(/\/\*([a-zA-Z0-9_]+)/g, (_, name) => {
-        wildcardKeys.push(name);
-        return `/**:${name}`;
-      });
-    }
-
-    try {
-      router.insert(radixPath, { routeId: route.id, wildcardKeys });
-    } catch (error) {
-      console.warn(`[fack-api] Invalid route pattern "${route.path}":`, error);
-    }
-  }
-
-  const matched = router.lookup(path);
+  const matched = compiled.router.lookup(path);
   if (!matched) return null;
 
-  const matchedRoute = routeMap.get(matched.routeId);
+  const matchedRoute = compiled.routeMap.get(matched.routeId);
   if (!matchedRoute) return null;
 
   const params: Record<string, string | string[]> = {};
@@ -113,5 +147,5 @@ export function findMatchingRoute(
  * Useful when routes are modified and cached matchers may be stale.
  */
 export function clearMatcherCache(): void {
-  // Maintained for backward compatibility with test runners and hooks
+  matcherCache.clear();
 }

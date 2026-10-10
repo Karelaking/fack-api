@@ -9,7 +9,7 @@ The Fack API Mock Engine eliminates this friction with **zero-configuration edge
 
 ## Preflight Interception (HTTP 204)
 
-Whenever a client browser sends an `OPTIONS` preflight request to verify cross-origin permissions, the edge proxy (`proxy.ts`) short-circuits the request immediately. 
+Whenever a client browser sends an `OPTIONS` preflight request to verify cross-origin permissions, the edge proxy (`proxy.ts`) short-circuits the request immediately.
 
 The mock engine does not invoke the database or execute route-matching logic during preflight calls. Instead, it returns an instant `HTTP 204 No Content` response containing permissive access-control headers.
 
@@ -47,22 +47,26 @@ Every mock response emitted by Fack API includes standard headers designed to ma
       default: "GET, POST, PUT, DELETE, PATCH, OPTIONS",
     },
     "Access-Control-Allow-Headers": {
-      description: "Accepted request headers, including authentication tokens and JSON payloads.",
+      description:
+        "Accepted request headers, including authentication tokens and JSON payloads.",
       type: "string",
       default: "Content-Type, Authorization, X-Requested-With",
     },
     "Access-Control-Max-Age": {
-      description: "Instructs the browser to cache preflight OPTIONS checks for 24 hours (86,400s).",
+      description:
+        "Instructs the browser to cache preflight OPTIONS checks for 24 hours (86,400s).",
       type: "string",
       default: "86400",
     },
     "X-Accel-Buffering": {
-      description: "Disables proxy buffering in Nginx and reverse proxies for real-time streaming.",
+      description:
+        "Disables proxy buffering in Nginx and reverse proxies for real-time streaming.",
       type: "string",
       default: "no",
     },
     "Cache-Control": {
-      description: "Prevents intermediate proxies and browsers from caching dynamic mock responses.",
+      description:
+        "Prevents intermediate proxies and browsers from caching dynamic mock responses.",
       type: "string",
       default: "no-store, no-cache, must-revalidate, proxy-revalidate",
     },
@@ -75,7 +79,10 @@ Every mock response emitted by Fack API includes standard headers designed to ma
 />
 
 <Callout type="info">
-  Permissive cross-origin headers (`*`) are intentional. Fack API is designed for development, testing, and staging workflows where multiple frontend dev servers, mobile simulators, and CI test suites need seamless access without maintaining origin allowlists.
+  Permissive cross-origin headers (`*`) are intentional. Fack API is designed
+  for development, testing, and staging workflows where multiple frontend dev
+  servers, mobile simulators, and CI test suites need seamless access without
+  maintaining origin allowlists.
 </Callout>
 
 ---

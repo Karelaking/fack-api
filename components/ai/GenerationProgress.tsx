@@ -17,7 +17,11 @@ export const GenerationProgress = ({
   steps,
 }: GenerationProgressProps): React.JSX.Element => {
   return (
-    <div className="border-border/60 bg-muted/30 flex flex-col gap-2.5 rounded-xl border p-4">
+    <div
+      role="status"
+      aria-live="polite"
+      className="border-border/60 bg-muted/30 flex flex-col gap-2.5 rounded-xl border p-4"
+    >
       <h4 className="text-foreground text-xs font-semibold tracking-wider uppercase">
         Agent Workflow Progress
       </h4>

@@ -60,10 +60,9 @@ export function FieldSettingsModal({
     React.useState<SchemaField["arrayItemType"]>("string");
   const [arrayItemFakerProvider, setArrayItemFakerProvider] =
     React.useState("");
-
-  /* eslint-disable react-hooks/set-state-in-effect */
   React.useEffect(() => {
     if (open) {
+      // eslint-disable-next-line react/set-state-in-effect
       setName(initialData?.name || "");
       setType(initialData?.type || "string");
       setNullable(initialData?.nullable || false);
@@ -72,7 +71,6 @@ export function FieldSettingsModal({
       setArrayItemFakerProvider(initialData?.arrayItemFakerProvider || "");
     }
   }, [open, initialData]);
-  /* eslint-enable react-hooks/set-state-in-effect */
 
   const handleSave = () => {
     onSave({
@@ -129,14 +127,20 @@ export function FieldSettingsModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-106.25">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-center gap-4">
-            <label className="text-right text-sm font-semibold">Name</label>
+            <label
+              htmlFor="field-name"
+              className="text-right text-sm font-semibold"
+            >
+              Name
+            </label>
             <Input
+              id="field-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="col-span-3"
@@ -144,7 +148,12 @@ export function FieldSettingsModal({
             />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
-            <label className="text-right text-sm font-semibold">Type</label>
+            <label
+              htmlFor="field-type"
+              className="text-right text-sm font-semibold"
+            >
+              Type
+            </label>
             <div className="col-span-3">
               <Select
                 value={type}
@@ -152,7 +161,7 @@ export function FieldSettingsModal({
                   if (val) setType(val as SchemaField["type"]);
                 }}
               >
-                <SelectTrigger>
+                <SelectTrigger id="field-type">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -167,9 +176,19 @@ export function FieldSettingsModal({
           </div>
 
           <div className="grid grid-cols-4 items-center gap-4">
-            <label className="text-right text-sm font-semibold">Nullable</label>
+            <label
+              htmlFor="field-nullable"
+              className="text-right text-sm font-semibold"
+            >
+              Nullable
+            </label>
             <div className="col-span-3 flex items-center gap-2">
-              <Switch checked={nullable} onCheckedChange={setNullable} />
+              <Switch
+                id="field-nullable"
+                aria-label="Allow null values"
+                checked={nullable}
+                onCheckedChange={setNullable}
+              />
               <span className="text-muted-foreground text-sm">
                 Allow null values
               </span>
@@ -188,6 +207,8 @@ export function FieldSettingsModal({
                 />
                 {isCustomImage && (
                   <Input
+                    id="custom-category-name"
+                    aria-label="Custom image category"
                     value={customCategoryName}
                     onChange={(e) => handleCustomCategoryChange(e.target.value)}
                     placeholder="e.g. puppy, nature, architecture"
@@ -212,7 +233,10 @@ export function FieldSettingsModal({
                         setArrayItemType(val as SchemaField["arrayItemType"]);
                     }}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger
+                      id="field-array-item-type"
+                      aria-label="Array item type"
+                    >
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -238,6 +262,8 @@ export function FieldSettingsModal({
                     />
                     {isCustomArrayItemImage && (
                       <Input
+                        id="custom-array-item-category-name"
+                        aria-label="Custom array item image category"
                         value={customArrayItemCategoryName}
                         onChange={(e) =>
                           handleCustomArrayItemCategoryChange(e.target.value)

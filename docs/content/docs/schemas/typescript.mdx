@@ -22,15 +22,16 @@ Every route configured in the Schema Builder can be exported as a strongly-typed
     Click on any route node in the visual canvas or select it from the sidebar route list to open the Edit Bar drawer.
   </Step>
 
-  <Step>
-    ### Click TypeScript Preview
-    In the top toolbar of the Edit Bar, click the **TypeScript Preview** button (code icon).
-  </Step>
+<Step>
+  ### Click TypeScript Preview In the top toolbar of the Edit Bar, click the
+  **TypeScript Preview** button (code icon).
+</Step>
 
-  <Step>
-    ### Review the Generated Interface
-    Inspect the compiled TypeScript definition in the dialog viewer. Verify field types, optional flags, and nested interfaces.
-  </Step>
+<Step>
+  ### Review the Generated Interface Inspect the compiled TypeScript definition
+  in the dialog viewer. Verify field types, optional flags, and nested
+  interfaces.
+</Step>
 
   <Step>
     ### Copy or Download
@@ -46,12 +47,12 @@ Interface names are automatically generated in **PascalCase** from the route's H
 - Segment names are capitalized and concatenated.
 - All interface names are suffixed with `Response`.
 
-| HTTP Method | Route Path | Generated Interface Name |
-| :--- | :--- | :--- |
-| `GET` | `/v1/customers/:id` | `GetV1CustomersResponse` |
-| `POST` | `/api/auth/login` | `PostApiAuthLoginResponse` |
-| `PUT` | `/projects/:id/members` | `PutProjectsMembersResponse` |
-| `GET` | `/` | `GetRootResponse` |
+| HTTP Method | Route Path              | Generated Interface Name     |
+| :---------- | :---------------------- | :--------------------------- |
+| `GET`       | `/v1/customers/:id`     | `GetV1CustomersResponse`     |
+| `POST`      | `/api/auth/login`       | `PostApiAuthLoginResponse`   |
+| `PUT`       | `/projects/:id/members` | `PutProjectsMembersResponse` |
+| `GET`       | `/`                     | `GetRootResponse`            |
 
 ## Schema to TypeScript Example
 
@@ -128,5 +129,8 @@ flowchart LR
    The output is compiled using `json-schema-to-typescript` with formatted indentation and prepended with an auto-generation banner header.
 
 <Callout type="info">
-You can integrate type generation into your frontend build scripts or OpenAPI toolchains using the endpoint `GET /api/typescript/:routeId`. The endpoint returns the source code with standard `Content-Disposition: attachment` headers.
+  You can integrate type generation into your frontend build scripts or OpenAPI
+  toolchains using the endpoint `GET /api/typescript/:routeId`. The endpoint
+  returns the source code with standard `Content-Disposition: attachment`
+  headers.
 </Callout>

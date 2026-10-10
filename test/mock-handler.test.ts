@@ -1,5 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { describe, it, expect, vi, beforeEach } from "vitest";
+/* oxlint-disable @typescript-eslint/no-explicit-any */
+import { describe, it, expect, vi, beforeEach } from "vite-plus/test";
 import { processMockRequest } from "../lib/mock-handler-core";
 import { setCachedRoutes, clearCache } from "../lib/cache";
 import type { Route, Project } from "@/db/schema";

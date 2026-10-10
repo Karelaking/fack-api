@@ -10,7 +10,7 @@ Whether you are designing a complex e-commerce backend, a multi-tenant SaaS plat
 ```mermaid
 flowchart TD
     Prompt["Natural Language Prompt\n'E-commerce API with carts and orders'"] --> Engine{"AI API Architect\nEngine"}
-    
+
     subgraph Providers ["Model Inference & Fallback"]
         Engine -->|Key Configured| LLM["OpenAI GPT / Google Gemini\nStructured JSON Spec"]
         Engine -->|No Key Configured| Fallback["Fallback Synthesizer\nBuilt-in Domain Templates"]
@@ -48,8 +48,12 @@ Once opened, provide a high-level description of your API requirements, review t
 The AI API Architect supports leading generative AI models from OpenAI and Google Gemini. You can supply your API credentials via environment variables or workspace settings.
 
 <Callout type="info">
-**API Key Configuration**
-To use dynamic generative models, set `OPENAI_API_KEY` (for OpenAI GPT models) or `GOOGLE_GENERATIVE_AI_KEY` (for Google Gemini) in your local `.env` configuration. If no AI key is configured, Fack API automatically activates the **Fallback Synthesizer**, which safely generates rich, realistic mock APIs using built-in domain templates without requiring external network calls or billing accounts.
+  **API Key Configuration** To use dynamic generative models, set
+  `OPENAI_API_KEY` (for OpenAI GPT models) or `GOOGLE_GENERATIVE_AI_KEY` (for
+  Google Gemini) in your local `.env` configuration. If no AI key is configured,
+  Fack API automatically activates the **Fallback Synthesizer**, which safely
+  generates rich, realistic mock APIs using built-in domain templates without
+  requiring external network calls or billing accounts.
 </Callout>
 
 ### Environment Variables

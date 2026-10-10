@@ -1,10 +1,7 @@
 import type { NextRequest } from "next/server";
-import { db } from "@/db";
-import { projects } from "@/db/schema";
-import { inArray } from "drizzle-orm";
 import { buildResponse } from "@/lib/mock-engine";
 import { processMockRequest } from "@/lib/mock-handler-core";
-import { getCachedProjectBySlug, setCachedProjectBySlug } from "@/lib/cache";
+import { resolveProjectFromSlug } from "@/lib/services/project-resolver.service";
 import { LoggerRegistry } from "@/lib/logger-registry";
 
 export const dynamic = "force-dynamic";
@@ -15,7 +12,6 @@ interface RouteContext {
   }>;
 }
 
-const mockLogger = LoggerRegistry.get("mock");
 const mockTrace = LoggerRegistry.getTrace("mock");
 
 function createHandler(method: string) {
@@ -54,51 +50,8 @@ async function handleMockRequest(
       );
     }
 
-    // ── Find the Project and Request Path ──────────────────────────────
-    let project = null;
-    let requestPath = "";
-
-    // Candidate prefixes from longest to shortest
-    const candidates: string[] = [];
-    for (let i = slug.length; i > 0; i--) {
-      candidates.push(slug.slice(0, i).join("/"));
-    }
-
-    // Try finding in cache first
-    for (const candidate of candidates) {
-      const cached = getCachedProjectBySlug(candidate);
-      if (cached) {
-        project = cached;
-        const slugCount = candidate.split("/").length;
-        requestPath = "/" + slug.slice(slugCount).join("/");
-        mockLogger.debug(`Resolved project slug from cache: ${candidate}`);
-        break;
-      }
-    }
-
-    // Fallback to database batch query if not cached
-    if (!project) {
-      const foundProjects = await db.query.projects.findMany({
-        where: inArray(projects.slug, candidates),
-      });
-
-      if (foundProjects.length > 0) {
-        // Find the longest candidate match (candidates is sorted from longest to shortest)
-        for (const candidateSlug of candidates) {
-          const match = foundProjects.find((p) => p.slug === candidateSlug);
-          if (match) {
-            mockLogger.info(`Resolved project slug (DB batch): ${match.slug}`);
-            project = match;
-            const segmentCount = candidateSlug.split("/").length;
-            requestPath = "/" + slug.slice(segmentCount).join("/");
-            setCachedProjectBySlug(candidateSlug, match);
-            break;
-          }
-        }
-      }
-    }
-
-    if (!project) {
+    const resolution = await resolveProjectFromSlug(slug);
+    if (!resolution) {
       const fullPath = slug.join("/");
       mockTrace.traceSuccess("handleMockRequest (project not found)", "404");
       return buildResponse(
@@ -110,6 +63,7 @@ async function handleMockRequest(
         404,
       );
     }
+    const { project, requestPath } = resolution;
 
     // ── System Auth Endpoint Interception ──────────────────────────────
     if (requestPath === "/_auth/token" && request.method === "POST") {

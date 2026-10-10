@@ -18,6 +18,7 @@ flowchart LR
 ```
 
 During expansion, the engine automatically:
+
 - Identifies primary business domains and bounded contexts.
 - Infers core entities, dependent child entities, and their cardinalities (1:1, 1:N, M:N).
 - Maps lifecycle actions (creation, retrieval, state changes, deletion) to idiomatic REST verbs.
@@ -28,20 +29,26 @@ During expansion, the engine automatically:
 Follow these core practices to obtain the most accurate and comprehensive API designs:
 
 ### 1. Specify Entities and Their Relationships
+
 Explicitly identify the primary resources and how they interact. Mention parent-child hierarchies (e.g., an order has multiple line items, a restaurant owns multiple menus).
 
 ### 2. Declare the Business Domain
+
 Mention the industry or domain context (such as e-commerce, healthcare, fintech, IoT telemetry, logistics, or HR management). This gives the LLM context to select domain-specific Faker providers like `finance.accountNumber`, `commerce.price`, or `location.streetAddress`.
 
 ### 3. Describe User Actions and Workflows
+
 Focus on user journeys and state transitions rather than static database tables. For example:
-- *"Users submit an order, receive a confirmation invoice, and track shipment status"*
-- *"Drivers accept delivery requests, update dispatch status, and log GPS coordinates"*
+
+- _"Users submit an order, receive a confirmation invoice, and track shipment status"_
+- _"Drivers accept delivery requests, update dispatch status, and log GPS coordinates"_
 
 ### 4. Include Operational Capabilities
+
 State requirements for pagination, full-text search, filtering, and sorting. The AI will incorporate query parameters and wrapped envelope responses:
-- *"Support paginated listings with filtering by category and status"*
-- *"Include full-text search across product titles and tags"*
+
+- _"Support paginated listings with filtering by category and status"_
+- _"Include full-text search across product titles and tags"_
 
 ## Good vs. Bad Prompts
 
@@ -56,6 +63,7 @@ Examine how prompt specificity directly impacts the resulting API architecture:
     **Why it underperforms**:
     - Zero domain context or entity definitions.
     - The model must guess the entire application scope, resulting in generic `GET /items` endpoints with basic string fields.
+
   </Tab>
   <Tab value="Database-Centric">
     **Prompt**: *"Users table with CRUD"*
@@ -63,16 +71,17 @@ Examine how prompt specificity directly impacts the resulting API architecture:
     **Why it underperforms**:
     - Focuses on database schema terminology rather than REST API design.
     - Generates flat, single-table endpoints (`GET /users`, `POST /users`) without contextual relations (roles, sessions, preferences, security tokens).
+
   </Tab>
 </Tabs>
 
 ### Recommended Prompts
 
-| Business Domain | Example Prompt | Key Entities Generated |
-| :--- | :--- | :--- |
-| **E-Commerce** | *"Create an e-commerce API where users can browse products, add products to carts, and place orders with checkout status tracking."* | Products, Categories, Carts, Cart Items, Orders, Payments |
-| **Social Media** | *"Build a social media platform with user profiles, posts, comments, likes, and follower relationships."* | Users, Profiles, Posts, Feeds, Comments, Reactions, Followers |
-| **Food Delivery** | *"Design a food delivery API with restaurants, menus, orders, delivery tracking, and driver management."* | Restaurants, Menus, Menu Items, Orders, Deliveries, Drivers |
+| Business Domain   | Example Prompt                                                                                                                       | Key Entities Generated                                        |
+| :---------------- | :----------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------ |
+| **E-Commerce**    | _"Create an e-commerce API where users can browse products, add products to carts, and place orders with checkout status tracking."_ | Products, Categories, Carts, Cart Items, Orders, Payments     |
+| **Social Media**  | _"Build a social media platform with user profiles, posts, comments, likes, and follower relationships."_                            | Users, Profiles, Posts, Feeds, Comments, Reactions, Followers |
+| **Food Delivery** | _"Design a food delivery API with restaurants, menus, orders, delivery tracking, and driver management."_                            | Restaurants, Menus, Menu Items, Orders, Deliveries, Drivers   |
 
 ## Real-World Walkthrough
 
@@ -120,7 +129,10 @@ For the `GET /products/:id` route, the AI Architect automatically generates a ty
   "properties": {
     "id": { "type": "string", "x-faker": "string.uuid" },
     "title": { "type": "string", "x-faker": "commerce.productName" },
-    "description": { "type": "string", "x-faker": "commerce.productDescription" },
+    "description": {
+      "type": "string",
+      "x-faker": "commerce.productDescription"
+    },
     "price": { "type": "number", "x-faker": "commerce.price" },
     "category": { "type": "string", "x-faker": "commerce.department" },
     "sku": { "type": "string", "x-faker": "string.alphanumeric" },
@@ -133,5 +145,6 @@ For the `GET /products/:id` route, the AI Architect automatically generates a ty
 ```
 
 <Callout type="info">
-Once generated on the [Visual Canvas](/docs/canvas), any route's schema can be fine-tuned or extended using the visual [Schema Builder](/docs/schemas).
+  Once generated on the [Visual Canvas](/docs/canvas), any route's schema can be
+  fine-tuned or extended using the visual [Schema Builder](/docs/schemas).
 </Callout>

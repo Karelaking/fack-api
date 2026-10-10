@@ -94,14 +94,23 @@ export function RootSidebar(): React.JSX.Element {
           </SidebarMenu>
 
           <div
+            role="button"
+            tabIndex={0}
             className="relative cursor-pointer px-2 group-data-[collapsible=icon]:hidden"
             onClick={() =>
               window.dispatchEvent(new CustomEvent("open-command-menu"))
             }
+            onKeyDown={(event) => {
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                window.dispatchEvent(new CustomEvent("open-command-menu"));
+              }
+            }}
           >
             <RiSearchLine className="text-muted-foreground pointer-events-none absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2" />
             <input
               type="text"
+              aria-label="Find"
               readOnly
               placeholder="Find"
               className="border-border/40 bg-background text-foreground placeholder:text-muted-foreground focus:ring-primary pointer-events-none h-9 w-full cursor-pointer rounded-md border py-1 pr-8 pl-9 text-sm focus:ring-1 focus:outline-none"
@@ -126,7 +135,9 @@ export function RootSidebar(): React.JSX.Element {
                     <SidebarMenuItem key={item.title}>
                       <SidebarMenuButton
                         isActive={isActive}
-                        render={<Link href={item.href} />}
+                        render={
+                          <Link href={item.href} aria-label={item.title} />
+                        }
                       >
                         <item.icon className="h-4 w-4" />
                         <span>{item.title}</span>
@@ -152,7 +163,9 @@ export function RootSidebar(): React.JSX.Element {
                     <SidebarMenuItem key={item.title}>
                       <SidebarMenuButton
                         isActive={isActive}
-                        render={<Link href={item.href} />}
+                        render={
+                          <Link href={item.href} aria-label={item.title} />
+                        }
                       >
                         <item.icon className="h-4 w-4" />
                         <span>{item.title}</span>
@@ -171,7 +184,6 @@ export function RootSidebar(): React.JSX.Element {
           <ProfileDialog>
             <button className="hover:bg-muted focus-visible:ring-primary -ml-1 flex min-w-0 flex-1 cursor-pointer items-center gap-2 rounded-md p-1 text-left transition-colors outline-none group-data-[collapsible=icon]:ml-0 focus-visible:ring-2">
               {user?.imageUrl ? (
-                /* eslint-disable-next-line @next/next/no-img-element */
                 <img
                   src={user.imageUrl}
                   alt="Profile"
@@ -188,10 +200,18 @@ export function RootSidebar(): React.JSX.Element {
             </button>
           </ProfileDialog>
           <div className="text-muted-foreground flex shrink-0 items-center gap-1 group-data-[collapsible=icon]:hidden">
-            <button className="hover:bg-muted hover:text-foreground flex h-7 w-7 items-center justify-center rounded-md transition-colors">
+            <button
+              type="button"
+              aria-label="More profile actions"
+              className="hover:bg-muted hover:text-foreground flex h-7 w-7 items-center justify-center rounded-md transition-colors"
+            >
               <RiMoreFill className="h-4 w-4" />
             </button>
-            <button className="hover:bg-muted hover:text-foreground relative flex h-7 w-7 items-center justify-center rounded-md transition-colors">
+            <button
+              type="button"
+              aria-label="Notifications"
+              className="hover:bg-muted hover:text-foreground relative flex h-7 w-7 items-center justify-center rounded-md transition-colors"
+            >
               <RiNotification3Line className="h-4 w-4" />
               <span className="absolute top-1.5 right-1.5 flex h-1.5 w-1.5">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-blue-400 opacity-75"></span>

@@ -290,6 +290,7 @@ export const AddRouteDialog = ({
                 render={({ field }) => (
                   <Switch
                     id="include-defaults"
+                    aria-label="Generate starter schema"
                     checked={field.value}
                     onCheckedChange={field.onChange}
                     disabled={isSubmitting || endpoints.length === 0}

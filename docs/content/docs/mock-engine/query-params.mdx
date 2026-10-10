@@ -14,11 +14,13 @@ The mock engine recognizes standard REST query conventions as well as JSON-Serve
 <TypeTable
   type={{
     "[field]": {
-      description: "Any property name from your schema. Performs case-insensitive exact match filtering.",
+      description:
+        "Any property name from your schema. Performs case-insensitive exact match filtering.",
       type: "string",
     },
     q: {
-      description: "Global full-text search. Performs case-insensitive substring matching across all object properties.",
+      description:
+        "Global full-text search. Performs case-insensitive substring matching across all object properties.",
       type: "string",
     },
     sort: {
@@ -26,17 +28,20 @@ The mock engine recognizes standard REST query conventions as well as JSON-Serve
       type: "string",
     },
     order: {
-      description: "Sort direction: 'asc' for ascending or 'desc' for descending. Alias: _order. Default: 'asc'.",
+      description:
+        "Sort direction: 'asc' for ascending or 'desc' for descending. Alias: _order. Default: 'asc'.",
       type: "string",
       default: "asc",
     },
     page: {
-      description: "Page index to retrieve (1-indexed). Alias: _page. Default: 1.",
+      description:
+        "Page index to retrieve (1-indexed). Alias: _page. Default: 1.",
       type: "number",
       default: 1,
     },
     limit: {
-      description: "Maximum number of items per page. Aliases: _limit, count. Default: 10.",
+      description:
+        "Maximum number of items per page. Aliases: _limit, count. Default: 10.",
       type: "number",
       default: 10,
     },
@@ -96,6 +101,7 @@ curl -X GET "http://localhost:3000/acme-store/v1/products?sort=price&order=desc"
 ```
 
 The sorting algorithm automatically handles:
+
 - **Numeric fields**: Evaluates numeric comparison (`valB - valA`).
 - **String fields**: Performs locale-aware case-insensitive alphabetical sorting.
 - **Null / Undefined fields**: Safely moves records with missing fields to the end of the collection.
@@ -131,5 +137,7 @@ curl -X GET "http://localhost:3000/acme-store/v1/products?category=electronics&q
 ```
 
 <Callout type="info">
-  When caching is enabled, the mock engine generates a comprehensive item pool once and performs all filtering and pagination operations in memory, ensuring sub-5ms response times.
+  When caching is enabled, the mock engine generates a comprehensive item pool
+  once and performs all filtering and pagination operations in memory, ensuring
+  sub-5ms response times.
 </Callout>

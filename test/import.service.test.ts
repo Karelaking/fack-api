@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect } from "vite-plus/test";
 import { parseOpenApiDocument } from "../lib/services/import.service";
 
 describe("OpenAPI Import Service", () => {

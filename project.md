@@ -10,11 +10,11 @@ To achieve this sophisticated functionality while ensuring maximum deployment fl
 
 The platform architecture is logically bifurcated into two primary operational domains: the Control Plane, which comprises the management dashboard, and the Data Plane, which consists of the dynamic routing and simulation engine. This separation of concerns ensures that the heavy computational load of the visual editor does not impede the low-latency requirements of the API simulation layer.
 
-| Operational Domain | Primary Responsibility | Core Technologies | Data Flow Mechanism |
-| :---- | :---- | :---- | :---- |
-| **Control Plane (Dashboard)** | Workspace management, visual route configuration, payload schema definition. | Next.js (Client Components), React Flow, Zustand, Immer. | Serializes user interactions into normalized JSON schemas and topological graph data, dispatching it to the database4. |
+| Operational Domain              | Primary Responsibility                                                                          | Core Technologies                                                      | Data Flow Mechanism                                                                                                                                         |
+| :------------------------------ | :---------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Control Plane (Dashboard)**   | Workspace management, visual route configuration, payload schema definition.                    | Next.js (Client Components), React Flow, Zustand, Immer.               | Serializes user interactions into normalized JSON schemas and topological graph data, dispatching it to the database4.                                      |
 | **Data Plane (Routing Engine)** | HTTP request interception, route pattern matching, dynamic payload synthesis, chaos simulation. | Next.js (Edge/Node Route Handlers), path-to-regexp, json-schema-faker. | Intercepts requests via Middleware, resolves dynamic path parameters, synthesizes payloads based on stored schemas, and applies simulated latency/headers7. |
-| **Persistence Layer** | State storage, project isolation, schema retrieval. | SQLite, Drizzle ORM, Docker Volumes. | Maintains persistent storage of endpoint configurations and schemas across container restarts via mounted volumes13. |
+| **Persistence Layer**           | State storage, project isolation, schema retrieval.                                             | SQLite, Drizzle ORM, Docker Volumes.                                   | Maintains persistent storage of endpoint configurations and schemas across container restarts via mounted volumes13.                                        |
 
 The orchestration of these domains relies on a strictly defined data schema that represents user intentions as abstract syntax trees (ASTs). When a user graphically constructs a route and defines its response fields, the Control Plane translates this visual representation into a standardized JSON Schema. The Data Plane subsequently consumes this JSON Schema to generate programmatic responses on the fly.
 
@@ -38,10 +38,10 @@ Managing the state of deeply nested data structures within a React application p
 To circumvent this limitation, the dashboard architecture integrates Zustand as the primary state management solution, fundamentally augmented by the Immer middleware. Zustand provides a lightweight, unopinionated store that avoids the boilerplate overhead of Redux while maintaining predictability. By wrapping the Zustand store definition in Immer, the architecture gains the ability to mutate deeply nested state predictably and efficiently10.  
 Immer operates by intercepting state updates and providing a temporary "draft" representation of the state tree. Within the Zustand action dispatcher, developers interact with this draft as if it were a mutable JavaScript object, directly assigning values to deeply nested properties without utilizing spread operators.
 
-| State Update Paradigm | Implementation Complexity | Immutability Handling | Performance Impact |
-| :---- | :---- | :---- | :---- |
-| **Standard React useState** | High (Requires verbose manual spreading of all nested levels) | Manual and error-prone | High memory churn due to excessive object cloning25. |
-| **Zustand \+ Immer** | Low (Direct property assignment on the draft state) | Handled automatically by Immer Proxies | Highly optimized; only modified branches of the tree are cloned11. |
+| State Update Paradigm       | Implementation Complexity                                     | Immutability Handling                  | Performance Impact                                                 |
+| :-------------------------- | :------------------------------------------------------------ | :------------------------------------- | :----------------------------------------------------------------- |
+| **Standard React useState** | High (Requires verbose manual spreading of all nested levels) | Manual and error-prone                 | High memory churn due to excessive object cloning25.               |
+| **Zustand \+ Immer**        | Low (Direct property assignment on the draft state)           | Handled automatically by Immer Proxies | Highly optimized; only modified branches of the tree are cloned11. |
 
 When a user modifies a field within a nested object on the Edit Bar, the UI component dispatches an action to the Zustand store, passing the specific path of the field. The Immer middleware translates this direct mutation of the draft state into a mathematically precise immutable update, triggering a highly optimized re-render of only the affected UI components11.  
 It is crucial to note that within the Next.js App Router paradigm, global Zustand stores can precipitate state leakage between different concurrent user sessions during Server-Side Rendering (SSR). To ensure robust security and multi-tenant isolation, the Zustand store is not instantiated as a global variable. Instead, a per-request store factory pattern is employed utilizing React Context, ensuring the state tree is uniquely initialized on the server for each request and safely hydrated on the client28.
@@ -58,12 +58,12 @@ The most powerful feature of the field editor is the Mock Data Provider drop-dow
 The user's interactions within the Edit Bar are not merely stored as proprietary application state; they are programmatically synthesized in real-time into a standardized JSON Schema document. JSON Schema serves as the universal, declarative vocabulary for validating and annotating JSON documents. By standardizing the internal representation on JSON Schema, the platform achieves interoperability with an extensive ecosystem of data generation and type-checking tools12.  
 When a user configures a field with a specific Mock Data Provider, the synthesis engine utilizes custom extension keywords within the JSON Schema, typically leveraging the x-faker property.
 
-| User Interface Selection | Resulting JSON Schema Fragment | Data Generation Behavior |
-| :---- | :---- | :---- |
-| **Type: String, Provider: UUID** | { "type": "string", "format": "uuid" } | Generates an RFC 4122 compliant unique identifier12. |
-| **Type: String, Nullable: True** | { "type": \["string", "null"\] } | Randomly returns either a string or a null primitive30. |
+| User Interface Selection           | Resulting JSON Schema Fragment                      | Data Generation Behavior                                                    |
+| :--------------------------------- | :-------------------------------------------------- | :-------------------------------------------------------------------------- |
+| **Type: String, Provider: UUID**   | { "type": "string", "format": "uuid" }              | Generates an RFC 4122 compliant unique identifier12.                        |
+| **Type: String, Nullable: True**   | { "type": \["string", "null"\] }                    | Randomly returns either a string or a null primitive30.                     |
 | **Provider: Faker name.firstName** | { "type": "string", "x-faker": "person.firstName" } | Instructs the generator to invoke the specific Faker.js namespace method32. |
-| **Type: Object (Nested)** | { "type": "object", "properties": { ... } } | Establishes a recursive branch in the schema hierarchy12. |
+| **Type: Object (Nested)**          | { "type": "object", "properties": { ... } }         | Establishes a recursive branch in the schema hierarchy12.                   |
 
 This strict adherence to JSON Schema ensures that the visual configurations created by the user are highly portable, mathematically verifiable, and perfectly suited for the dynamic payload generation phase.
 
@@ -80,11 +80,11 @@ A defining characteristic of modern, type-safe web development is the reliance o
 Because the system inherently synthesizes the user's visual field configuration into a strict JSON Schema, generating TypeScript interfaces becomes an automated, programmatic transformation. The architecture utilizes the json-schema-to-typescript library to execute this pipeline5.  
 This library exposes a highly configurable compile function. When a user requests the TypeScript definitions from the dashboard, the Next.js server executes a dedicated API route handler. This handler queries the SQLite database for the target JSON Schema, passes it to the compile function, and buffers the output37.
 
-| Compilation Pipeline Stage | Mechanism | Outcome |
-| :---- | :---- | :---- |
-| **Schema Ingestion** | The retrieved JSON Schema is parsed by the library's AST engine. | Resolves $ref pointers and evaluates all allOf, anyOf, and nested object properties37. |
-| **Type Inference** | Translates JSON types (string, integer, array) into TypeScript primitives (string, number, Array\<T\>). | Accurately maps nullable fields to union types (e.g., string | null)36. |
-| **Interface Formatting** | Compiles the abstract representation into raw TypeScript source code strings. | Applies predefined formatting rules and generates a downloadable .d.ts file payload37. |
+| Compilation Pipeline Stage | Mechanism                                                                                               | Outcome                                                                                |
+| :------------------------- | :------------------------------------------------------------------------------------------------------ | :------------------------------------------------------------------------------------- |
+| **Schema Ingestion**       | The retrieved JSON Schema is parsed by the library's AST engine.                                        | Resolves $ref pointers and evaluates all allOf, anyOf, and nested object properties37. |
+| **Type Inference**         | Translates JSON types (string, integer, array) into TypeScript primitives (string, number, Array\<T\>). | Accurately maps nullable fields to union types (e.g., string                           | null)36. |
+| **Interface Formatting**   | Compiles the abstract representation into raw TypeScript source code strings.                           | Applies predefined formatting rules and generates a downloadable .d.ts file payload37. |
 
 This programmatic extraction ensures absolute parity between the synthetic data served by the mock endpoint and the static types utilized in the developer's local IDE. By automating this process, the mock API server transitions from a simple testing tool into an authoritative schema registry for the development team.
 
@@ -107,12 +107,12 @@ The routing engine must now determine which user-defined route matches the incom
 To solve this, the architecture integrates the path-to-regexp library, the industry-standard path matching engine utilized by frameworks like Express.js43.  
 The system iterates through the retrieved user routes, utilizing the match function from path-to-regexp. This function compiles the user's express-style path string into a robust Regular Expression, incorporating rules for optional parameters, wildcards, and custom matching constraints17.
 
-| path-to-regexp Matching Process | Example Data | Result |
-| :---- | :---- | :---- |
-| **Incoming Concrete Path** | /inventory/item-789/details | Parsed from the Next.js \[...slug\] array. |
-| **User Defined Path Pattern** | /inventory/:sku/details | Retrieved from the Drizzle ORM database query. |
+| path-to-regexp Matching Process   | Example Data                                       | Result                                                                   |
+| :-------------------------------- | :------------------------------------------------- | :----------------------------------------------------------------------- |
+| **Incoming Concrete Path**        | /inventory/item-789/details                        | Parsed from the Next.js \[...slug\] array.                               |
+| **User Defined Path Pattern**     | /inventory/:sku/details                            | Retrieved from the Drizzle ORM database query.                           |
 | **Regex Compilation & Execution** | /^\\/inventory\\/(?:(\[^\\/\]+?))\\/details\\/?$/i | The match function tests the concrete path against the compiled Regex44. |
-| **Parameter Extraction** | { params: { sku: 'item-789' } } | Successfully identifies the match and extracts the URL parameters17. |
+| **Parameter Extraction**          | { params: { sku: 'item-789' } }                    | Successfully identifies the match and extracts the URL parameters17.     |
 
 By leveraging path-to-regexp, the routing engine seamlessly resolves complex URL hierarchies. Furthermore, the extracted path parameters (e.g., the sku value in the example above) are injected into the context of the JSON Schema Faker engine, allowing the generated mock response to dynamically reflect the exact IDs or values requested in the URL, dramatically enhancing the realism of the simulation17. It is important to note that the system utilizes modern, patched versions of path-to-regexp to mitigate known security vulnerabilities related to catastrophic backtracking (ReDoS) that can occur when parsing highly complex, deeply nested dynamic segments45.
 
@@ -131,11 +131,11 @@ To guarantee universal portability, the entire platform—encompassing the dashb
 Deploying Next.js applications via Docker has historically presented challenges regarding image size, largely due to the massive dependency footprint of the node\_modules directory. To optimize the deployment architecture, the platform utilizes Next.js's output: 'standalone' build configuration13.  
 During the build phase, the Next.js compiler statically analyzes the application's import graph and isolates only the specific files, libraries, and assets strictly required for production execution. This traced output is copied into a highly optimized, multi-stage Dockerfile.
 
-| Docker Build Stage | Optimization Technique | Resulting Benefit |
-| :---- | :---- | :---- |
-| **Dependency Resolution** | Utilizes package lockfiles (package-lock.json or pnpm-lock.yaml) | Guarantees deterministic, reproducible builds across all environments. |
-| **Application Compilation** | Next.js standalone mode | Traces the import tree, discarding gigabytes of unnecessary development dependencies50. |
-| **Production Runner** | Alpine Linux base image, non-root user execution | Reduces the final Docker image size to approximately 200MB, massively accelerating container initialization times in CI/CD environments50. |
+| Docker Build Stage          | Optimization Technique                                           | Resulting Benefit                                                                                                                          |
+| :-------------------------- | :--------------------------------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------- |
+| **Dependency Resolution**   | Utilizes package lockfiles (package-lock.json or pnpm-lock.yaml) | Guarantees deterministic, reproducible builds across all environments.                                                                     |
+| **Application Compilation** | Next.js standalone mode                                          | Traces the import tree, discarding gigabytes of unnecessary development dependencies50.                                                    |
+| **Production Runner**       | Alpine Linux base image, non-root user execution                 | Reduces the final Docker image size to approximately 200MB, massively accelerating container initialization times in CI/CD environments50. |
 
 ### **Database Optimization: SQLite and Drizzle ORM**
 
@@ -156,54 +156,54 @@ Finally, by optimizing the deployment architecture around a standalone Next.js D
 
 #### **Works cited**
 
-1. Create mock APIs in seconds with Mockoon, [https://mockoon.com/](https://mockoon.com/)  
-2. What is Mockoon?, [https://mockoon.com/what-is-mockoon/](https://mockoon.com/what-is-mockoon/)  
-3. Comparison between Mockoon and MockServer's API mocking services, [https://mockoon.com/compare/mockserver/](https://mockoon.com/compare/mockserver/)  
-4. React Flow Guide: Build Interactive Workflows in React Apps \- Atharva System, [https://www.atharvasystem.com/react-flow-interactive-workflow-guide/](https://www.atharvasystem.com/react-flow-interactive-workflow-guide/)  
-5. JSON to TypeScript • quicktype, [https://quicktype.io/typescript](https://quicktype.io/typescript)  
-6. Getting started with Faker.js: A developer's guide \- Testim, [https://www.testim.io/blog/getting-started-with-faker-js/](https://www.testim.io/blog/getting-started-with-faker-js/)  
-7. Dynamic Routes \- Next.js, [https://nextjs.org/docs/pages/building-your-application/routing/dynamic-routes](https://nextjs.org/docs/pages/building-your-application/routing/dynamic-routes)  
-8. Getting Started: Route Handlers | Next.js, [https://nextjs.org/docs/app/getting-started/route-handlers](https://nextjs.org/docs/app/getting-started/route-handlers)  
-9. React Flow: Everything you need to know \- Synergy Codes, [https://www.synergycodes.com/blog/react-flow-everything-you-need-to-know](https://www.synergycodes.com/blog/react-flow-everything-you-need-to-know)  
-10. Immer middleware \- Zustand, [https://zustand.docs.pmnd.rs/reference/integrations/immer-middleware](https://zustand.docs.pmnd.rs/reference/integrations/immer-middleware)  
-11. Mastering State Management with Zustand and Immer: A Guide to Efficient State Updates, [https://blog.dushyanth.in/mastering-state-management-with-zustand-and-immer-a-guide-to-efficient-state-updates](https://blog.dushyanth.in/mastering-state-management-with-zustand-and-immer-a-guide-to-efficient-state-updates)  
-12. JSON Schema Faker – Generate Realistic Test Data, [https://json-schema-faker.js.org/](https://json-schema-faker.js.org/)  
-13. You don't need Vercel. Hosting Next.js 15 with Docker and SQLite : r/nextjs \- Reddit, [https://www.reddit.com/r/nextjs/comments/1qdcxf8/you\_dont\_need\_vercel\_hosting\_nextjs\_15\_with/](https://www.reddit.com/r/nextjs/comments/1qdcxf8/you_dont_need_vercel_hosting_nextjs_15_with/)  
-14. Schema \- Drizzle ORM, [https://orm.drizzle.team/docs/sql-schema-declaration](https://orm.drizzle.team/docs/sql-schema-declaration)  
-15. Prisma vs Drizzle vs TypeORM: The Modern ORM Battle | by Navanath Jadhav | Medium, [https://navanathjadhav.medium.com/prisma-vs-drizzle-vs-typeorm-the-modern-orm-battle-618694d6361c](https://navanathjadhav.medium.com/prisma-vs-drizzle-vs-typeorm-the-modern-orm-battle-618694d6361c)  
-16. How to Use Next.js Middleware \- OneUptime, [https://oneuptime.com/blog/post/2026-02-02-nextjs-middleware/view](https://oneuptime.com/blog/post/2026-02-02-nextjs-middleware/view)  
-17. pillarjs/path-to-regexp: Turn a path string such as \`/user/:name\` into a regular expression \- GitHub, [https://github.com/pillarjs/path-to-regexp](https://github.com/pillarjs/path-to-regexp)  
-18. Drizzle vs Prisma ORM in 2026: A Practical Comparison for TypeScript Developers, [https://makerkit.dev/blog/tutorials/drizzle-vs-prisma](https://makerkit.dev/blog/tutorials/drizzle-vs-prisma)  
-19. Subdomain-Based Routing in Next.js: A Complete Guide for Multi-Tenant Applications, [https://medium.com/@sheharyarishfaq/subdomain-based-routing-in-next-js-a-complete-guide-for-multi-tenant-applications-1576244e799a](https://medium.com/@sheharyarishfaq/subdomain-based-routing-in-next-js-a-complete-guide-for-multi-tenant-applications-1576244e799a)  
-20. Getting Started: Linking and Navigating \- Next.js, [https://nextjs.org/docs/app/getting-started/linking-and-navigating](https://nextjs.org/docs/app/getting-started/linking-and-navigating)  
-21. Debugging Next.js App Router Navigation Lag: Dynamic Routes and Prefetching, [https://dev.to/kcsujeet/debugging-nextjs-app-router-navigation-lag-dynamic-routes-and-prefetching-akk](https://dev.to/kcsujeet/debugging-nextjs-app-router-navigation-lag-dynamic-routes-and-prefetching-akk)  
-22. Overview \- React Flow, [https://reactflow.dev/examples](https://reactflow.dev/examples)  
-23. Save and Restore \- React Flow, [https://reactflow.dev/examples/interaction/save-and-restore](https://reactflow.dev/examples/interaction/save-and-restore)  
-24. useNodesState() \- React Flow, [https://reactflow.dev/api-reference/hooks/use-nodes-state](https://reactflow.dev/api-reference/hooks/use-nodes-state)  
-25. Change Deeply Nested State？ | ZUSTAND \- GitHub Pages, [https://awesomedevin.github.io/zustand-vue/en/docs/advanced/sickof-changing-nested-state](https://awesomedevin.github.io/zustand-vue/en/docs/advanced/sickof-changing-nested-state)  
-26. Updating state \- Zustand, [https://zustand.docs.pmnd.rs/learn/guides/updating-state](https://zustand.docs.pmnd.rs/learn/guides/updating-state)  
-27. Simplifying State Management with Zustand: Updating Nested Objects \- DEV Community, [https://dev.to/fazle-rabbi-dev/simplifying-state-management-with-zustand-updating-nested-objects-521g](https://dev.to/fazle-rabbi-dev/simplifying-state-management-with-zustand-updating-nested-objects-521g)  
-28. Setup with Next.js \- Zustand, [https://zustand.docs.pmnd.rs/learn/guides/nextjs](https://zustand.docs.pmnd.rs/learn/guides/nextjs)  
-29. SSR and Hydration \- Zustand, [https://zustand.docs.pmnd.rs/learn/guides/ssr-and-hydration](https://zustand.docs.pmnd.rs/learn/guides/ssr-and-hydration)  
-30. Generating Fake Data From JSON Schema \- Dennis O'Keeffe, [https://www.dennisokeeffe.com/blog/2021-12-10-generating-fake-data-from-json-schema](https://www.dennisokeeffe.com/blog/2021-12-10-generating-fake-data-from-json-schema)  
-31. Statically Typed Data Validation with JSON Schema and TypeScript \- Atomic Spin, [https://spin.atomicobject.com/typescript-data-validation/](https://spin.atomicobject.com/typescript-data-validation/)  
-32. Dynamic Response Generation with Faker | Prism \- Stoplight Documentation, [https://docs.stoplight.io/docs/prism/9528b5a8272c0-dynamic-response-generation-with-faker](https://docs.stoplight.io/docs/prism/9528b5a8272c0-dynamic-response-generation-with-faker)  
-33. json-schema-faker \- NPM, [https://www.npmjs.com/package/json-schema-faker?activeTab=dependents](https://www.npmjs.com/package/json-schema-faker?activeTab=dependents)  
-34. JSON Schema Faker \- GitHub, [https://github.com/json-schema-faker/json-schema-faker](https://github.com/json-schema-faker/json-schema-faker)  
-35. Helpers \- Faker.js, [https://fakerjs.dev/api/helpers](https://fakerjs.dev/api/helpers)  
-36. TypeScript Interface Generator \- Free Online Tool \- EaseCloud, [https://www.easecloud.io/tools/code-generators/typescript-interface-generator/](https://www.easecloud.io/tools/code-generators/typescript-interface-generator/)  
-37. bcherny/json-schema-to-typescript \- GitHub, [https://github.com/bcherny/json-schema-to-typescript](https://github.com/bcherny/json-schema-to-typescript)  
-38. Routing: Middleware \- Next.js, [https://nextjs.org/docs/14/app/building-your-application/routing/middleware](https://nextjs.org/docs/14/app/building-your-application/routing/middleware)  
-39. How to Rewrite Subdomains to a Specific Path in Next.js Middleware? : r/nextjs \- Reddit, [https://www.reddit.com/r/nextjs/comments/1j3lnn8/how\_to\_rewrite\_subdomains\_to\_a\_specific\_path\_in/](https://www.reddit.com/r/nextjs/comments/1j3lnn8/how_to_rewrite_subdomains_to_a_specific_path_in/)  
-40. next.config.js Options: rewrites, [https://nextjs.org/docs/pages/api-reference/config/next-config-js/rewrites](https://nextjs.org/docs/pages/api-reference/config/next-config-js/rewrites)  
-41. rewrites \- next.config.js, [https://nextjs.org/docs/app/api-reference/config/next-config-js/rewrites](https://nextjs.org/docs/app/api-reference/config/next-config-js/rewrites)  
-42. File-system conventions: Dynamic Segments | Next.js, [https://nextjs.org/docs/app/api-reference/file-conventions/dynamic-routes](https://nextjs.org/docs/app/api-reference/file-conventions/dynamic-routes)  
-43. Routing \- Express.js, [https://expressjs.com/en/5x/guide/routing/](https://expressjs.com/en/5x/guide/routing/)  
-44. @urlpattern/path-to-regexp \- npm, [https://www.npmjs.com/package/@urlpattern/path-to-regexp](https://www.npmjs.com/package/@urlpattern/path-to-regexp)  
-45. Path-to-regexp Vulnerable To Regular Expression Denial Of Service Via Multiple Route Parameters \- Veracode, [https://sca.analysiscenter.veracode.com/vulnerability-database/security/path-to-regexp-vulnerable-to-regular/javascript/sid-169269](https://sca.analysiscenter.veracode.com/vulnerability-database/security/path-to-regexp-vulnerable-to-regular/javascript/sid-169269)  
-46. Next.js 14.2.13 App Router: Delay on first navigation, instant afterwards : r/nextjs \- Reddit, [https://www.reddit.com/r/nextjs/comments/1fzr8v5/nextjs\_14213\_app\_router\_delay\_on\_first\_navigation/](https://www.reddit.com/r/nextjs/comments/1fzr8v5/nextjs_14213_app_router_delay_on_first_navigation/)  
-47. Nneji123/fastapi-nextjs: This project demonstrates the integration of FastAPI, SQLModel, PostgreSQL, Redis, Next.js, Docker, and Docker Compose, showcasing essential API features like rate limiting, pagination, logging, and metrics using Prometheus and Grafana. · GitHub, [https://github.com/Nneji123/fastapi-nextjs](https://github.com/Nneji123/fastapi-nextjs)  
-48. Next.js Route Handlers in TypeScript: Comprehensive Guide | by Shyam Jith \- Medium, [https://medium.com/@1shyam2shyam/next-js-route-handlers-in-typescript-comprehensive-guide-ee3c9ea773b8](https://medium.com/@1shyam2shyam/next-js-route-handlers-in-typescript-comprehensive-guide-ee3c9ea773b8)  
-49. Routing: API Routes \- Next.js, [https://nextjs.org/docs/pages/building-your-application/routing/api-routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes)  
-50. Escape from Vercel: Complete Guide to Self-Hosting Next.js with Docker, [https://eastondev.com/blog/en/posts/dev/20251220-nextjs-docker-self-hosting/](https://eastondev.com/blog/en/posts/dev/20251220-nextjs-docker-self-hosting/)  
+1. Create mock APIs in seconds with Mockoon, [https://mockoon.com/](https://mockoon.com/)
+2. What is Mockoon?, [https://mockoon.com/what-is-mockoon/](https://mockoon.com/what-is-mockoon/)
+3. Comparison between Mockoon and MockServer's API mocking services, [https://mockoon.com/compare/mockserver/](https://mockoon.com/compare/mockserver/)
+4. React Flow Guide: Build Interactive Workflows in React Apps \- Atharva System, [https://www.atharvasystem.com/react-flow-interactive-workflow-guide/](https://www.atharvasystem.com/react-flow-interactive-workflow-guide/)
+5. JSON to TypeScript • quicktype, [https://quicktype.io/typescript](https://quicktype.io/typescript)
+6. Getting started with Faker.js: A developer's guide \- Testim, [https://www.testim.io/blog/getting-started-with-faker-js/](https://www.testim.io/blog/getting-started-with-faker-js/)
+7. Dynamic Routes \- Next.js, [https://nextjs.org/docs/pages/building-your-application/routing/dynamic-routes](https://nextjs.org/docs/pages/building-your-application/routing/dynamic-routes)
+8. Getting Started: Route Handlers | Next.js, [https://nextjs.org/docs/app/getting-started/route-handlers](https://nextjs.org/docs/app/getting-started/route-handlers)
+9. React Flow: Everything you need to know \- Synergy Codes, [https://www.synergycodes.com/blog/react-flow-everything-you-need-to-know](https://www.synergycodes.com/blog/react-flow-everything-you-need-to-know)
+10. Immer middleware \- Zustand, [https://zustand.docs.pmnd.rs/reference/integrations/immer-middleware](https://zustand.docs.pmnd.rs/reference/integrations/immer-middleware)
+11. Mastering State Management with Zustand and Immer: A Guide to Efficient State Updates, [https://blog.dushyanth.in/mastering-state-management-with-zustand-and-immer-a-guide-to-efficient-state-updates](https://blog.dushyanth.in/mastering-state-management-with-zustand-and-immer-a-guide-to-efficient-state-updates)
+12. JSON Schema Faker – Generate Realistic Test Data, [https://json-schema-faker.js.org/](https://json-schema-faker.js.org/)
+13. You don't need Vercel. Hosting Next.js 15 with Docker and SQLite : r/nextjs \- Reddit, [https://www.reddit.com/r/nextjs/comments/1qdcxf8/you\_dont\_need\_vercel\_hosting\_nextjs\_15\_with/](https://www.reddit.com/r/nextjs/comments/1qdcxf8/you_dont_need_vercel_hosting_nextjs_15_with/)
+14. Schema \- Drizzle ORM, [https://orm.drizzle.team/docs/sql-schema-declaration](https://orm.drizzle.team/docs/sql-schema-declaration)
+15. Prisma vs Drizzle vs TypeORM: The Modern ORM Battle | by Navanath Jadhav | Medium, [https://navanathjadhav.medium.com/prisma-vs-drizzle-vs-typeorm-the-modern-orm-battle-618694d6361c](https://navanathjadhav.medium.com/prisma-vs-drizzle-vs-typeorm-the-modern-orm-battle-618694d6361c)
+16. How to Use Next.js Middleware \- OneUptime, [https://oneuptime.com/blog/post/2026-02-02-nextjs-middleware/view](https://oneuptime.com/blog/post/2026-02-02-nextjs-middleware/view)
+17. pillarjs/path-to-regexp: Turn a path string such as \`/user/:name\` into a regular expression \- GitHub, [https://github.com/pillarjs/path-to-regexp](https://github.com/pillarjs/path-to-regexp)
+18. Drizzle vs Prisma ORM in 2026: A Practical Comparison for TypeScript Developers, [https://makerkit.dev/blog/tutorials/drizzle-vs-prisma](https://makerkit.dev/blog/tutorials/drizzle-vs-prisma)
+19. Subdomain-Based Routing in Next.js: A Complete Guide for Multi-Tenant Applications, [https://medium.com/@sheharyarishfaq/subdomain-based-routing-in-next-js-a-complete-guide-for-multi-tenant-applications-1576244e799a](https://medium.com/@sheharyarishfaq/subdomain-based-routing-in-next-js-a-complete-guide-for-multi-tenant-applications-1576244e799a)
+20. Getting Started: Linking and Navigating \- Next.js, [https://nextjs.org/docs/app/getting-started/linking-and-navigating](https://nextjs.org/docs/app/getting-started/linking-and-navigating)
+21. Debugging Next.js App Router Navigation Lag: Dynamic Routes and Prefetching, [https://dev.to/kcsujeet/debugging-nextjs-app-router-navigation-lag-dynamic-routes-and-prefetching-akk](https://dev.to/kcsujeet/debugging-nextjs-app-router-navigation-lag-dynamic-routes-and-prefetching-akk)
+22. Overview \- React Flow, [https://reactflow.dev/examples](https://reactflow.dev/examples)
+23. Save and Restore \- React Flow, [https://reactflow.dev/examples/interaction/save-and-restore](https://reactflow.dev/examples/interaction/save-and-restore)
+24. useNodesState() \- React Flow, [https://reactflow.dev/api-reference/hooks/use-nodes-state](https://reactflow.dev/api-reference/hooks/use-nodes-state)
+25. Change Deeply Nested State？ | ZUSTAND \- GitHub Pages, [https://awesomedevin.github.io/zustand-vue/en/docs/advanced/sickof-changing-nested-state](https://awesomedevin.github.io/zustand-vue/en/docs/advanced/sickof-changing-nested-state)
+26. Updating state \- Zustand, [https://zustand.docs.pmnd.rs/learn/guides/updating-state](https://zustand.docs.pmnd.rs/learn/guides/updating-state)
+27. Simplifying State Management with Zustand: Updating Nested Objects \- DEV Community, [https://dev.to/fazle-rabbi-dev/simplifying-state-management-with-zustand-updating-nested-objects-521g](https://dev.to/fazle-rabbi-dev/simplifying-state-management-with-zustand-updating-nested-objects-521g)
+28. Setup with Next.js \- Zustand, [https://zustand.docs.pmnd.rs/learn/guides/nextjs](https://zustand.docs.pmnd.rs/learn/guides/nextjs)
+29. SSR and Hydration \- Zustand, [https://zustand.docs.pmnd.rs/learn/guides/ssr-and-hydration](https://zustand.docs.pmnd.rs/learn/guides/ssr-and-hydration)
+30. Generating Fake Data From JSON Schema \- Dennis O'Keeffe, [https://www.dennisokeeffe.com/blog/2021-12-10-generating-fake-data-from-json-schema](https://www.dennisokeeffe.com/blog/2021-12-10-generating-fake-data-from-json-schema)
+31. Statically Typed Data Validation with JSON Schema and TypeScript \- Atomic Spin, [https://spin.atomicobject.com/typescript-data-validation/](https://spin.atomicobject.com/typescript-data-validation/)
+32. Dynamic Response Generation with Faker | Prism \- Stoplight Documentation, [https://docs.stoplight.io/docs/prism/9528b5a8272c0-dynamic-response-generation-with-faker](https://docs.stoplight.io/docs/prism/9528b5a8272c0-dynamic-response-generation-with-faker)
+33. json-schema-faker \- NPM, [https://www.npmjs.com/package/json-schema-faker?activeTab=dependents](https://www.npmjs.com/package/json-schema-faker?activeTab=dependents)
+34. JSON Schema Faker \- GitHub, [https://github.com/json-schema-faker/json-schema-faker](https://github.com/json-schema-faker/json-schema-faker)
+35. Helpers \- Faker.js, [https://fakerjs.dev/api/helpers](https://fakerjs.dev/api/helpers)
+36. TypeScript Interface Generator \- Free Online Tool \- EaseCloud, [https://www.easecloud.io/tools/code-generators/typescript-interface-generator/](https://www.easecloud.io/tools/code-generators/typescript-interface-generator/)
+37. bcherny/json-schema-to-typescript \- GitHub, [https://github.com/bcherny/json-schema-to-typescript](https://github.com/bcherny/json-schema-to-typescript)
+38. Routing: Middleware \- Next.js, [https://nextjs.org/docs/14/app/building-your-application/routing/middleware](https://nextjs.org/docs/14/app/building-your-application/routing/middleware)
+39. How to Rewrite Subdomains to a Specific Path in Next.js Middleware? : r/nextjs \- Reddit, [https://www.reddit.com/r/nextjs/comments/1j3lnn8/how\_to\_rewrite\_subdomains\_to\_a\_specific\_path\_in/](https://www.reddit.com/r/nextjs/comments/1j3lnn8/how_to_rewrite_subdomains_to_a_specific_path_in/)
+40. next.config.js Options: rewrites, [https://nextjs.org/docs/pages/api-reference/config/next-config-js/rewrites](https://nextjs.org/docs/pages/api-reference/config/next-config-js/rewrites)
+41. rewrites \- next.config.js, [https://nextjs.org/docs/app/api-reference/config/next-config-js/rewrites](https://nextjs.org/docs/app/api-reference/config/next-config-js/rewrites)
+42. File-system conventions: Dynamic Segments | Next.js, [https://nextjs.org/docs/app/api-reference/file-conventions/dynamic-routes](https://nextjs.org/docs/app/api-reference/file-conventions/dynamic-routes)
+43. Routing \- Express.js, [https://expressjs.com/en/5x/guide/routing/](https://expressjs.com/en/5x/guide/routing/)
+44. @urlpattern/path-to-regexp \- npm, [https://www.npmjs.com/package/@urlpattern/path-to-regexp](https://www.npmjs.com/package/@urlpattern/path-to-regexp)
+45. Path-to-regexp Vulnerable To Regular Expression Denial Of Service Via Multiple Route Parameters \- Veracode, [https://sca.analysiscenter.veracode.com/vulnerability-database/security/path-to-regexp-vulnerable-to-regular/javascript/sid-169269](https://sca.analysiscenter.veracode.com/vulnerability-database/security/path-to-regexp-vulnerable-to-regular/javascript/sid-169269)
+46. Next.js 14.2.13 App Router: Delay on first navigation, instant afterwards : r/nextjs \- Reddit, [https://www.reddit.com/r/nextjs/comments/1fzr8v5/nextjs\_14213\_app\_router\_delay\_on\_first\_navigation/](https://www.reddit.com/r/nextjs/comments/1fzr8v5/nextjs_14213_app_router_delay_on_first_navigation/)
+47. Nneji123/fastapi-nextjs: This project demonstrates the integration of FastAPI, SQLModel, PostgreSQL, Redis, Next.js, Docker, and Docker Compose, showcasing essential API features like rate limiting, pagination, logging, and metrics using Prometheus and Grafana. · GitHub, [https://github.com/Nneji123/fastapi-nextjs](https://github.com/Nneji123/fastapi-nextjs)
+48. Next.js Route Handlers in TypeScript: Comprehensive Guide | by Shyam Jith \- Medium, [https://medium.com/@1shyam2shyam/next-js-route-handlers-in-typescript-comprehensive-guide-ee3c9ea773b8](https://medium.com/@1shyam2shyam/next-js-route-handlers-in-typescript-comprehensive-guide-ee3c9ea773b8)
+49. Routing: API Routes \- Next.js, [https://nextjs.org/docs/pages/building-your-application/routing/api-routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes)
+50. Escape from Vercel: Complete Guide to Self-Hosting Next.js with Docker, [https://eastondev.com/blog/en/posts/dev/20251220-nextjs-docker-self-hosting/](https://eastondev.com/blog/en/posts/dev/20251220-nextjs-docker-self-hosting/)
 51. Self-hosted mocks \- Insomnia \- Kong Docs, [https://developer.konghq.com/insomnia/self-hosted-mocks/](https://developer.konghq.com/insomnia/self-hosted-mocks/)

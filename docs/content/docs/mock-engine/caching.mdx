@@ -14,27 +14,33 @@ The `CacheManager` singleton partitions cache storage across six discrete domain
 <TypeTable
   type={{
     "Project List": {
-      description: "Stores metadata for all active projects. Max: 50 entries, TTL: 10 minutes.",
+      description:
+        "Stores metadata for all active projects. Max: 50 entries, TTL: 10 minutes.",
       type: "LRUCache<string, Project[]>",
     },
     "Project by Slug": {
-      description: "Maps project slugs to project records. Max: 500 entries, TTL: 10 minutes.",
+      description:
+        "Maps project slugs to project records. Max: 500 entries, TTL: 10 minutes.",
       type: "LRUCache<string, Project>",
     },
     "Project Routes": {
-      description: "Stores compiled route definitions per project. Max: 1,000 entries, TTL: 5 minutes.",
+      description:
+        "Stores compiled route definitions per project. Max: 1,000 entries, TTL: 5 minutes.",
       type: "LRUCache<string, Route[]>",
     },
     "Mock Data (Array)": {
-      description: "Cached array collection payloads for list routes. Max: 2,000 entries, TTL: 5 minutes.",
+      description:
+        "Cached array collection payloads for list routes. Max: 2,000 entries, TTL: 5 minutes.",
       type: "LRUCache<string, unknown[]>",
     },
     "Single Object": {
-      description: "Cached single entity payloads for scalar routes. Max: 2,000 entries, TTL: 5 minutes.",
+      description:
+        "Cached single entity payloads for scalar routes. Max: 2,000 entries, TTL: 5 minutes.",
       type: "LRUCache<string, object>",
     },
     "Page Cache": {
-      description: "Paginated window slices partitioned by page and limit. Max: 2,000 entries, TTL: 5 minutes.",
+      description:
+        "Paginated window slices partitioned by page and limit. Max: 2,000 entries, TTL: 5 minutes.",
       type: "LRUCache<string, PageCacheEntry[]>",
     },
   }}
@@ -53,7 +59,7 @@ sequenceDiagram
     participant Proxy as Edge Handler
     participant Cache as LRU Page Cache
     participant Faker as JSON Schema Synthesizer
-    
+
     Client->>Proxy: GET /v1/products?page=2&limit=10
     Proxy->>Cache: Lookup Page 2
     alt Cache Miss
@@ -65,7 +71,7 @@ sequenceDiagram
         Cache-->>Proxy: Return Page 2 Items
     end
     Proxy-->>Client: 200 OK (Page 2 Envelope)
-    
+
     Note over Proxy,Faker: Non-blocking background prefetch via after()
     Proxy-)Cache: Check Page 3 (N+1)
     alt Page 3 Not Cached
@@ -79,6 +85,7 @@ sequenceDiagram
 To keep memory consumption bounded as users browse through deep pagination catalogs, the engine enforces **sliding window pruning**.
 
 When page $N$ is requested, the page cache retains only the immediate neighbourhood:
+
 - Page $N - 1$ (Previous)
 - Page $N$ (Current)
 - Page $N + 1$ (Next)
@@ -96,7 +103,9 @@ Unlike naive caching systems that wipe all application state on every mutation, 
 - `clearCache()`: Flushes all internal LRU stores across all project domains.
 
 <Callout type="warn">
-  Modifying a route's JSON Schema or changing its chaos settings automatically invokes `clearRouteCache(routeId)`. If you test an endpoint immediately after updating its schema, the first request will generate fresh mock data.
+  Modifying a route's JSON Schema or changing its chaos settings automatically
+  invokes `clearRouteCache(routeId)`. If you test an endpoint immediately after
+  updating its schema, the first request will generate fresh mock data.
 </Callout>
 
 ---

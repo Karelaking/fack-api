@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { GeistMono } from "geist/font/mono";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
@@ -8,13 +7,14 @@ import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
 import { ClerkProvider } from "@clerk/nextjs";
+import { CommandMenu } from "@/components/command-menu";
 
 const inter = Inter({
   variable: "--font-sans",
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
+export const metadata = {
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
   ),
@@ -59,6 +59,7 @@ export default function RootLayout({
               <TooltipProvider>
                 <Analytics />
                 {children}
+                <CommandMenu />
                 <Toaster position="top-right" richColors />
               </TooltipProvider>
             </ThemeProvider>

@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect } from "vite-plus/test";
 import { POST as generateHandler } from "../app/api/ai/generate/route";
 import { proxy } from "../proxy";
 import { NextRequest } from "next/server";
@@ -9,7 +9,7 @@ describe("AI API Architect — Route Handlers & Proxy Dispatching", () => {
       const req = new NextRequest("http://localhost:3000/api/ai/generate", {
         method: "POST",
       });
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // oxlint-disable-next-line @typescript-eslint/no-explicit-any
       const res = (await proxy(req, {} as any)) as any;
 
       // If rewritten, headers or internal url would change to /api/mock/...
@@ -21,7 +21,7 @@ describe("AI API Architect — Route Handlers & Proxy Dispatching", () => {
       const req = new NextRequest("http://localhost:3000/api/ai/apply", {
         method: "POST",
       });
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // oxlint-disable-next-line @typescript-eslint/no-explicit-any
       const res = (await proxy(req, {} as any)) as any;
 
       expect(res.headers.get("x-middleware-rewrite")).toBeNull();
@@ -34,7 +34,7 @@ describe("AI API Architect — Route Handlers & Proxy Dispatching", () => {
           method: "GET",
         },
       );
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // oxlint-disable-next-line @typescript-eslint/no-explicit-any
       const res = (await proxy(req, {} as any)) as any;
 
       expect(res.headers.get("x-middleware-rewrite")).toContain(

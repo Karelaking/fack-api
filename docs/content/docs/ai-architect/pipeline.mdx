@@ -35,32 +35,43 @@ The synthesis engine executes the following six stages sequentially:
     The engine ingests the natural language input, parses semantic intent, and decomposes the request into core business entities, parent-child relations, and operational domains. It determines the bounded context (e.g., e-commerce vs. logistics) to contextualize naming schemes and data types.
   </Step>
 
-  <Step>
-    ### 2. Designing Architecture
-    The parsed intent is expanded into an architectural blueprint. The engine creates a hierarchical topology mapping out logical microservice boundaries ([Endpoint Groups](/docs/canvas/nodes#endpoint-group-nodes)), route hierarchies, expected HTTP status codes, and cross-resource links.
-  </Step>
+<Step>
+  ### 2. Designing Architecture The parsed intent is expanded into an
+  architectural blueprint. The engine creates a hierarchical topology mapping
+  out logical microservice boundaries ([Endpoint
+  Groups](/docs/canvas/nodes#endpoint-group-nodes)), route hierarchies, expected
+  HTTP status codes, and cross-resource links.
+</Step>
 
-  <Step>
-    ### 3. Generating Specification
-    The engine invokes the configured LLM (OpenAI GPT or Google Gemini) with structured schema constraints (JSON mode / function calling). It generates comprehensive specifications covering endpoints, HTTP verbs, URL paths, and JSON response schemas embedded with `x-faker` provider bindings.
-  </Step>
+<Step>
+  ### 3. Generating Specification The engine invokes the configured LLM (OpenAI
+  GPT or Google Gemini) with structured schema constraints (JSON mode / function
+  calling). It generates comprehensive specifications covering endpoints, HTTP
+  verbs, URL paths, and JSON response schemas embedded with `x-faker` provider
+  bindings.
+</Step>
 
-  <Step>
-    ### 4. Validating & Normalizing
-    The generated raw specification undergoes rigorous programmatic normalization:
-    - **Resource Paths**: Enforces plural nouns and kebab-case URL formatting (e.g., `/user-profiles` instead of `/user_profile`).
-    - **Faker Bindings**: Verifies all `x-faker` annotations against Fack API's 1,500+ registered Faker providers, substituting invalid signatures with safe fallbacks.
-    - **HTTP Methods**: Guarantees idiomatic method conventions (`GET` for retrieval, `POST` for creation, `PUT`/`PATCH` for updates, `DELETE` for removal).
-    - **Enterprise Naming**: Runs string normalizers to convert informal tags into publication-ready titles.
-  </Step>
+<Step>
+  ### 4. Validating & Normalizing The generated raw specification undergoes
+  rigorous programmatic normalization: - **Resource Paths**: Enforces plural
+  nouns and kebab-case URL formatting (e.g., `/user-profiles` instead of
+  `/user_profile`). - **Faker Bindings**: Verifies all `x-faker` annotations
+  against Fack API's 1,500+ registered Faker providers, substituting invalid
+  signatures with safe fallbacks. - **HTTP Methods**: Guarantees idiomatic
+  method conventions (`GET` for retrieval, `POST` for creation, `PUT`/`PATCH`
+  for updates, `DELETE` for removal). - **Enterprise Naming**: Runs string
+  normalizers to convert informal tags into publication-ready titles.
+</Step>
 
-  <Step>
-    ### 5. Resolving Conflicts
-    The pipeline inspects the current workspace in the database. If a generated route path and method collide with an existing route (for example, a pre-existing `GET /products`), the system pauses and triggers a **Conflict Resolution Dialog**. You can choose to:
-    - **Overwrite**: Replace existing routes with the newly generated version.
-    - **Merge**: Keep existing routes and only insert non-colliding new routes.
-    - **Prefix / Rename**: Namespace new endpoints to avoid overlap.
-  </Step>
+<Step>
+  ### 5. Resolving Conflicts The pipeline inspects the current workspace in the
+  database. If a generated route path and method collide with an existing route
+  (for example, a pre-existing `GET /products`), the system pauses and triggers
+  a **Conflict Resolution Dialog**. You can choose to: - **Overwrite**: Replace
+  existing routes with the newly generated version. - **Merge**: Keep existing
+  routes and only insert non-colliding new routes. - **Prefix / Rename**:
+  Namespace new endpoints to avoid overlap.
+</Step>
 
   <Step>
     ### 6. Applying Changes
@@ -86,13 +97,13 @@ Transforms informal or brief prompts into formal, publication-ready API titles:
 
 ```ts
 // Example transformations
-toProfessionalApiName("shop")
+toProfessionalApiName("shop");
 // Output: "Storefront & Commerce Operations Platform API"
 
-toProfessionalApiName("patient tracking")
+toProfessionalApiName("patient tracking");
 // Output: "Clinical Healthcare & Patient Management Platform API"
 
-toProfessionalApiName("ride share")
+toProfessionalApiName("ride share");
 // Output: "Urban Mobility & Fleet Dispatch Platform API"
 ```
 
@@ -100,14 +111,14 @@ toProfessionalApiName("ride share")
 
 Maps resource slugs and raw paths to descriptive domain titles for canvas nodes:
 
-| Raw Resource Slug | Generated Endpoint Group Title | Base Path |
-| :--- | :--- | :--- |
-| `products` | **Product Catalog** | `/products` |
-| `cart` / `carts` | **Shopping Carts** | `/carts` |
-| `orders` | **Order Management** | `/orders` |
-| `auth` | **Identity & Access Management** | `/auth` |
-| `users` | **User Directory & Profiles** | `/users` |
-| `analytics` | **Telemetry & Platform Analytics** | `/analytics` |
+| Raw Resource Slug | Generated Endpoint Group Title     | Base Path    |
+| :---------------- | :--------------------------------- | :----------- |
+| `products`        | **Product Catalog**                | `/products`  |
+| `cart` / `carts`  | **Shopping Carts**                 | `/carts`     |
+| `orders`          | **Order Management**               | `/orders`    |
+| `auth`            | **Identity & Access Management**   | `/auth`      |
+| `users`           | **User Directory & Profiles**      | `/users`     |
+| `analytics`       | **Telemetry & Platform Analytics** | `/analytics` |
 
 ## Transaction Safety & Error Handling
 
@@ -123,5 +134,7 @@ flowchart TD
 ```
 
 <Callout type="warn">
-If an invalid JSON Schema or schema compilation error is detected during normalization or transaction execution, the entire generation batch is discarded and no orphan records are created in your workspace.
+  If an invalid JSON Schema or schema compilation error is detected during
+  normalization or transaction execution, the entire generation batch is
+  discarded and no orphan records are created in your workspace.
 </Callout>

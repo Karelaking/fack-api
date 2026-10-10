@@ -1,5 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { describe, it, expect } from "vitest";
+/* oxlint-disable @typescript-eslint/no-explicit-any */
+import { describe, it, expect } from "vite-plus/test";
 import { generateTypeScript } from "../lib/ts-generator";
 
 describe("TypeScript Interface Generator", () => {

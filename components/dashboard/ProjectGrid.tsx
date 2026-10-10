@@ -84,13 +84,13 @@ export function ProjectGrid({
 
   // Sync initial projects
   React.useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+    // eslint-disable-next-line react/set-state-in-effect
     setProjects(initialProjects);
   }, [initialProjects]);
 
   React.useEffect(() => {
     if (editProj) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+      // eslint-disable-next-line react/set-state-in-effect
       setEditName(editProj.name);
       setEditSlug(editProj.slug);
       setEditDescription(editProj.description ?? "");
@@ -199,6 +199,7 @@ export function ProjectGrid({
         <div className="flex items-center gap-2">
           <button
             type="button"
+            aria-label="Filter workspaces"
             className="border-border/40 bg-card/30 hover:bg-muted flex h-10 w-10 items-center justify-center rounded-md border transition-colors"
           >
             <RiFilter3Line className="text-muted-foreground h-4 w-4" />
@@ -206,6 +207,7 @@ export function ProjectGrid({
           <div className="border-border/40 bg-card/30 flex h-10 items-center rounded-md border p-1">
             <button
               type="button"
+              aria-label="Grid view"
               onClick={() => setViewMode("grid")}
               className={`flex h-7 w-7 items-center justify-center rounded-sm transition-colors ${
                 viewMode === "grid" ? "bg-muted shadow-sm" : "hover:bg-muted"
@@ -217,6 +219,7 @@ export function ProjectGrid({
             </button>
             <button
               type="button"
+              aria-label="List view"
               onClick={() => setViewMode("list")}
               className={`flex h-7 w-7 items-center justify-center rounded-sm transition-colors ${
                 viewMode === "list" ? "bg-muted shadow-sm" : "hover:bg-muted"
@@ -581,6 +584,7 @@ export function ProjectGrid({
             <Input
               size="sm"
               variant="mono"
+              aria-label="Project name confirmation"
               value={deleteConfirmText}
               onChange={(e) => setDeleteConfirmText(e.target.value)}
               placeholder={deleteProj?.name}

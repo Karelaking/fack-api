@@ -24,12 +24,19 @@ export default function SettingsPage(): React.JSX.Element {
             This is your workspace&apos;s visible name within Fack API.
           </p>
           <div className="mt-4 flex max-w-sm items-center gap-2">
+            <label htmlFor="workspace-name" className="sr-only">
+              Workspace name
+            </label>
             <input
+              id="workspace-name"
               type="text"
               defaultValue="Mradul Kumar's Workspace"
               className="border-border/50 bg-background text-foreground focus:ring-primary h-9 w-full rounded-md border px-3 py-1 text-sm shadow-sm focus:ring-1 focus:outline-none"
             />
-            <button className="bg-primary text-primary-foreground hover:bg-primary/90 h-9 rounded-md px-4 text-sm font-medium shadow transition-colors">
+            <button
+              type="button"
+              className="bg-primary text-primary-foreground hover:bg-primary/90 h-9 rounded-md px-4 text-sm font-medium shadow transition-colors"
+            >
               Save
             </button>
           </div>
@@ -41,7 +48,10 @@ export default function SettingsPage(): React.JSX.Element {
             Irreversible and destructive actions.
           </p>
           <div className="mt-4">
-            <button className="border-destructive/30 text-destructive hover:bg-destructive/10 inline-flex items-center justify-center rounded-md border bg-transparent px-4 py-2 text-sm font-medium transition-colors">
+            <button
+              type="button"
+              className="border-destructive/30 text-destructive hover:bg-destructive/10 inline-flex items-center justify-center rounded-md border bg-transparent px-4 py-2 text-sm font-medium transition-colors"
+            >
               Delete Workspace
             </button>
           </div>

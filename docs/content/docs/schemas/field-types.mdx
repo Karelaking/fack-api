@@ -12,28 +12,33 @@ Use the type dropdown in the Edit Bar to assign a data type to any field:
 <TypeTable
   type={{
     string: {
-      description: 'Text values such as names, identifiers, sentences, or ISO timestamps.',
-      type: 'primitive',
+      description:
+        "Text values such as names, identifiers, sentences, or ISO timestamps.",
+      type: "primitive",
     },
     number: {
-      description: 'Floating-point numerical values, decimal amounts, ratings, and coordinates.',
-      type: 'primitive',
+      description:
+        "Floating-point numerical values, decimal amounts, ratings, and coordinates.",
+      type: "primitive",
     },
     integer: {
-      description: 'Whole numeric integers, sequence IDs, status codes, and counts.',
-      type: 'primitive',
+      description:
+        "Whole numeric integers, sequence IDs, status codes, and counts.",
+      type: "primitive",
     },
     boolean: {
-      description: 'Logical true or false binary values.',
-      type: 'primitive',
+      description: "Logical true or false binary values.",
+      type: "primitive",
     },
     object: {
-      description: 'Nested key-value container supporting arbitrary levels of child fields.',
-      type: 'composite',
+      description:
+        "Nested key-value container supporting arbitrary levels of child fields.",
+      type: "composite",
     },
     array: {
-      description: 'Ordered list of items with configurable element type (primitives or nested objects).',
-      type: 'composite',
+      description:
+        "Ordered list of items with configurable element type (primitives or nested objects).",
+      type: "composite",
     },
   }}
 />
@@ -58,7 +63,10 @@ Selecting `array` allows you to define the structure of list items through the *
 - **Object Arrays**: Configure elements as `object`. This unlocks an entire child field tree inside the array items, allowing you to model lists of records like line items, comments, or transaction histories.
 
 <Callout type="info">
-When you toggle **Nullable** on a field, the synthesizer generates a JSON Schema union type such as `["string", "null"]` and excludes the property from the parent's `required` array. Non-nullable fields are strictly enforced and automatically added to `required`.
+  When you toggle **Nullable** on a field, the synthesizer generates a JSON
+  Schema union type such as `["string", "null"]` and excludes the property from
+  the parent's `required` array. Non-nullable fields are strictly enforced and
+  automatically added to `required`.
 </Callout>
 
 ## Complete Example: Nested User Schema

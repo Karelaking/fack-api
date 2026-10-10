@@ -246,6 +246,7 @@ export function ProjectSettings({
                   render={({ field }) => (
                     <Switch
                       id="isLoggingEnabled"
+                      aria-label="Capture request history"
                       checked={field.value}
                       onCheckedChange={field.onChange}
                       disabled={isSubmitting || !isLogsDbConfigured}
@@ -273,6 +274,7 @@ export function ProjectSettings({
                   render={({ field }) => (
                     <Switch
                       id="isCachingEnabled"
+                      aria-label="Cache mock responses"
                       checked={field.value}
                       onCheckedChange={field.onChange}
                       disabled={isSubmitting}
@@ -306,8 +308,9 @@ export function ProjectSettings({
                       disabled={isSubmitting}
                     >
                       <SelectTrigger
-                        className="w-[200px]"
+                        className="w-50"
                         id="activeScenarioId"
+                        aria-label="Active scenario"
                       >
                         <SelectValue placeholder="Select a scenario" />
                       </SelectTrigger>

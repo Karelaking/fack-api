@@ -187,7 +187,9 @@ export const ImportOpenApiDialog = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div
+      <button
+        type="button"
+        aria-label="Close dialog"
         className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
         onClick={handleClose}
       />
@@ -210,6 +212,7 @@ export const ImportOpenApiDialog = ({
             type="button"
             onClick={handleClose}
             disabled={isGenerating || isApplying}
+            aria-label="Close dialog"
             className="border-border hover:bg-muted text-muted-foreground hover:text-foreground flex size-8 cursor-pointer items-center justify-center rounded-lg border transition-colors"
           >
             <RiCloseLine className="size-4" />
@@ -220,9 +223,13 @@ export const ImportOpenApiDialog = ({
           {!generatedApi ? (
             <div className="flex flex-col gap-6">
               <div className="space-y-4">
+                <label htmlFor="openapi-specification" className="sr-only">
+                  OpenAPI specification
+                </label>
                 <Textarea
+                  id="openapi-specification"
                   placeholder='{ "openapi": "3.0.3", "info": { "title": "My API" }, "paths": { ... } }'
-                  className="min-h-[300px]"
+                  className="min-h-75"
                   value={openApiString}
                   onChange={(e) => setOpenApiString(e.target.value)}
                   disabled={isGenerating}

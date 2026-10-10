@@ -10,7 +10,6 @@ import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { HeaderNewProjectButton } from "@/components/dashboard/HeaderNewProjectButton";
 import { MobileBottomNav } from "@/components/dashboard/MobileBottomNav";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { CommandMenu } from "@/components/command-menu";
 import { AiArchitectDialog } from "@/components/ai/AiArchitectDialog";
 import { ImportOpenApiDialog } from "@/components/ai/ImportOpenApiDialog";
 
@@ -109,7 +108,6 @@ export default async function ProjectLayout({
           <MobileBottomNav />
         </main>
       </div>
-      <CommandMenu />
     </SidebarProvider>
   );
 }

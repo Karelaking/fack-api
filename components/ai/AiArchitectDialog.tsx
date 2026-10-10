@@ -313,7 +313,9 @@ export const AiArchitectDialog = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
-      <div
+      <button
+        type="button"
+        aria-label="Close dialog"
         className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
         onClick={handleClose}
       />
@@ -340,6 +342,7 @@ export const AiArchitectDialog = ({
             type="button"
             onClick={handleClose}
             disabled={isGenerating || isApplying}
+            aria-label="Close dialog"
             className="border-border hover:bg-muted text-muted-foreground hover:text-foreground flex size-8 cursor-pointer items-center justify-center rounded-lg border transition-colors"
           >
             <RiCloseLine className="size-4" />
@@ -367,7 +370,11 @@ export const AiArchitectDialog = ({
                 </div>
               )}
 
-              {isGenerating && <GenerationProgress steps={progressSteps} />}
+              {isGenerating && (
+                <div aria-live="polite">
+                  <GenerationProgress steps={progressSteps} />
+                </div>
+              )}
             </div>
           ) : (
             <div className="flex flex-col gap-5">
@@ -423,6 +430,7 @@ export const AiArchitectDialog = ({
                   size="sm"
                   onClick={handleApplyChanges}
                   disabled={isApplying}
+                  aria-busy={isApplying}
                 >
                   <span className="flex items-center gap-1.5">
                     {isApplying ? (

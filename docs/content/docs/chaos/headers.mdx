@@ -28,13 +28,13 @@ In the **Edit Bar**, select the **Custom Response Headers** panel for your route
 
 The Headers Editor includes convenient one-click presets for common HTTP headers:
 
-| Preset Header | Example Value | Description |
-| :--- | :--- | :--- |
-| `Content-Type` | `application/json` | Explicitly declares the MIME type of the response payload. |
-| `Cache-Control` | `max-age=3600` | Instructs browsers or proxies to cache the payload for 1 hour. |
-| `Access-Control-Allow-Origin` | `*` | Customizes cross-origin resource sharing policy. |
-| `Authorization` | `Bearer token123` | Emulates mock access tokens returned in response headers. |
-| `X-RateLimit-Limit` | `100` | Specifies the maximum number of requests allowed per window. |
+| Preset Header                 | Example Value      | Description                                                    |
+| :---------------------------- | :----------------- | :------------------------------------------------------------- |
+| `Content-Type`                | `application/json` | Explicitly declares the MIME type of the response payload.     |
+| `Cache-Control`               | `max-age=3600`     | Instructs browsers or proxies to cache the payload for 1 hour. |
+| `Access-Control-Allow-Origin` | `*`                | Customizes cross-origin resource sharing policy.               |
+| `Authorization`               | `Bearer token123`  | Emulates mock access tokens returned in response headers.      |
+| `X-RateLimit-Limit`           | `100`              | Specifies the maximum number of requests allowed per window.   |
 
 ## Header Merging & Precedence
 
@@ -100,7 +100,9 @@ export async function getOrders() {
   const rateLimitRemaining = response.headers.get("X-RateLimit-Remaining");
 
   if (rateLimitRemaining && parseInt(rateLimitRemaining, 10) < 5) {
-    console.warn(`Approaching rate limit: ${rateLimitRemaining}/${rateLimitTotal} remaining.`);
+    console.warn(
+      `Approaching rate limit: ${rateLimitRemaining}/${rateLimitTotal} remaining.`,
+    );
   }
 
   return response.json();
@@ -108,7 +110,9 @@ export async function getOrders() {
 ```
 
 <Callout type="info">
-  In accordance with HTTP specifications, HTTP/2 and modern fetch implementations normalize header names to lowercase (e.g., `x-ratelimit-remaining`).
+  In accordance with HTTP specifications, HTTP/2 and modern fetch
+  implementations normalize header names to lowercase (e.g.,
+  `x-ratelimit-remaining`).
 </Callout>
 
 ## Configuration Reference
@@ -116,11 +120,13 @@ export async function getOrders() {
 <TypeTable
   type={{
     key: {
-      description: "HTTP header name (case-insensitive in standard HTTP, e.g. 'Cache-Control', 'X-RateLimit-Limit').",
+      description:
+        "HTTP header name (case-insensitive in standard HTTP, e.g. 'Cache-Control', 'X-RateLimit-Limit').",
       type: "string",
     },
     value: {
-      description: "Value assigned to the header (e.g. 'max-age=3600', 'Bearer mock-jwt-token').",
+      description:
+        "Value assigned to the header (e.g. 'max-age=3600', 'Bearer mock-jwt-token').",
       type: "string",
     },
   }}

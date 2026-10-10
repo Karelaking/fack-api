@@ -18,7 +18,8 @@ import {
 } from "@/lib/validators";
 
 export type DatabaseExecutor =
-  typeof db | Parameters<Parameters<typeof db.transaction>[0]>[0];
+  | typeof db
+  | Parameters<Parameters<typeof db.transaction>[0]>[0];
 
 export type EndpointWithRoutes = Endpoint & {
   routes: Route[];

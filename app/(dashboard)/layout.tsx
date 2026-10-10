@@ -4,7 +4,6 @@ import { RootSidebar } from "@/components/dashboard/RootSidebar";
 import { MobileBottomNav } from "@/components/dashboard/MobileBottomNav";
 import { CreateProjectDialog } from "@/components/dashboard/CreateProjectDialog";
 import { HeaderNewProjectButton } from "@/components/dashboard/HeaderNewProjectButton";
-import { CommandMenu } from "@/components/command-menu";
 
 export const dynamic = "force-dynamic";
 
@@ -42,7 +41,6 @@ export default async function DashboardLayout({
         </main>
       </div>
       <CreateProjectDialog />
-      <CommandMenu />
     </SidebarProvider>
   );
 }

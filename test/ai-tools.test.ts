@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect } from "vite-plus/test";
 import { agentTools } from "../lib/ai/ai-tools.service";
 import type { GeneratedRoute, GeneratedProperty } from "../lib/types/ai.type";
 

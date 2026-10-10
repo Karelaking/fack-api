@@ -32,41 +32,43 @@ Follow these steps to configure conditional routing for any endpoint:
     Select a route node on the [Canvas](/docs/canvas) and scroll down to the **Conditional Rules** section in the right-hand Edit Bar.
   </Step>
 
-  <Step>
-    ### 2. Click "Add Rule"
-    Click **Add Rule** to create a new blank condition, or click one of the quick preset buttons to start with a pre-configured template.
-  </Step>
+<Step>
+  ### 2. Click "Add Rule" Click **Add Rule** to create a new blank condition, or
+  click one of the quick preset buttons to start with a pre-configured template.
+</Step>
 
-  <Step>
-    ### 3. Select an Inspection Target
-    Choose the source component of the incoming HTTP request to inspect:
-    - `query`: A URL query parameter (e.g. `?error=true`, `?status=inactive`).
-    - `header`: An incoming HTTP request header (e.g. `Authorization`, `X-Client-Version`).
-    - `param`: A dynamic path variable extracted from the route path (e.g. `:id` from `/users/:id`).
-  </Step>
+<Step>
+  ### 3. Select an Inspection Target Choose the source component of the incoming
+  HTTP request to inspect: - `query`: A URL query parameter (e.g. `?error=true`,
+  `?status=inactive`). - `header`: An incoming HTTP request header (e.g.
+  `Authorization`, `X-Client-Version`). - `param`: A dynamic path variable
+  extracted from the route path (e.g. `:id` from `/users/:id`).
+</Step>
 
-  <Step>
-    ### 4. Enter the Key to Inspect
-    Enter the parameter or header key (case-insensitive for headers). Examples: `Authorization`, `id`, `error`, `role`.
-  </Step>
+<Step>
+  ### 4. Enter the Key to Inspect Enter the parameter or header key
+  (case-insensitive for headers). Examples: `Authorization`, `id`, `error`,
+  `role`.
+</Step>
 
-  <Step>
-    ### 5. Choose an Operator
-    Select the comparison operator to apply against the incoming value:
-    - `equals`: Exact string equality match.
-    - `contains`: Substring match within the extracted value.
-    - `exists`: Evaluates whether the header or parameter is present in the request.
-  </Step>
+<Step>
+  ### 5. Choose an Operator Select the comparison operator to apply against the
+  incoming value: - `equals`: Exact string equality match. - `contains`:
+  Substring match within the extracted value. - `exists`: Evaluates whether the
+  header or parameter is present in the request.
+</Step>
 
-  <Step>
-    ### 6. Enter the Expected Value
-    For `equals` or `contains`, provide the target string to match against (e.g., `not-found`, `admin`, `true`). For `exists`, the value field is not required.
-  </Step>
+<Step>
+  ### 6. Enter the Expected Value For `equals` or `contains`, provide the target
+  string to match against (e.g., `not-found`, `admin`, `true`). For `exists`,
+  the value field is not required.
+</Step>
 
-  <Step>
-    ### 7. Set the Response Status Code
-    Specify the HTTP status code to return when the rule matches (e.g., `401 Unauthorized`, `403 Forbidden`, `404 Not Found`, `500 Internal Server Error`).
-  </Step>
+<Step>
+  ### 7. Set the Response Status Code Specify the HTTP status code to return
+  when the rule matches (e.g., `401 Unauthorized`, `403 Forbidden`, `404 Not
+  Found`, `500 Internal Server Error`).
+</Step>
 
   <Step>
     ### 8. Define the Response Body
@@ -97,6 +99,7 @@ Fack API provides three standard rule presets accessible directly inside the Rul
       "message": "Missing authorization header"
     }
     ```
+
   </Tab>
 
   <Tab value="404 Not Found">
@@ -118,6 +121,7 @@ Fack API provides three standard rule presets accessible directly inside the Rul
       "message": "Record not-found does not exist"
     }
     ```
+
   </Tab>
 
   <Tab value="500 Error Trigger">
@@ -139,6 +143,7 @@ Fack API provides three standard rule presets accessible directly inside the Rul
       "message": "Simulated server failure"
     }
     ```
+
   </Tab>
 </Tabs>
 
@@ -147,28 +152,34 @@ Fack API provides three standard rule presets accessible directly inside the Rul
 <TypeTable
   type={{
     type: {
-      description: "Request segment to inspect: 'query' (URL query string), 'header' (request headers), or 'param' (path parameter).",
+      description:
+        "Request segment to inspect: 'query' (URL query string), 'header' (request headers), or 'param' (path parameter).",
       type: "'query' | 'header' | 'param'",
     },
     key: {
-      description: "Name of the header, query parameter, or dynamic path token to extract.",
+      description:
+        "Name of the header, query parameter, or dynamic path token to extract.",
       type: "string",
     },
     operator: {
-      description: "Matching logic: 'equals' (strict equality), 'contains' (substring search), or 'exists' (presence check).",
+      description:
+        "Matching logic: 'equals' (strict equality), 'contains' (substring search), or 'exists' (presence check).",
       type: "'equals' | 'contains' | 'exists'",
     },
     value: {
-      description: "Target value compared against incoming request string (required for equals/contains).",
+      description:
+        "Target value compared against incoming request string (required for equals/contains).",
       type: "string",
     },
     responseStatus: {
-      description: "HTTP status code emitted when rule condition matches (e.g. 401, 403, 404, 500).",
+      description:
+        "HTTP status code emitted when rule condition matches (e.g. 401, 403, 404, 500).",
       type: "number",
       default: "200",
     },
     responseBody: {
-      description: "Stringified JSON or text returned as the response payload when rule triggers.",
+      description:
+        "Stringified JSON or text returned as the response payload when rule triggers.",
       type: "string",
     },
   }}

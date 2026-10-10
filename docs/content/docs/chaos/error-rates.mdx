@@ -31,12 +31,16 @@ export function shouldError(errorRate: number): boolean {
 ```
 
 When a request is selected to fail:
+
 1. The engine checks the route's configured status code. If the route status is already `4xx` or `5xx` (e.g., `503 Service Unavailable`), that code is retained. Otherwise, it defaults to `500 Internal Server Error`.
 2. Execution immediately halts, bypassing schema generation and latency injection.
 3. The error is recorded in the [Request Logs](/docs/mock-engine) with `meta.isError: true` for auditability.
 
 <Callout type="warn">
-  Setting an error rate of **100%** will cause **ALL** incoming requests on that route to fail. While this is useful for simulating complete backend outages, remember to lower or disable the error rate once your resilience tests are complete.
+  Setting an error rate of **100%** will cause **ALL** incoming requests on that
+  route to fail. While this is useful for simulating complete backend outages,
+  remember to lower or disable the error rate once your resilience tests are
+  complete.
 </Callout>
 
 ## Error Response Envelope
@@ -96,7 +100,9 @@ export function useProducts() {
   return useQuery({
     queryKey: ["products"],
     queryFn: async () => {
-      const res = await fetch("http://localhost:3000/api/mock/acme/v1/products");
+      const res = await fetch(
+        "http://localhost:3000/api/mock/acme/v1/products",
+      );
       if (!res.ok) {
         throw new Error(`Server error: ${res.status}`);
       }
@@ -120,12 +126,14 @@ For mutating endpoints (like `POST /cart` or `PUT /settings`), intermittent erro
 <TypeTable
   type={{
     errorRate: {
-      description: "Percentage chance (0 to 100) that an incoming request fails with a simulated server error.",
+      description:
+        "Percentage chance (0 to 100) that an incoming request fails with a simulated server error.",
       type: "number",
       default: "0",
     },
     statusCode: {
-      description: "HTTP status code emitted on failure (defaults to 500 if the route code is in the 2xx or 3xx range).",
+      description:
+        "HTTP status code emitted on failure (defaults to 500 if the route code is in the 2xx or 3xx range).",
       type: "number",
       default: "500",
     },

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach } from "vite-plus/test";
 import {
   findMatchingRoute,
   clearMatcherCache,
@@ -190,5 +190,22 @@ describe("Route Matcher", () => {
     expect(matchResult?.params).toEqual({
       path: ["assets", "images", "logo.png"],
     });
+  });
+
+  it("should use updated route definitions after the matcher cache is rebuilt", () => {
+    const initialRoute = { ...routes[0], path: "/initial" };
+    const updatedRoute = {
+      ...initialRoute,
+      path: "/updated",
+      updatedAt: new Date(initialRoute.updatedAt.getTime() + 1),
+    };
+
+    expect(
+      findMatchingRoute([initialRoute], "GET", "/initial")?.route.path,
+    ).toBe("/initial");
+    expect(
+      findMatchingRoute([updatedRoute], "GET", "/updated")?.route.path,
+    ).toBe("/updated");
+    expect(findMatchingRoute([updatedRoute], "GET", "/initial")).toBeNull();
   });
 });

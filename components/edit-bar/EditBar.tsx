@@ -141,15 +141,13 @@ function EditBarInner({
   const [path, setPath] = React.useState(route.path);
   const [statusCode, setStatusCode] = React.useState(route.statusCode);
   const [isEnabled, setIsEnabled] = React.useState(route.isEnabled);
-
-  /* eslint-disable react-hooks/set-state-in-effect */
   React.useEffect(() => {
+    // eslint-disable-next-line react/set-state-in-effect
     setMethod(route.method);
     setPath(route.path);
     setStatusCode(route.statusCode);
     setIsEnabled(route.isEnabled);
   }, [route]);
-  /* eslint-enable react-hooks/set-state-in-effect */
 
   const [latencyMin, setLatencyMin] = React.useState(route.latencyMin ?? 0);
   const [latencyMax, setLatencyMax] = React.useState(route.latencyMax ?? 0);
@@ -284,6 +282,7 @@ function EditBarInner({
             </span>
             <Switch
               id="route-enabled"
+              aria-label="Enable route"
               checked={isEnabled}
               onCheckedChange={setIsEnabled}
               disabled={loading}

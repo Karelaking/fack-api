@@ -10,7 +10,12 @@ import type { HttpMethod } from "@/db/schema";
 // ─── Schema & Property Types ──────────────────────────────────────────────────
 
 export type JsonSchemaPropertyType =
-  "string" | "number" | "integer" | "boolean" | "object" | "array";
+  | "string"
+  | "number"
+  | "integer"
+  | "boolean"
+  | "object"
+  | "array";
 
 export interface GeneratedProperty {
   name: string;
@@ -143,7 +148,10 @@ export interface DetailedPromptResult {
 }
 
 export type GenerationProgressStatus =
-  "pending" | "active" | "completed" | "failed";
+  | "pending"
+  | "active"
+  | "completed"
+  | "failed";
 
 export type GenerationProgressStepId =
   | "understanding"

@@ -6,7 +6,9 @@ description: Configuration options and environment variables for local developme
 Fack API is designed to work out of the box with zero required environment variables for local development. However, for specialized workloads—such as remote request logging, custom apex domains, or AI-powered schema generation—several configuration options are available.
 
 <Callout type="info">
-No environment variables are required for basic usage. Fack API operates out of the box with embedded SQLite, so you can start developing immediately without configuring a database or secrets.
+  No environment variables are required for basic usage. Fack API operates out
+  of the box with embedded SQLite, so you can start developing immediately
+  without configuring a database or secrets.
 </Callout>
 
 ## Configuration Reference
@@ -18,32 +20,39 @@ The following table documents all supported environment variables:
     DATABASE_URL: {
       type: "string",
       default: '"file:./data/fack.db"',
-      description: "SQLite database path or libSQL URL for core workspace and route storage.",
+      description:
+        "SQLite database path or libSQL URL for core workspace and route storage.",
     },
     LOGS_POSTGRES_URL: {
       type: "string",
-      description: "PostgreSQL connection string for remote request logging (e.g., Neon, Supabase).",
+      description:
+        "PostgreSQL connection string for remote request logging (e.g., Neon, Supabase).",
     },
     APP_DOMAIN: {
       type: "string",
-      description: "Custom apex domain used for subdomain-based project routing.",
+      description:
+        "Custom apex domain used for subdomain-based project routing.",
     },
     NEXT_PUBLIC_APP_DOMAIN: {
       type: "string",
-      description: "Public domain exposed to the client for sharing and preview URLs.",
+      description:
+        "Public domain exposed to the client for sharing and preview URLs.",
     },
     LOG_LEVEL: {
       type: "number",
       default: "4",
-      description: "Consola log verbosity: 0 (silent), 1 (fatal), 2 (error), 3 (warn), 4 (info), 5 (trace).",
+      description:
+        "Consola log verbosity: 0 (silent), 1 (fatal), 2 (error), 3 (warn), 4 (info), 5 (trace).",
     },
     OPENAI_API_KEY: {
       type: "string",
-      description: "OpenAI API key used by the AI API Architect to synthesize REST API designs.",
+      description:
+        "OpenAI API key used by the AI API Architect to synthesize REST API designs.",
     },
     GOOGLE_GENERATIVE_AI_KEY: {
       type: "string",
-      description: "Google Gemini API key used by the AI API Architect to synthesize REST API designs.",
+      description:
+        "Google Gemini API key used by the AI API Architect to synthesize REST API designs.",
     },
   }}
 />
@@ -103,24 +112,32 @@ By default, Fack API matches subdomains on `.localhost` (e.g., `http://acme-stor
 
 Fack API uses [Consola](https://github.com/unjs/consola) for structured server logs. Adjust verbosity as needed:
 
-| Level | Name | Description |
-| :--- | :--- | :--- |
-| `0` | Silent | Suppresses all logging output |
-| `1` | Fatal | Logs only critical unrecoverable process errors |
-| `2` | Error | Logs route matching and generation failures |
-| `3` | Warn | Logs deprecations, invalid fallback schemas, or warnings |
-| `4` | Info | Default. Logs startup, cache warmups, and route resolutions |
-| `5` | Trace | Detailed trace logs for debugging proxy rewrites and routing trees |
+| Level | Name   | Description                                                        |
+| :---- | :----- | :----------------------------------------------------------------- |
+| `0`   | Silent | Suppresses all logging output                                      |
+| `1`   | Fatal  | Logs only critical unrecoverable process errors                    |
+| `2`   | Error  | Logs route matching and generation failures                        |
+| `3`   | Warn   | Logs deprecations, invalid fallback schemas, or warnings           |
+| `4`   | Info   | Default. Logs startup, cache warmups, and route resolutions        |
+| `5`   | Trace  | Detailed trace logs for debugging proxy rewrites and routing trees |
 
 ### AI API Architect (`OPENAI_API_KEY` & `GOOGLE_GENERATIVE_AI_KEY`)
 
-The **AI API Architect** feature allows you to describe full API systems using natural language prompts (e.g., *"Create an e-commerce order fulfillment system with inventory, orders, and payment webhooks"*).
+The **AI API Architect** feature allows you to describe full API systems using natural language prompts (e.g., _"Create an e-commerce order fulfillment system with inventory, orders, and payment webhooks"_).
 
 Providing an OpenAI or Google Gemini API key unlocks the AI generation drawer in the Visual Canvas and Dashboard.
 
 ## Next Steps
 
 <Cards>
-  <Card title="Quickstart Guide" href="/docs/getting-started/quickstart" description="Build and query your first mock API in under 5 minutes." />
-  <Card title="Core Concepts" href="/docs/getting-started/concepts" description="Explore the data hierarchy and dual canvas/dashboard views." />
+  <Card
+    title="Quickstart Guide"
+    href="/docs/getting-started/quickstart"
+    description="Build and query your first mock API in under 5 minutes."
+  />
+  <Card
+    title="Core Concepts"
+    href="/docs/getting-started/concepts"
+    description="Explore the data hierarchy and dual canvas/dashboard views."
+  />
 </Cards>

@@ -18,6 +18,7 @@ Both modes are intercepted at the edge proxy level (`proxy.ts`) and transparentl
     ```
 
     For example, querying `http://localhost:3000/acme-shop/v1/users` identifies `acme-shop` as the project slug and resolves `/v1/users` against the routes configured inside that project. This mode requires zero domain or DNS configuration.
+
   </Tab>
 
   <Tab value="Subdomain-Based">
@@ -28,6 +29,7 @@ Both modes are intercepted at the edge proxy level (`proxy.ts`) and transparentl
     ```
 
     For production deployments, setting the `APP_DOMAIN` environment variable (e.g. `APP_DOMAIN=fackapi.dev`) enables vanity hostnames such as `http://acme-shop.fackapi.dev/v1/users`.
+
   </Tab>
 </Tabs>
 
@@ -59,12 +61,12 @@ To prevent mock routes from intercepting platform administration features, the f
 
 ### Rewrite Mapping Examples
 
-| Incoming Client URL | Routing Mode | Internal Next.js Rewrite Target |
-| :--- | :--- | :--- |
-| `http://localhost:3000/store/v1/items` | Path-Based | `/api/mock/store/v1/items` |
-| `http://store.localhost:3000/v1/items` | Subdomain | `/api/mock/store/v1/items` |
-| `http://acme.fackapi.dev/v2/auth/login` | Subdomain | `/api/mock/acme/v2/auth/login` |
-| `http://localhost:3000/dashboard/projects` | System Path | `/dashboard/projects` (No rewrite) |
+| Incoming Client URL                        | Routing Mode | Internal Next.js Rewrite Target    |
+| :----------------------------------------- | :----------- | :--------------------------------- |
+| `http://localhost:3000/store/v1/items`     | Path-Based   | `/api/mock/store/v1/items`         |
+| `http://store.localhost:3000/v1/items`     | Subdomain    | `/api/mock/store/v1/items`         |
+| `http://acme.fackapi.dev/v2/auth/login`    | Subdomain    | `/api/mock/acme/v2/auth/login`     |
+| `http://localhost:3000/dashboard/projects` | System Path  | `/dashboard/projects` (No rewrite) |
 
 ---
 
@@ -115,5 +117,7 @@ An incoming request to `/files/documents/2026/quarterly-report.pdf` yields:
 ```
 
 <Callout type="info">
-  The mock engine automatically normalizes paths by collapsing redundant slashes (e.g. `/v1//users/` becomes `/v1/users`) and enforcing strict trailing slash neutrality.
+  The mock engine automatically normalizes paths by collapsing redundant slashes
+  (e.g. `/v1//users/` becomes `/v1/users`) and enforcing strict trailing slash
+  neutrality.
 </Callout>

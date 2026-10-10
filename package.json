@@ -6,13 +6,13 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint",
+    "lint": "vp lint",
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage",
+    "test": "vp test run",
+    "test:watch": "vp test",
+    "test:coverage": "vp test run --coverage",
     "docs:dev": "pnpm --dir docs dev",
     "docs:build": "pnpm --dir docs build",
     "docs:start": "pnpm --dir docs start",
@@ -74,26 +74,23 @@
     "@types/node": "^26",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@vitest/coverage-v8": "^4.1.10",
+    "@vitest/coverage-v8": "catalog:",
     "drizzle-kit": "^0.31.10",
-    "eslint": "^9",
-    "eslint-config-next": "16.3.4",
     "husky": "^9.1.7",
     "lint-staged": "^17.5.1",
-    "prettier": "^3.9.6",
-    "prettier-plugin-tailwindcss": "^0.8.0",
     "semantic-release": "^25.0.9",
     "tailwindcss": "^4",
     "typescript": "^6",
-    "vitest": "^4.1.10"
+    "vitest": "catalog:",
+    "vite-plus": "catalog:"
   },
   "lint-staged": {
     "*.{ts,tsx}": [
-      "eslint --fix",
-      "prettier --write"
+      "vp lint --fix",
+      "vp fmt"
     ],
     "*.{json,md,yml,yaml,css}": [
-      "prettier --write"
+      "vp fmt"
     ]
   }
 }

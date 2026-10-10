@@ -27,6 +27,10 @@ import {
   AI_PROMPT_EXPANSION_SYSTEM_PROMPT,
 } from "./ai-prompts.constant";
 import {
+  synthesizeDetailedPrompt,
+  synthesizeFallbackApi,
+} from "./ai-fallback-synthesizer.constant";
+import {
   generatedApiSchema,
   detailedPromptSchema,
   validateAndNormalizeApi,
@@ -126,9 +130,7 @@ export async function expandUserPrompt(
     }
   }
 
-  throw new Error(
-    "No AI API keys configured. Please set GEMINI_API_KEY or OPENAI_API_KEY in your environment variables to use AI Architect.",
-  );
+  return synthesizeDetailedPrompt(cleanPrompt);
 }
 
 /**
@@ -286,9 +288,7 @@ When modifying, preserve existing resource conventions where appropriate, avoid 
         );
       }
     } else {
-      throw new Error(
-        "No AI API keys configured. Please set GEMINI_API_KEY or OPENAI_API_KEY.",
-      );
+      rawGeneratedApi = synthesizeFallbackApi(cleanPrompt);
     }
 
     emitProgress(

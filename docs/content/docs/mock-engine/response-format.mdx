@@ -78,8 +78,18 @@ When the request specifies `?page=N&limit=X` (or aliases `?_page=N&_limit=X`), t
 ```json title="GET /api/mock/acme-shop/v1/products?page=2&limit=10"
 {
   "data": [
-    { "id": "prod_11", "name": "Headset Pro", "price": 299.99, "inStock": true },
-    { "id": "prod_12", "name": "Tenkeyless Keyboard", "price": 149.00, "inStock": false }
+    {
+      "id": "prod_11",
+      "name": "Headset Pro",
+      "price": 299.99,
+      "inStock": true
+    },
+    {
+      "id": "prod_12",
+      "name": "Tenkeyless Keyboard",
+      "price": 149.0,
+      "inStock": false
+    }
   ],
   "meta": {
     "total": 100,
@@ -182,5 +192,7 @@ The `meta` object exposes diagnostic, routing, and pagination properties:
 />
 
 <Callout type="info">
-  When consuming mock endpoints with Axios or fetch, you can configure a response interceptor to unwrap `response.data.data` as your primary data model while inspecting `response.data.meta` for pagination state.
+  When consuming mock endpoints with Axios or fetch, you can configure a
+  response interceptor to unwrap `response.data.data` as your primary data model
+  while inspecting `response.data.meta` for pagination state.
 </Callout>

@@ -24,13 +24,13 @@ graph LR
 
 Each HTTP method features a distinct color system applied to its badge, left border highlight, and glowing status dot:
 
-| Method | Badge Color | Left Border | Typical Usage |
-| :--- | :--- | :--- | :--- |
-| `GET` | **Emerald / Green** | `border-l-emerald-500` | Fetching resource entities or collections |
-| `POST` | **Blue** | `border-l-blue-500` | Creating resources or executing actions |
-| `PUT` | **Amber / Orange** | `border-l-amber-500` | Replacing existing resource records |
-| `DELETE` | **Rose / Red** | `border-l-rose-500` | Removing or archiving entities |
-| `PATCH` | **Purple** | `border-l-purple-500` | Applying partial modifications to resources |
+| Method   | Badge Color         | Left Border            | Typical Usage                               |
+| :------- | :------------------ | :--------------------- | :------------------------------------------ |
+| `GET`    | **Emerald / Green** | `border-l-emerald-500` | Fetching resource entities or collections   |
+| `POST`   | **Blue**            | `border-l-blue-500`    | Creating resources or executing actions     |
+| `PUT`    | **Amber / Orange**  | `border-l-amber-500`   | Replacing existing resource records         |
+| `DELETE` | **Rose / Red**      | `border-l-rose-500`    | Removing or archiving entities              |
+| `PATCH`  | **Purple**          | `border-l-purple-500`  | Applying partial modifications to resources |
 
 ### Status Code Badges
 
@@ -45,19 +45,19 @@ The status code badge provides immediate visual confirmation of the route's defa
 
 Route nodes surface operational details through compact visual indicators:
 
-| Visual Indicator | Element Location | Description |
-| :--- | :--- | :--- |
-| **Method Badge** | Top Left | Color-coded HTTP verb with a glowing pulse dot when the route is enabled. |
-| **Status Code** | Top Center | Monospace HTTP status code accompanied by a semantic status icon. |
-| **Pencil Button** | Top Right | Opens the slide-out [Edit Bar](/docs/schemas) drawer to edit schemas, headers, and rules. |
-| **Enable/Disable Switch** | Top Right | Toggle switch. Disabling dims the node (`opacity-60 grayscale`) and turns off mock responses without deleting the node. |
-| **Path Pill** | Body | Monospace route sub-path (e.g. `/:id` or `/checkout`). Supports dynamic parameter tokens. |
-| **JSON Badge** | Body (Feature) | Displays `JSON (N)` showing the count of schema properties configured. |
-| **Headers Badge** | Body (Feature) | Displays `Headers (N)` indicating active custom response headers. |
-| **Rules Badge** | Body (Feature) | Displays `Rules (N)` indicating conditional response rules. |
-| **Latency Jitter** | Footer Left | Displays simulated network latency range (e.g. `100-300ms`) with clock icon. |
-| **Error Rate** | Footer Right | Displays simulated failure injection percentage (e.g. `10% Err`) with alert icon. |
-| **Handle Connectors** | Left / Right | Target and source handle ports for dragging directed relationship edges. |
+| Visual Indicator          | Element Location | Description                                                                                                             |
+| :------------------------ | :--------------- | :---------------------------------------------------------------------------------------------------------------------- |
+| **Method Badge**          | Top Left         | Color-coded HTTP verb with a glowing pulse dot when the route is enabled.                                               |
+| **Status Code**           | Top Center       | Monospace HTTP status code accompanied by a semantic status icon.                                                       |
+| **Pencil Button**         | Top Right        | Opens the slide-out [Edit Bar](/docs/schemas) drawer to edit schemas, headers, and rules.                               |
+| **Enable/Disable Switch** | Top Right        | Toggle switch. Disabling dims the node (`opacity-60 grayscale`) and turns off mock responses without deleting the node. |
+| **Path Pill**             | Body             | Monospace route sub-path (e.g. `/:id` or `/checkout`). Supports dynamic parameter tokens.                               |
+| **JSON Badge**            | Body (Feature)   | Displays `JSON (N)` showing the count of schema properties configured.                                                  |
+| **Headers Badge**         | Body (Feature)   | Displays `Headers (N)` indicating active custom response headers.                                                       |
+| **Rules Badge**           | Body (Feature)   | Displays `Rules (N)` indicating conditional response rules.                                                             |
+| **Latency Jitter**        | Footer Left      | Displays simulated network latency range (e.g. `100-300ms`) with clock icon.                                            |
+| **Error Rate**            | Footer Right     | Displays simulated failure injection percentage (e.g. `10% Err`) with alert icon.                                       |
+| **Handle Connectors**     | Left / Right     | Target and source handle ports for dragging directed relationship edges.                                                |
 
 ## 2. Endpoint Group Node (`endpointGroup`)
 
@@ -83,8 +83,10 @@ graph TD
 - **Visual Styling**: Rendered with an engineered subtle micro-grid, dashed glowing boundary border, and a folder icon indicating service encapsulation.
 
 <Callout type="info">
-**Hierarchical Nesting & Movement**
-When you drag an Endpoint Group node across the canvas, all nested child route nodes move with it automatically. Individual route nodes can also be repositioned within the group's interior boundary.
+  **Hierarchical Nesting & Movement** When you drag an Endpoint Group node
+  across the canvas, all nested child route nodes move with it automatically.
+  Individual route nodes can also be repositioned within the group's interior
+  boundary.
 </Callout>
 
 ## Editing Nodes via the Edit Bar

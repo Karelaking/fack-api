@@ -41,6 +41,7 @@ Choose your deployment target below to view step-by-step setup instructions:
         Click **Deploy**. Vercel will run `pnpm build` and deploy the application across global edge locations.
       </Step>
     </Steps>
+
   </Tab>
 
   <Tab value="Docker">
@@ -80,6 +81,7 @@ Choose your deployment target below to view step-by-step setup instructions:
         ```
       </Step>
     </Steps>
+
   </Tab>
 
   <Tab value="Node.js">
@@ -127,11 +129,15 @@ Choose your deployment target below to view step-by-step setup instructions:
         ```
       </Step>
     </Steps>
+
   </Tab>
 </Tabs>
 
 <Callout type="warn">
-  Local file-based SQLite (`file:./data/fack.db`) is not recommended for multi-instance or horizontally scaled production deployments due to filesystem locking. For multi-replica or auto-scaling clusters, use **Turso (libSQL)** for schema and endpoint state and **PostgreSQL** for request logging.
+  Local file-based SQLite (`file:./data/fack.db`) is not recommended for
+  multi-instance or horizontally scaled production deployments due to filesystem
+  locking. For multi-replica or auto-scaling clusters, use **Turso (libSQL)**
+  for schema and endpoint state and **PostgreSQL** for request logging.
 </Callout>
 
 ## Production Checklist

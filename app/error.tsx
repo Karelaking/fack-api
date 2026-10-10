@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
  * Root-level error boundary.
  * Catches any unhandled runtime error across the entire application.
  */
-export default function GlobalError({
+export default function Error({
   error,
   reset,
 }: {

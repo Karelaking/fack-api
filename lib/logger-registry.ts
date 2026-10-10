@@ -88,7 +88,7 @@ export class LoggerRegistry {
     if (!this.isInitialized) {
       this.isInitialized = true;
       try {
-        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        // oxlint-disable-next-line @typescript-eslint/no-require-imports
         const { registerConsolaProvider } = require("./logger");
         registerConsolaProvider();
       } catch {

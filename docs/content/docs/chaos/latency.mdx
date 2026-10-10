@@ -29,13 +29,13 @@ flowchart LR
 
 The Chaos Config panel includes one-click presets designed to mirror real-world connection environments:
 
-| Preset | Min | Max | Target Environment & Use Case |
-| :--- | :--- | :--- | :--- |
-| **Normal** | `0ms` | `0ms` | Local development with zero artificial delay |
-| **Fast 4G** | `50ms` | `150ms` | Typical urban mobile connection |
-| **Slow 3G** | `1,000ms` | `2,000ms` | Stress-testing loading spinners and skeleton screens |
-| **Flaky** | `200ms` | `500ms` | Intermittent network hiccups and jitter |
-| **Severe** | `2,000ms` | `4,000ms` | Verifying frontend `AbortController` and timeout guards |
+| Preset      | Min       | Max       | Target Environment & Use Case                           |
+| :---------- | :-------- | :-------- | :------------------------------------------------------ |
+| **Normal**  | `0ms`     | `0ms`     | Local development with zero artificial delay            |
+| **Fast 4G** | `50ms`    | `150ms`   | Typical urban mobile connection                         |
+| **Slow 3G** | `1,000ms` | `2,000ms` | Stress-testing loading spinners and skeleton screens    |
+| **Flaky**   | `200ms`   | `500ms`   | Intermittent network hiccups and jitter                 |
+| **Severe**  | `2,000ms` | `4,000ms` | Verifying frontend `AbortController` and timeout guards |
 
 ## Jitter Randomization
 
@@ -45,8 +45,7 @@ To ensure tests don't assume a constant round-trip duration, Fack API randomizes
 const effectiveMin = Math.max(0, min);
 const effectiveMax = Math.max(effectiveMin, max);
 const delay =
-  Math.floor(Math.random() * (effectiveMax - effectiveMin + 1)) +
-  effectiveMin;
+  Math.floor(Math.random() * (effectiveMax - effectiveMin + 1)) + effectiveMin;
 
 await new Promise((resolve) => setTimeout(resolve, delay));
 ```
@@ -110,7 +109,9 @@ export async function fetchUsersWithTimeout(timeoutMs = 2500) {
 ```
 
 <Callout type="info">
-  Latency is applied *after* [Conditional Rules](/docs/chaos/rules) evaluation. If a request triggers a conditional rule, the response is delivered immediately without applying the route's latency delay.
+  Latency is applied *after* [Conditional Rules](/docs/chaos/rules) evaluation.
+  If a request triggers a conditional rule, the response is delivered
+  immediately without applying the route's latency delay.
 </Callout>
 
 ## Configuration Reference
@@ -118,12 +119,14 @@ export async function fetchUsersWithTimeout(timeoutMs = 2500) {
 <TypeTable
   type={{
     latencyMin: {
-      description: "Minimum delay in milliseconds injected before response generation (0 - 30,000).",
+      description:
+        "Minimum delay in milliseconds injected before response generation (0 - 30,000).",
       type: "number",
       default: "0",
     },
     latencyMax: {
-      description: "Maximum delay in milliseconds. Jitter is calculated uniformly between min and max (0 - 30,000).",
+      description:
+        "Maximum delay in milliseconds. Jitter is calculated uniformly between min and max (0 - 30,000).",
       type: "number",
       default: "0",
     },

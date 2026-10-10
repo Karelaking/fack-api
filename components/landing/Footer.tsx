@@ -4,6 +4,8 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { ArrowRight, Sparkles, CheckCircle2 } from "lucide-react";
 
+const CURRENT_YEAR = 2026;
+
 /**
  * Landing page Footer matching the reference design layout:
  * - Top newsletter input ("Unlock what's hidden ✨") + 2 navigation link columns
@@ -196,8 +198,7 @@ export const Footer = (): React.JSX.Element => {
         {/* Bottom Bar: Copyright & Legal Nav */}
         <div className="text-muted-foreground flex flex-col items-center justify-between gap-6 px-4 py-10 text-xs font-medium sm:flex-row sm:text-sm">
           <p>
-            ©{new Date().getFullYear()} Fack API Studio. All Rights Reserved.
-            Crafted by{" "}
+            ©{CURRENT_YEAR} Fack API Studio. All Rights Reserved. Crafted by{" "}
             <a
               href="https://github.com/Karelaking"
               target="_blank"

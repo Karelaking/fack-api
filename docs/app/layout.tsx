@@ -2,6 +2,12 @@ import { RootProvider } from "fumadocs-ui/provider/next";
 import "./global.css";
 import { Inter } from "next/font/google";
 
+export const metadata = {
+  title: "Fack API Documentation",
+  description:
+    "Documentation for building and testing mock APIs with Fack API.",
+};
+
 const inter = Inter({
   subsets: ["latin"],
 });

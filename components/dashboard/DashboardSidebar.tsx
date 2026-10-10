@@ -88,7 +88,7 @@ export const DashboardSidebar = ({
     return () => window.removeEventListener("route-selected", handleSelected);
   }, []);
   React.useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+    // eslint-disable-next-line react/set-state-in-effect
     setProjects(initialProjects);
   }, [initialProjects]);
 
@@ -206,6 +206,7 @@ export const DashboardSidebar = ({
                             render={
                               <Link
                                 href={`/projects/${activeProject.slug}/${subItem.path}`}
+                                aria-label={subItem.name}
                               />
                             }
                           >

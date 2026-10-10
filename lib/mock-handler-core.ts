@@ -1,12 +1,10 @@
 import type { NextRequest } from "next/server";
 import { db } from "@/db";
 import { sqlClient } from "@/db/postgres";
-import { endpoints, type Project, scenarios } from "@/db/schema";
+import { scenarios, type Project } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { after } from "next/server";
 import {
-  getCachedRoutes,
-  setCachedRoutes,
   getCachedMockData,
   setCachedMockData,
   getCachedSingleMockData,
@@ -31,24 +29,17 @@ import {
   getMockCollection,
   deleteMockItem,
 } from "@/lib/stateful-mock";
-import { findMatchingRoute } from "@/lib/route-matcher";
+import { matchProjectMockRoute } from "@/lib/services/mock-route.service";
 import { LoggerRegistry } from "@/lib/logger-registry";
 import { MockResponseFormatterFactory } from "@/lib/mock-formatter";
+import {
+  parsePagination,
+  parseRouteHeaders,
+  parseRouteSchema,
+} from "@/lib/services/mock-request-input.service";
 
 const mockLogger = LoggerRegistry.get("mock");
 const mockCoreTrace = LoggerRegistry.getTrace("mock-core");
-
-/**
- * Normalizes a URL path by collapsing multiple slashes and ensuring
- * a leading slash. Handles edge cases from basePath + path concatenation.
- */
-function normalizePath(path: string): string {
-  mockCoreTrace.traceCall("normalizePath", path);
-  const normalized = ("/" + path).replace(/\/+/g, "/").replace(/\/$/, "");
-  const res = normalized || "/";
-  mockCoreTrace.traceSuccess("normalizePath", res);
-  return res;
-}
 
 export interface ProcessMockRequestOptions {
   project: Project;
@@ -131,7 +122,7 @@ async function recordRequestLog(
   isError: boolean,
   payload: unknown,
 ): Promise<void> {
-  if (!project || !project.isLoggingEnabled || !process.env.LOGS_POSTGRES_URL) {
+  if (!project || !project.isLoggingEnabled) {
     return;
   }
   const queryParams = JSON.stringify(
@@ -233,31 +224,12 @@ export async function processMockRequest({
   try {
     const method = request.method;
 
-    // ── 1. Load All Enabled Routes for This Project (with Cache) ─────────
-    let allRoutes = getCachedRoutes(project.id);
-
-    if (!allRoutes) {
-      const projectEndpoints = await db.query.endpoints.findMany({
-        where: eq(endpoints.projectId, project.id),
-        with: {
-          routes: {
-            with: { webhooks: true },
-          },
-        },
-      });
-      allRoutes = projectEndpoints.flatMap((e) =>
-        e.routes.map((r) => ({
-          ...r,
-          endpoint: { id: e.id, basePath: e.basePath, name: e.name },
-          path: normalizePath(e.basePath + r.path),
-        })),
-      );
-      setCachedRoutes(project.id, allRoutes);
-    }
-
-    // ── 2. Find Best Matching Route (Exact or Dynamic with Path Params) ───
-    const enabledRoutes = allRoutes.filter((r) => r.isEnabled);
-    const matchResult = findMatchingRoute(enabledRoutes, method, matchedPath);
+    // ── 1. Load and match the project's enabled routes ───────────────────
+    const matchResult = await matchProjectMockRoute(
+      project.id,
+      method,
+      matchedPath,
+    );
     const route = matchResult?.route;
     const matchedParams = matchResult?.params ?? {};
 
@@ -301,7 +273,7 @@ export async function processMockRequest({
           process.env.JWT_SECRET || project.id,
         );
         await jwtVerify(token, secret);
-      } catch (_err) {
+      } catch {
         const errBody = {
           error: true,
           message: "Unauthorized",
@@ -398,10 +370,7 @@ export async function processMockRequest({
         request: { body: bodyData, query: queryObj, params: matchedParams },
       });
 
-      let customHeaders: Record<string, string> = {};
-      try {
-        customHeaders = JSON.parse(route.customHeaders ?? "{}");
-      } catch {}
+      const customHeaders = parseRouteHeaders(route);
 
       const response = buildResponse(
         rawPayload,
@@ -418,36 +387,12 @@ export async function processMockRequest({
     }
 
     // ── 6. Schema Resolution & Payload Generation ─────────────────────────
-    let schema: Record<string, unknown> = {};
-    try {
-      schema = JSON.parse(route.responseSchema ?? "{}");
-    } catch {
-      mockLogger.warn(`Invalid JSON schema for route ${route.id}`);
-    }
+    const schema = parseRouteSchema(route);
 
     // Parse pagination parameters (page, limit)
     const searchParams = request.nextUrl.searchParams;
-    const pageParam = searchParams.get("page") || searchParams.get("_page");
-    const limitParam =
-      searchParams.get("limit") ||
-      searchParams.get("_limit") ||
-      searchParams.get("count");
-
-    let limitValue: number | undefined = undefined;
-    let pageValue = 1;
-
-    if (pageParam) {
-      const parsedPage = parseInt(pageParam, 10);
-      if (!isNaN(parsedPage) && parsedPage > 0) {
-        pageValue = parsedPage;
-      }
-    }
-    if (limitParam) {
-      const parsedLimit = parseInt(limitParam, 10);
-      if (!isNaN(parsedLimit) && parsedLimit > 0) {
-        limitValue = parsedLimit;
-      }
-    }
+    const { pageParam, limitParam, pageValue, limitValue, isPagedRequest } =
+      parsePagination(searchParams);
 
     let rawPayload: unknown;
     let isFromCache = false;
@@ -458,7 +403,6 @@ export async function processMockRequest({
       pageParam !== null ||
       limitParam !== null;
 
-    const isPagedRequest = pageParam !== null;
     const cachingEnabled = project.isCachingEnabled !== false;
 
     if (isArrayResponse) {
@@ -672,12 +616,7 @@ export async function processMockRequest({
     }
 
     // ── 7. Parse Custom Headers ──────────────────────────────────────────
-    let customHeaders: Record<string, string> = {};
-    try {
-      customHeaders = JSON.parse(route.customHeaders ?? "{}");
-    } catch {
-      mockLogger.warn(`Invalid custom headers for route ${route.id}`);
-    }
+    const customHeaders = parseRouteHeaders(route);
 
     // ── 8. Wrap Response using SOLID Formatter Factory ───────────────────
     const latency = Date.now() - startTime;

@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+const CURRENT_YEAR = 2026;
 import { useTheme } from "next-themes";
 import {
   RiArrowRightUpLine,
@@ -795,8 +796,7 @@ export const LandingPage = (): React.JSX.Element => {
           </div>
 
           <div className="mt-6 border-t border-neutral-200/60 pt-6 text-center text-[11px] text-neutral-400 dark:border-neutral-800/60">
-            © {new Date().getFullYear()} Schema Flow Studio. Released under the
-            MIT License.
+            © {CURRENT_YEAR} Schema Flow Studio. Released under the MIT License.
           </div>
         </footer>
       </div>
