@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useUser } from "@clerk/nextjs";
+import { useClerk, useUser } from "@clerk/nextjs";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -41,6 +41,7 @@ type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
 export function ProfileDialog({ children }: { children: React.ReactNode }) {
   const { user } = useUser();
+  const { signOut } = useClerk();
   const [isSaving, setIsSaving] = React.useState(false);
 
   const form = useForm<ProfileFormValues>({
@@ -134,6 +135,15 @@ export function ProfileDialog({ children }: { children: React.ReactNode }) {
       console.error("Clerk Metadata Error:", error);
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await signOut({ redirectUrl: "/" });
+    } catch (error) {
+      toast.error("Failed to log out");
+      console.error("Clerk Sign Out Error:", error);
     }
   };
 
@@ -293,6 +303,25 @@ export function ProfileDialog({ children }: { children: React.ReactNode }) {
             </DialogFooter>
           </form>
         </Form>
+
+        <Separator />
+
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <h4 className="text-sm font-medium">Log out</h4>
+            <p className="text-muted-foreground text-xs">
+              End your current Fack API session.
+            </p>
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            className="border-destructive/40 text-destructive hover:bg-destructive/10 hover:text-destructive"
+            onClick={() => void handleSignOut()}
+          >
+            Log out
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   );
