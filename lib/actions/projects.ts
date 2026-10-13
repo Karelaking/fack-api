@@ -208,10 +208,24 @@ export async function updateProject(
     }
 
     if (updates.slug) {
-      updates.slug = updates.slug
+      const normalizedSlug = updates.slug
         .split("/")
         .map((s) => slugify(s))
         .join("/");
+
+      if (normalizedSlug === existing.slug) {
+        updates.slug = normalizedSlug;
+      } else {
+        // createProject enforces slug uniqueness; renames must too, otherwise
+        // two projects could share a slug and resolve ambiguously.
+        const conflict = await db.query.projects.findFirst({
+          where: eq(projects.slug, normalizedSlug),
+        });
+        updates.slug =
+          conflict && conflict.id !== id
+            ? `${normalizedSlug}-${generateId(4)}`
+            : normalizedSlug;
+      }
     }
 
     const hasLogsDb = !!process.env.LOGS_POSTGRES_URL;
@@ -225,7 +239,12 @@ export async function updateProject(
       .where(eq(projects.id, id))
       .returning();
 
+    // projectBySlugCache is keyed by slug, so evict both the previous and the
+    // new slug; otherwise the project keeps resolving under its old slug.
     clearProjectCache(project.id, project.slug);
+    if (existing.slug !== project.slug) {
+      clearProjectCache(project.id, existing.slug);
+    }
     revalidatePath("/");
     projectsTrace.traceSuccess("updateProject", project.name);
     return project;
