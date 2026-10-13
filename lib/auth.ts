@@ -72,14 +72,14 @@ export function assertProjectOwnedBy(
 }
 
 /**
- * Resolves a project and verifies the current user may access it.
+ * Loads a project and throws when the user may not access it.
  *
- * @returns the authenticated user id.
- * @throws {UnauthorizedError|ForbiddenError}
+ * Assumes the caller already authenticated the user.
  */
-export async function requireProjectAccess(projectId: string): Promise<string> {
-  const userId = await requireUserId();
-
+async function assertProjectIdAccess(
+  projectId: string,
+  userId: string,
+): Promise<void> {
   const project = await db.query.projects.findFirst({
     where: eq(projects.id, projectId),
     columns: { userId: true },
@@ -90,11 +90,26 @@ export async function requireProjectAccess(projectId: string): Promise<string> {
   }
 
   assertProjectOwnedBy(project, userId);
+}
+
+/**
+ * Resolves a project and verifies the current user may access it.
+ *
+ * @returns the authenticated user id.
+ * @throws {UnauthorizedError|ForbiddenError}
+ */
+export async function requireProjectAccess(projectId: string): Promise<string> {
+  const userId = await requireUserId();
+  await assertProjectIdAccess(projectId, userId);
   return userId;
 }
 
 /**
  * Resolves the project owning an endpoint and verifies access.
+ *
+ * Authentication is checked before the resource is resolved so that
+ * unauthenticated callers always receive a 401, never a resource-existence
+ * signal.
  *
  * @returns the authenticated user id.
  * @throws {UnauthorizedError|ForbiddenError}
@@ -102,6 +117,8 @@ export async function requireProjectAccess(projectId: string): Promise<string> {
 export async function requireEndpointAccess(
   endpointId: string,
 ): Promise<string> {
+  const userId = await requireUserId();
+
   const endpoint = await db.query.endpoints.findFirst({
     where: eq(endpoints.id, endpointId),
     columns: { projectId: true },
@@ -111,7 +128,8 @@ export async function requireEndpointAccess(
     throw new ForbiddenError("Endpoint not found");
   }
 
-  return requireProjectAccess(endpoint.projectId);
+  await assertProjectIdAccess(endpoint.projectId, userId);
+  return userId;
 }
 
 /**
@@ -121,16 +139,20 @@ export async function requireEndpointAccess(
  * @throws {UnauthorizedError|ForbiddenError}
  */
 export async function requireRouteAccess(routeId: string): Promise<string> {
+  const userId = await requireUserId();
+
   const route = await db.query.routes.findFirst({
     where: eq(routes.id, routeId),
     columns: { endpointId: true },
+    with: { endpoint: { columns: { projectId: true } } },
   });
 
-  if (!route) {
+  if (!route || !route.endpoint) {
     throw new ForbiddenError("Route not found");
   }
 
-  return requireEndpointAccess(route.endpointId);
+  await assertProjectIdAccess(route.endpoint.projectId, userId);
+  return userId;
 }
 
 /**
@@ -140,16 +162,25 @@ export async function requireRouteAccess(routeId: string): Promise<string> {
  * @throws {UnauthorizedError|ForbiddenError}
  */
 export async function requireWebhookAccess(webhookId: string): Promise<string> {
+  const userId = await requireUserId();
+
   const webhook = await db.query.webhooks.findFirst({
     where: eq(webhooks.id, webhookId),
     columns: { routeId: true },
+    with: {
+      route: {
+        columns: { endpointId: true },
+        with: { endpoint: { columns: { projectId: true } } },
+      },
+    },
   });
 
-  if (!webhook) {
+  if (!webhook || !webhook.route || !webhook.route.endpoint) {
     throw new ForbiddenError("Webhook not found");
   }
 
-  return requireRouteAccess(webhook.routeId);
+  await assertProjectIdAccess(webhook.route.endpoint.projectId, userId);
+  return userId;
 }
 
 /**
