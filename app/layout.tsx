@@ -14,6 +14,13 @@ const inter = Inter({
   subsets: ["latin"],
 });
 
+/**
+ * Runs before first paint to apply the persisted theme class, preventing a
+ * flash of the wrong theme (FOUC). Kept in sync with ThemeProvider: same
+ * storage key ("theme") and supported values (light | dark | system).
+ */
+const themeInitScript = `(function(){try{var stored=localStorage.getItem("theme");var prefersDark=window.matchMedia("(prefers-color-scheme: dark)").matches;var isDark=stored==="dark"||((stored===null||stored==="system")&&prefersDark);var root=document.documentElement;root.classList.toggle("dark",isDark);root.style.colorScheme=isDark?"dark":"light";}catch(e){}})();`;
+
 export const metadata = {
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
@@ -48,6 +55,13 @@ export default function RootLayout({
         className={`${inter.variable} ${GeistMono.variable} h-full antialiased`}
         suppressHydrationWarning
       >
+        <head>
+          {/*
+            Blocking inline script: sets the theme class before the browser
+            paints, avoiding a flash of the default (light) theme.
+          */}
+          <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        </head>
         <body className="bg-background text-foreground flex min-h-full flex-col">
           <NuqsAdapter>
             <ThemeProvider

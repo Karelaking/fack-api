@@ -36,6 +36,31 @@ function applyThemeClass(theme: ResolvedTheme): void {
   root.style.colorScheme = theme;
 }
 
+/**
+ * Applies the resolved theme, optionally suppressing CSS transitions so the
+ * swap does not animate (e.g. background-color easing on theme toggle).
+ */
+function applyThemeWithTransitionGuard(
+  theme: ResolvedTheme,
+  disableTransition: boolean,
+): void {
+  if (!disableTransition) {
+    applyThemeClass(theme);
+    return;
+  }
+
+  const style = document.createElement("style");
+  style.appendChild(document.createTextNode("*{transition:none!important}"));
+  document.head.appendChild(style);
+
+  applyThemeClass(theme);
+
+  // Force a reflow so the browser commits the new styles before transitions
+  // are re-enabled on the next tick.
+  void document.body.offsetHeight;
+  window.setTimeout(() => style.remove(), 0);
+}
+
 function isTheme(value: string | undefined | null): value is Theme {
   return value === "light" || value === "dark" || value === "system";
 }
@@ -80,6 +105,7 @@ export const ThemeProvider = ({
   defaultTheme = "system",
   enableSystem = true,
   storageKey = "theme",
+  disableTransitionOnChange = false,
 }: ThemeProviderProps): React.JSX.Element => {
   const [theme, setThemeState] = React.useState<Theme>(() => {
     if (typeof window === "undefined") {
@@ -101,10 +127,10 @@ export const ThemeProvider = ({
 
   React.useEffect(() => {
     if (attribute === "class") {
-      applyThemeClass(resolvedTheme);
+      applyThemeWithTransitionGuard(resolvedTheme, disableTransitionOnChange);
     }
     localStorage.setItem(storageKey, theme);
-  }, [attribute, resolvedTheme, storageKey, theme]);
+  }, [attribute, disableTransitionOnChange, resolvedTheme, storageKey, theme]);
 
   React.useEffect(() => {
     if (!enableSystem || theme !== "system") {
