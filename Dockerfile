@@ -10,11 +10,11 @@ WORKDIR /app
 # Enable pnpm via npm
 RUN npm install -g pnpm
 
-# Copy workspace and package files
-COPY package.json pnpm-workspace.yaml ./
+# Copy workspace, manifest and lockfile so installs are reproducible
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
 
 # Install dependencies including devDependencies for building
-RUN pnpm install
+RUN pnpm install --frozen-lockfile
 
 # ─── Stage 2: Builder ─────────────────────────────────────────────────────────
 FROM node:26-alpine AS builder
