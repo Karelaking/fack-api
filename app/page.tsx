@@ -95,7 +95,7 @@ const jsonLd = [
 
 /**
  * Root Landing Page for Fack API's.
- * Styled after schemaflow.studio with multi-component architecture.
+ * Composed from modular landing sections (header, hero, features, pricing, footer).
  */
 export default function HomePage(): React.JSX.Element {
   return (
