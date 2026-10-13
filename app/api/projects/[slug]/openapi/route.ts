@@ -11,12 +11,13 @@ export const dynamic = "force-dynamic";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { slug: string } },
+  context: { params: Promise<{ slug: string }> },
 ) {
   try {
     const userId = await requireUserId();
+    const { slug } = await context.params;
 
-    const project = await findProjectBySlug(params.slug);
+    const project = await findProjectBySlug(slug);
 
     if (!project) {
       return NextResponse.json({ error: "Project not found" }, { status: 404 });

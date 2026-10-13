@@ -125,6 +125,7 @@ export const proxy = clerkMiddleware(async (auth, request) => {
     "/api/mock",
     "/api/ai",
     "/api/import",
+    "/api/projects",
     "/_next",
     "/opengraph-image",
   ];

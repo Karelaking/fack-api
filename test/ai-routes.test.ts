@@ -27,6 +27,19 @@ describe("AI API Architect — Route Handlers & Proxy Dispatching", () => {
       expect(res.headers.get("x-middleware-rewrite")).toBeNull();
     });
 
+    it("should treat /api/projects paths as system paths and pass through without rewrite", async () => {
+      const req = new NextRequest(
+        "http://localhost:3000/api/projects/demo/openapi",
+        { method: "GET" },
+      );
+      // oxlint-disable-next-line @typescript-eslint/no-explicit-any
+      const res = (await proxy(req, {} as any)) as any;
+
+      // Previously /api/projects was rewritten to /api/mock/api/projects/...,
+      // making the dashboard export routes unreachable.
+      expect(res.headers.get("x-middleware-rewrite")).toBeNull();
+    });
+
     it("should rewrite non-system mock routes to /api/mock/...", async () => {
       const req = new NextRequest(
         "http://localhost:3000/ecommerce-project/products",
