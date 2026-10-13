@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "mcp:devtools": "pnpm dlx next-devtools-mcp@latest",
     "build": "next build",
     "start": "next start",
     "lint": "vp lint",
