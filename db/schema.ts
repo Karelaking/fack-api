@@ -1,28 +1,38 @@
-import { sqliteTable, text, integer, real } from "drizzle-orm/sqlite-core";
+import {
+  sqliteTable,
+  text,
+  integer,
+  real,
+  index,
+} from "drizzle-orm/sqlite-core";
 import { relations } from "drizzle-orm";
 
 // ─── Projects ────────────────────────────────────────────────────────────────
-export const projects = sqliteTable("projects", {
-  id: text("id").primaryKey(),
-  userId: text("user_id").notNull().default("system"),
-  name: text("name").notNull(),
-  slug: text("slug").notNull().unique(),
-  description: text("description").default(""),
-  createdAt: integer("created_at", { mode: "timestamp" })
-    .notNull()
-    .$defaultFn(() => new Date()),
-  updatedAt: integer("updated_at", { mode: "timestamp" })
-    .notNull()
-    .$defaultFn(() => new Date()),
-  isLoggingEnabled: integer("is_logging_enabled", { mode: "boolean" })
-    .notNull()
-    .default(true),
-  isCachingEnabled: integer("is_caching_enabled", { mode: "boolean" })
-    .notNull()
-    .default(true),
-  version: integer("version").notNull().default(1),
-  activeScenarioId: text("active_scenario_id"),
-});
+export const projects = sqliteTable(
+  "projects",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id").notNull().default("system"),
+    name: text("name").notNull(),
+    slug: text("slug").notNull().unique(),
+    description: text("description").default(""),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .$defaultFn(() => new Date()),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .notNull()
+      .$defaultFn(() => new Date()),
+    isLoggingEnabled: integer("is_logging_enabled", { mode: "boolean" })
+      .notNull()
+      .default(true),
+    isCachingEnabled: integer("is_caching_enabled", { mode: "boolean" })
+      .notNull()
+      .default(true),
+    version: integer("version").notNull().default(1),
+    activeScenarioId: text("active_scenario_id"),
+  },
+  (table) => [index("projects_user_id_idx").on(table.userId)],
+);
 
 export const projectsRelations = relations(projects, ({ many, one }) => ({
   endpoints: many(endpoints),
@@ -36,21 +46,25 @@ export const projectsRelations = relations(projects, ({ many, one }) => ({
 }));
 
 // ─── Endpoints ───────────────────────────────────────────────────────────────
-export const endpoints = sqliteTable("endpoints", {
-  id: text("id").primaryKey(),
-  projectId: text("project_id")
-    .notNull()
-    .references(() => projects.id, { onDelete: "cascade" }),
-  name: text("name").notNull(),
-  description: text("description").default(""),
-  basePath: text("base_path").notNull().default(""),
-  createdAt: integer("created_at", { mode: "timestamp" })
-    .notNull()
-    .$defaultFn(() => new Date()),
-  updatedAt: integer("updated_at", { mode: "timestamp" })
-    .notNull()
-    .$defaultFn(() => new Date()),
-});
+export const endpoints = sqliteTable(
+  "endpoints",
+  {
+    id: text("id").primaryKey(),
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    description: text("description").default(""),
+    basePath: text("base_path").notNull().default(""),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .$defaultFn(() => new Date()),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .notNull()
+      .$defaultFn(() => new Date()),
+  },
+  (table) => [index("endpoints_project_id_idx").on(table.projectId)],
+);
 
 export const endpointsRelations = relations(endpoints, ({ one, many }) => ({
   project: one(projects, {
@@ -61,34 +75,40 @@ export const endpointsRelations = relations(endpoints, ({ one, many }) => ({
 }));
 
 // ─── Routes ──────────────────────────────────────────────────────────────────
-export const routes = sqliteTable("routes", {
-  id: text("id").primaryKey(),
-  endpointId: text("endpoint_id")
-    .notNull()
-    .references(() => endpoints.id, { onDelete: "cascade" }),
-  method: text("method", {
-    enum: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-  }).notNull(),
-  path: text("path").notNull(),
-  statusCode: integer("status_code").notNull().default(200),
-  responseSchema: text("response_schema").default("{}"),
-  responseTemplate: text("response_template"),
-  latencyMin: integer("latency_min").default(0),
-  latencyMax: integer("latency_max").default(0),
-  errorRate: real("error_rate").default(0),
-  customHeaders: text("custom_headers").default("{}"),
-  conditionalRules: text("conditional_rules").default("[]"),
-  isAuthRequired: integer("is_auth_required", { mode: "boolean" })
-    .notNull()
-    .default(false),
-  isEnabled: integer("is_enabled", { mode: "boolean" }).notNull().default(true),
-  createdAt: integer("created_at", { mode: "timestamp" })
-    .notNull()
-    .$defaultFn(() => new Date()),
-  updatedAt: integer("updated_at", { mode: "timestamp" })
-    .notNull()
-    .$defaultFn(() => new Date()),
-});
+export const routes = sqliteTable(
+  "routes",
+  {
+    id: text("id").primaryKey(),
+    endpointId: text("endpoint_id")
+      .notNull()
+      .references(() => endpoints.id, { onDelete: "cascade" }),
+    method: text("method", {
+      enum: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+    }).notNull(),
+    path: text("path").notNull(),
+    statusCode: integer("status_code").notNull().default(200),
+    responseSchema: text("response_schema").default("{}"),
+    responseTemplate: text("response_template"),
+    latencyMin: integer("latency_min").default(0),
+    latencyMax: integer("latency_max").default(0),
+    errorRate: real("error_rate").default(0),
+    customHeaders: text("custom_headers").default("{}"),
+    conditionalRules: text("conditional_rules").default("[]"),
+    isAuthRequired: integer("is_auth_required", { mode: "boolean" })
+      .notNull()
+      .default(false),
+    isEnabled: integer("is_enabled", { mode: "boolean" })
+      .notNull()
+      .default(true),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .$defaultFn(() => new Date()),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .notNull()
+      .$defaultFn(() => new Date()),
+  },
+  (table) => [index("routes_endpoint_id_idx").on(table.endpointId)],
+);
 
 export const routesRelations = relations(routes, ({ one, many }) => ({
   endpoint: one(endpoints, {
@@ -118,18 +138,22 @@ export const canvasStatesRelations = relations(canvasStates, ({ one }) => ({
 }));
 
 // ─── Project Revisions ────────────────────────────────────────────────────────
-export const projectRevisions = sqliteTable("project_revisions", {
-  id: text("id").primaryKey(),
-  projectId: text("project_id")
-    .notNull()
-    .references(() => projects.id, { onDelete: "cascade" }),
-  version: integer("version").notNull(),
-  description: text("description").notNull(),
-  snapshot: text("snapshot").notNull(), // OpenAPI or structured JSON of the state
-  createdAt: integer("created_at", { mode: "timestamp" })
-    .notNull()
-    .$defaultFn(() => new Date()),
-});
+export const projectRevisions = sqliteTable(
+  "project_revisions",
+  {
+    id: text("id").primaryKey(),
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    version: integer("version").notNull(),
+    description: text("description").notNull(),
+    snapshot: text("snapshot").notNull(), // OpenAPI or structured JSON of the state
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .$defaultFn(() => new Date()),
+  },
+  (table) => [index("project_revisions_project_id_idx").on(table.projectId)],
+);
 
 export const projectRevisionsRelations = relations(
   projectRevisions,
@@ -142,26 +166,30 @@ export const projectRevisionsRelations = relations(
 );
 
 // ─── Generation Tasks ────────────────────────────────────────────────────────
-export const generationTasks = sqliteTable("generation_tasks", {
-  id: text("id").primaryKey(),
-  projectId: text("project_id")
-    .notNull()
-    .references(() => projects.id, { onDelete: "cascade" }),
-  prompt: text("prompt").notNull(),
-  status: text("status", {
-    enum: ["pending", "active", "completed", "failed"],
-  })
-    .notNull()
-    .default("pending"),
-  providerMetadata: text("provider_metadata"),
-  error: text("error"),
-  createdAt: integer("created_at", { mode: "timestamp" })
-    .notNull()
-    .$defaultFn(() => new Date()),
-  updatedAt: integer("updated_at", { mode: "timestamp" })
-    .notNull()
-    .$defaultFn(() => new Date()),
-});
+export const generationTasks = sqliteTable(
+  "generation_tasks",
+  {
+    id: text("id").primaryKey(),
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    prompt: text("prompt").notNull(),
+    status: text("status", {
+      enum: ["pending", "active", "completed", "failed"],
+    })
+      .notNull()
+      .default("pending"),
+    providerMetadata: text("provider_metadata"),
+    error: text("error"),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .$defaultFn(() => new Date()),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .notNull()
+      .$defaultFn(() => new Date()),
+  },
+  (table) => [index("generation_tasks_project_id_idx").on(table.projectId)],
+);
 
 export const generationTasksRelations = relations(
   generationTasks,
@@ -175,20 +203,27 @@ export const generationTasksRelations = relations(
 );
 
 // ─── Generation Proposals ────────────────────────────────────────────────────
-export const generationProposals = sqliteTable("generation_proposals", {
-  id: text("id").primaryKey(),
-  taskId: text("task_id")
-    .notNull()
-    .references(() => generationTasks.id, { onDelete: "cascade" }),
-  projectId: text("project_id")
-    .notNull()
-    .references(() => projects.id, { onDelete: "cascade" }),
-  baseProjectVersion: integer("base_project_version").notNull(),
-  payload: text("payload").notNull(),
-  createdAt: integer("created_at", { mode: "timestamp" })
-    .notNull()
-    .$defaultFn(() => new Date()),
-});
+export const generationProposals = sqliteTable(
+  "generation_proposals",
+  {
+    id: text("id").primaryKey(),
+    taskId: text("task_id")
+      .notNull()
+      .references(() => generationTasks.id, { onDelete: "cascade" }),
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    baseProjectVersion: integer("base_project_version").notNull(),
+    payload: text("payload").notNull(),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .$defaultFn(() => new Date()),
+  },
+  (table) => [
+    index("generation_proposals_task_id_idx").on(table.taskId),
+    index("generation_proposals_project_id_idx").on(table.projectId),
+  ],
+);
 
 export const generationProposalsRelations = relations(
   generationProposals,
@@ -205,21 +240,33 @@ export const generationProposalsRelations = relations(
 );
 
 // ─── Mock State (Stateful Workflows) ─────────────────────────────────────────
-export const mockStates = sqliteTable("mock_states", {
-  id: text("id").primaryKey(),
-  projectId: text("project_id")
-    .notNull()
-    .references(() => projects.id, { onDelete: "cascade" }),
-  collection: text("collection").notNull(),
-  itemKey: text("item_key").notNull(),
-  data: text("data").notNull(), // JSON blob
-  createdAt: integer("created_at", { mode: "timestamp" })
-    .notNull()
-    .$defaultFn(() => new Date()),
-  updatedAt: integer("updated_at", { mode: "timestamp" })
-    .notNull()
-    .$defaultFn(() => new Date()),
-});
+export const mockStates = sqliteTable(
+  "mock_states",
+  {
+    id: text("id").primaryKey(),
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    collection: text("collection").notNull(),
+    itemKey: text("item_key").notNull(),
+    data: text("data").notNull(), // JSON blob
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .$defaultFn(() => new Date()),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .notNull()
+      .$defaultFn(() => new Date()),
+  },
+  (table) => [
+    // Covers get/delete by (project, collection, itemKey) and list by
+    // (project, collection) via the leftmost prefix.
+    index("mock_states_project_collection_key_idx").on(
+      table.projectId,
+      table.collection,
+      table.itemKey,
+    ),
+  ],
+);
 
 export const mockStatesRelations = relations(mockStates, ({ one }) => ({
   project: one(projects, {
@@ -229,22 +276,26 @@ export const mockStatesRelations = relations(mockStates, ({ one }) => ({
 }));
 
 // ─── Scenarios ───────────────────────────────────────────────────────────────
-export const scenarios = sqliteTable("scenarios", {
-  id: text("id").primaryKey(),
-  projectId: text("project_id")
-    .notNull()
-    .references(() => projects.id, { onDelete: "cascade" }),
-  name: text("name").notNull(),
-  description: text("description").default(""),
-  latencyMultiplier: real("latency_multiplier").notNull().default(1.0),
-  forcedErrorRate: real("forced_error_rate").notNull().default(0), // 0 to 1
-  createdAt: integer("created_at", { mode: "timestamp" })
-    .notNull()
-    .$defaultFn(() => new Date()),
-  updatedAt: integer("updated_at", { mode: "timestamp" })
-    .notNull()
-    .$defaultFn(() => new Date()),
-});
+export const scenarios = sqliteTable(
+  "scenarios",
+  {
+    id: text("id").primaryKey(),
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    description: text("description").default(""),
+    latencyMultiplier: real("latency_multiplier").notNull().default(1.0),
+    forcedErrorRate: real("forced_error_rate").notNull().default(0), // 0 to 1
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .$defaultFn(() => new Date()),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .notNull()
+      .$defaultFn(() => new Date()),
+  },
+  (table) => [index("scenarios_project_id_idx").on(table.projectId)],
+);
 
 export const scenariosRelations = relations(scenarios, ({ one }) => ({
   project: one(projects, {
@@ -254,23 +305,27 @@ export const scenariosRelations = relations(scenarios, ({ one }) => ({
 }));
 
 // ─── Webhooks (Outbound Callbacks) ───────────────────────────────────────────
-export const webhooks = sqliteTable("webhooks", {
-  id: text("id").primaryKey(),
-  routeId: text("route_id")
-    .notNull()
-    .references(() => routes.id, { onDelete: "cascade" }),
-  url: text("url").notNull(),
-  method: text("method", {
-    enum: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-  })
-    .notNull()
-    .default("POST"),
-  payloadTemplate: text("payload_template").default("{}"),
-  delayMs: integer("delay_ms").notNull().default(0),
-  createdAt: integer("created_at", { mode: "timestamp" })
-    .notNull()
-    .$defaultFn(() => new Date()),
-});
+export const webhooks = sqliteTable(
+  "webhooks",
+  {
+    id: text("id").primaryKey(),
+    routeId: text("route_id")
+      .notNull()
+      .references(() => routes.id, { onDelete: "cascade" }),
+    url: text("url").notNull(),
+    method: text("method", {
+      enum: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+    })
+      .notNull()
+      .default("POST"),
+    payloadTemplate: text("payload_template").default("{}"),
+    delayMs: integer("delay_ms").notNull().default(0),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .$defaultFn(() => new Date()),
+  },
+  (table) => [index("webhooks_route_id_idx").on(table.routeId)],
+);
 
 export const webhooksRelations = relations(webhooks, ({ one }) => ({
   route: one(routes, {

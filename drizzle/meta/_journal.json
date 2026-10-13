@@ -78,6 +78,13 @@
       "when": 1791564021174,
       "tag": "0010_public_inhumans",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "6",
+      "when": 1791920792610,
+      "tag": "0011_add_fk_indexes",
+      "breakpoints": true
     }
   ]
 }
