@@ -3,6 +3,7 @@ import { buildResponse } from "@/lib/mock-engine";
 import { processMockRequest } from "@/lib/mock-handler-core";
 import { resolveProjectFromSlug } from "@/lib/services/project-resolver.service";
 import { LoggerRegistry } from "@/lib/logger-registry";
+import { getMockJwtSecret } from "@/lib/mock-jwt";
 
 export const dynamic = "force-dynamic";
 
@@ -68,10 +69,9 @@ async function handleMockRequest(
     // ── System Auth Endpoint Interception ──────────────────────────────
     if (requestPath === "/_auth/token" && request.method === "POST") {
       const { SignJWT } = await import("jose");
-      // Use a consistent secret per project so tokens validate across requests
-      const secret = new TextEncoder().encode(
-        process.env.JWT_SECRET || project.id,
-      );
+      // Shares the exact same resolution as the verify side so minted tokens
+      // validate; requires JWT_SECRET in production.
+      const secret = getMockJwtSecret(project.id);
 
       let body: Record<string, unknown> = {};
       try {

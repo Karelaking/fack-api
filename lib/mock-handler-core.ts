@@ -37,6 +37,7 @@ import {
   parseRouteHeaders,
   parseRouteSchema,
 } from "@/lib/services/mock-request-input.service";
+import { getMockJwtSecret } from "@/lib/mock-jwt";
 
 const mockLogger = LoggerRegistry.get("mock");
 const mockCoreTrace = LoggerRegistry.getTrace("mock-core");
@@ -61,6 +62,12 @@ interface LogEntry {
   is_error: boolean | number;
   response_payload: string;
 }
+
+/**
+ * Hard cap on buffered request logs. Under sustained DB failures or extreme
+ * traffic the queue would otherwise grow without bound and exhaust memory.
+ */
+const MAX_LOG_QUEUE = 10_000;
 
 const logQueue: LogEntry[] = [];
 let isFlushing = false;
@@ -104,7 +111,7 @@ async function flushLogQueue(): Promise<void> {
     isFlushing = false;
     // If more items were added during flush, try to flush again
     if (logQueue.length > 0) {
-      flushLogQueue();
+      await flushLogQueue();
     }
   }
 }
@@ -133,6 +140,13 @@ async function recordRequestLog(
     typeof payload === "string"
       ? payload
       : JSON.stringify(payload).slice(0, 5000);
+
+  if (logQueue.length >= MAX_LOG_QUEUE) {
+    const dropped = logQueue.shift();
+    mockLogger.warn(
+      `Request log queue exceeded ${MAX_LOG_QUEUE} entries; dropped oldest entry for project ${dropped?.project_id ?? "unknown"}.`,
+    );
+  }
 
   logQueue.push({
     id: crypto.randomUUID(),
@@ -208,7 +222,7 @@ export async function processMockRequest({
   const matchedPath = requestPath;
   const matchedMethod = request.method;
 
-  const log = (status: number, isErr: boolean, data: unknown): void => {
+  const log = (status: number, isErr: boolean, data: unknown): Promise<void> =>
     recordRequestLog(
       project,
       request,
@@ -219,7 +233,6 @@ export async function processMockRequest({
       isErr,
       data,
     );
-  };
 
   try {
     const method = request.method;
@@ -269,9 +282,7 @@ export async function processMockRequest({
       const token = authHeader.split(" ")[1];
       try {
         const { jwtVerify } = await import("jose");
-        const secret = new TextEncoder().encode(
-          process.env.JWT_SECRET || project.id,
-        );
+        const secret = getMockJwtSecret(project.id);
         await jwtVerify(token, secret);
       } catch {
         const errBody = {
