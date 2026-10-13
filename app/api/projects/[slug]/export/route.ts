@@ -5,6 +5,11 @@ import { eq, desc } from "drizzle-orm";
 import JSZip from "jszip";
 import { generateExpressProject } from "@/lib/codegen/express-generator";
 import type { CachedRoute } from "@/lib/cache";
+import {
+  assertProjectOwnedBy,
+  authErrorResponse,
+  requireUserId,
+} from "@/lib/auth";
 
 export async function GET(
   request: NextRequest,
@@ -12,6 +17,8 @@ export async function GET(
 ) {
   try {
     const { slug: projectSlug } = await context.params;
+
+    const userId = await requireUserId();
 
     const project = await db.query.projects.findFirst({
       where: eq(projects.slug, projectSlug),
@@ -23,6 +30,8 @@ export async function GET(
         { status: 404 },
       );
     }
+
+    assertProjectOwnedBy(project, userId);
 
     const projectEndpoints = await db.query.endpoints.findMany({
       where: eq(endpoints.projectId, project.id),
@@ -66,6 +75,9 @@ export async function GET(
 
     return response;
   } catch (error: unknown) {
+    const authResponse = authErrorResponse(error);
+    if (authResponse) return authResponse;
+
     console.error("Export error:", error);
     return NextResponse.json(
       {

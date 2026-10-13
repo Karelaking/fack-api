@@ -7,6 +7,7 @@ import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { generateId } from "@/lib/utils";
 import { clearProjectCache } from "@/lib/cache";
+import { requireEndpointAccess, requireProjectAccess } from "@/lib/auth";
 import {
   createEndpointSchema,
   updateEndpointSchema,
@@ -87,6 +88,7 @@ export async function createEndpoint(
   input: CreateEndpointInput,
 ): Promise<typeof endpoints.$inferSelect> {
   endpointsTrace.traceCall("createEndpoint", input.projectId, input.name);
+  await requireProjectAccess(input.projectId);
   try {
     const parsed = createEndpointSchema.parse(input);
     const id = generateId();
@@ -116,6 +118,7 @@ export async function updateEndpoint(
   input: UpdateEndpointInput,
 ): Promise<typeof endpoints.$inferSelect> {
   endpointsTrace.traceCall("updateEndpoint", input.id, input.name);
+  await requireEndpointAccess(input.id);
   try {
     const parsed = updateEndpointSchema.parse(input);
     const { id, ...updates } = parsed;
@@ -138,6 +141,7 @@ export async function updateEndpoint(
 
 export async function deleteEndpoint(id: string): Promise<void> {
   endpointsTrace.traceCall("deleteEndpoint", id);
+  await requireEndpointAccess(id);
   try {
     const existing = await db.query.endpoints.findFirst({
       where: eq(endpoints.id, id),

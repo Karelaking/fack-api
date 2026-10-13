@@ -6,6 +6,7 @@ import { sqlClient } from "@/db/postgres";
 import type { RequestLog } from "@/db/schema";
 import { revalidatePath } from "next/cache";
 import { LoggerRegistry } from "@/lib/logger-registry";
+import { requireProjectAccess } from "@/lib/auth";
 
 const logsTrace = LoggerRegistry.getTrace("db-logs");
 
@@ -79,6 +80,7 @@ export const getRequestLogs = cache(async function getRequestLogs(
 
 export async function clearRequestLogs(projectId: string): Promise<void> {
   logsTrace.traceCall("clearRequestLogs", projectId);
+  await requireProjectAccess(projectId);
   if (sqlClient) {
     try {
       await sqlClient`DELETE FROM request_logs WHERE project_id = ${projectId}`;

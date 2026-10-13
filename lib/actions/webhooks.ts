@@ -5,6 +5,11 @@ import { webhooks, type Webhook } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { revalidatePath } from "next/cache";
+import {
+  requireProjectAccess,
+  requireRouteAccess,
+  requireWebhookAccess,
+} from "@/lib/auth";
 
 export async function getWebhooksForRoute(routeId: string): Promise<Webhook[]> {
   return db.query.webhooks.findMany({
@@ -21,6 +26,8 @@ export async function createWebhook(
   payloadTemplate: string,
   delayMs: number,
 ) {
+  await requireProjectAccess(projectId);
+  await requireRouteAccess(routeId);
   const [newWebhook] = await db
     .insert(webhooks)
     .values({
@@ -48,6 +55,8 @@ export async function createWebhook(
 }
 
 export async function deleteWebhook(webhookId: string, projectId: string) {
+  await requireWebhookAccess(webhookId);
+  await requireProjectAccess(projectId);
   await db.delete(webhooks).where(eq(webhooks.id, webhookId));
 
   const { clearProjectCache } = await import("@/lib/cache");

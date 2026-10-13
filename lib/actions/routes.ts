@@ -7,6 +7,7 @@ import { eq, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { generateId } from "@/lib/utils";
 import { clearProjectCache, clearRouteCache } from "@/lib/cache";
+import { requireEndpointAccess, requireRouteAccess } from "@/lib/auth";
 import {
   createRouteSchema,
   updateRouteSchema,
@@ -107,6 +108,7 @@ export async function createRoute(input: CreateRouteInput): Promise<Route> {
     input.method,
     input.path,
   );
+  await requireEndpointAccess(input.endpointId);
   try {
     const parsed = createRouteSchema.parse(input);
     const id = generateId();
@@ -145,6 +147,7 @@ export async function createRoute(input: CreateRouteInput): Promise<Route> {
  */
 export async function updateRoute(input: UpdateRouteInput): Promise<Route> {
   routesTrace.traceCall("updateRoute", input.id, input.method, input.path);
+  await requireRouteAccess(input.id);
   try {
     const parsed = updateRouteSchema.parse(input);
     const { id, ...updates } = parsed;
@@ -177,6 +180,7 @@ export async function updateRoute(input: UpdateRouteInput): Promise<Route> {
  */
 export async function deleteRoute(id: string): Promise<void> {
   routesTrace.traceCall("deleteRoute", id);
+  await requireRouteAccess(id);
   try {
     const route = await db.query.routes.findFirst({
       where: eq(routes.id, id),

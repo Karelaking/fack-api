@@ -15,6 +15,8 @@ process.env.DATABASE_URL = `file:${testDatabasePath}`;
 delete process.env.DATABASE_AUTH_TOKEN;
 
 vi.mock("@clerk/nextjs/server", () => ({
+  auth: async () => ({ userId: "user_test_owner" }),
+  currentUser: async () => ({ id: "user_test_owner" }),
   clerkMiddleware:
     (
       handler: (

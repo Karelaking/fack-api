@@ -4,6 +4,7 @@ import { db } from "@/db";
 import { canvasStates } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { generateId } from "@/lib/utils";
+import { requireProjectAccess } from "@/lib/auth";
 import {
   saveCanvasStateSchema,
   type SaveCanvasStateInput,
@@ -46,6 +47,7 @@ export async function saveCanvasState(input: SaveCanvasStateInput): Promise<{
   viewport: string;
 }> {
   canvasTrace.traceCall("saveCanvasState", input.projectId);
+  await requireProjectAccess(input.projectId);
   try {
     const parsed = saveCanvasStateSchema.parse(input);
 

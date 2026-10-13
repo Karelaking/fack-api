@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { findProjectBySlug } from "@/lib/services/project.service";
 import { generateOpenApi } from "@/lib/services/openapi.service";
+import {
+  assertProjectOwnedBy,
+  authErrorResponse,
+  requireUserId,
+} from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -9,11 +14,15 @@ export async function GET(
   { params }: { params: { slug: string } },
 ) {
   try {
+    const userId = await requireUserId();
+
     const project = await findProjectBySlug(params.slug);
 
     if (!project) {
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
+
+    assertProjectOwnedBy(project, userId);
 
     const openApi = generateOpenApi(project);
 
@@ -25,6 +34,9 @@ export async function GET(
       },
     });
   } catch (error) {
+    const authResponse = authErrorResponse(error);
+    if (authResponse) return authResponse;
+
     console.error("[Fack API] OpenAPI export failed:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },

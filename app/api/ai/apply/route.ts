@@ -32,6 +32,7 @@ import {
 import { eq } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { generateOpenApi } from "@/lib/services/openapi.service";
+import { authErrorResponse, requireProjectAccess } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -49,6 +50,8 @@ export async function POST(request: NextRequest): Promise<Response> {
         { status: 400 },
       );
     }
+
+    await requireProjectAccess(projectId);
 
     let createdEndpointsCount = 0;
     let createdRoutesCount = 0;
@@ -336,6 +339,9 @@ export async function POST(request: NextRequest): Promise<Response> {
 
     return NextResponse.json(response);
   } catch (error) {
+    const authResponse = authErrorResponse(error);
+    if (authResponse) return authResponse;
+
     console.error(
       "[Fack AI] Failed to apply API changes, rolling back transaction:",
       error,

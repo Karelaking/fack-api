@@ -11,6 +11,11 @@ import {
 import { getEndpointsByProjectId } from "@/lib/services/endpoint.service";
 import { getRoutesByProjectId } from "@/lib/services/route.service";
 import type { GenerateApiResponse } from "@/lib/types/ai.type";
+import {
+  assertProjectOwnedBy,
+  authErrorResponse,
+  requireUserId,
+} from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
   try {
@@ -23,6 +28,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const userId = await requireUserId();
+
     const projectRow = await db.query.projects.findFirst({
       where: eq(projects.id, projectId),
     });
@@ -33,6 +40,8 @@ export async function POST(req: NextRequest) {
         { status: 404 },
       );
     }
+
+    assertProjectOwnedBy(projectRow, userId);
 
     let parsedDoc;
     try {
@@ -95,6 +104,9 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(response);
   } catch (error) {
+    const authResponse = authErrorResponse(error);
+    if (authResponse) return authResponse;
+
     console.error("[Fack API] OpenAPI Import Error:", error);
     return NextResponse.json(
       {

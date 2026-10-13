@@ -9,6 +9,11 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { generateApiSpecification } from "@/lib/ai/ai-architect.service";
+import {
+  authErrorResponse,
+  requireProjectAccess,
+  requireUserId,
+} from "@/lib/auth";
 import type {
   GenerateApiRequest,
   GenerationProgressStep,
@@ -20,6 +25,11 @@ export async function POST(request: NextRequest): Promise<Response> {
   try {
     const body = (await request.json()) as GenerateApiRequest;
     const { projectId, prompt, stream } = body;
+
+    await requireUserId();
+    if (projectId) {
+      await requireProjectAccess(projectId);
+    }
 
     if (!prompt || typeof prompt !== "string" || !prompt.trim()) {
       return NextResponse.json(
@@ -78,6 +88,9 @@ export async function POST(request: NextRequest): Promise<Response> {
 
     return NextResponse.json(result);
   } catch (error) {
+    const authResponse = authErrorResponse(error);
+    if (authResponse) return authResponse;
+
     const message =
       error instanceof Error
         ? error.message

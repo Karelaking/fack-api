@@ -5,6 +5,7 @@ import { scenarios, type Scenario } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { revalidatePath } from "next/cache";
+import { requireProjectAccess } from "@/lib/auth";
 
 export async function getScenarios(projectId: string): Promise<Scenario[]> {
   return db.query.scenarios.findMany({
@@ -19,6 +20,7 @@ export async function createScenario(
   latencyMultiplier: number,
   forcedErrorRate: number,
 ) {
+  await requireProjectAccess(projectId);
   const [newScenario] = await db
     .insert(scenarios)
     .values({
@@ -35,11 +37,13 @@ export async function createScenario(
 }
 
 export async function deleteScenario(scenarioId: string, projectId: string) {
+  await requireProjectAccess(projectId);
   await db.delete(scenarios).where(eq(scenarios.id, scenarioId));
   revalidatePath(`/projects/${projectId}`);
 }
 
 export async function seedDefaultScenarios(projectId: string) {
+  await requireProjectAccess(projectId);
   const defaults = [
     { name: "Normal (1x, 0%)", latencyMultiplier: 1.0, forcedErrorRate: 0.0 },
     {

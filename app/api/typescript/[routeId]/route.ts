@@ -18,6 +18,7 @@ import { db } from "@/db";
 import { routes } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { generateTypeScript } from "@/lib/ts-generator";
+import { authErrorResponse, requireRouteAccess } from "@/lib/auth";
 
 /**
  * Handles GET requests to generate and download TypeScript interfaces.
@@ -32,6 +33,8 @@ export async function GET(
 ) {
   try {
     const { routeId } = await context.params;
+
+    await requireRouteAccess(routeId);
 
     // ── 1. Retrieve the Route ────────────────────────────────────────────
     const route = await db.query.routes.findFirst({
@@ -80,6 +83,9 @@ export async function GET(
       },
     });
   } catch (error) {
+    const authResponse = authErrorResponse(error);
+    if (authResponse) return authResponse;
+
     console.error("[fack-api] TypeScript generation error:", error);
     return Response.json(
       { error: true, message: "Failed to generate TypeScript interface" },
