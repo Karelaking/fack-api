@@ -1,6 +1,14 @@
+import { fileURLToPath } from "node:url";
+
 import { defineConfig } from "vite-plus";
 
 export default defineConfig({
+  // Map the `@/*` tsconfig path alias so test/SSR source imports resolve.
+  resolve: {
+    alias: {
+      "@": fileURLToPath(new URL(".", import.meta.url)),
+    },
+  },
   lint: {
     plugins: ["oxc", "typescript", "unicorn", "nextjs"],
     jsPlugins: [
