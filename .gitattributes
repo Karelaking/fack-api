@@ -1,0 +1,7 @@
+# Normalize text files to LF in the repository and in every working tree.
+#
+# Without this, `core.autocrlf=true` (common on Windows) checks files out with
+# CRLF, which makes oxfmt (`vp fmt` / `vp check`) report every file as
+# unformatted. Pinning `eol=lf` keeps the working tree consistent with what the
+# formatter enforces on all platforms and in CI.
+* text=auto eol=lf

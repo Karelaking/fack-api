@@ -1288,6 +1288,13 @@ export default defineConfig({
     printWidth: 80,
     sortPackageJson: false,
     sortTailwindcss: {},
-    ignorePatterns: [],
+    // Vendored agent tooling is not part of the app's source of truth; keep it
+    // out of formatting so third-party skill assets are never rewritten.
+    ignorePatterns: [
+      ".opencode/**",
+      ".agents/**",
+      ".impeccable/**",
+      "graphify-out/**",
+    ],
   },
 });
