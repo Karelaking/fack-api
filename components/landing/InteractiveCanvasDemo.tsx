@@ -213,7 +213,7 @@ export type ApiResponse = {
   }, [activeTab, generatedJson, generatedCurl, generatedTs]);
 
   const handleCopy = (): void => {
-    navigator.clipboard.writeText(currentCode);
+    void navigator.clipboard.writeText(currentCode);
     setCopied(true);
     setTimeout((): void => setCopied(false), 2000);
   };
