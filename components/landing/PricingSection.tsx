@@ -28,9 +28,9 @@ export const PricingSection = (): React.JSX.Element => {
             Zero Vendor Lock-in.
           </h2>
           <p className="text-muted-foreground mx-auto max-w-2xl text-sm leading-relaxed sm:text-base">
-            Save mock API routes directly in your local browser storage or run
-            your own self-hosted container. You retain 100% ownership of your
-            mock schema data.
+            Run Fack API on your own machine or infrastructure and store mock
+            routes in your own database. You retain 100% ownership of your mock
+            schema data.
           </p>
         </header>
 
@@ -45,16 +45,16 @@ export const PricingSection = (): React.JSX.Element => {
                     className="size-5 text-sky-400"
                     aria-hidden="true"
                   />
-                  Local Browser Storage
+                  Local-First Self-Hosted
                 </h3>
                 <span className="text-muted-foreground bg-muted/60 border-border/60 rounded-full border px-2.5 py-0.5 font-mono text-[10px] font-bold tracking-wider uppercase">
                   100% Private
                 </span>
               </div>
               <p className="text-muted-foreground text-xs leading-relaxed">
-                Store route schemas and mock definitions directly on your
-                device. Operates completely offline with zero server
-                requirements.
+                Store route schemas and mock definitions in a local SQLite
+                database on your own machine. Runs fully offline with no
+                third-party dependencies.
               </p>
 
               <div className="mt-6 flex items-baseline gap-1">
@@ -72,7 +72,7 @@ export const PricingSection = (): React.JSX.Element => {
                     className="size-4 shrink-0 text-emerald-500"
                     aria-hidden="true"
                   />
-                  <span>Client-side local SQLite & IndexedDB persistence</span>
+                  <span>SQLite persistence on your own machine</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check
@@ -93,7 +93,7 @@ export const PricingSection = (): React.JSX.Element => {
                     className="size-4 shrink-0 text-emerald-500"
                     aria-hidden="true"
                   />
-                  <span>Zero registration, zero telemetries, zero lock-in</span>
+                  <span>No paywalls, no usage limits, no vendor lock-in</span>
                 </li>
               </ul>
             </div>
