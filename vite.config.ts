@@ -30,6 +30,10 @@ export default defineConfig({
       "next-env.d.ts",
       "coverage/**",
       "docs/**",
+      ".opencode/**",
+      ".agents/**",
+      ".impeccable/**",
+      "graphify-out/**",
     ],
     rules: {
       "no-array-constructor": "error",
