@@ -1,4 +1,5 @@
 import * as React from "react";
+import { auth } from "@clerk/nextjs/server";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { RootSidebar } from "@/components/dashboard/RootSidebar";
 import { MobileBottomNav } from "@/components/dashboard/MobileBottomNav";
@@ -14,10 +15,15 @@ interface DashboardLayoutProps {
 /**
  * Dashboard root layout.
  * Includes a simple sidebar base structure.
+ *
+ * Auth is enforced here (resource-based) rather than by path matching in the
+ * proxy, so every page in this route group is protected.
  */
 export default async function DashboardLayout({
   children,
 }: DashboardLayoutProps) {
+  await auth.protect();
+
   return (
     <SidebarProvider>
       <div className="bg-background flex h-screen w-full max-w-full overflow-hidden">

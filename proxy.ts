@@ -83,17 +83,7 @@ function getProjectSlugFromSubdomain(host: string): string | null {
   return subdomain;
 }
 
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
-
-const isProtectedRoute = createRouteMatcher([
-  "/dashboard(.*)",
-  "/activity(.*)",
-  "/analytics(.*)",
-  "/domains(.*)",
-  "/keys(.*)",
-  "/settings(.*)",
-  "/projects(.*)",
-]);
+import { clerkMiddleware } from "@clerk/nextjs/server";
 
 // Force Turbopack/Webpack to statically analyze and inline these variables into the Edge bundle
 // const _dummyPublishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
@@ -101,13 +91,14 @@ const isProtectedRoute = createRouteMatcher([
 
 /**
  * Next.js Proxy function — runs before every matched request.
- * Wrapped with clerkMiddleware to enforce authentication on dashboard routes.
+ *
+ * Wrapped with clerkMiddleware so Clerk populates the auth context for the
+ * request. Auth is NOT enforced here: path matching in middleware can diverge
+ * from how Next.js resolves routes (see Clerk's createRouteMatcher
+ * deprecation). Protected pages instead call `auth.protect()` in the layout
+ * that wraps them, and API routes call the guards in `lib/auth.ts`.
  */
-export const proxy = clerkMiddleware(async (auth, request) => {
-  if (isProtectedRoute(request)) {
-    await auth.protect();
-  }
-
+export const proxy = clerkMiddleware(async (_auth, request) => {
   const { pathname } = request.nextUrl;
   const host = request.headers.get("host") || "";
   proxyTrace.traceCall("proxy", request.method, pathname, host);

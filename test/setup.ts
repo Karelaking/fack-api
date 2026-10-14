@@ -15,7 +15,12 @@ process.env.DATABASE_URL = `file:${testDatabasePath}`;
 delete process.env.DATABASE_AUTH_TOKEN;
 
 vi.mock("@clerk/nextjs/server", () => ({
-  auth: vi.fn(async () => ({ userId: "user_test_owner" })),
+  auth: Object.assign(
+    vi.fn(async () => ({ userId: "user_test_owner" })),
+    {
+      protect: vi.fn(async () => undefined),
+    },
+  ),
   currentUser: vi.fn(async () => ({ id: "user_test_owner" })),
   clerkMiddleware:
     (
@@ -26,11 +31,6 @@ vi.mock("@clerk/nextjs/server", () => ({
     ) =>
     (request: Request) =>
       handler({ protect: async () => undefined }, request),
-  createRouteMatcher: (patterns: string[]) => (request: Request) =>
-    patterns.some((pattern) => {
-      const prefix = pattern.replace("(.*)", "");
-      return new URL(request.url).pathname.startsWith(prefix);
-    }),
 }));
 
 const { runMigrations } = await import("../db/migrate");

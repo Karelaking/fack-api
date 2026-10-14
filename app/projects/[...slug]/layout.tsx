@@ -1,6 +1,7 @@
 import * as React from "react";
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
+import { auth } from "@clerk/nextjs/server";
 import { getProjectBySlug, getProjects } from "@/lib/actions/projects";
 import { parseProjectPath } from "@/lib/utils/project-slug";
 import { ProjectProvider } from "@/components/project/ProjectContext";
@@ -53,6 +54,10 @@ export default async function ProjectLayout({
   children,
   params,
 }: ProjectLayoutProps) {
+  // Resource-based auth check (replaces path matching in the proxy): redirect
+  // unauthenticated visitors to sign-in instead of a misleading 404.
+  await auth.protect();
+
   const { slug: slugParam } = await params;
 
   if (!slugParam || slugParam.length === 0) {
