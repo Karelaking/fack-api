@@ -14,7 +14,8 @@ describe("cn Utility", () => {
   });
 
   it("handles conditional classes", () => {
-    expect(cn("base", false && "hidden", "extra")).toBe("base extra");
+    const isHidden = false;
+    expect(cn("base", isHidden && "hidden", "extra")).toBe("base extra");
   });
 
   it("returns empty string for no input", () => {

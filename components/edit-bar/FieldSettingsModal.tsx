@@ -197,11 +197,15 @@ export function FieldSettingsModal({
 
           {isPrimitive && (
             <div className="grid grid-cols-4 items-center gap-4">
-              <label className="text-right text-sm font-semibold">
+              <label
+                htmlFor="field-mock-data"
+                className="text-right text-sm font-semibold"
+              >
                 Mock Data
               </label>
               <div className="col-span-3 space-y-2">
                 <FakerProviderSelect
+                  id="field-mock-data"
                   value={fakerProvider || undefined}
                   onValueChange={setFakerProvider}
                 />
@@ -222,7 +226,10 @@ export function FieldSettingsModal({
           {isArray && (
             <>
               <div className="grid grid-cols-4 items-center gap-4">
-                <label className="text-right text-sm font-semibold">
+                <label
+                  htmlFor="field-array-item-type"
+                  className="text-right text-sm font-semibold"
+                >
                   Item Type
                 </label>
                 <div className="col-span-3">
@@ -252,11 +259,15 @@ export function FieldSettingsModal({
 
               {arrayItemType !== "object" && (
                 <div className="grid grid-cols-4 items-center gap-4">
-                  <label className="text-right text-sm font-semibold">
+                  <label
+                    htmlFor="field-item-mock"
+                    className="text-right text-sm font-semibold"
+                  >
                     Item Mock
                   </label>
                   <div className="col-span-3 space-y-2">
                     <FakerProviderSelect
+                      id="field-item-mock"
                       value={arrayItemFakerProvider || undefined}
                       onValueChange={setArrayItemFakerProvider}
                     />

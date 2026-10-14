@@ -1,5 +1,9 @@
 "use client";
 
+// Inline SVG logo: `role="img"` + `aria-label` is the correct accessible
+// pattern for inline vector art, which has no `<img src>` equivalent.
+/* eslint-disable jsx-a11y/prefer-tag-over-role */
+
 import * as React from "react";
 import { cn } from "@/lib/utils";
 

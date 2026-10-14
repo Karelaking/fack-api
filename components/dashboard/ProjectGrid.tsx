@@ -588,7 +588,6 @@ export function ProjectGrid({
               value={deleteConfirmText}
               onChange={(e) => setDeleteConfirmText(e.target.value)}
               placeholder={deleteProj?.name}
-              autoFocus
             />
           </div>
 

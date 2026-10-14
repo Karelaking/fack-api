@@ -1,5 +1,9 @@
 "use client";
 
+// Disclosure headers use `role="button"` because they wrap a nested copy
+// button; a native <button> cannot contain another interactive control.
+/* eslint-disable jsx-a11y/prefer-tag-over-role */
+
 import * as React from "react";
 import {
   RiArrowDownSLine,

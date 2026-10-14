@@ -1,5 +1,9 @@
 "use client";
 
+// Log rows use `role="button"` because they wrap nested controls (expand,
+// copy); a native <button> cannot contain them.
+/* eslint-disable jsx-a11y/prefer-tag-over-role */
+
 import * as React from "react";
 import {
   RiDeleteBin6Line,
@@ -94,6 +98,9 @@ export const ProjectLogs = ({
 
   const parentRef = React.useRef<HTMLDivElement>(null);
 
+  // @tanstack/react-virtual returns non-memoizable APIs; React Compiler will
+  // intentionally skip memoizing this component.
+  // eslint-disable-next-line react/incompatible-library
   const rowVirtualizer = useVirtualizer({
     count: filteredLogs.length,
     getScrollElement: () => parentRef.current,

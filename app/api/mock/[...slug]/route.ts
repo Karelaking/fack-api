@@ -4,6 +4,7 @@ import { processMockRequest } from "@/lib/mock-handler-core";
 import { resolveProjectFromSlug } from "@/lib/services/project-resolver.service";
 import { LoggerRegistry } from "@/lib/logger-registry";
 import { getMockJwtSecret } from "@/lib/mock-jwt";
+import { toStr } from "@/lib/utils/coerce";
 
 export const dynamic = "force-dynamic";
 
@@ -79,9 +80,9 @@ async function handleMockRequest(
       } catch {}
 
       const payload = {
-        sub: String(body.userId || "mock_user_123"),
-        email: String(body.email || "user@example.com"),
-        role: String(body.role || "user"),
+        sub: toStr(body.userId) || "mock_user_123",
+        email: toStr(body.email) || "user@example.com",
+        role: toStr(body.role) || "user",
         ...body,
       };
 

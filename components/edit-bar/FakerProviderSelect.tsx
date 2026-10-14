@@ -1,5 +1,9 @@
 "use client";
 
+// The trigger is a searchable combobox; a native input/select cannot host the
+// cmdk popover listbox, so `role="combobox"` on the button is intentional.
+/* eslint-disable jsx-a11y/prefer-tag-over-role */
+
 import * as React from "react";
 import { RiCheckLine, RiArrowUpDownLine } from "@remixicon/react";
 import { cn } from "@/lib/utils";
@@ -20,6 +24,7 @@ import {
 } from "@/components/ui/popover";
 
 interface FakerProviderSelectProps {
+  id?: string;
   value?: string;
   onValueChange: (value: string) => void;
   disabled?: boolean;
@@ -29,11 +34,13 @@ interface FakerProviderSelectProps {
  * Searchable Combobox selector for Faker.js providers, grouped by category.
  */
 export function FakerProviderSelect({
+  id,
   value,
   onValueChange,
   disabled,
 }: FakerProviderSelectProps): React.JSX.Element {
   const [open, setOpen] = React.useState(false);
+  const listboxId = React.useId();
   const groupedCategories = React.useMemo(() => getGroupedProviders(), []);
 
   const selectedProvider = React.useMemo(() => {
@@ -47,10 +54,12 @@ export function FakerProviderSelect({
         render={
           <Button
             type="button"
+            id={id}
             variant="outline"
             size="sm"
             role="combobox"
             aria-expanded={open}
+            aria-controls={open ? listboxId : undefined}
             aria-label="Select data provider"
             title="Select data provider"
             disabled={disabled}
@@ -68,7 +77,7 @@ export function FakerProviderSelect({
       <PopoverContent variant="flush" className="w-75" align="start">
         <Command>
           <CommandInput placeholder="Search mock data provider..." />
-          <CommandList className="max-h-75 overflow-y-auto">
+          <CommandList id={listboxId} className="max-h-75 overflow-y-auto">
             <CommandEmpty>No data provider found.</CommandEmpty>
             {groupedCategories.map((category) => (
               <CommandGroup key={category.name} heading={category.name}>

@@ -148,7 +148,12 @@ export const AddRouteDialog = ({
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-semibold">Endpoint Group</label>
+              <label
+                htmlFor="add-route-endpoint"
+                className="text-sm font-semibold"
+              >
+                Endpoint Group
+              </label>
               {endpoints.length === 0 ? (
                 <div className="flex flex-col gap-1.5 border border-amber-500/20 bg-amber-500/10 p-3 text-xs text-amber-500">
                   <span className="font-semibold">
@@ -170,6 +175,7 @@ export const AddRouteDialog = ({
                       disabled={isSubmitting}
                     >
                       <SelectTrigger
+                        id="add-route-endpoint"
                         aria-label="Endpoint Group"
                         className="w-full"
                       >
@@ -201,7 +207,12 @@ export const AddRouteDialog = ({
 
             <div className="grid grid-cols-3 gap-3">
               <div className="col-span-1 flex flex-col gap-2">
-                <label className="text-sm font-semibold">Method</label>
+                <label
+                  htmlFor="add-route-method"
+                  className="text-sm font-semibold"
+                >
+                  Method
+                </label>
                 <Controller
                   control={control}
                   name="method"
@@ -212,6 +223,7 @@ export const AddRouteDialog = ({
                       disabled={isSubmitting || endpoints.length === 0}
                     >
                       <SelectTrigger
+                        id="add-route-method"
                         aria-label="HTTP Method"
                         className="w-full"
                       >

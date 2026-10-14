@@ -275,12 +275,12 @@ export type ApiResponse = {
 
             {/* Control 1: HTTP Method & Path */}
             <div className="space-y-2">
-              <label className="text-foreground flex items-center justify-between text-xs font-bold">
+              <span className="text-foreground flex items-center justify-between text-xs font-bold">
                 <span>1. Select Method &amp; Route Path</span>
                 <span className="text-muted-foreground font-mono text-[10px]">
                   HTTP Route
                 </span>
-              </label>
+              </span>
 
               <div className="flex flex-col gap-2 sm:flex-row">
                 {/* HTTP Method Pills */}
@@ -328,12 +328,12 @@ export type ApiResponse = {
 
             {/* Control 2: Faker Fields Customizer */}
             <div className="space-y-2">
-              <label className="text-foreground flex items-center justify-between text-xs font-bold">
+              <span className="text-foreground flex items-center justify-between text-xs font-bold">
                 <span>2. Assign Faker.js Schema Generators</span>
                 <span className="font-mono text-[10px] text-emerald-400">
                   Click to Toggle
                 </span>
-              </label>
+              </span>
 
               <div className="grid max-h-52 grid-cols-1 gap-1.5 overflow-y-auto pr-1 sm:grid-cols-2">
                 {fields.map((f: FieldItem) => (

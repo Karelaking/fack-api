@@ -142,6 +142,7 @@ export function DashboardBreadcrumbs({
                         render={
                           <button
                             type="button"
+                            aria-label={crumb.label}
                             className="group flex cursor-pointer items-center gap-1 transition-colors focus:outline-none"
                           />
                         }
@@ -196,6 +197,7 @@ export function DashboardBreadcrumbs({
                       render={
                         <button
                           type="button"
+                          aria-label={crumb.label}
                           className="group flex cursor-pointer items-center gap-1 transition-colors focus:outline-none"
                         />
                       }

@@ -12,6 +12,14 @@ import type { NextConfig } from "next";
  */
 const nextConfig: NextConfig = {
   ...(process.env.VERCEL ? {} : { output: "standalone" }),
+  images: {
+    // Clerk serves user avatars from its own CDN; allow next/image to optimize
+    // them.
+    remotePatterns: [
+      { protocol: "https", hostname: "img.clerk.com" },
+      { protocol: "https", hostname: "images.clerk.dev" },
+    ],
+  },
   outputFileTracingIncludes: {
     "/*": ["./drizzle/**/*"],
   },

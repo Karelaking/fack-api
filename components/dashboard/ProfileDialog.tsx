@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
 import { useClerk, useUser } from "@clerk/nextjs";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -173,9 +174,11 @@ export function ProfileDialog({ children }: { children: React.ReactNode }) {
               </h4>
               <div className="flex items-center gap-6">
                 {user?.imageUrl ? (
-                  <img
+                  <Image
                     src={user.imageUrl}
                     alt="Profile"
+                    width={64}
+                    height={64}
                     className="h-16 w-16 shrink-0 rounded-full object-cover"
                   />
                 ) : (

@@ -1,6 +1,7 @@
 import { generate } from "json-schema-faker";
 import { faker } from "@faker-js/faker";
 import { LoggerRegistry } from "@/lib/logger-registry";
+import { toStr } from "@/lib/utils/coerce";
 import type { NextRequest } from "next/server";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -27,11 +28,9 @@ function createPicsumUrl(width: number, height: number): string {
   return `https://picsum.photos/${width}/${height}?random=${random}`;
 }
 
-const extendedFaker = {
-  ...faker,
+const extendedFaker = Object.assign({}, faker, {
   image: new Proxy(
-    {
-      ...faker.image,
+    Object.assign({}, faker.image, {
       sports: () => createLoremFlickrUrl("sports"),
       animals: () => createLoremFlickrUrl("animals"),
       business: () => createLoremFlickrUrl("business"),
@@ -49,7 +48,7 @@ const extendedFaker = {
       urlThumbnail: () => createPicsumUrl(150, 150),
       urlHD: () => createPicsumUrl(1280, 720),
       urlFullHD: () => createPicsumUrl(1920, 1080),
-    },
+    }),
     {
       get(target, prop) {
         if (typeof prop === "string" && prop.startsWith("customCategory:")) {
@@ -63,7 +62,7 @@ const extendedFaker = {
       },
     },
   ),
-};
+});
 
 /**
  * Recursively maps any "x-faker" properties in a JSON Schema to "faker".
@@ -94,7 +93,7 @@ export async function generatePayload(
 ): Promise<unknown> {
   mockTrace.traceCall(
     "generatePayload",
-    `${schema.type || "object"} schema`,
+    `${toStr(schema.type) || "object"} schema`,
     `limit: ${limit}`,
   );
   try {
@@ -259,7 +258,7 @@ export function processQueryParameters(
           if (key in itemObj) {
             const itemVal = itemObj[key];
             if (itemVal === undefined || itemVal === null) return false;
-            return itemVal.toString().toLowerCase() === value.toLowerCase();
+            return toStr(itemVal).toLowerCase() === value.toLowerCase();
           }
         }
         return true;
@@ -276,7 +275,7 @@ export function processQueryParameters(
           (val) =>
             val !== null &&
             val !== undefined &&
-            val.toString().toLowerCase().includes(lowerQuery),
+            toStr(val).toLowerCase().includes(lowerQuery),
         );
       });
     }
@@ -306,8 +305,8 @@ export function processQueryParameters(
           return order === "desc" ? valB - valA : valA - valB;
         }
 
-        const strA = valA.toString().toLowerCase();
-        const strB = valB.toString().toLowerCase();
+        const strA = toStr(valA).toLowerCase();
+        const strB = toStr(valB).toLowerCase();
         if (strA < strB) return order === "desc" ? 1 : -1;
         if (strA > strB) return order === "desc" ? -1 : 1;
         return 0;

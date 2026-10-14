@@ -130,7 +130,7 @@ export class CacheManager {
     this.routeMockDataCache.set(routeId, data);
   }
 
-  public getSingleMockData(routeId: string): unknown | undefined {
+  public getSingleMockData(routeId: string): unknown {
     return this.routeSingleMockDataCache.get(routeId);
   }
 
@@ -297,7 +297,7 @@ export function setCachedMockData(routeId: string, data: unknown[]): void {
   cacheTrace.traceSuccess("setCachedMockData", "void");
 }
 
-export function getCachedSingleMockData(routeId: string): unknown | undefined {
+export function getCachedSingleMockData(routeId: string): unknown {
   cacheTrace.traceCall("getCachedSingleMockData", routeId);
   const res = cacheManager.getSingleMockData(routeId);
   cacheTrace.traceSuccess(

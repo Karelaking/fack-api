@@ -1,5 +1,9 @@
 "use client";
 
+// The node root uses `role="button"` because it wraps nested interactive
+// controls (toggle, handles); a native <button> cannot contain them.
+/* eslint-disable jsx-a11y/prefer-tag-over-role */
+
 import * as React from "react";
 import { Handle, Position } from "@xyflow/react";
 import {

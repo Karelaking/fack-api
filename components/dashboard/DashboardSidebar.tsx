@@ -378,7 +378,6 @@ export const DashboardSidebar = ({
                   placeholder="e.g., Billing Service"
                   maxLength={100}
                   disabled={loading}
-                  autoFocus
                 />
               </div>
               <div className="flex flex-col gap-2">

@@ -1,6 +1,11 @@
 "use client";
 
+// The search row uses `role="button"` because it wraps a read-only input;
+// a native <button> cannot contain an input control.
+/* eslint-disable jsx-a11y/prefer-tag-over-role */
+
 import * as React from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ProfileDialog } from "@/components/dashboard/ProfileDialog";
@@ -184,9 +189,11 @@ export function RootSidebar(): React.JSX.Element {
           <ProfileDialog>
             <button className="hover:bg-muted focus-visible:ring-primary -ml-1 flex min-w-0 flex-1 cursor-pointer items-center gap-2 rounded-md p-1 text-left transition-colors outline-none group-data-[collapsible=icon]:ml-0 focus-visible:ring-2">
               {user?.imageUrl ? (
-                <img
+                <Image
                   src={user.imageUrl}
                   alt="Profile"
+                  width={28}
+                  height={28}
                   className="h-7 w-7 shrink-0 rounded-full object-cover"
                 />
               ) : (

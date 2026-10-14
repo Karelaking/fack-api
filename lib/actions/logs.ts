@@ -7,6 +7,7 @@ import type { RequestLog } from "@/db/schema";
 import { revalidatePath } from "next/cache";
 import { LoggerRegistry } from "@/lib/logger-registry";
 import { requireProjectAccess } from "@/lib/auth";
+import { toStr } from "@/lib/utils/coerce";
 
 const logsTrace = LoggerRegistry.getTrace("db-logs");
 
@@ -58,17 +59,17 @@ export const getRequestLogs = cache(async function getRequestLogs(
     });
 
     const result = res.rows.map((row) => ({
-      id: String(row.id),
-      projectId: String(row.project_id),
+      id: toStr(row.id),
+      projectId: toStr(row.project_id),
       timestamp: Number(row.timestamp),
-      method: String(row.method),
-      path: String(row.path),
-      queryParams: String(row.query_params || "{}"),
-      headers: String(row.headers || "{}"),
+      method: toStr(row.method),
+      path: toStr(row.path),
+      queryParams: toStr(row.query_params) || "{}",
+      headers: toStr(row.headers) || "{}",
       statusCode: Number(row.status_code),
       latency: Number(row.latency),
       isError: Boolean(Number(row.is_error)),
-      responsePayload: String(row.response_payload || ""),
+      responsePayload: toStr(row.response_payload),
     })) as RequestLog[];
     logsTrace.traceSuccess("getRequestLogs (SQLite)", `${result.length} logs`);
     return result;

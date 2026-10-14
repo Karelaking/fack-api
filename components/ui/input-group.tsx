@@ -1,5 +1,11 @@
 "use client";
 
+// Vendored shadcn/ui primitive. It composes ARIA roles (`group`) and a
+// click-to-focus container on generic elements by design; consumers supply
+// the surrounding form semantics, so the native-tag preferences below do not
+// apply.
+/* eslint-disable jsx-a11y/prefer-tag-over-role, jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions */
+
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 

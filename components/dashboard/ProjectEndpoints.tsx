@@ -224,7 +224,6 @@ export const ProjectEndpoints = ({
                     placeholder="e.g. User Service"
                     maxLength={100}
                     disabled={loading}
-                    autoFocus
                   />
                 </div>
                 <div className="flex flex-col gap-2">

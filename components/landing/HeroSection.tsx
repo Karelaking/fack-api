@@ -81,7 +81,7 @@ export const HeroSection = (): React.JSX.Element => {
           {/* Left Column — Content & Copy */}
           <div
             ref={leftColRef}
-            className="relative flex flex-col justify-between space-y-6 overflow-hidden p-5 sm:space-y-8 sm:p-10 lg:p-14"
+            className="relative flex flex-col justify-between space-y-6 overflow-hidden"
           >
             {/* Background Ambient Radial Glow */}
             <div className="pointer-events-none absolute -top-12 -left-12 size-96 rounded-full bg-linear-to-br from-blue-600/15 via-indigo-500/10 to-transparent blur-3xl" />
@@ -168,8 +168,8 @@ export const HeroSection = (): React.JSX.Element => {
               </h2>
             </div>
             <p className="text-muted-foreground pt-1 text-xs leading-relaxed">
-              Zero server storage. Schema ASTs and API keys stay strictly in
-              your local browser storage.
+              Self-hosted storage. Schema ASTs and provider keys stay on your
+              own server, not in the browser.
             </p>
           </article>
 

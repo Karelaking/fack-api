@@ -1,5 +1,9 @@
 "use client";
 
+// `role="status"` marks the live region; <output> is invalid here because it
+// only permits phrasing content while this list contains block-level rows.
+/* eslint-disable jsx-a11y/prefer-tag-over-role */
+
 import * as React from "react";
 import {
   RiCheckboxCircleFill,
