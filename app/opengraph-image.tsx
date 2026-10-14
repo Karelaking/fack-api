@@ -84,6 +84,7 @@ export default async function Image() {
       </svg>
       <div
         style={{
+          display: "flex",
           fontSize: 60,
           color: "#ffffff",
           marginBottom: 12,
