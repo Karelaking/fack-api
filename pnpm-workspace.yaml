@@ -4,6 +4,7 @@ packages:
 
 allowBuilds:
   better-sqlite3: false
+  core-js: false
   esbuild: true
   sharp: true
   unrs-resolver: true

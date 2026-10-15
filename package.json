@@ -24,6 +24,7 @@
     "@ai-sdk/openai": "^4.0.71",
     "@base-ui/react": "^1.6.0",
     "@clerk/nextjs": "^7.9.11",
+    "@clerk/ui": "^1.40.1",
     "@faker-js/faker": "^10.5.0",
     "@hookform/resolvers": "^5.9.1",
     "@libsql/client": "^0.18.0",
@@ -82,8 +83,8 @@
     "semantic-release": "^25.0.9",
     "tailwindcss": "^4",
     "typescript": "^6",
-    "vitest": "catalog:",
-    "vite-plus": "catalog:"
+    "vite-plus": "catalog:",
+    "vitest": "catalog:"
   },
   "lint-staged": {
     "*.{ts,tsx}": [

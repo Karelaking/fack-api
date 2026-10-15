@@ -6,7 +6,7 @@
  * exported function must be named `proxy`.
  */
 
-import { NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import { LoggerRegistry } from "@/lib/logger-registry";
 
 const proxyTrace = LoggerRegistry.getTrace("proxy");
@@ -83,7 +83,10 @@ function getProjectSlugFromSubdomain(host: string): string | null {
   return subdomain;
 }
 
-import { clerkMiddleware } from "@clerk/nextjs/server";
+import {
+  clerkMiddleware,
+  type ClerkMiddlewareAuth,
+} from "@clerk/nextjs/server";
 
 // Force Turbopack/Webpack to statically analyze and inline these variables into the Edge bundle
 // const _dummyPublishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
@@ -98,7 +101,10 @@ import { clerkMiddleware } from "@clerk/nextjs/server";
  * deprecation). Protected pages instead call `auth.protect()` in the layout
  * that wraps them, and API routes call the guards in `lib/auth.ts`.
  */
-export const proxy = clerkMiddleware(async (_auth, request) => {
+const clerkProxyHandler = async (
+  _auth: ClerkMiddlewareAuth,
+  request: NextRequest,
+) => {
   const { pathname } = request.nextUrl;
   const host = request.headers.get("host") || "";
   proxyTrace.traceCall("proxy", request.method, pathname, host);
@@ -119,6 +125,8 @@ export const proxy = clerkMiddleware(async (_auth, request) => {
     "/api/projects",
     "/_next",
     "/opengraph-image",
+    "/sign-in",
+    "/sign-up",
   ];
 
   const systemExactPaths = new Set(["/", "/robots.txt", "/sitemap.xml"]);
@@ -187,6 +195,22 @@ export const proxy = clerkMiddleware(async (_auth, request) => {
   // All other requests (dashboard, static files, etc.) proceed normally
   proxyTrace.traceSuccess("proxy (Pass through)", "NextResponse.next()");
   return NextResponse.next();
+};
+
+/**
+ * Next.js Proxy entrypoint.
+ *
+ * The Clerk options below point server-side redirects at the app's own auth
+ * pages. `auth.protect()` (used in the dashboard/project layouts) resolves its
+ * redirect target from these options, else from the
+ * NEXT_PUBLIC_CLERK_SIGN_IN_URL / _SIGN_UP_URL env vars, else from the Clerk
+ * instance default — which is the hosted Account Portal. Passing them here
+ * keeps unauthenticated redirects inside the app instead of bouncing to the
+ * prebuilt Account Portal pages.
+ */
+export const proxy = clerkMiddleware(clerkProxyHandler, {
+  signInUrl: "/sign-in",
+  signUpUrl: "/sign-up",
 });
 
 /**
