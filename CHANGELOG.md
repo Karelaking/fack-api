@@ -1,3 +1,28 @@
+# [1.13.0](https://github.com/Karelaking/fack-api/compare/v1.12.0...v1.13.0) (2026-10-11)
+
+### Bug Fixes
+
+- **ai:** update gemini model to 3.8-flash due to deprecation ([b1492d5](https://github.com/Karelaking/fack-api/commit/b1492d5f6eae2a37f20a38ae3f1a74742fa291b6))
+- **codegen:** change export API to query by slug instead of id ([d5c9534](https://github.com/Karelaking/fack-api/commit/d5c953455a445e2a1e4e2e18544687460a1288f2))
+- **codegen:** resolve next.js dynamic route segment conflict for export API ([390e781](https://github.com/Karelaking/fack-api/commit/390e781e305e9e476ff8e8358917ddfc60574c29))
+- **ui:** resolve accessibility and Tailwind warnings ([88369ba](https://github.com/Karelaking/fack-api/commit/88369ba33429068cefc99e8e887b7cb93af79536))
+
+### Features
+
+- **ai:** add AI API Architect agent with multi-stage pipeline ([23e99ed](https://github.com/Karelaking/fack-api/commit/23e99edd6cf141722e5a948a88834aa48e4d31fc))
+- **ai:** add openapi export endpoint and UI button ([2f9c849](https://github.com/Karelaking/fack-api/commit/2f9c849724059bb769af80c6277d8840e9a47bc0))
+- **ai:** add openapi schema import to ai architect ([5bd8f3d](https://github.com/Karelaking/fack-api/commit/5bd8f3d35b91825368ae2a03ea6f36564ff2ecc1))
+- **ai:** add persistence layer for generation tasks and proposals ([6d6d472](https://github.com/Karelaking/fack-api/commit/6d6d4727d0a1ff6dae5008b6e44beb6ed6e4d81f))
+- **ai:** add specification version history table ([bab4db6](https://github.com/Karelaking/fack-api/commit/bab4db6f4cb2f6be62d4bd5ef68a9c66c1b2a7c3))
+- **ai:** remove mock fallback for ai generation and enforce actual llm usage ([e969837](https://github.com/Karelaking/fack-api/commit/e969837505ba97a72730eeec6bf7ae3b606bb997))
+- **auth:** add profile logout action ([ea0045e](https://github.com/Karelaking/fack-api/commit/ea0045e279351f0fc182225086c697f1f24ba4fe))
+- **auth:** implement JWT authentication simulation for mock routes ([cc564a1](https://github.com/Karelaking/fack-api/commit/cc564a131e10a76bfcf3e59dd94f407676e15d4b))
+- **codegen:** implement production backend export capability ([1f1dd01](https://github.com/Karelaking/fack-api/commit/1f1dd012ca5fd0b4e9fda340a425f1c3bea2335c))
+- **mock-engine:** implement stateful workflows to persist payloads for routes ([552dea9](https://github.com/Karelaking/fack-api/commit/552dea959a6fe8f3d6044582209f9ded0a06aafd))
+- **scenarios:** implement scenario presets and chaos monkey capabilities ([064e56d](https://github.com/Karelaking/fack-api/commit/064e56d0190409c15c6cfac6d04edc95f82fb490))
+- **templates:** implement lightweight handlebars templating engine for mock responses ([870959b](https://github.com/Karelaking/fack-api/commit/870959b39a534bde6e81476072d69ec17b25d3be))
+- **webhooks:** implement outbound callbacks capability for mock routes ([bd57e12](https://github.com/Karelaking/fack-api/commit/bd57e12705d7117970e30b7e1f4ac1493a289070))
+
 # [1.12.0](https://github.com/Karelaking/fack-api/compare/v1.11.2...v1.12.0) (2026-10-08)
 
 ### Features
