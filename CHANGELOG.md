@@ -1,3 +1,32 @@
+# [1.14.0](https://github.com/Karelaking/fack-api/compare/v1.13.0...v1.14.0) (2026-10-15)
+
+### Bug Fixes
+
+- **api:** stop rewriting /api/projects and await route params ([23af73f](https://github.com/Karelaking/fack-api/commit/23af73fc95034d6d52a6c35ed1560e01f5cac19a))
+- **auth:** authenticate before resolving guarded resources ([85fea15](https://github.com/Karelaking/fack-api/commit/85fea15be98c125376ffd855f700067037e89d18))
+- **ci:** generate coverage-final.json and use frozen lockfile ([2000ee3](https://github.com/Karelaking/fack-api/commit/2000ee3a9e6119031066a88f306f3f2aa0dbb6db))
+- **db:** invalidate both slugs on project rename and enforce uniqueness ([1af10b2](https://github.com/Karelaking/fack-api/commit/1af10b2630f27bce00e744daa605b1c2d50d0551))
+- **landing:** correct false storage claims in pricing copy ([1c9765d](https://github.com/Karelaking/fack-api/commit/1c9765df8b935ee2456a17a28f7d621b449c0349))
+- **mock-engine:** harden mock JWT secret and bound the log queue ([ee9b051](https://github.com/Karelaking/fack-api/commit/ee9b051999e70508199e49a7f279d320e6887447))
+- resolve lint, type, and accessibility issues ([1b89803](https://github.com/Karelaking/fack-api/commit/1b8980314fbf7c42bb31deb1239e07077fdc0b9c))
+- **seo:** drop deprecated edge runtime from opengraph-image ([0ebc4a5](https://github.com/Karelaking/fack-api/commit/0ebc4a528696e02b578f463b2f15076087a3f868))
+- **seo:** render the Open Graph image ([b692400](https://github.com/Karelaking/fack-api/commit/b692400c6e0a2d671176debee48a03a0ebf8c003))
+- **test:** resolve @/* alias in vitest config ([b11aba1](https://github.com/Karelaking/fack-api/commit/b11aba178d367f43f29e6bbd6d0b6cb4d1086817))
+- **tooling:** repair dev script and complete .env.example ([3038e76](https://github.com/Karelaking/fack-api/commit/3038e760c295a23177d233cc61f37e996d0524c6))
+- **ui:** cap dialog height and allow scrolling on short viewports ([cf0de56](https://github.com/Karelaking/fack-api/commit/cf0de569b75b5bfeb8fb628e1d53828c07f5778b))
+- **ui:** prevent theme flash and honor disableTransitionOnChange ([f828b7b](https://github.com/Karelaking/fack-api/commit/f828b7b71f569829a0caeaac2ff5dcebe9090869))
+- **ui:** resolve floating-promise warnings in client components ([6bdaa44](https://github.com/Karelaking/fack-api/commit/6bdaa44ab0f5b1e8c8f809149b54b9e34072b48c))
+
+### Features
+
+- **auth:** add custom clerk sign-in and sign-up pages ([554972f](https://github.com/Karelaking/fack-api/commit/554972f9e8cff81f73f5a52105336c0a88896239))
+- **auth:** enforce authentication and ownership on mutations ([0dce8b1](https://github.com/Karelaking/fack-api/commit/0dce8b10e4886963fc030f93774424b5695b7395))
+
+### Performance Improvements
+
+- **build:** optimize barrel imports for @remixicon/react ([aa69700](https://github.com/Karelaking/fack-api/commit/aa6970012dd0267ad87ad04079755d218f5c4a43))
+- **db:** add missing foreign-key indexes ([61760eb](https://github.com/Karelaking/fack-api/commit/61760ebb96c310a3bf1a15dbb8f4b959421f20e8))
+
 # [1.13.0](https://github.com/Karelaking/fack-api/compare/v1.12.0...v1.13.0) (2026-10-11)
 
 ### Bug Fixes
