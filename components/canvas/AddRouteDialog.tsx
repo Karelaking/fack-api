@@ -155,11 +155,14 @@ export const AddRouteDialog = ({
                 Endpoint Group
               </label>
               {endpoints.length === 0 ? (
-                <div className="flex flex-col gap-1.5 border border-amber-500/20 bg-amber-500/10 p-3 text-xs text-amber-500">
+                <div
+                  role="alert"
+                  className="border-warning/25 bg-warning/10 text-warning flex flex-col gap-1.5 rounded-md border p-3 text-xs"
+                >
                   <span className="font-semibold">
                     No Endpoint Groups found.
                   </span>
-                  <span className="text-muted-foreground text-[10px] leading-normal font-normal">
+                  <span className="text-muted-foreground text-mini leading-normal font-normal">
                     You need at least one Endpoint Group to add routes. Go to
                     the <strong>Endpoints</strong> tab to create one.
                   </span>
@@ -177,6 +180,12 @@ export const AddRouteDialog = ({
                       <SelectTrigger
                         id="add-route-endpoint"
                         aria-label="Endpoint Group"
+                        aria-invalid={!!errors.endpointId}
+                        aria-describedby={
+                          errors.endpointId
+                            ? "add-route-endpoint-error"
+                            : undefined
+                        }
                         className="w-full"
                       >
                         <span className="truncate" data-slot="select-value">
@@ -199,7 +208,11 @@ export const AddRouteDialog = ({
                 />
               )}
               {errors.endpointId && (
-                <span className="text-destructive text-xs">
+                <span
+                  id="add-route-endpoint-error"
+                  role="alert"
+                  className="text-destructive text-xs"
+                >
                   {errors.endpointId.message}
                 </span>
               )}
@@ -252,9 +265,17 @@ export const AddRouteDialog = ({
                   placeholder="e.g. /login or /:id"
                   maxLength={200}
                   disabled={isSubmitting || endpoints.length === 0}
+                  aria-invalid={!!errors.path}
+                  aria-describedby={
+                    errors.path ? "route-path-error" : undefined
+                  }
                 />
                 {errors.path && (
-                  <span className="text-destructive text-xs">
+                  <span
+                    id="route-path-error"
+                    role="alert"
+                    className="text-destructive text-xs"
+                  >
                     {errors.path.message}
                   </span>
                 )}
@@ -276,14 +297,22 @@ export const AddRouteDialog = ({
                 min={100}
                 max={599}
                 disabled={isSubmitting || endpoints.length === 0}
+                aria-invalid={!!errors.statusCode}
+                aria-describedby={
+                  errors.statusCode ? "route-statusCode-error" : undefined
+                }
               />
               {errors.statusCode && (
-                <span className="text-destructive text-xs">
+                <span
+                  id="route-statusCode-error"
+                  role="alert"
+                  className="text-destructive text-xs"
+                >
                   {errors.statusCode.message}
                 </span>
               )}
             </div>
-            <div className="bg-muted/10 flex items-center justify-between border p-3">
+            <div className="bg-muted/10 flex items-center justify-between rounded-md border p-3">
               <div className="space-y-0.5">
                 <label
                   htmlFor="include-defaults"
@@ -291,7 +320,7 @@ export const AddRouteDialog = ({
                 >
                   Generate Starter Schema
                 </label>
-                <span className="text-muted-foreground block text-[10px] leading-normal">
+                <span className="text-muted-foreground text-mini block leading-normal">
                   Include default JSON schema properties (`id`, `createdAt`,
                   `updatedAt`).
                 </span>

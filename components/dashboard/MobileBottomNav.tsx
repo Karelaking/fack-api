@@ -56,7 +56,7 @@ export function MobileBottomNav(): React.JSX.Element | null {
   return (
     <nav
       aria-label="Mobile Navigation"
-      className="bg-card/85 border-border fixed right-0 bottom-0 left-0 z-40 flex h-14 items-center justify-around border-t px-4 backdrop-blur-md select-none md:hidden"
+      className="bg-card/85 border-border fixed right-0 bottom-0 left-0 z-40 flex min-h-14 items-center justify-around border-t pt-0 pr-[max(1rem,env(safe-area-inset-right))] pb-[env(safe-area-inset-bottom)] pl-[max(1rem,env(safe-area-inset-left))] backdrop-blur-md select-none md:hidden"
     >
       {tabs.map((tab) => {
         const Icon = tab.icon;
@@ -66,14 +66,15 @@ export function MobileBottomNav(): React.JSX.Element | null {
           <Link
             key={tab.name}
             href={tab.href}
+            aria-current={isActive ? "page" : undefined}
             className={cn(
-              "flex h-full flex-1 flex-col items-center justify-center gap-0.5 text-[10px] font-bold transition-colors",
+              "flex h-full flex-1 flex-col items-center justify-center gap-0.5 text-mini font-bold transition-colors",
               isActive
                 ? "text-primary"
                 : "text-muted-foreground hover:text-foreground",
             )}
           >
-            <Icon className="h-5 w-5 shrink-0" />
+            <Icon className="h-5 w-5 shrink-0" aria-hidden="true" />
             <span>{tab.name}</span>
           </Link>
         );

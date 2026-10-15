@@ -4,11 +4,22 @@ import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/sonner";
+import type { Viewport } from "next";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { shadcn } from "@clerk/ui/themes";
 import { CommandMenu } from "@/components/command-menu";
+
+/**
+ * `viewportFit: "cover"` is what makes `env(safe-area-inset-*)` report real
+ * values on notched devices. Without it the insets are always 0, so the mobile
+ * bottom nav sits under the home indicator. Next emits `width=device-width` and
+ * `initial-scale=1` alongside this automatically.
+ */
+export const viewport: Viewport = {
+  viewportFit: "cover",
+};
 
 const inter = Inter({
   variable: "--font-sans",

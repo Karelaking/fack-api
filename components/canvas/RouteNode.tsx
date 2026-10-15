@@ -1,8 +1,8 @@
 "use client";
 
-// The node root uses `role="button"` because it wraps nested interactive
-// controls (toggle, handles); a native <button> cannot contain them.
-/* eslint-disable jsx-a11y/prefer-tag-over-role */
+// Selection and keyboard activation are owned by React Flow's node wrapper
+// (`role="group"`, `tabIndex=0`, Enter/Space -> onNodeClick), so the card root
+// stays a plain presentational element and nested controls remain valid.
 
 import * as React from "react";
 import { Handle, Position } from "@xyflow/react";
@@ -131,7 +131,7 @@ export const RouteNode = ({
     StatusIcon = RiAlertLine;
   } else if (data.statusCode >= 500) {
     statusBadgeClass =
-      "bg-destructive/10 text-destructive border-destructive/20 animate-pulse";
+      "bg-destructive/10 text-destructive border-destructive/20 animate-pulse motion-reduce:animate-none";
     StatusIcon = RiShieldCrossLine;
   }
 
@@ -178,16 +178,6 @@ export const RouteNode = ({
 
   return (
     <div
-      role="button"
-      tabIndex={0}
-      aria-label={`Route ${data.method} ${data.path}`}
-      onClick={() => data.onSelectRoute(data.id)}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          data.onSelectRoute(data.id);
-        }
-      }}
       className={cn(
         "bg-card border-border flex w-70 cursor-pointer flex-col overflow-hidden rounded-xl border border-l-4 shadow-sm transition-all duration-200 select-none",
         variants.wrapper,
@@ -215,15 +205,16 @@ export const RouteNode = ({
           {/* Method Badge with glowing indicator dot */}
           <span
             className={cn(
-              "flex shrink-0 items-center gap-1.5 rounded-md border px-1.5 py-0.5 text-[9px] font-extrabold tracking-wider",
+              "flex shrink-0 items-center gap-1.5 rounded-md border px-1.5 py-0.5 text-micro font-extrabold tracking-wider",
               variants.badge,
             )}
           >
             <span
+              aria-hidden="true"
               className={cn(
                 "h-1.5 w-1.5 shrink-0 rounded-full",
                 variants.dot,
-                data.isEnabled && "animate-pulse",
+                data.isEnabled && "animate-pulse motion-reduce:animate-none",
               )}
             />
             {method}
@@ -232,24 +223,25 @@ export const RouteNode = ({
           {/* Status code view */}
           <span
             className={cn(
-              "flex shrink-0 items-center gap-1 rounded-md border px-1.5 py-0.5 font-mono text-[10px] font-bold",
+              "flex shrink-0 items-center gap-1 rounded-md border px-1.5 py-0.5 font-mono text-mini font-bold",
               statusBadgeClass,
             )}
           >
-            <StatusIcon className="h-3 w-3 shrink-0" />
+            <StatusIcon className="h-3 w-3 shrink-0" aria-hidden="true" />
             {data.statusCode}
           </span>
         </div>
 
         {/* Actions block: Toggle Switch */}
         <div
-          className="flex items-center gap-1"
+          className="flex items-center gap-3"
           onPointerDown={(e) => e.stopPropagation()}
         >
           <Button
             type="button"
             size="icon-xs"
             variant="ghost"
+            className="canvas-touch-target"
             title="Edit Route"
             aria-label="Edit Route"
             onClick={(e) => {
@@ -257,13 +249,13 @@ export const RouteNode = ({
               data.onOpenEdit(data.id);
             }}
           >
-            <RiPencilLine className="h-3.5 w-3.5" />
+            <RiPencilLine className="h-3.5 w-3.5" aria-hidden="true" />
           </Button>
           <Switch
             checked={data.isEnabled}
             onCheckedChange={handleToggle}
             aria-label="Toggle Route Enabled"
-            className="-mr-1 scale-[0.7]"
+            className="canvas-touch-switch"
           />
         </div>
       </div>
@@ -273,7 +265,7 @@ export const RouteNode = ({
         <span className="text-foreground line-clamp-1 text-sm font-semibold tracking-tight">
           {data.path}
         </span>
-        <span className="text-muted-foreground line-clamp-1 font-mono text-[10px]">
+        <span className="text-muted-foreground text-mini line-clamp-1 font-mono">
           {data.mockUrl}
         </span>
       </div>
@@ -286,26 +278,38 @@ export const RouteNode = ({
         hasErrors) && (
         <div className="border-border/40 bg-muted/20 flex flex-wrap items-center gap-2 border-t px-4 py-2.5">
           {schemaKeysCount > 0 && (
-            <div className="text-muted-foreground flex items-center gap-1 text-[10px] font-medium">
-              <RiCodeLine className="text-success h-3.5 w-3.5 shrink-0" />
+            <div className="text-muted-foreground text-mini flex items-center gap-1 font-medium">
+              <RiCodeLine
+                className="text-success h-3.5 w-3.5 shrink-0"
+                aria-hidden="true"
+              />
               <span>JSON</span>
             </div>
           )}
           {headersKeysCount > 0 && (
-            <div className="text-muted-foreground flex items-center gap-1 text-[10px] font-medium">
-              <RiEqualizerLine className="text-info h-3.5 w-3.5 shrink-0" />
+            <div className="text-muted-foreground text-mini flex items-center gap-1 font-medium">
+              <RiEqualizerLine
+                className="text-info h-3.5 w-3.5 shrink-0"
+                aria-hidden="true"
+              />
               <span>Hdrs</span>
             </div>
           )}
           {rulesCount > 0 && (
-            <div className="text-muted-foreground flex items-center gap-1 text-[10px] font-medium">
-              <RiGitBranchLine className="text-primary h-3.5 w-3.5 shrink-0" />
+            <div className="text-muted-foreground text-mini flex items-center gap-1 font-medium">
+              <RiGitBranchLine
+                className="text-primary h-3.5 w-3.5 shrink-0"
+                aria-hidden="true"
+              />
               <span>Rules</span>
             </div>
           )}
           {hasLatency && (
-            <div className="text-muted-foreground flex items-center gap-1 text-[10px] font-medium">
-              <RiTimeLine className="text-warning h-3.5 w-3.5 shrink-0" />
+            <div className="text-muted-foreground text-mini flex items-center gap-1 font-medium">
+              <RiTimeLine
+                className="text-warning h-3.5 w-3.5 shrink-0"
+                aria-hidden="true"
+              />
               <span>
                 {data.latencyMin === data.latencyMax
                   ? `${data.latencyMin}ms`
@@ -314,8 +318,11 @@ export const RouteNode = ({
             </div>
           )}
           {hasErrors && (
-            <div className="text-muted-foreground flex items-center gap-1 text-[10px] font-medium">
-              <RiAlertLine className="text-destructive h-3.5 w-3.5 shrink-0 animate-pulse" />
+            <div className="text-muted-foreground text-mini flex items-center gap-1 font-medium">
+              <RiAlertLine
+                className="text-destructive h-3.5 w-3.5 shrink-0 animate-pulse motion-reduce:animate-none"
+                aria-hidden="true"
+              />
               <span>{data.errorRate}% Err</span>
             </div>
           )}

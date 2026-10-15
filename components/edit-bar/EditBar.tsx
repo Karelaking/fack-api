@@ -237,7 +237,10 @@ function EditBarInner({
       <SheetHeader className="mx-2 mt-2 shrink-0">
         <SheetTitle>
           <span className="flex items-center gap-1.5">
-            <RiSettings2Line className="text-primary h-5 w-5" />
+            <RiSettings2Line
+              className="text-primary h-5 w-5"
+              aria-hidden="true"
+            />
             <span className="text-xl">Edit Route Config</span>
           </span>
         </SheetTitle>
@@ -252,7 +255,10 @@ function EditBarInner({
         {/* Row 1: Method Selector Chips + Route Enabled Toggle */}
         <div className="flex flex-wrap items-center justify-between gap-2">
           {/* Method Chips */}
-          <div className="border-border/50 bg-background/50 flex items-center gap-0.5 rounded-md border p-1 shadow-xs">
+          <fieldset
+            aria-label="HTTP method"
+            className="border-border/50 bg-background/50 m-0 flex min-w-0 flex-wrap items-center gap-0.5 rounded-md border p-1 shadow-xs"
+          >
             {HTTP_METHODS.map((m) => {
               const isActive = method === m;
               const theme = METHOD_THEMES[m];
@@ -260,6 +266,7 @@ function EditBarInner({
                 <button
                   key={m}
                   type="button"
+                  aria-pressed={isActive}
                   onClick={() => setMethod(m)}
                   disabled={loading}
                   className={cn(
@@ -273,7 +280,7 @@ function EditBarInner({
                 </button>
               );
             })}
-          </div>
+          </fieldset>
 
           {/* Route Enabled Toggle */}
           <div className="flex items-center gap-2">
@@ -286,7 +293,6 @@ function EditBarInner({
               checked={isEnabled}
               onCheckedChange={setIsEnabled}
               disabled={loading}
-              className="scale-75"
             />
           </div>
         </div>
@@ -311,15 +317,19 @@ function EditBarInner({
 
         {/* Row 3: Status Code with Quick Presets */}
         <div className="flex flex-wrap items-center justify-between gap-2 pt-0.5">
-          <div className="flex items-center gap-1.5">
+          <div className="flex min-w-0 flex-wrap items-center gap-1.5">
             <span className="text-muted-foreground mr-1 text-xs font-medium tracking-wider uppercase">
               Status:
             </span>
-            <div className="flex items-center gap-1">
+            <fieldset
+              aria-label="Status code presets"
+              className="m-0 flex min-w-0 flex-wrap items-center gap-1 border-0 p-0"
+            >
               {STATUS_PRESETS.map((code) => (
                 <button
                   key={code}
                   type="button"
+                  aria-pressed={statusCode === code}
                   onClick={() => setStatusCode(code)}
                   disabled={loading}
                   className={cn(
@@ -332,7 +342,7 @@ function EditBarInner({
                   {code}
                 </button>
               ))}
-            </div>
+            </fieldset>
           </div>
 
           <div className="flex items-center gap-2">
@@ -398,7 +408,7 @@ function EditBarInner({
           </TabsTrigger>
         </TabsList>
 
-        <div className="min-h-0 min-w-0 flex-1 overflow-auto py-2">
+        <div className="scrollbar-subtle min-h-0 min-w-0 flex-1 overflow-auto py-2">
           {/* Schema Fields Builder Tab */}
           <TabsContent value="schema" className="m-0 h-full">
             <FieldTree />
@@ -431,7 +441,7 @@ function EditBarInner({
             <div className="flex h-full flex-col space-y-2">
               <div className="border-border flex shrink-0 items-center justify-between border-b pb-1.5">
                 <span className="text-muted-foreground flex items-center gap-1 text-xs font-semibold">
-                  <RiFileCodeLine className="h-4 w-4" />
+                  <RiFileCodeLine className="h-4 w-4" aria-hidden="true" />
                   <span>JSON Schema Preview</span>
                 </span>
                 <div className="flex items-center gap-1.5">
@@ -444,9 +454,15 @@ function EditBarInner({
                     onClick={handleCopySchema}
                   >
                     {copiedJson ? (
-                      <RiCheckLine className="text-success h-3.5 w-3.5" />
+                      <RiCheckLine
+                        className="text-success h-3.5 w-3.5"
+                        aria-hidden="true"
+                      />
                     ) : (
-                      <RiFileCopyLine className="h-3.5 w-3.5" />
+                      <RiFileCopyLine
+                        className="h-3.5 w-3.5"
+                        aria-hidden="true"
+                      />
                     )}
                     <span>{copiedJson ? "Copied" : "Copy JSON"}</span>
                   </Button>
@@ -458,12 +474,12 @@ function EditBarInner({
                     aria-label="Generate types"
                     onClick={() => setTsOpen(true)}
                   >
-                    <RiCodeLine className="h-3.5 w-3.5" />
+                    <RiCodeLine className="h-3.5 w-3.5" aria-hidden="true" />
                     <span>Types</span>
                   </Button>
                 </div>
               </div>
-              <div className="bg-muted text-mini min-h-0 flex-1 overflow-auto border p-2 font-mono">
+              <div className="bg-muted text-mini scrollbar-subtle min-h-0 flex-1 overflow-auto border p-2 font-mono">
                 <pre>{schemaPreview}</pre>
               </div>
             </div>
@@ -484,9 +500,12 @@ function EditBarInner({
           aria-disabled={loading}
         >
           {loading ? (
-            <RiLoader2Line className="h-4 w-4 animate-spin" />
+            <RiLoader2Line
+              className="h-4 w-4 animate-spin motion-reduce:animate-none"
+              aria-hidden="true"
+            />
           ) : (
-            <RiDeleteBin6Line className="h-4 w-4" />
+            <RiDeleteBin6Line className="h-4 w-4" aria-hidden="true" />
           )}
           <span>Delete</span>
         </Button>
@@ -513,9 +532,12 @@ function EditBarInner({
             aria-disabled={loading}
           >
             {loading ? (
-              <RiLoader2Line className="h-4 w-4 animate-spin" />
+              <RiLoader2Line
+                className="h-4 w-4 animate-spin motion-reduce:animate-none"
+                aria-hidden="true"
+              />
             ) : (
-              <RiSaveLine className="h-4 w-4" />
+              <RiSaveLine className="h-4 w-4" aria-hidden="true" />
             )}
             <span>Save</span>
           </Button>

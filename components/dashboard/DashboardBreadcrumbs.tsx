@@ -117,8 +117,8 @@ export function DashboardBreadcrumbs({
   }
 
   return (
-    <div className="flex items-center gap-4">
-      <nav className="text-muted-foreground flex items-center gap-1.5 text-sm font-medium select-none">
+    <div className="flex min-w-0 items-center gap-4">
+      <nav className="text-muted-foreground flex min-w-0 items-center gap-1.5 text-sm font-medium select-none">
         {breadcrumbs.map((crumb, idx) => {
           const isLast = idx === breadcrumbs.length - 1;
           const isFirst = idx === 0;
@@ -134,7 +134,7 @@ export function DashboardBreadcrumbs({
                   )}
                 />
               )}
-              <div className={cn(isFirst && "hidden sm:block")}>
+              <div className={cn("flex min-w-0", isFirst && "hidden sm:block")}>
                 {isLast ? (
                   crumb.isProject && projectsList.length > 0 ? (
                     <DropdownMenu>
@@ -143,7 +143,7 @@ export function DashboardBreadcrumbs({
                           <button
                             type="button"
                             aria-label={crumb.label}
-                            className="group flex cursor-pointer items-center gap-1 transition-colors focus:outline-none"
+                            className="group flex min-w-0 cursor-pointer items-center gap-1 transition-colors focus:outline-none"
                           />
                         }
                       >
@@ -244,7 +244,7 @@ export function DashboardBreadcrumbs({
                 ) : (
                   <Link
                     href={crumb.href}
-                    className="hover:text-foreground max-w-30 truncate font-normal transition-colors sm:max-w-xs"
+                    className="hover:text-foreground block max-w-30 min-w-0 truncate font-normal transition-colors sm:max-w-xs"
                   >
                     {crumb.label}
                   </Link>

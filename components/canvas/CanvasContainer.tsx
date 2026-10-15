@@ -44,26 +44,28 @@ export function CanvasContainer({
     return activeRoutes.find((r) => r.id === selectedRouteId) ?? null;
   }, [activeRoutes, selectedRouteId]);
 
-  const handleSelectRoute = (routeId: string) => {
+  // Stable identities: these flow into FlowCanvas's memoized reconciliation
+  // effect, so a new function each render would rebuild every node.
+  const handleSelectRoute = React.useCallback((routeId: string) => {
     setSelectedRouteId(routeId);
-  };
+  }, []);
 
-  const handleOpenEdit = (routeId: string) => {
+  const handleOpenEdit = React.useCallback((routeId: string) => {
     setSelectedRouteId(routeId);
     setIsEditOpen(true);
-  };
+  }, []);
 
-  const handleRouteUpdated = (updatedRoute: Route) => {
+  const handleRouteUpdated = React.useCallback((updatedRoute: Route) => {
     setActiveRoutes((prev) =>
       prev.map((r) => (r.id === updatedRoute.id ? updatedRoute : r)),
     );
-  };
+  }, []);
 
-  const handleRouteDeleted = (routeId: string) => {
+  const handleRouteDeleted = React.useCallback((routeId: string) => {
     setActiveRoutes((prev) => prev.filter((r) => r.id !== routeId));
     setSelectedRouteId(null);
     setIsEditOpen(false);
-  };
+  }, []);
 
   return (
     <div className="relative flex h-full min-h-0 w-full min-w-0 gap-4">

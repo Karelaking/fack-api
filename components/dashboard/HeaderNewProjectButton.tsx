@@ -9,8 +9,16 @@ import {
   RiSparkling2Fill,
   RiDownloadLine,
   RiUploadCloud2Line,
+  RiMoreLine,
 } from "@remixicon/react";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export function HeaderNewProjectButton(): React.JSX.Element | null {
   const pathname = usePathname();
@@ -40,45 +48,87 @@ export function HeaderNewProjectButton(): React.JSX.Element | null {
   };
 
   if (isCanvasPage) {
+    const openAiArchitect = () => triggerAction("open-ai-architect-dialog");
+    const openImportOpenApi = () => triggerAction("open-import-openapi-dialog");
+    const exportOpenApi = () => {
+      if (segments[1]) {
+        window.open(`/api/projects/${segments[1]}/openapi`, "_blank");
+      }
+    };
+
     return (
-      <div className="flex items-center gap-2">
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          title="AI Architect"
-          aria-label="AI Architect"
-          onClick={() => triggerAction("open-ai-architect-dialog")}
-        >
-          <RiSparkling2Fill className="h-3.5 w-3.5 text-indigo-500" />
-          <span>AI Architect</span>
-        </Button>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          title="Import OpenAPI"
-          aria-label="Import OpenAPI"
-          onClick={() => triggerAction("open-import-openapi-dialog")}
-        >
-          <RiUploadCloud2Line className="h-3.5 w-3.5 text-blue-500" />
-          <span>Import OpenAPI</span>
-        </Button>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          title="Export OpenAPI"
-          aria-label="Export OpenAPI"
-          onClick={() => {
-            if (segments[1]) {
-              window.open(`/api/projects/${segments[1]}/openapi`, "_blank");
+      <div className="flex shrink-0 items-center gap-2">
+        {/* Secondary actions: inline only when there is room for the labels. */}
+        <div className="hidden items-center gap-2 xl:flex">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            title="AI Architect"
+            aria-label="AI Architect"
+            onClick={openAiArchitect}
+          >
+            <RiSparkling2Fill className="text-primary h-3.5 w-3.5" />
+            <span>AI Architect</span>
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            title="Import OpenAPI"
+            aria-label="Import OpenAPI"
+            onClick={openImportOpenApi}
+          >
+            <RiUploadCloud2Line className="text-info h-3.5 w-3.5" />
+            <span>Import OpenAPI</span>
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            title="Export OpenAPI"
+            aria-label="Export OpenAPI"
+            onClick={exportOpenApi}
+          >
+            <RiDownloadLine className="h-3.5 w-3.5" />
+            <span>Export OpenAPI</span>
+          </Button>
+        </div>
+
+        {/* Below xl the same secondary actions collapse into an overflow menu. */}
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            render={
+              <Button
+                type="button"
+                variant="outline"
+                size="icon-sm"
+                className="xl:hidden"
+                title="More canvas actions"
+                aria-label="More canvas actions"
+              />
             }
-          }}
-        >
-          <RiDownloadLine className="h-3.5 w-3.5" />
-          <span>Export OpenAPI</span>
-        </Button>
+          >
+            <RiMoreLine className="h-4 w-4" />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuGroup>
+              <DropdownMenuItem onClick={openAiArchitect}>
+                <RiSparkling2Fill className="text-primary" />
+                <span>AI Architect</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={openImportOpenApi}>
+                <RiUploadCloud2Line className="text-info" />
+                <span>Import OpenAPI</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={exportOpenApi}>
+                <RiDownloadLine />
+                <span>Export OpenAPI</span>
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
         <Button
           type="button"
           variant="outline"
@@ -89,11 +139,16 @@ export function HeaderNewProjectButton(): React.JSX.Element | null {
           disabled={isSaving}
         >
           {isSaving ? (
-            <RiLoader2Line className="h-3.5 w-3.5 animate-spin" />
+            <RiLoader2Line
+              className="h-3.5 w-3.5 animate-spin motion-reduce:animate-none"
+              aria-hidden="true"
+            />
           ) : (
-            <RiSaveLine className="h-3.5 w-3.5" />
+            <RiSaveLine className="h-3.5 w-3.5" aria-hidden="true" />
           )}
-          <span>{isSaving ? "Saving..." : "Save Layout"}</span>
+          <span className="hidden sm:inline">
+            {isSaving ? "Saving..." : "Save Layout"}
+          </span>
         </Button>
         <Button
           type="button"
@@ -103,8 +158,8 @@ export function HeaderNewProjectButton(): React.JSX.Element | null {
           aria-label="Add Route"
           onClick={() => triggerAction("open-add-route-dialog")}
         >
-          <RiAddLine className="h-4 w-4" />
-          <span>Add Route</span>
+          <RiAddLine className="h-4 w-4" aria-hidden="true" />
+          <span className="hidden sm:inline">Add Route</span>
         </Button>
       </div>
     );

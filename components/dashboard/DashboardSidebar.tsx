@@ -234,33 +234,37 @@ export const DashboardSidebar = ({
                   <div className="bg-muted/40 border-border/40 flex items-center gap-2 border p-2">
                     <span
                       className={cn(
-                        "shrink-0 px-2 py-0.5 text-[9.5px] font-extrabold tracking-wider uppercase",
+                        "shrink-0 rounded-sm border px-2 py-0.5 text-micro font-extrabold tracking-wider uppercase",
                         selectedRoute.method.toUpperCase() === "GET" &&
-                          "border border-emerald-500/20 bg-emerald-500/15 text-emerald-500",
+                          "border-method-get/25 bg-method-get/10 text-method-get",
                         selectedRoute.method.toUpperCase() === "POST" &&
-                          "border border-blue-500/20 bg-blue-500/15 text-blue-500",
+                          "border-method-post/25 bg-method-post/10 text-method-post",
                         selectedRoute.method.toUpperCase() === "PUT" &&
-                          "border border-amber-500/20 bg-amber-500/15 text-amber-500",
+                          "border-method-put/25 bg-method-put/10 text-method-put",
                         selectedRoute.method.toUpperCase() === "DELETE" &&
-                          "border border-rose-500/20 bg-rose-500/15 text-rose-500",
+                          "border-method-delete/25 bg-method-delete/10 text-method-delete",
                         selectedRoute.method.toUpperCase() === "PATCH" &&
-                          "border border-purple-500/20 bg-purple-500/15 text-purple-500",
+                          "border-method-patch/25 bg-method-patch/10 text-method-patch",
+                        !["GET", "POST", "PUT", "DELETE", "PATCH"].includes(
+                          selectedRoute.method.toUpperCase(),
+                        ) &&
+                          "border-border/40 bg-muted/20 text-muted-foreground",
                       )}
                     >
                       {selectedRoute.method}
                     </span>
-                    <span className="text-foreground flex-1 truncate font-mono text-[11px] font-bold">
+                    <span className="text-foreground text-caption flex-1 truncate font-mono font-bold">
                       {selectedRoute.path}
                     </span>
                   </div>
 
                   {/* Base Link (Copyable Input-like box) */}
                   <div className="flex flex-col gap-1">
-                    <span className="text-muted-foreground block px-0.5 text-[8px] font-bold tracking-wider uppercase">
+                    <span className="text-muted-foreground text-micro block px-0.5 font-bold tracking-wider uppercase">
                       Mock URL
                     </span>
                     <div className="bg-background border-border/80 flex items-center gap-1.5 border p-1.5 shadow-xs">
-                      <span className="text-foreground flex-1 truncate pl-1 font-mono text-[11px] leading-normal font-bold select-all">
+                      <span className="text-foreground text-caption flex-1 truncate pl-1 font-mono leading-normal font-bold select-all">
                         {selectedRoute.mockUrl}
                       </span>
                       <Button
@@ -281,17 +285,20 @@ export const DashboardSidebar = ({
                           }
                         }}
                       >
-                        <RiFileCopyLine className="h-3.5 w-3.5" />
+                        <RiFileCopyLine
+                          className="h-3.5 w-3.5"
+                          aria-hidden="true"
+                        />
                       </Button>
                     </div>
                   </div>
 
                   {/* Query Parameters Helper List */}
                   <div className="space-y-1.5">
-                    <span className="text-muted-foreground block px-0.5 text-[8px] font-bold tracking-wider uppercase">
+                    <span className="text-muted-foreground text-micro block px-0.5 font-bold tracking-wider uppercase">
                       Query Parameters
                     </span>
-                    <div className="bg-muted/20 border-border/50 max-h-48 space-y-1 overflow-y-auto border p-2 pr-0.5">
+                    <div className="bg-muted/20 border-border/50 scrollbar-subtle max-h-48 space-y-1 overflow-y-auto border p-2 pr-0.5">
                       {[
                         { param: "?limit=5", desc: "Limit output array items" },
                         { param: "?q=search", desc: "Global text search" },
@@ -309,10 +316,10 @@ export const DashboardSidebar = ({
                             className="hover:bg-background hover:border-border/30 flex items-center justify-between gap-2 border border-transparent px-1.5 py-1 transition-colors"
                           >
                             <div className="flex min-w-0 flex-1 flex-col">
-                              <span className="text-primary truncate font-mono text-[9.5px] leading-normal font-bold">
+                              <span className="text-primary text-micro truncate font-mono leading-normal font-bold">
                                 {opt.param}
                               </span>
-                              <span className="text-muted-foreground truncate text-[8px] leading-normal">
+                              <span className="text-muted-foreground text-micro truncate leading-normal">
                                 {opt.desc}
                               </span>
                             </div>
@@ -332,7 +339,10 @@ export const DashboardSidebar = ({
                                 }
                               }}
                             >
-                              <RiFileCopyLine className="h-3.5 w-3.5" />
+                              <RiFileCopyLine
+                                className="h-3.5 w-3.5"
+                                aria-hidden="true"
+                              />
                             </Button>
                           </div>
                         );
@@ -395,7 +405,7 @@ export const DashboardSidebar = ({
                   maxLength={100}
                   disabled={loading}
                 />
-                <span className="text-muted-foreground text-[10px]">
+                <span className="text-muted-foreground text-mini">
                   Determines mock base URL: `/
                   {'{slug || "slug-derived-from-name"}'}`. Lowercase with
                   hyphens.
@@ -439,7 +449,7 @@ export const DashboardSidebar = ({
                 {loading ? (
                   <>
                     <RiLoader2Line
-                      className="h-4 w-4 animate-spin"
+                      className="h-4 w-4 animate-spin motion-reduce:animate-none"
                       aria-hidden="true"
                     />
                     <span>Creating...</span>

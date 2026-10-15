@@ -26,7 +26,7 @@ export default async function DashboardLayout({
 
   return (
     <SidebarProvider>
-      <div className="bg-background flex h-screen w-full max-w-full overflow-hidden">
+      <div className="bg-background flex h-dvh w-full max-w-full overflow-hidden">
         <RootSidebar />
 
         {/* Main Content Area */}
@@ -40,7 +40,7 @@ export default async function DashboardLayout({
               <HeaderNewProjectButton />
             </div>
           </header>
-          <div className="flex-1 overflow-auto pt-14 pb-14 md:pb-0">
+          <div className="flex-1 overflow-auto pt-14 pb-[calc(3.5rem+env(safe-area-inset-bottom))] md:pb-0">
             {children}
           </div>
           <MobileBottomNav />

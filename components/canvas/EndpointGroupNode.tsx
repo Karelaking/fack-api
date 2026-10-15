@@ -25,14 +25,14 @@ export function EndpointGroupNode({
     <div
       className={cn(
         "relative h-full w-full border-2 border-dashed p-4 transition-all duration-300",
-        "dark:bg-muted/5 bg-white/70",
+        "bg-card/60 dark:bg-muted/5",
         selected
-          ? "border-primary/60 dark:bg-muted/10 shadow-primary/5 bg-white/95 shadow-lg"
-          : "dark:border-border/80 dark:hover:border-muted-foreground/30 border-slate-300 hover:border-slate-400",
+          ? "border-primary/60 bg-card/95 dark:bg-muted/10 shadow-primary/5 shadow-lg"
+          : "border-border hover:border-muted-foreground/40",
       )}
     >
       {/* Dynamic Grid Background Pattern */}
-      <div className="absolute inset-0 -z-10 bg-[linear-gradient(to_right,#808080_1px,transparent_1px),linear-gradient(to_bottom,#808080_1px,transparent_1px)] bg-size-[14px_24px] opacity-[0.04] dark:opacity-[0.05]" />
+      <div className="absolute inset-0 -z-10 bg-[linear-gradient(to_right,var(--muted-foreground)_1px,transparent_1px),linear-gradient(to_bottom,var(--muted-foreground)_1px,transparent_1px)] bg-size-[14px_24px] opacity-[0.04] dark:opacity-[0.05]" />
 
       {/* NodeResizer for scaling bounding containers */}
       <NodeResizer
@@ -43,16 +43,16 @@ export function EndpointGroupNode({
         handleClassName="h-3.5 w-3.5 rounded-full border-2 border-primary bg-background shadow-xs hover:scale-110 transition-transform"
       />
 
-      <div
-        className="text-muted-foreground dark:border-border/40 mb-4 flex shrink-0 items-center gap-2 border-b border-slate-200 pb-2"
-        style={{ contentVisibility: "auto" }}
-      >
-        <RiFolderOpenLine className="text-primary h-4 w-4 shrink-0 animate-pulse" />
+      <div className="text-muted-foreground border-border/60 mb-4 flex shrink-0 items-center gap-2 border-b pb-2">
+        <RiFolderOpenLine
+          className="text-primary h-4 w-4 shrink-0 animate-pulse motion-reduce:animate-none"
+          aria-hidden="true"
+        />
         <div className="flex min-w-0 flex-col">
-          <span className="text-foreground truncate text-[10px] font-extrabold tracking-wider uppercase">
+          <span className="text-foreground text-mini truncate font-extrabold tracking-wider uppercase">
             {data.label}
           </span>
-          <span className="text-muted-foreground truncate font-mono text-[9px]">
+          <span className="text-muted-foreground text-micro truncate font-mono">
             {data.basePath || "/"}
           </span>
         </div>
