@@ -1,3 +1,9 @@
+## [1.14.1](https://github.com/Karelaking/fack-api/compare/v1.14.0...v1.14.1) (2026-10-16)
+
+### Bug Fixes
+
+- **mock-engine:** share cache singletons across bundles via globalThis ([c79b3fb](https://github.com/Karelaking/fack-api/commit/c79b3fb130fe229fca3a879dd9e4a7112de6fc5d))
+
 # [1.14.0](https://github.com/Karelaking/fack-api/compare/v1.13.0...v1.14.0) (2026-10-15)
 
 ### Bug Fixes
