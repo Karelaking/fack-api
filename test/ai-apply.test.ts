@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vite-plus/test";
 import { computeCanvasLayout } from "../lib/services/canvas.service";
-import { generateApiSpecification } from "../lib/ai/ai-architect.service";
+import { generateApiSpecification } from "../lib/ai/architect.service";
 import type { EndpointWithRoutes } from "../lib/services/endpoint.service";
 
 describe("AI API Architect — Generation & Canvas Layout Coordination", () => {

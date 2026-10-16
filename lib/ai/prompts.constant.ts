@@ -5,7 +5,7 @@
  * and structured generation requirements for the AI API Architect.
  */
 
-import { APPROVED_FAKER_PROVIDERS } from "./ai-faker-providers.constant";
+import { APPROVED_FAKER_PROVIDERS } from "./faker-providers.constant";
 
 export const AI_SYSTEM_PROMPT = `You are Fack AI, a Principal API Architect for Fack API.
 

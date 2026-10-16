@@ -6,8 +6,8 @@ import {
   normalizeErrorRate,
   detectRouteConflicts,
   buildApiChangeSet,
-} from "../lib/ai/ai-validator.service";
-import type { GeneratedApi } from "../lib/types/ai.type";
+} from "../lib/ai/validator.service";
+import type { GeneratedApi } from "../lib/ai/types";
 import type { RouteWithEndpoint } from "../lib/services/route.service";
 import type { EndpointWithRoutes } from "../lib/services/endpoint.service";
 

@@ -19,7 +19,7 @@ import type {
   ApiChangeSet,
   RouteConflict,
   ApplyApiResponse,
-} from "@/lib/types/ai.type";
+} from "@/lib/ai/types";
 
 interface ImportOpenApiDialogProps {
   projectId?: string;

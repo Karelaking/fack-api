@@ -8,7 +8,7 @@ import type {
   ApiChangeSet,
   GeneratedRoute,
   RouteConflict,
-} from "../lib/types/ai.type";
+} from "../lib/ai/types";
 import type { Endpoint, Route } from "../db/schema";
 
 function generatedRoute(

@@ -9,7 +9,7 @@ import {
 import type {
   GenerateApiResponse,
   GenerationProgressStep,
-} from "../lib/types/ai.type";
+} from "../lib/ai/types";
 
 const progressStep: GenerationProgressStep = {
   id: "designing",

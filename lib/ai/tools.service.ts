@@ -33,8 +33,8 @@ import {
   generatedPropertySchema,
   generatedRouteSchema,
   validateAndNormalizeApi,
-} from "./ai-validator.service";
-import type { GeneratedProperty, GeneratedRoute } from "@/lib/types/ai.type";
+} from "./validator.service";
+import type { GeneratedProperty, GeneratedRoute } from "@/lib/ai/types";
 
 // ─── Tool Definitions ─────────────────────────────────────────────────────────
 

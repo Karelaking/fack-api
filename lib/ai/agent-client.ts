@@ -10,7 +10,7 @@
 import type {
   GenerateApiResponse,
   GenerationProgressStep,
-} from "@/lib/types/ai.type";
+} from "@/lib/ai/types";
 
 /** Raised when the server reports a generation failure or the request fails. */
 export class AgentGenerationError extends Error {

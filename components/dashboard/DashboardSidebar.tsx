@@ -39,7 +39,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { BrandLogo } from "@/components/ui/brand-logo";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 
 interface DashboardSidebarProps {
   initialProjects: Project[];

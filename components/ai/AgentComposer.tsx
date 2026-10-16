@@ -22,7 +22,7 @@ import { useAgentActions, useAgentStore } from "@/stores/agent-store-provider";
 import { OPEN_AGENT_COMPOSER_EVENT } from "@/lib/ai/agent-events";
 import { ApiChangeSetPreview } from "./ApiChangeSetPreview";
 import { ConflictResolutionDialog } from "./ConflictResolutionDialog";
-import type { GenerationProgressStep } from "@/lib/types/ai.type";
+import type { GenerationProgressStep } from "@/lib/ai/types";
 
 const PROMPT_SUGGESTIONS = [
   {

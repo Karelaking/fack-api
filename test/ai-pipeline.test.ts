@@ -2,7 +2,7 @@ import { describe, it, expect } from "vite-plus/test";
 import {
   expandUserPrompt,
   generateApiSpecification,
-} from "../lib/ai/ai-architect.service";
+} from "../lib/ai/architect.service";
 import {
   synthesizeDetailedPrompt,
   synthesizeFallbackApi,
@@ -10,8 +10,8 @@ import {
   toKebabCase,
   toProfessionalApiName,
   toProfessionalEndpointName,
-} from "../lib/ai/ai-fallback-synthesizer.constant";
-import type { GenerationProgressStep } from "../lib/types/ai.type";
+} from "../lib/ai/fallback-synthesizer.constant";
+import type { GenerationProgressStep } from "../lib/ai/types";
 import { POST as generateHandler } from "../app/api/ai/generate/route";
 import { NextRequest } from "next/server";
 

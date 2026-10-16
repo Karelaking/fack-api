@@ -8,7 +8,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { generateApiSpecification } from "@/lib/ai/ai-architect.service";
+import { generateApiSpecification } from "@/lib/ai/architect.service";
 import {
   authErrorResponse,
   requireProjectAccess,
@@ -17,7 +17,7 @@ import {
 import type {
   GenerateApiRequest,
   GenerationProgressStep,
-} from "@/lib/types/ai.type";
+} from "@/lib/ai/types";
 
 export const dynamic = "force-dynamic";
 

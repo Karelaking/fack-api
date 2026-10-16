@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vite-plus/test";
-import { agentTools } from "../lib/ai/ai-tools.service";
-import type { GeneratedRoute, GeneratedProperty } from "../lib/types/ai.type";
+import { agentTools } from "../lib/ai/tools.service";
+import type { GeneratedRoute, GeneratedProperty } from "../lib/ai/types";
 
 describe("AI API Architect — Agent Tools Service", () => {
   it("should validate a conforming route using validateRoute tool", async () => {

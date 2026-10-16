@@ -23,7 +23,7 @@ import type {
   GeneratedEndpoint,
   GeneratedRoute,
   ApiChangeSet,
-} from "@/lib/types/ai.type";
+} from "@/lib/ai/types";
 import { convertPropertiesToJsonSchema } from "@/lib/services/schema.service";
 
 interface ApiChangeSetPreviewProps {

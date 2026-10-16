@@ -6,7 +6,7 @@ import { SignIn, SignUp } from "@clerk/nextjs";
 import { ArrowLeft, Check } from "lucide-react";
 
 import { ThemeToggle } from "@/components/theme-toggle";
-import { BrandLogo } from "@/components/ui/brand-logo";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 
 export type AuthMode = "sign-in" | "sign-up";
 

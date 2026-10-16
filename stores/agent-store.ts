@@ -15,7 +15,7 @@ import type {
   ApplyApiResponse,
   GenerateApiResponse,
   GenerationProgressStep,
-} from "@/lib/types/ai.type";
+} from "@/lib/ai/types";
 import {
   AgentGenerationError,
   streamApiGeneration,

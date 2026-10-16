@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { BrandLogo } from "@/components/ui/brand-logo";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 
 export type NavigationSection = {
   title: string;

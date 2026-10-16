@@ -9,7 +9,7 @@ import type {
   GeneratedApi,
   GeneratedEndpoint,
   DetailedPromptResult,
-} from "@/lib/types/ai.type";
+} from "@/lib/ai/types";
 
 /**
  * Common mock domain templates for realistic synthesis.

@@ -21,8 +21,8 @@ import type {
   ApiChangeSet,
   GeneratedApi,
   ApiChange,
-} from "@/lib/types/ai.type";
-import { buildApiChangeSet } from "@/lib/ai/ai-validator.service";
+} from "@/lib/ai/types";
+import { buildApiChangeSet } from "@/lib/ai/validator.service";
 import {
   projects,
   generationProposals,

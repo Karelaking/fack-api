@@ -7,10 +7,10 @@ import { parseOpenApiDocument } from "@/lib/services/import.service";
 import {
   validateAndNormalizeApi,
   buildApiChangeSet,
-} from "@/lib/ai/ai-validator.service";
+} from "@/lib/ai/validator.service";
 import { getEndpointsByProjectId } from "@/lib/services/endpoint.service";
 import { getRoutesByProjectId } from "@/lib/services/route.service";
-import type { GenerateApiResponse } from "@/lib/types/ai.type";
+import type { GenerateApiResponse } from "@/lib/ai/types";
 import {
   assertProjectOwnedBy,
   authErrorResponse,

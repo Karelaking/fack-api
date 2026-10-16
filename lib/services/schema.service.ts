@@ -5,8 +5,8 @@
  * annotated with `x-faker` and `faker` directives for json-schema-faker.
  */
 
-import type { GeneratedProperty } from "@/lib/types/ai.type";
-import { normalizeFakerProvider } from "@/lib/ai/ai-faker-providers.constant";
+import type { GeneratedProperty } from "@/lib/ai/types";
+import { normalizeFakerProvider } from "@/lib/ai/faker-providers.constant";
 
 export interface JsonSchemaDocument {
   type: "object";

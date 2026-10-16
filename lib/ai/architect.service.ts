@@ -21,21 +21,21 @@ import type {
   GenerationProgressStep,
   RouteConflict,
   DetailedPromptResult,
-} from "@/lib/types/ai.type";
+} from "@/lib/ai/types";
 import {
   AI_SYSTEM_PROMPT,
   AI_PROMPT_EXPANSION_SYSTEM_PROMPT,
-} from "./ai-prompts.constant";
+} from "./prompts.constant";
 import {
   synthesizeDetailedPrompt,
   synthesizeFallbackApi,
-} from "./ai-fallback-synthesizer.constant";
+} from "./fallback-synthesizer.constant";
 import {
   generatedApiSchema,
   detailedPromptSchema,
   validateAndNormalizeApi,
   buildApiChangeSet,
-} from "./ai-validator.service";
+} from "./validator.service";
 import { getProjectSummary } from "@/lib/services/project.service";
 import {
   getEndpointsByProjectId,

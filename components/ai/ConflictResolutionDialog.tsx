@@ -3,7 +3,7 @@
 import * as React from "react";
 import { RiAlertFill } from "@remixicon/react";
 import { Badge } from "@/components/ui/badge";
-import type { RouteConflict } from "@/lib/types/ai.type";
+import type { RouteConflict } from "@/lib/ai/types";
 
 interface ConflictResolutionDialogProps {
   conflicts: RouteConflict[];

@@ -4,7 +4,7 @@ import {
   synthesizeRouteResponseSchema,
   validateResponseSchema,
 } from "../lib/services/schema.service";
-import type { GeneratedProperty } from "../lib/types/ai.type";
+import type { GeneratedProperty } from "../lib/ai/types";
 
 describe("AI API Architect — Schema Domain Service", () => {
   it("should convert primitive properties to JSON Schema with x-faker and faker attributes", () => {

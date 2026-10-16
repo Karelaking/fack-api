@@ -8,7 +8,7 @@
  */
 
 import type { Endpoint, HttpMethod, Route } from "@/db/schema";
-import type { ApiChangeSet } from "@/lib/types/ai.type";
+import type { ApiChangeSet } from "@/lib/ai/types";
 
 export type DraftChangeType = "create" | "update" | "delete";
 

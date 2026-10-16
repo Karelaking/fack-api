@@ -14,12 +14,12 @@ import type {
   GeneratedProperty,
   ApiChangeSet,
   RouteConflict,
-} from "@/lib/types/ai.type";
-import { isValidFakerProvider } from "./ai-faker-providers.constant";
+} from "@/lib/ai/types";
+import { isValidFakerProvider } from "./faker-providers.constant";
 import {
   toProfessionalApiName,
   toProfessionalEndpointName,
-} from "./ai-fallback-synthesizer.constant";
+} from "./fallback-synthesizer.constant";
 import type { RouteWithEndpoint } from "@/lib/services/route.service";
 import type { EndpointWithRoutes } from "@/lib/services/endpoint.service";
 
