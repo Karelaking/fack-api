@@ -42,9 +42,9 @@ function EndpointsLoading() {
       </div>
       <Skeleton className="h-10 w-full max-w-sm" />
       <div className="flex flex-col gap-3">
-        {Array.from({ length: 4 }).map((_, i) => (
+        {Array.from({ length: 4 }).map((_, idx) => (
           <div
-            key={i}
+            key={idx}
             className="border-border flex items-center gap-3 rounded-lg border p-4"
           >
             <Skeleton className="h-6 w-16" />
@@ -70,8 +70,8 @@ function LogsLoading() {
         </div>
       </div>
       <div className="flex-1 animate-pulse space-y-1 p-2">
-        {Array.from({ length: 8 }).map((_, i) => (
-          <div key={i} className="flex items-center gap-3 rounded px-3 py-2">
+        {Array.from({ length: 8 }).map((_, idx) => (
+          <div key={idx} className="flex items-center gap-3 rounded px-3 py-2">
             <Skeleton className="h-5 w-12" />
             <Skeleton className="h-4 w-16" />
             <Skeleton className="h-4 w-48" />

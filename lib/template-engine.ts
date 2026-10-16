@@ -40,8 +40,8 @@ export function renderTemplate(
     }
 
     if (path.startsWith("request.")) {
-      const val = get(context, path);
-      return val !== undefined ? String(val) : match;
+      const resolvedValue = get(context, path);
+      return resolvedValue !== undefined ? String(resolvedValue) : match;
     }
 
     return match;

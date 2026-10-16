@@ -123,18 +123,18 @@ export const ImportOpenApiDialog = ({
           openApiString,
         }),
       });
-      const data = await response.json();
-      if (!data.success) {
-        throw new Error(data.error || "Failed to import OpenAPI schema");
+      const payload = await response.json();
+      if (!payload.success) {
+        throw new Error(payload.error || "Failed to import OpenAPI schema");
       }
 
-      setGeneratedApi(data.generation);
-      setChangeSet(data.changeSet);
-      setConflicts(data.conflicts || []);
-      setDetailedPrompt(data.detailedPrompt);
-      setDetailedSummary(data.detailedSummary);
-      setProposalId(data.proposalId);
-      setExpectedVersion(data.expectedVersion);
+      setGeneratedApi(payload.generation);
+      setChangeSet(payload.changeSet);
+      setConflicts(payload.conflicts || []);
+      setDetailedPrompt(payload.detailedPrompt);
+      setDetailedSummary(payload.detailedSummary);
+      setProposalId(payload.proposalId);
+      setExpectedVersion(payload.expectedVersion);
       toast.success("OpenAPI schema imported successfully!");
     } catch (err) {
       console.error("[Fack API] Import failed:", err);
@@ -163,13 +163,13 @@ export const ImportOpenApiDialog = ({
         }),
       });
 
-      const data = (await response.json()) as ApplyApiResponse;
-      if (!data.success) {
-        throw new Error(data.error || "Failed to apply API changes");
+      const payload = (await response.json()) as ApplyApiResponse;
+      if (!payload.success) {
+        throw new Error(payload.error || "Failed to apply API changes");
       }
 
       toast.success(
-        `Applied successfully! Created ${data.created.endpoints} endpoints and ${data.created.routes} routes.`,
+        `Applied successfully! Created ${payload.created.endpoints} endpoints and ${payload.created.routes} routes.`,
       );
       handleClose();
       router.refresh();

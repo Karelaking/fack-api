@@ -22,9 +22,9 @@ export default function AnalyticsPage(): React.JSX.Element {
           { label: "Total Requests", value: "0" },
           { label: "Bandwidth Used", value: "0 B" },
           { label: "Avg Latency", value: "0 ms" },
-        ].map((stat, i) => (
+        ].map((stat, idx) => (
           <div
-            key={i}
+            key={idx}
             className="border-border/50 bg-card rounded-xl border p-6 shadow-sm"
           >
             <p className="text-muted-foreground text-sm font-medium">

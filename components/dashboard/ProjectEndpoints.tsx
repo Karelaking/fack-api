@@ -170,8 +170,8 @@ export const ProjectEndpoints = ({
     }
   };
 
-  const normalizePath = (p: string) => {
-    const trimmed = p.trim();
+  const normalizePath = (path: string) => {
+    const trimmed = path.trim();
     if (!trimmed) return "";
     return trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
   };

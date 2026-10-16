@@ -44,13 +44,15 @@ export function HeaderNewProjectButton(): React.JSX.Element | null {
     };
   }, []);
 
-  const triggerAction = (action: string) => {
-    window.dispatchEvent(new CustomEvent(action));
+  const dispatchCanvasCommand = (command: string) => {
+    window.dispatchEvent(new CustomEvent(command));
   };
 
   if (isCanvasPage) {
-    const openAiArchitect = () => triggerAction(OPEN_AGENT_COMPOSER_EVENT);
-    const openImportOpenApi = () => triggerAction("open-import-openapi-dialog");
+    const openAiArchitect = () =>
+      dispatchCanvasCommand(OPEN_AGENT_COMPOSER_EVENT);
+    const openImportOpenApi = () =>
+      dispatchCanvasCommand("open-import-openapi-dialog");
     const exportOpenApi = () => {
       if (segments[1]) {
         window.open(`/api/projects/${segments[1]}/openapi`, "_blank");
@@ -136,7 +138,7 @@ export function HeaderNewProjectButton(): React.JSX.Element | null {
           size="sm"
           title="Save Layout"
           aria-label="Save Layout"
-          onClick={() => triggerAction("canvas-save")}
+          onClick={() => dispatchCanvasCommand("canvas-save")}
           disabled={isSaving}
         >
           {isSaving ? (
@@ -157,7 +159,7 @@ export function HeaderNewProjectButton(): React.JSX.Element | null {
           size="sm"
           title="Add Route"
           aria-label="Add Route"
-          onClick={() => triggerAction("open-add-route-dialog")}
+          onClick={() => dispatchCanvasCommand("open-add-route-dialog")}
         >
           <RiAddLine className="h-4 w-4" aria-hidden="true" />
           <span className="hidden sm:inline">Add Route</span>

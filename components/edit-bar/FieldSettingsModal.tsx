@@ -25,7 +25,7 @@ interface FieldSettingsModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   initialData?: Partial<SchemaField>;
-  onSave: (data: Partial<Omit<SchemaField, "id">>) => void;
+  onSave: (fieldUpdates: Partial<Omit<SchemaField, "id">>) => void;
   title?: string;
 }
 
@@ -109,17 +109,17 @@ export function FieldSettingsModal({
     ? arrayItemFakerProvider.slice("image.customCategory:".length)
     : "";
 
-  const handleCustomCategoryChange = (val: string) => {
-    if (val) {
-      setFakerProvider(`image.customCategory:${val}`);
+  const handleCustomCategoryChange = (category: string) => {
+    if (category) {
+      setFakerProvider(`image.customCategory:${category}`);
     } else {
       setFakerProvider("image.customCategory");
     }
   };
 
-  const handleCustomArrayItemCategoryChange = (val: string) => {
-    if (val) {
-      setArrayItemFakerProvider(`image.customCategory:${val}`);
+  const handleCustomArrayItemCategoryChange = (category: string) => {
+    if (category) {
+      setArrayItemFakerProvider(`image.customCategory:${category}`);
     } else {
       setArrayItemFakerProvider("image.customCategory");
     }
@@ -157,8 +157,8 @@ export function FieldSettingsModal({
             <div className="col-span-3">
               <Select
                 value={type}
-                onValueChange={(val) => {
-                  if (val) setType(val as SchemaField["type"]);
+                onValueChange={(nextType) => {
+                  if (nextType) setType(nextType as SchemaField["type"]);
                 }}
               >
                 <SelectTrigger id="field-type">
@@ -235,9 +235,11 @@ export function FieldSettingsModal({
                 <div className="col-span-3">
                   <Select
                     value={arrayItemType || "string"}
-                    onValueChange={(val) => {
-                      if (val)
-                        setArrayItemType(val as SchemaField["arrayItemType"]);
+                    onValueChange={(nextType) => {
+                      if (nextType)
+                        setArrayItemType(
+                          nextType as SchemaField["arrayItemType"],
+                        );
                     }}
                   >
                     <SelectTrigger

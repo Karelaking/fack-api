@@ -7,20 +7,20 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
 const CHAOS_PRESETS = [
-  { label: "Normal", min: 0, max: 0, err: 0 },
-  { label: "Fast 4G", min: 50, max: 150, err: 0 },
-  { label: "Slow 3G", min: 1000, max: 2000, err: 0 },
-  { label: "Flaky", min: 200, max: 500, err: 15 },
-  { label: "Severe", min: 2000, max: 4000, err: 50 },
+  { label: "Normal", min: 0, max: 0, errorRate: 0 },
+  { label: "Fast 4G", min: 50, max: 150, errorRate: 0 },
+  { label: "Slow 3G", min: 1000, max: 2000, errorRate: 0 },
+  { label: "Flaky", min: 200, max: 500, errorRate: 15 },
+  { label: "Severe", min: 2000, max: 4000, errorRate: 50 },
 ] as const;
 
 interface ChaosConfigProps {
   latencyMin: number;
   latencyMax: number;
   errorRate: number;
-  onLatencyMinChange: (val: number) => void;
-  onLatencyMaxChange: (val: number) => void;
-  onErrorRateChange: (val: number) => void;
+  onLatencyMinChange: (latencyMin: number) => void;
+  onLatencyMaxChange: (latencyMax: number) => void;
+  onErrorRateChange: (errorRate: number) => void;
 }
 
 /**
@@ -36,18 +36,18 @@ export function ChaosConfig({
 }: ChaosConfigProps): React.JSX.Element {
   // Sync local states
   const handleMinSlider = (value: number | readonly number[]) => {
-    const val = Array.isArray(value) ? value[0] : value;
-    onLatencyMinChange(val);
-    if (latencyMax < val) {
-      onLatencyMaxChange(val);
+    const nextLatency = Array.isArray(value) ? value[0] : value;
+    onLatencyMinChange(nextLatency);
+    if (latencyMax < nextLatency) {
+      onLatencyMaxChange(nextLatency);
     }
   };
 
   const handleMaxSlider = (value: number | readonly number[]): void => {
-    const val = Array.isArray(value) ? value[0] : value;
-    onLatencyMaxChange(val);
-    if (latencyMin > val) {
-      onLatencyMinChange(val);
+    const nextLatency = Array.isArray(value) ? value[0] : value;
+    onLatencyMaxChange(nextLatency);
+    if (latencyMin > nextLatency) {
+      onLatencyMinChange(nextLatency);
     }
   };
 
@@ -72,7 +72,7 @@ export function ChaosConfig({
             const isMatch =
               latencyMin === preset.min &&
               latencyMax === preset.max &&
-              errorRate === preset.err;
+              errorRate === preset.errorRate;
             return (
               <button
                 key={preset.label}
@@ -80,7 +80,7 @@ export function ChaosConfig({
                 onClick={() => {
                   onLatencyMinChange(preset.min);
                   onLatencyMaxChange(preset.max);
-                  onErrorRateChange(preset.err);
+                  onErrorRateChange(preset.errorRate);
                 }}
                 className={cn(
                   "flex cursor-pointer flex-col items-center gap-0.5 border p-1.5 text-center transition-all",
@@ -100,7 +100,9 @@ export function ChaosConfig({
                       : "text-muted-foreground",
                   )}
                 >
-                  {preset.err > 0 ? `${preset.err}% err` : `${preset.max}ms`}
+                  {preset.errorRate > 0
+                    ? `${preset.errorRate}% err`
+                    : `${preset.max}ms`}
                 </span>
               </button>
             );

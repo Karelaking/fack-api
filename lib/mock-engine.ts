@@ -19,13 +19,13 @@ const mockTrace = LoggerRegistry.getTrace("mock");
  * Recursively maps any "x-faker" properties in a JSON Schema to "faker".
  */
 function createLoremFlickrUrl(category: string): string {
-  const lock = Math.floor(Math.random() * 100000);
-  return `https://loremflickr.com/640/480/${category}?lock=${lock}`;
+  const lockSeed = Math.floor(Math.random() * 100000);
+  return `https://loremflickr.com/640/480/${category}?lock=${lockSeed}`;
 }
 
 function createPicsumUrl(width: number, height: number): string {
-  const random = Math.floor(Math.random() * 100000);
-  return `https://picsum.photos/${width}/${height}?random=${random}`;
+  const jitterSeed = Math.floor(Math.random() * 100000);
+  return `https://picsum.photos/${width}/${height}?random=${jitterSeed}`;
 }
 
 const extendedFaker = Object.assign({}, faker, {
@@ -76,15 +76,15 @@ function mapXFakerToFaker(obj: unknown): unknown {
     return obj.map(mapXFakerToFaker);
   }
 
-  const result: Record<string, unknown> = {};
+  const mappedSchema: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(obj as Record<string, unknown>)) {
     if (key === "x-faker") {
-      result["faker"] = value;
+      mappedSchema["faker"] = value;
     } else {
-      result[key] = mapXFakerToFaker(value);
+      mappedSchema[key] = mapXFakerToFaker(value);
     }
   }
-  return result;
+  return mappedSchema;
 }
 
 export async function generatePayload(
@@ -101,7 +101,7 @@ export async function generatePayload(
     const minItems = limit !== undefined ? limit : 1;
     const maxItems = limit !== undefined ? limit : 1;
 
-    const result = await generate(
+    const generatedPayload = await generate(
       transformedSchema as Parameters<typeof generate>[0],
       {
         alwaysFakeOptionals: true,
@@ -114,7 +114,7 @@ export async function generatePayload(
       },
     );
     mockTrace.traceSuccess("generatePayload", "Generated successfully");
-    return result;
+    return generatedPayload;
   } catch (error) {
     mockTrace.traceError("generatePayload", error);
     return { error: "Failed to generate mock data", details: String(error) };
@@ -150,9 +150,9 @@ export function shouldError(errorRate: number): boolean {
     mockTrace.traceSuccess("shouldError", true);
     return true;
   }
-  const result = Math.random() * 100 < errorRate;
-  mockTrace.traceSuccess("shouldError", result);
-  return result;
+  const isErrorHit = Math.random() * 100 < errorRate;
+  mockTrace.traceSuccess("shouldError", isErrorHit);
+  return isErrorHit;
 }
 
 // ─── Response Building ───────────────────────────────────────────────────────
@@ -182,22 +182,22 @@ export function buildResponse(
     ...customHeaders,
   });
 
-  const res = new Response(JSON.stringify(payload, null, 2), {
+  const response = new Response(JSON.stringify(payload, null, 2), {
     status: statusCode,
     headers,
   });
   mockTrace.traceSuccess("buildResponse", `Response created: ${statusCode}`);
-  return res;
+  return response;
 }
 
 export function buildCorsPreflightResponse(): Response {
   mockTrace.traceCall("buildCorsPreflightResponse");
-  const res = new Response(null, {
+  const response = new Response(null, {
     status: 204,
     headers: new Headers(CORS_HEADERS),
   });
   mockTrace.traceSuccess("buildCorsPreflightResponse", "204 preflight created");
-  return res;
+  return response;
 }
 
 export function buildErrorResponse(
@@ -205,7 +205,7 @@ export function buildErrorResponse(
   message: string = "Internal Server Error",
 ): Response {
   mockTrace.traceCall("buildErrorResponse", statusCode, message);
-  const res = buildResponse(
+  const response = buildResponse(
     {
       error: true,
       statusCode,
@@ -215,7 +215,7 @@ export function buildErrorResponse(
     statusCode,
   );
   mockTrace.traceSuccess("buildErrorResponse", `Error response: ${statusCode}`);
-  return res;
+  return response;
 }
 
 // ─── Query Parameters Filtering ──────────────────────────────────────────────
@@ -233,7 +233,7 @@ export function processQueryParameters(
   const processArray = (items: unknown[]): unknown[] => {
     if (!Array.isArray(items) || items.length === 0) return items;
 
-    let result = [...items];
+    let filteredItems = [...items];
 
     const specialKeys = new Set([
       "limit",
@@ -252,13 +252,13 @@ export function processQueryParameters(
     for (const [key, value] of searchParams.entries()) {
       if (specialKeys.has(key)) continue;
 
-      result = result.filter((item) => {
+      filteredItems = filteredItems.filter((item) => {
         if (item && typeof item === "object") {
           const itemObj = item as Record<string, unknown>;
           if (key in itemObj) {
-            const itemVal = itemObj[key];
-            if (itemVal === undefined || itemVal === null) return false;
-            return toStr(itemVal).toLowerCase() === value.toLowerCase();
+            const itemValue = itemObj[key];
+            if (itemValue === undefined || itemValue === null) return false;
+            return toStr(itemValue).toLowerCase() === value.toLowerCase();
           }
         }
         return true;
@@ -269,7 +269,7 @@ export function processQueryParameters(
     const query = searchParams.get("q");
     if (query) {
       const lowerQuery = query.toLowerCase();
-      result = result.filter((item) => {
+      filteredItems = filteredItems.filter((item) => {
         if (!item || typeof item !== "object") return false;
         return Object.values(item as Record<string, unknown>).some(
           (val) =>
@@ -288,25 +288,27 @@ export function processQueryParameters(
         searchParams.get("_order") ||
         "asc"
       ).toLowerCase();
-      result.sort((a, b) => {
-        const valA =
+      filteredItems.sort((a, b) => {
+        const leftValue =
           a && typeof a === "object"
             ? (a as Record<string, unknown>)[sortBy]
             : undefined;
-        const valB =
+        const rightValue =
           b && typeof b === "object"
             ? (b as Record<string, unknown>)[sortBy]
             : undefined;
 
-        if (valA === undefined || valA === null) return 1;
-        if (valB === undefined || valB === null) return -1;
+        if (leftValue === undefined || leftValue === null) return 1;
+        if (rightValue === undefined || rightValue === null) return -1;
 
-        if (typeof valA === "number" && typeof valB === "number") {
-          return order === "desc" ? valB - valA : valA - valB;
+        if (typeof leftValue === "number" && typeof rightValue === "number") {
+          return order === "desc"
+            ? rightValue - leftValue
+            : leftValue - rightValue;
         }
 
-        const strA = toStr(valA).toLowerCase();
-        const strB = toStr(valB).toLowerCase();
+        const strA = toStr(leftValue).toLowerCase();
+        const strB = toStr(rightValue).toLowerCase();
         if (strA < strB) return order === "desc" ? 1 : -1;
         if (strA > strB) return order === "desc" ? -1 : 1;
         return 0;
@@ -327,45 +329,45 @@ export function processQueryParameters(
         const parsedPage = !isNaN(page) && page > 0 ? page : 1;
         const startIndex = (parsedPage - 1) * limit;
         const endIndex = parsedPage * limit;
-        result = result.slice(startIndex, endIndex);
+        filteredItems = filteredItems.slice(startIndex, endIndex);
       }
     } else if (pageParam) {
       const page = parseInt(pageParam, 10);
       if (!isNaN(page) && page > 0) {
         const startIndex = (page - 1) * 10;
         const endIndex = page * 10;
-        result = result.slice(startIndex, endIndex);
+        filteredItems = filteredItems.slice(startIndex, endIndex);
       }
     }
 
-    return result;
+    return filteredItems;
   };
 
   if (Array.isArray(payload)) {
-    const res = processArray(payload);
+    const processedItems = processArray(payload);
     mockTrace.traceSuccess(
       "processQueryParameters (array)",
-      `${res.length} items`,
+      `${processedItems.length} items`,
     );
-    return res;
+    return processedItems;
   }
 
   if (typeof payload === "object" && payload !== null) {
-    const result: Record<string, unknown> = {};
+    const processedObject: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(
       payload as Record<string, unknown>,
     )) {
       if (Array.isArray(value)) {
-        result[key] = processArray(value);
+        processedObject[key] = processArray(value);
       } else {
-        result[key] = value;
+        processedObject[key] = value;
       }
     }
     mockTrace.traceSuccess(
       "processQueryParameters (object)",
       "processed array properties",
     );
-    return result;
+    return processedObject;
   }
 
   mockTrace.traceSuccess("processQueryParameters (passthrough)", payload);
@@ -406,10 +408,10 @@ export function evaluateRules(
       } else if (rule.type === "header") {
         incomingValue = request.headers.get(ruleKey);
       } else if (rule.type === "param") {
-        const paramVal = params[ruleKey];
-        incomingValue = Array.isArray(paramVal)
-          ? paramVal.join("/")
-          : (paramVal ?? null);
+        const paramValue = params[ruleKey];
+        incomingValue = Array.isArray(paramValue)
+          ? paramValue.join("/")
+          : (paramValue ?? null);
       }
 
       let isMatch = false;

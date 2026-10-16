@@ -105,8 +105,8 @@ async function flushLogQueue(): Promise<void> {
       }));
       await db.$client.batch(statements);
     }
-  } catch (e) {
-    mockLogger.error("Failed to batch insert request logs:", e);
+  } catch (error) {
+    mockLogger.error("Failed to batch insert request logs:", error);
   } finally {
     isFlushing = false;
     // If more items were added during flush, try to flush again
@@ -194,8 +194,8 @@ function triggerWebhooks(route: CachedRoute, projectId: string) {
           mockLogger.info(
             `Webhook triggered successfully: ${webhook.method} ${webhook.url}`,
           );
-        } catch (err) {
-          mockLogger.error(`Failed to trigger webhook ${webhook.url}`, err);
+        } catch (error) {
+          mockLogger.error(`Failed to trigger webhook ${webhook.url}`, error);
         }
       }, webhook.delayMs || 0);
     }
@@ -222,7 +222,11 @@ export async function processMockRequest({
   const matchedPath = requestPath;
   const matchedMethod = request.method;
 
-  const log = (status: number, isErr: boolean, data: unknown): Promise<void> =>
+  const log = (
+    status: number,
+    isError: boolean,
+    data: unknown,
+  ): Promise<void> =>
     recordRequestLog(
       project,
       request,
@@ -230,7 +234,7 @@ export async function processMockRequest({
       matchedPath,
       status,
       startTime,
-      isErr,
+      isError,
       data,
     );
 
@@ -250,13 +254,13 @@ export async function processMockRequest({
       mockLogger.warn(
         `No active mock route matches "${method} ${matchedPath}"`,
       );
-      const errBody = {
+      const errorBody = {
         error: true,
         message: `Mock path "${matchedPath}" not found`,
         hint: `Verify that you have created a ${method} route for path "${matchedPath}" and enabled it.`,
       };
-      const response = buildResponse(errBody, 404);
-      after(() => log(404, true, errBody));
+      const response = buildResponse(errorBody, 404);
+      after(() => log(404, true, errorBody));
       mockCoreTrace.traceSuccess("processMockRequest (route not found)", "404");
       return response;
     }
@@ -265,13 +269,13 @@ export async function processMockRequest({
     if (route.isAuthRequired) {
       const authHeader = request.headers.get("Authorization");
       if (!authHeader || !authHeader.startsWith("Bearer ")) {
-        const errBody = {
+        const errorBody = {
           error: true,
           message: "Unauthorized",
           hint: "Missing or invalid Bearer token. Generate one at /_auth/token",
         };
-        const response = buildErrorResponse(401, errBody.message);
-        after(() => log(401, true, errBody));
+        const response = buildErrorResponse(401, errorBody.message);
+        after(() => log(401, true, errorBody));
         mockCoreTrace.traceError(
           "processMockRequest (unauthorized)",
           "No token provided",
@@ -285,13 +289,13 @@ export async function processMockRequest({
         const secret = getMockJwtSecret(project.id);
         await jwtVerify(token, secret);
       } catch {
-        const errBody = {
+        const errorBody = {
           error: true,
           message: "Unauthorized",
           hint: "Invalid or expired Bearer token.",
         };
-        const response = buildErrorResponse(401, errBody.message);
-        after(() => log(401, true, errBody));
+        const response = buildErrorResponse(401, errorBody.message);
+        after(() => log(401, true, errorBody));
         mockCoreTrace.traceError(
           "processMockRequest (unauthorized)",
           "Invalid token",
@@ -367,18 +371,22 @@ export async function processMockRequest({
     // ── 5.5 Handlebars Templating Bypass ────────────────────────────────
     if (route.responseTemplate && route.responseTemplate.trim() !== "") {
       const { renderTemplate } = await import("@/lib/template-engine");
-      const queryObj: Record<string, string> = {};
+      const queryRecord: Record<string, string> = {};
       for (const [k, v] of request.nextUrl.searchParams.entries()) {
-        queryObj[k] = v;
+        queryRecord[k] = v;
       }
 
-      let bodyData = {};
+      let requestBody: Record<string, unknown> = {};
       try {
-        bodyData = await request.clone().json();
+        requestBody = await request.clone().json();
       } catch {}
 
       const rawPayload = renderTemplate(route.responseTemplate, {
-        request: { body: bodyData, query: queryObj, params: matchedParams },
+        request: {
+          body: requestBody,
+          query: queryRecord,
+          params: matchedParams,
+        },
       });
 
       const customHeaders = parseRouteHeaders(route);
@@ -692,9 +700,9 @@ export async function processMockRequest({
     return response;
   } catch (error) {
     mockCoreTrace.traceError("processMockRequest", error);
-    const errBody = { error: true, message: "Internal mock server error" };
-    const response = buildErrorResponse(500, errBody.message);
-    after(() => log(500, true, errBody));
+    const errorBody = { error: true, message: "Internal mock server error" };
+    const response = buildErrorResponse(500, errorBody.message);
+    after(() => log(500, true, errorBody));
     return response;
   }
 }

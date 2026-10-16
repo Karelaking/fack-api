@@ -46,14 +46,16 @@ export const getRouteById = cache(async function getRouteById(
 ): Promise<Route | undefined> {
   routesTrace.traceCall("getRouteById", id);
   try {
-    const res = await db.query.routes.findFirst({
+    const existingRoute = await db.query.routes.findFirst({
       where: eq(routes.id, id),
     });
     routesTrace.traceSuccess(
       "getRouteById",
-      res ? `${res.method} ${res.path}` : "undefined",
+      existingRoute
+        ? `${existingRoute.method} ${existingRoute.path}`
+        : "undefined",
     );
-    return res;
+    return existingRoute;
   } catch (error) {
     routesTrace.traceError("getRouteById", error);
     throw error;

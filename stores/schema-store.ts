@@ -16,7 +16,7 @@ export interface SchemaActions {
   /** Adds a new field. If parentId is specified, adds it as a child of that object */
   addField: (
     parentId?: string,
-    initialData?: Partial<Omit<SchemaField, "id">>,
+    initialField?: Partial<Omit<SchemaField, "id">>,
   ) => void;
   /** Removes a field from the tree by ID */
   removeField: (id: string) => void;
@@ -54,14 +54,14 @@ export const createSchemaStore = (initialFields: SchemaField[] = []) => {
           state.fields = [];
         }),
 
-      addField: (parentId, initialData) =>
+      addField: (parentId, initialField) =>
         set((state) => {
           const newField: SchemaField = {
             id: `field-${generateId(6)}`,
             name: `field_${state.fields.length + 1}`,
             type: "string",
             nullable: false,
-            ...initialData,
+            ...initialField,
           };
 
           if (!parentId) {
@@ -179,15 +179,15 @@ export const createSchemaStore = (initialFields: SchemaField[] = []) => {
             const index = array.findIndex((field) => field.id === id);
             if (index !== -1) {
               if (direction === "up" && index > 0) {
-                const temp = array[index];
+                const movedField = array[index];
                 array[index] = array[index - 1];
-                array[index - 1] = temp;
+                array[index - 1] = movedField;
                 return true;
               }
               if (direction === "down" && index < array.length - 1) {
-                const temp = array[index];
+                const movedField = array[index];
                 array[index] = array[index + 1];
-                array[index + 1] = temp;
+                array[index + 1] = movedField;
                 return true;
               }
               return false;

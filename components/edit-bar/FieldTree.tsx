@@ -104,8 +104,10 @@ export function FieldTree(): React.JSX.Element {
     toast.success(`Loaded ${label} template schema`);
   };
 
-  const handleAddRootField = (data: Partial<Omit<SchemaField, "id">>) => {
-    addField(undefined, data);
+  const handleAddRootField = (
+    fieldUpdates: Partial<Omit<SchemaField, "id">>,
+  ) => {
+    addField(undefined, fieldUpdates);
   };
 
   return (

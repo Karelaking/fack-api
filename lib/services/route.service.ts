@@ -39,7 +39,7 @@ export async function getRoutesByProjectId(
   }
 
   const endpointIds = projectEndpoints.map((ep) => ep.id);
-  const list = await executor.query.routes.findMany({
+  const routeRows = await executor.query.routes.findMany({
     where: inArray(routes.endpointId, endpointIds),
     with: {
       endpoint: true,
@@ -47,7 +47,7 @@ export async function getRoutesByProjectId(
     orderBy: (routesTable, { asc }) => [asc(routesTable.path)],
   });
 
-  return list as RouteWithEndpoint[];
+  return routeRows as RouteWithEndpoint[];
 }
 
 /**

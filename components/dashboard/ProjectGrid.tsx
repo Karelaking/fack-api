@@ -66,15 +66,14 @@ export function ProjectGrid({
   );
 
   // Deletion states
-  const [deleteProj, setDeleteProj] =
+  const [projectToDelete, setProjectToDelete] =
     React.useState<ProjectWithRelations | null>(null);
   const [deleteConfirmText, setDeleteConfirmText] = React.useState("");
   const [deleteLoading, setDeleteLoading] = React.useState(false);
 
   // Edit/Settings states
-  const [editProj, setEditProj] = React.useState<ProjectWithRelations | null>(
-    null,
-  );
+  const [projectToEdit, setProjectToEdit] =
+    React.useState<ProjectWithRelations | null>(null);
   const [editName, setEditName] = React.useState("");
   const [editSlug, setEditSlug] = React.useState("");
   const [editDescription, setEditDescription] = React.useState("");
@@ -89,13 +88,13 @@ export function ProjectGrid({
   }, [initialProjects]);
 
   React.useEffect(() => {
-    if (editProj) {
+    if (projectToEdit) {
       // eslint-disable-next-line react/set-state-in-effect
-      setEditName(editProj.name);
-      setEditSlug(editProj.slug);
-      setEditDescription(editProj.description ?? "");
+      setEditName(projectToEdit.name);
+      setEditSlug(projectToEdit.slug);
+      setEditDescription(projectToEdit.description ?? "");
     }
-  }, [editProj]);
+  }, [projectToEdit]);
 
   const filteredProjects = React.useMemo(() => {
     const filtered = projects.filter(
@@ -115,7 +114,7 @@ export function ProjectGrid({
 
   const handleEditSubmit = (e: React.FormEvent): void => {
     e.preventDefault();
-    if (!editProj) return;
+    if (!projectToEdit) return;
     if (!editName.trim()) {
       toast.error("Project name is required");
       return;
@@ -129,16 +128,18 @@ export function ProjectGrid({
     startTransition(async () => {
       try {
         const updated = await updateProject({
-          id: editProj.id,
+          id: projectToEdit.id,
           name: editName.trim(),
           slug: editSlug.trim(),
           description: editDescription.trim(),
         });
         toast.success("Workspace settings updated successfully!");
         setProjects((prev) =>
-          prev.map((p) => (p.id === editProj.id ? { ...p, ...updated } : p)),
+          prev.map((p) =>
+            p.id === projectToEdit.id ? { ...p, ...updated } : p,
+          ),
         );
-        setEditProj(null);
+        setProjectToEdit(null);
         router.refresh();
       } catch (err) {
         toast.error("Failed to update workspace settings");
@@ -150,18 +151,20 @@ export function ProjectGrid({
   };
 
   const handleDeleteProject = (): void => {
-    if (!deleteProj) return;
-    if (deleteConfirmText !== deleteProj.name) {
+    if (!projectToDelete) return;
+    if (deleteConfirmText !== projectToDelete.name) {
       toast.error("Please type the project name correctly to confirm.");
       return;
     }
     setDeleteLoading(true);
     startTransition(async () => {
       try {
-        await deleteProject(deleteProj.id);
-        toast.success(`Project "${deleteProj.name}" deleted successfully.`);
-        setProjects((prev) => prev.filter((p) => p.id !== deleteProj.id));
-        setDeleteProj(null);
+        await deleteProject(projectToDelete.id);
+        toast.success(
+          `Project "${projectToDelete.name}" deleted successfully.`,
+        );
+        setProjects((prev) => prev.filter((p) => p.id !== projectToDelete.id));
+        setProjectToDelete(null);
         setDeleteConfirmText("");
         router.refresh();
       } catch (err) {
@@ -414,7 +417,7 @@ export function ProjectGrid({
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
-                          setEditProj(proj);
+                          setProjectToEdit(proj);
                         }}
                       >
                         <RiSettings3Line className="h-3.5 w-3.5" />
@@ -426,7 +429,7 @@ export function ProjectGrid({
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
-                          setDeleteProj(proj);
+                          setProjectToDelete(proj);
                         }}
                       >
                         <RiDeleteBin6Line className="h-3.5 w-3.5" />
@@ -456,10 +459,10 @@ export function ProjectGrid({
       {/* Edit Settings Dialog */}
 
       <Dialog
-        open={!!editProj}
+        open={!!projectToEdit}
         onOpenChange={(open) => {
           if (!open) {
-            setEditProj(null);
+            setProjectToEdit(null);
             setEditName("");
             setEditSlug("");
             setEditDescription("");
@@ -526,7 +529,7 @@ export function ProjectGrid({
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => setEditProj(null)}
+                onClick={() => setProjectToEdit(null)}
                 disabled={editLoading || isPending}
               >
                 Cancel
@@ -555,10 +558,10 @@ export function ProjectGrid({
 
       {/* Delete Confirmation Dialog */}
       <Dialog
-        open={!!deleteProj}
+        open={!!projectToDelete}
         onOpenChange={(open) => {
           if (!open) {
-            setDeleteProj(null);
+            setProjectToDelete(null);
             setDeleteConfirmText("");
           }
         }}
@@ -567,7 +570,7 @@ export function ProjectGrid({
           <DialogHeader>
             <DialogTitle variant="destructive">Delete Workspace</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete **{deleteProj?.name}**? All
+              Are you sure you want to delete **{projectToDelete?.name}**? All
               endpoints, routes, schemas, and historical logs will be
               permanently wiped.
             </DialogDescription>
@@ -577,7 +580,7 @@ export function ProjectGrid({
             <p className="text-muted-foreground text-xs">
               To verify deletion, type the project name{" "}
               <strong className="text-foreground select-all">
-                {deleteProj?.name}
+                {projectToDelete?.name}
               </strong>{" "}
               below:
             </p>
@@ -587,7 +590,7 @@ export function ProjectGrid({
               aria-label="Project name confirmation"
               value={deleteConfirmText}
               onChange={(e) => setDeleteConfirmText(e.target.value)}
-              placeholder={deleteProj?.name}
+              placeholder={projectToDelete?.name}
             />
           </div>
 
@@ -595,7 +598,7 @@ export function ProjectGrid({
             <Button
               type="button"
               variant="outline"
-              onClick={() => setDeleteProj(null)}
+              onClick={() => setProjectToDelete(null)}
               disabled={deleteLoading || isPending}
             >
               Cancel
@@ -609,7 +612,7 @@ export function ProjectGrid({
               disabled={
                 deleteLoading ||
                 isPending ||
-                deleteConfirmText !== deleteProj?.name
+                deleteConfirmText !== projectToDelete?.name
               }
               aria-disabled={deleteLoading || isPending}
             >

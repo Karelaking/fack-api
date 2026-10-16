@@ -23,15 +23,18 @@ export const getEndpoints = cache(async function getEndpoints(
 ) {
   endpointsTrace.traceCall("getEndpoints", projectId);
   try {
-    const list = await db.query.endpoints.findMany({
+    const endpointList = await db.query.endpoints.findMany({
       where: eq(endpoints.projectId, projectId),
       with: {
         routes: true,
       },
       orderBy: (endpoints, { asc }) => [asc(endpoints.name)],
     });
-    endpointsTrace.traceSuccess("getEndpoints", `${list.length} endpoints`);
-    return list;
+    endpointsTrace.traceSuccess(
+      "getEndpoints",
+      `${endpointList.length} endpoints`,
+    );
+    return endpointList;
   } catch (error) {
     endpointsTrace.traceError("getEndpoints", error);
     throw error;

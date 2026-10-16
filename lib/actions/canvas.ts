@@ -25,14 +25,14 @@ export async function getCanvasState(projectId: string): Promise<
 > {
   canvasTrace.traceCall("getCanvasState", projectId);
   try {
-    const res = await db.query.canvasStates.findFirst({
+    const state = await db.query.canvasStates.findFirst({
       where: eq(canvasStates.projectId, projectId),
     });
     canvasTrace.traceSuccess(
       "getCanvasState",
-      res ? `State ID: ${res.id}` : "undefined",
+      state ? `State ID: ${state.id}` : "undefined",
     );
-    return res;
+    return state;
   } catch (error) {
     canvasTrace.traceError("getCanvasState", error);
     throw error;

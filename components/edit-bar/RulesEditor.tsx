@@ -166,8 +166,8 @@ export const RulesEditor = ({
                 </span>
                 <Select
                   value={rule.type}
-                  onValueChange={(val) =>
-                    handleChange(rule.id, "type", val ?? "query")
+                  onValueChange={(nextValue) =>
+                    handleChange(rule.id, "type", nextValue ?? "query")
                   }
                 >
                   <SelectTrigger
@@ -197,8 +197,8 @@ export const RulesEditor = ({
 
                 <Select
                   value={rule.operator}
-                  onValueChange={(val) =>
-                    handleChange(rule.id, "operator", val ?? "equals")
+                  onValueChange={(nextValue) =>
+                    handleChange(rule.id, "operator", nextValue ?? "equals")
                   }
                 >
                   <SelectTrigger

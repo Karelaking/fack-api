@@ -78,15 +78,15 @@ export function ProfileDialog({ children }: { children: React.ReactNode }) {
     }
   }, [user, form]);
 
-  const onSubmit = async (data: ProfileFormValues) => {
+  const onSubmit = async (values: ProfileFormValues) => {
     if (!user) return;
     setIsSaving(true);
     try {
       // 1. Update unsafeMetadata for the club settings
       const newUnsafeMetadata = {
-        clubName: data.clubName,
-        role: data.role,
-        website: data.website,
+        clubName: values.clubName,
+        role: values.role,
+        website: values.website,
       };
 
       // Use updateMetadata instead of update({ unsafeMetadata }) to resolve deprecation warning
@@ -95,12 +95,12 @@ export function ProfileDialog({ children }: { children: React.ReactNode }) {
       // 2. Try to update native firstName / lastName separately
       const nameUpdates: { firstName?: string; lastName?: string } = {};
       let nameChanged = false;
-      if (data.firstName !== user.firstName) {
-        nameUpdates.firstName = data.firstName;
+      if (values.firstName !== user.firstName) {
+        nameUpdates.firstName = values.firstName;
         nameChanged = true;
       }
-      if (data.lastName !== user.lastName) {
-        nameUpdates.lastName = data.lastName;
+      if (values.lastName !== user.lastName) {
+        nameUpdates.lastName = values.lastName;
         nameChanged = true;
       }
 

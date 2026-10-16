@@ -45,14 +45,20 @@ export const HeadersEditor = ({
     toast.success(`Added ${key} header`);
   };
 
-  const handleRemove = (index: number) => {
-    onHeadersChange(headers.filter((_, idx) => idx !== index));
+  const handleRemove = (targetIndex: number) => {
+    onHeadersChange(
+      headers.filter((_, itemIndex) => itemIndex !== targetIndex),
+    );
   };
 
-  const handleChange = (index: number, field: keyof HeaderRow, val: string) => {
-    const updated = headers.map((row, idx) => {
-      if (idx === index) {
-        return { ...row, [field]: val };
+  const handleChange = (
+    targetIndex: number,
+    field: keyof HeaderRow,
+    headerValue: string,
+  ) => {
+    const updated = headers.map((row, rowIndex) => {
+      if (rowIndex === targetIndex) {
+        return { ...row, [field]: headerValue };
       }
       return row;
     });

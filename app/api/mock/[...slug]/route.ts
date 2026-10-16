@@ -19,9 +19,9 @@ const mockTrace = LoggerRegistry.getTrace("mock");
 function createHandler(method: string) {
   return async function (request: NextRequest, context: RouteContext) {
     mockTrace.traceCall(method, request.nextUrl.pathname);
-    const res = await handleMockRequest(request, context);
-    mockTrace.traceSuccess(method, `Status: ${res.status}`);
-    return res;
+    const response = await handleMockRequest(request, context);
+    mockTrace.traceSuccess(method, `Status: ${response.status}`);
+    return response;
   };
 }
 
@@ -99,7 +99,7 @@ async function handleMockRequest(
       );
     }
 
-    const res = await processMockRequest({
+    const response = await processMockRequest({
       project,
       requestPath,
       request,
@@ -107,9 +107,9 @@ async function handleMockRequest(
     });
     mockTrace.traceSuccess(
       "handleMockRequest (processed)",
-      `Status: ${res.status}`,
+      `Status: ${response.status}`,
     );
-    return res;
+    return response;
   } catch (error) {
     mockTrace.traceError("handleMockRequest", error);
     return buildResponse(

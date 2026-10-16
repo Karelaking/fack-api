@@ -40,9 +40,9 @@ export function TypeScriptPreview({
   const fetchCode = React.useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/typescript/${routeId}`);
-      if (!res.ok) throw new Error("Failed to load Types");
-      const text = await res.text();
+      const response = await fetch(`/api/typescript/${routeId}`);
+      if (!response.ok) throw new Error("Failed to load Types");
+      const text = await response.text();
       setCode(text);
     } catch (err) {
       toast.error("Failed to generate TypeScript interface");

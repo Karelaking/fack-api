@@ -186,7 +186,7 @@ export const FieldEditor = ({
       <FieldSettingsModal
         open={isAddChildModalOpen}
         onOpenChange={setIsAddChildModalOpen}
-        onSave={(data) => addField(field.id, data)}
+        onSave={(fieldUpdates) => addField(field.id, fieldUpdates)}
         title="Add Child Field"
       />
 

@@ -196,7 +196,7 @@ function reconcileNodes(
       (node) => node.parentId === groupId && node.type === "routeNode",
     ).length;
 
-    const data = {
+    const routeNodeData = {
       id: route.id,
       method: route.method,
       path: route.path,
@@ -225,7 +225,7 @@ function reconcileNodes(
         x: ROUTE_SIBLING_X,
         y: GROUP_HEADER_OFFSET + siblingCount * ROUTE_NODE_SPACING,
       },
-      data,
+      data: routeNodeData,
       ariaLabel: `Route ${route.method} ${route.path}, status ${route.statusCode}, ${
         route.isEnabled ? "enabled" : "disabled"
       }`,
@@ -444,7 +444,7 @@ function FlowCanvasInner({
       (n) => n.selected && n.type === "routeNode",
     );
     if (selectedRouteNode) {
-      const data = selectedRouteNode.data as {
+      const selectedRouteData = selectedRouteNode.data as {
         path: string;
         method: string;
         mockUrl: string;
@@ -453,9 +453,9 @@ function FlowCanvasInner({
         new CustomEvent("route-selected", {
           detail: {
             id: selectedRouteNode.id,
-            path: data.path,
-            method: data.method,
-            mockUrl: data.mockUrl,
+            path: selectedRouteData.path,
+            method: selectedRouteData.method,
+            mockUrl: selectedRouteData.mockUrl,
           },
         }),
       );

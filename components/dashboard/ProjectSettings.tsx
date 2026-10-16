@@ -89,7 +89,7 @@ export function ProjectSettings({
     },
   });
 
-  const onUpdate = async (data: {
+  const onUpdate = async (values: {
     name?: string;
     slug?: string;
     description?: string;
@@ -97,20 +97,20 @@ export function ProjectSettings({
     isCachingEnabled?: boolean;
     activeScenarioId?: string | null;
   }): Promise<void> => {
-    const cleanedSlug = data.slug
-      ? data.slug.trim().replace(/^\/+|\/+$/g, "")
+    const cleanedSlug = values.slug
+      ? values.slug.trim().replace(/^\/+|\/+$/g, "")
       : project.slug;
 
-    uiTrace.traceCall("handleUpdate", data.name, cleanedSlug);
+    uiTrace.traceCall("handleUpdate", values.name, cleanedSlug);
     try {
       const updated = await updateProject({
         id: project.id,
-        name: data.name?.trim(),
+        name: values.name?.trim(),
         slug: cleanedSlug,
-        description: data.description?.trim(),
-        isLoggingEnabled: data.isLoggingEnabled,
-        isCachingEnabled: data.isCachingEnabled,
-        activeScenarioId: data.activeScenarioId,
+        description: values.description?.trim(),
+        isLoggingEnabled: values.isLoggingEnabled,
+        isCachingEnabled: values.isCachingEnabled,
+        activeScenarioId: values.activeScenarioId,
       });
       toast.success("Workspace settings updated!");
       uiTrace.traceSuccess("handleUpdate", updated.slug);
@@ -302,8 +302,10 @@ export function ProjectSettings({
                   render={({ field }) => (
                     <Select
                       value={field.value || "none"}
-                      onValueChange={(val) =>
-                        field.onChange(val === "none" ? null : val)
+                      onValueChange={(nextScenarioId) =>
+                        field.onChange(
+                          nextScenarioId === "none" ? null : nextScenarioId,
+                        )
                       }
                       disabled={isSubmitting}
                     >

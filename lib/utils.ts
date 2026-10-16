@@ -61,11 +61,11 @@ export function slugify(text: string): string {
  * Sanitizes input string to form a valid multi-segment project namespace path.
  * Retains slashes to support nested workspaces (e.g. "api/v1/auth").
  *
- * @param val - The raw text input
+ * @param input - The raw text input
  * @returns Sanitized namespace path slug
  */
-export function slugifyInput(val: string): string {
-  return val
+export function slugifyInput(input: string): string {
+  return input
     .toLowerCase()
     .replace(/\s+/g, "-")
     .replace(/[^\w-/]/g, "")

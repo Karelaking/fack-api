@@ -139,8 +139,8 @@ export const ProjectLogs = ({
   };
 
   const formatTimestamp = (timestamp: number) => {
-    const d = new Date(timestamp);
-    return d.toLocaleTimeString([], {
+    const date = new Date(timestamp);
+    return date.toLocaleTimeString([], {
       hour: "2-digit",
       minute: "2-digit",
       second: "2-digit",
@@ -344,16 +344,18 @@ export const ProjectLogs = ({
                             </div>
                           ) : (
                             <div className="bg-card max-h-32 space-y-0.5 overflow-x-auto border p-2">
-                              {Object.entries(parsedHeaders).map(([k, v]) => (
-                                <div key={k} className="flex gap-1.5">
-                                  <span className="text-primary shrink-0 font-semibold">
-                                    {k}:
-                                  </span>
-                                  <span className="text-muted-foreground break-all">
-                                    {v}
-                                  </span>
-                                </div>
-                              ))}
+                              {Object.entries(parsedHeaders).map(
+                                ([key, value]) => (
+                                  <div key={key} className="flex gap-1.5">
+                                    <span className="text-primary shrink-0 font-semibold">
+                                      {key}:
+                                    </span>
+                                    <span className="text-muted-foreground break-all">
+                                      {value}
+                                    </span>
+                                  </div>
+                                ),
+                              )}
                             </div>
                           )}
                         </div>
@@ -370,13 +372,13 @@ export const ProjectLogs = ({
                           ) : (
                             <div className="bg-card max-h-32 space-y-0.5 overflow-x-auto border p-2">
                               {Object.entries(parsedQueryParams).map(
-                                ([k, v]) => (
-                                  <div key={k} className="flex gap-1.5">
+                                ([key, value]) => (
+                                  <div key={key} className="flex gap-1.5">
                                     <span className="shrink-0 font-semibold text-violet-500">
-                                      {k}:
+                                      {key}:
                                     </span>
                                     <span className="text-muted-foreground break-all">
-                                      {v}
+                                      {value}
                                     </span>
                                   </div>
                                 ),

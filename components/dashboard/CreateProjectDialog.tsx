@@ -34,9 +34,9 @@ export function CreateProjectDialog(): React.JSX.Element {
 
   const isCreateOpen = open || newProjectQuery;
 
-  const handleCreateOpenChange = (val: boolean) => {
-    setOpen(val);
-    if (!val && newProjectQuery) {
+  const handleCreateOpenChange = (isOpen: boolean) => {
+    setOpen(isOpen);
+    if (!isOpen && newProjectQuery) {
       void setNewProjectQuery(null);
     }
   };

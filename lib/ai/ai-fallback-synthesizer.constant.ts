@@ -240,7 +240,7 @@ const SOCIAL_TEMPLATE: GeneratedApi = {
     {
       name: "User Identity & Profiles",
       description:
-        "Member directory, profile discovery, and follower relationship graph",
+        "Member directory, profile discovery, and folnormalizedInput relationship graph",
       basePath: "/users",
       routes: [
         {
@@ -536,7 +536,7 @@ export function toPluralResource(word: string): string {
     return "Items";
   }
 
-  const lower = trimmed.toLowerCase();
+  const normalizedInput = trimmed.toLowerCase();
 
   // Standard irregular mapping
   const irregulars: Record<string, string> = {
@@ -562,42 +562,42 @@ export function toPluralResource(word: string): string {
     hospital: "Hospitals",
   };
 
-  if (irregulars[lower]) {
-    return irregulars[lower];
+  if (irregulars[normalizedInput]) {
+    return irregulars[normalizedInput];
   }
 
   // Already plural patterns
   if (
-    lower.endsWith("ies") ||
-    lower.endsWith("ses") ||
-    lower.endsWith("ches") ||
-    lower.endsWith("shes") ||
-    lower.endsWith("xes")
+    normalizedInput.endsWith("ies") ||
+    normalizedInput.endsWith("ses") ||
+    normalizedInput.endsWith("ches") ||
+    normalizedInput.endsWith("shes") ||
+    normalizedInput.endsWith("xes")
   ) {
     return trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
   }
 
   if (
-    lower.endsWith("s") &&
-    !lower.endsWith("ss") &&
-    !lower.endsWith("us") &&
-    !lower.endsWith("is")
+    normalizedInput.endsWith("s") &&
+    !normalizedInput.endsWith("ss") &&
+    !normalizedInput.endsWith("us") &&
+    !normalizedInput.endsWith("is")
   ) {
     return trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
   }
 
   // Consonant + y -> ies
-  if (lower.endsWith("y") && !/[aeiou]y$/.test(lower)) {
+  if (normalizedInput.endsWith("y") && !/[aeiou]y$/.test(normalizedInput)) {
     return trimmed.charAt(0).toUpperCase() + trimmed.slice(1, -1) + "ies";
   }
 
   // s, sh, ch, x, z -> es
   if (
-    lower.endsWith("s") ||
-    lower.endsWith("sh") ||
-    lower.endsWith("ch") ||
-    lower.endsWith("x") ||
-    lower.endsWith("z")
+    normalizedInput.endsWith("s") ||
+    normalizedInput.endsWith("sh") ||
+    normalizedInput.endsWith("ch") ||
+    normalizedInput.endsWith("x") ||
+    normalizedInput.endsWith("z")
   ) {
     return trimmed.charAt(0).toUpperCase() + trimmed.slice(1) + "es";
   }
@@ -613,123 +613,123 @@ export function toProfessionalApiName(
   prompt: string,
   entities: string[] = [],
 ): string {
-  const lower = prompt.toLowerCase();
+  const normalizedInput = prompt.toLowerCase();
 
   if (
-    lower.includes("ecommerce") ||
-    lower.includes("e-commerce") ||
-    lower.includes("store") ||
-    lower.includes("shop")
+    normalizedInput.includes("ecommerce") ||
+    normalizedInput.includes("e-commerce") ||
+    normalizedInput.includes("store") ||
+    normalizedInput.includes("shop")
   ) {
     return "Storefront & Commerce Operations Platform API";
   }
 
   if (
-    lower.includes("food") ||
-    lower.includes("restaurant") ||
-    lower.includes("deliver")
+    normalizedInput.includes("food") ||
+    normalizedInput.includes("restaurant") ||
+    normalizedInput.includes("deliver")
   ) {
     return "On-Demand Delivery & Logistics Platform API";
   }
 
   if (
-    lower.includes("social") ||
-    lower.includes("post") ||
-    lower.includes("feed") ||
-    lower.includes("tweet")
+    normalizedInput.includes("social") ||
+    normalizedInput.includes("post") ||
+    normalizedInput.includes("feed") ||
+    normalizedInput.includes("tweet")
   ) {
     return "Social Networking & Community Platform API";
   }
 
   if (
-    lower.includes("hospital") ||
-    lower.includes("patient") ||
-    lower.includes("doctor") ||
-    lower.includes("clinic") ||
-    lower.includes("health") ||
-    lower.includes("medical")
+    normalizedInput.includes("hospital") ||
+    normalizedInput.includes("patient") ||
+    normalizedInput.includes("doctor") ||
+    normalizedInput.includes("clinic") ||
+    normalizedInput.includes("health") ||
+    normalizedInput.includes("medical")
   ) {
     return "Healthcare & Clinical Practice Platform API";
   }
 
   if (
-    lower.includes("hotel") ||
-    lower.includes("booking") ||
-    lower.includes("reservation") ||
-    lower.includes("travel")
+    normalizedInput.includes("hotel") ||
+    normalizedInput.includes("booking") ||
+    normalizedInput.includes("reservation") ||
+    normalizedInput.includes("travel")
   ) {
     return "Hospitality & Reservation Management API";
   }
 
   if (
-    lower.includes("bank") ||
-    lower.includes("payment") ||
-    lower.includes("invoice") ||
-    lower.includes("finance") ||
-    lower.includes("billing")
+    normalizedInput.includes("bank") ||
+    normalizedInput.includes("payment") ||
+    normalizedInput.includes("invoice") ||
+    normalizedInput.includes("finance") ||
+    normalizedInput.includes("billing")
   ) {
     return "Financial Services & Payment Gateway API";
   }
 
   if (
-    lower.includes("school") ||
-    lower.includes("student") ||
-    lower.includes("course") ||
-    lower.includes("education") ||
-    lower.includes("university")
+    normalizedInput.includes("school") ||
+    normalizedInput.includes("student") ||
+    normalizedInput.includes("course") ||
+    normalizedInput.includes("education") ||
+    normalizedInput.includes("university")
   ) {
     return "Academic Curriculum & Student Records API";
   }
 
   if (
-    lower.includes("inventory") ||
-    lower.includes("warehouse") ||
-    lower.includes("stock") ||
-    lower.includes("supply")
+    normalizedInput.includes("inventory") ||
+    normalizedInput.includes("warehouse") ||
+    normalizedInput.includes("stock") ||
+    normalizedInput.includes("supply")
   ) {
     return "Supply Chain & Warehouse Operations API";
   }
 
   if (
-    lower.includes("ticket") ||
-    lower.includes("support") ||
-    lower.includes("helpdesk") ||
-    lower.includes("issue")
+    normalizedInput.includes("ticket") ||
+    normalizedInput.includes("support") ||
+    normalizedInput.includes("helpdesk") ||
+    normalizedInput.includes("issue")
   ) {
     return "Customer Support & Incident Management API";
   }
 
   if (
-    lower.includes("property") ||
-    lower.includes("real estate") ||
-    lower.includes("listing") ||
-    lower.includes("rental")
+    normalizedInput.includes("property") ||
+    normalizedInput.includes("real estate") ||
+    normalizedInput.includes("listing") ||
+    normalizedInput.includes("rental")
   ) {
     return "Real Estate & Property Management Platform API";
   }
 
   if (
-    lower.includes("crypto") ||
-    lower.includes("wallet") ||
-    lower.includes("blockchain") ||
-    lower.includes("exchange")
+    normalizedInput.includes("crypto") ||
+    normalizedInput.includes("wallet") ||
+    normalizedInput.includes("blockchain") ||
+    normalizedInput.includes("exchange")
   ) {
     return "Digital Asset & Crypto Portfolio API";
   }
 
   if (
-    lower.includes("fleet") ||
-    lower.includes("vehicle") ||
-    lower.includes("car") ||
-    lower.includes("transport")
+    normalizedInput.includes("fleet") ||
+    normalizedInput.includes("vehicle") ||
+    normalizedInput.includes("car") ||
+    normalizedInput.includes("transport")
   ) {
     return "Fleet Telemetry & Dispatch Logistics API";
   }
 
   if (
-    lower.includes("book") ||
-    lower.includes("library") ||
-    lower.includes("author")
+    normalizedInput.includes("book") ||
+    normalizedInput.includes("library") ||
+    normalizedInput.includes("author")
   ) {
     return "Library Catalog & Author Management API";
   }
@@ -783,7 +783,7 @@ export function toProfessionalEndpointName(resourceName: string): string {
     return "Resource Management";
   }
 
-  const lower = trimmed.toLowerCase();
+  const normalizedInput = trimmed.toLowerCase();
   const commonTitles: Record<string, string> = {
     user: "User Identity & Profiles",
     users: "User Identity & Profiles",
@@ -839,8 +839,8 @@ export function toProfessionalEndpointName(resourceName: string): string {
     hotels: "Hotel Directory & Room Inventory",
   };
 
-  if (commonTitles[lower]) {
-    return commonTitles[lower];
+  if (commonTitles[normalizedInput]) {
+    return commonTitles[normalizedInput];
   }
 
   const words = trimmed.replace(/[_-]+/g, " ").split(" ").filter(Boolean);
@@ -871,43 +871,43 @@ export function toKebabCase(str: string): string {
  * using template heuristics and keyword matching.
  */
 export function synthesizeFallbackApi(prompt: string): GeneratedApi {
-  const lower = prompt.toLowerCase();
+  const normalizedInput = prompt.toLowerCase();
 
   if (
-    lower.includes("food") ||
-    lower.includes("restaurant") ||
-    lower.includes("meal") ||
-    lower.includes("menu") ||
-    lower.includes("deliver")
+    normalizedInput.includes("food") ||
+    normalizedInput.includes("restaurant") ||
+    normalizedInput.includes("meal") ||
+    normalizedInput.includes("menu") ||
+    normalizedInput.includes("deliver")
   ) {
     return JSON.parse(JSON.stringify(FOOD_DELIVERY_TEMPLATE));
   }
 
   if (
-    lower.includes("social") ||
-    lower.includes("post") ||
-    lower.includes("feed") ||
-    lower.includes("follow") ||
-    lower.includes("tweet") ||
-    lower.includes("comment")
+    normalizedInput.includes("social") ||
+    normalizedInput.includes("post") ||
+    normalizedInput.includes("feed") ||
+    normalizedInput.includes("follow") ||
+    normalizedInput.includes("tweet") ||
+    normalizedInput.includes("comment")
   ) {
     return JSON.parse(JSON.stringify(SOCIAL_TEMPLATE));
   }
 
   if (
-    lower.includes("ecommerce") ||
-    lower.includes("e-commerce") ||
-    lower.includes("shop") ||
-    lower.includes("product") ||
-    lower.includes("store") ||
-    lower.includes("cart") ||
-    lower.includes("order")
+    normalizedInput.includes("ecommerce") ||
+    normalizedInput.includes("e-commerce") ||
+    normalizedInput.includes("shop") ||
+    normalizedInput.includes("product") ||
+    normalizedInput.includes("store") ||
+    normalizedInput.includes("cart") ||
+    normalizedInput.includes("order")
   ) {
     return JSON.parse(JSON.stringify(E_COMMERCE_TEMPLATE));
   }
 
   // Dynamic extraction: extract noun keywords to create custom resources
-  const words = lower
+  const words = normalizedInput
     .replace(/[^a-z0-9 ]/g, " ")
     .split(" ")
     .filter(
@@ -1111,14 +1111,14 @@ export function synthesizeFallbackApi(prompt: string): GeneratedApi {
  * when operating offline or as fallback.
  */
 export function synthesizeDetailedPrompt(prompt: string): DetailedPromptResult {
-  const lower = prompt.toLowerCase();
+  const normalizedInput = prompt.toLowerCase();
 
   if (
-    lower.includes("food") ||
-    lower.includes("restaurant") ||
-    lower.includes("meal") ||
-    lower.includes("menu") ||
-    lower.includes("deliver")
+    normalizedInput.includes("food") ||
+    normalizedInput.includes("restaurant") ||
+    normalizedInput.includes("meal") ||
+    normalizedInput.includes("menu") ||
+    normalizedInput.includes("deliver")
   ) {
     return {
       summary:
@@ -1149,12 +1149,12 @@ Production-grade RESTful mock service simulating a multi-sided food delivery pla
   }
 
   if (
-    lower.includes("social") ||
-    lower.includes("post") ||
-    lower.includes("feed") ||
-    lower.includes("follow") ||
-    lower.includes("tweet") ||
-    lower.includes("comment")
+    normalizedInput.includes("social") ||
+    normalizedInput.includes("post") ||
+    normalizedInput.includes("feed") ||
+    normalizedInput.includes("follow") ||
+    normalizedInput.includes("tweet") ||
+    normalizedInput.includes("comment")
   ) {
     return {
       summary:
@@ -1163,18 +1163,18 @@ Production-grade RESTful mock service simulating a multi-sided food delivery pla
       detailedPrompt: `# Social Networking API Specification
 
 ## 1. Architectural Scope
-Scalable REST backend specification for social engagement. Supports member profiles, social graph follower relationships, chronological content publishing, engagement metrics, and interaction endpoints.
+Scalable REST backend specification for social engagement. Supports member profiles, social graph folnormalizedInput relationships, chronological content publishing, engagement metrics, and interaction endpoints.
 
 ## 2. Core Domain Entities
 - **Users**: Account identities, usernames, full names, avatar image URLs, and profile biographies.
 - **Posts**: Rich content feeds, creator attribution, like counters, and creation timestamps.
-- **Interactions**: Social graphs (following/followers), post reactions, and comments.
+- **Interactions**: Social graphs (following/folnormalizedInputs), post reactions, and comments.
 
 ## 3. Recommended Endpoint Blueprint
 - **Users Resource (\`/users\`)**:
   - \`GET /\`: Discoverable user directory with bio excerpts and avatars.
   - \`GET /:id\`: Detailed individual profile metadata.
-  - \`POST /:id/follow\`: Idempotent follower graph update.
+  - \`POST /:id/follow\`: Idempotent folnormalizedInput graph update.
 - **Posts Resource (\`/posts\`)**:
   - \`GET /\`: Public activity feed sorted chronologically.
   - \`POST /\`: Publish author post status update.
@@ -1187,13 +1187,13 @@ Scalable REST backend specification for social engagement. Supports member profi
   }
 
   if (
-    lower.includes("ecommerce") ||
-    lower.includes("e-commerce") ||
-    lower.includes("shop") ||
-    lower.includes("product") ||
-    lower.includes("store") ||
-    lower.includes("cart") ||
-    lower.includes("order")
+    normalizedInput.includes("ecommerce") ||
+    normalizedInput.includes("e-commerce") ||
+    normalizedInput.includes("shop") ||
+    normalizedInput.includes("product") ||
+    normalizedInput.includes("store") ||
+    normalizedInput.includes("cart") ||
+    normalizedInput.includes("order")
   ) {
     return {
       summary:
@@ -1228,7 +1228,7 @@ Full-featured e-commerce RESTful API designed for web and mobile storefronts. Co
     };
   }
 
-  const words = lower
+  const words = normalizedInput
     .replace(/[^a-z0-9 ]/g, " ")
     .split(" ")
     .filter(

@@ -71,7 +71,7 @@ const CollaborateButton = ({
  * Main Navbar component adhering to the block-based grid theme and border container structure.
  */
 export const LandingHeader = (): React.JSX.Element => {
-  const [sticky, setSticky] = useState<boolean>(false);
+  const [isSticky, setIsSticky] = useState<boolean>(false);
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
   useEffect((): (() => void) => {
@@ -80,7 +80,7 @@ export const LandingHeader = (): React.JSX.Element => {
     const onScroll = (): void => {
       if (!ticking) {
         requestAnimationFrame((): void => {
-          setSticky(window.scrollY >= 20);
+          setIsSticky(window.scrollY >= 20);
           ticking = false;
         });
         ticking = true;
@@ -106,7 +106,7 @@ export const LandingHeader = (): React.JSX.Element => {
     <header
       className={cn(
         "border-border/40 sticky top-0 z-50 w-full border-b transition-all duration-300",
-        sticky
+        isSticky
           ? "bg-background/95 shadow-xs backdrop-blur-md"
           : "bg-background/60 backdrop-blur-xs",
       )}
@@ -181,14 +181,14 @@ export const LandingHeader = (): React.JSX.Element => {
                 aria-label="Mobile Navigation Menu"
                 className="flex flex-col gap-2"
               >
-                {navigationData.map((item: NavigationSection) => (
+                {navigationData.map((navItem: NavigationSection) => (
                   <a
-                    key={item.title}
-                    href={item.href}
+                    key={navItem.title}
+                    href={navItem.href}
                     onClick={(): void => setIsOpen(false)}
                     className="hover:bg-muted text-foreground block w-full cursor-pointer rounded-lg px-3 py-2.5 text-sm font-medium transition-colors"
                   >
-                    {item.title}
+                    {navItem.title}
                   </a>
                 ))}
               </nav>

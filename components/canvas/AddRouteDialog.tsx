@@ -88,14 +88,14 @@ export const AddRouteDialog = ({
     }
   }, [open, endpoints, reset]);
 
-  const onSubmit = async (data: AddRouteFormData) => {
-    const cleanPath = data.path.trim().startsWith("/")
-      ? data.path.trim()
-      : `/${data.path.trim()}`;
+  const onSubmit = async (values: AddRouteFormData) => {
+    const cleanPath = values.path.trim().startsWith("/")
+      ? values.path.trim()
+      : `/${values.path.trim()}`;
 
     try {
       let responseSchema = "{}";
-      if (data.includeDefaults) {
+      if (values.includeDefaults) {
         responseSchema = JSON.stringify({
           type: "object",
           properties: {
@@ -120,10 +120,10 @@ export const AddRouteDialog = ({
       }
 
       const newRoute = await createRoute({
-        endpointId: data.endpointId,
-        method: data.method,
+        endpointId: values.endpointId,
+        method: values.method,
         path: cleanPath,
-        statusCode: data.statusCode,
+        statusCode: values.statusCode,
         responseSchema,
       });
 
