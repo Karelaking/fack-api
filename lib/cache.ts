@@ -32,9 +32,19 @@ export interface PageCacheEntry {
 /**
  * CacheManager manages separate bounded LRU caches for different entity domains.
  */
-export class CacheManager {
-  private static instance: CacheManager | undefined;
+/**
+ * Next.js can evaluate this module more than once per process: `"use server"`
+ * actions, route handlers and RSC pages are bundled (and may even run) as
+ * separate module graphs. Anchoring the singleton to `globalThis` guarantees
+ * every bundle shares a single CacheManager, so an invalidation triggered from
+ * a server action (e.g. after editing a route's schema) also clears the cache
+ * used by the mock route handler instead of only clearing its own copy.
+ */
+type GlobalWithCacheManager = typeof globalThis & {
+  __fackApiCacheManager?: CacheManager;
+};
 
+export class CacheManager {
   private projectListCache: LRUCache<string, Project[]>;
   private projectBySlugCache: LRUCache<string, Project>;
   private projectRoutesCache: LRUCache<string, Route[]>;
@@ -82,12 +92,16 @@ export class CacheManager {
 
   /**
    * Singleton accessor for CacheManager.
+   *
+   * Backed by `globalThis` rather than a static field so that all Next.js
+   * bundles within the same process share one instance (see note above).
    */
   public static getInstance(): CacheManager {
-    if (!CacheManager.instance) {
-      CacheManager.instance = new CacheManager();
+    const globalScope = globalThis as GlobalWithCacheManager;
+    if (!globalScope.__fackApiCacheManager) {
+      globalScope.__fackApiCacheManager = new CacheManager();
     }
-    return CacheManager.instance;
+    return globalScope.__fackApiCacheManager;
   }
 
   // ── Projects List ────────────────────────────────────────────────────────

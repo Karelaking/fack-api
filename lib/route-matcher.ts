@@ -43,9 +43,21 @@ interface CompiledMatcher {
   routeMap: Map<string, RouteDefinition>;
 }
 
-const matcherCache = new LRUCache<string, CompiledMatcher>({
-  max: 500,
-});
+type GlobalWithMatcherCache = typeof globalThis & {
+  __fackApiMatcherCache?: LRUCache<string, CompiledMatcher>;
+};
+
+/**
+ * Compiled-matcher cache, anchored to `globalThis` so that every Next.js
+ * bundle in the process shares (and can clear) a single instance.
+ */
+const matcherCache: LRUCache<string, CompiledMatcher> = (() => {
+  const globalScope = globalThis as GlobalWithMatcherCache;
+  globalScope.__fackApiMatcherCache ??= new LRUCache<string, CompiledMatcher>({
+    max: 500,
+  });
+  return globalScope.__fackApiMatcherCache;
+})();
 
 function getMatcherCacheKey(routes: RouteDefinition[], method: string): string {
   return `${method}:${routes
