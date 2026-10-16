@@ -10,7 +10,7 @@ import { getProviderByValue } from "@/lib/faker-registry";
 /**
  * Curated list of popular, REST-optimized Faker providers.
  */
-export const approvedFakerProviders = [
+export const APPROVED_FAKER_PROVIDERS = [
   // Identifiers & Core
   "string.uuid",
   "string.nanoid",
@@ -82,15 +82,15 @@ export const approvedFakerProviders = [
   "system.semver",
 ] as const;
 
-export type ApprovedFakerProvider = (typeof approvedFakerProviders)[number];
+export type ApprovedFakerProvider = (typeof APPROVED_FAKER_PROVIDERS)[number];
 
-const approvedProviderSet = new Set<string>(approvedFakerProviders);
+const APPROVED_PROVIDER_SET = new Set<string>(APPROVED_FAKER_PROVIDERS);
 
 /**
  * Validates whether a given provider key is in the curated registry or valid Faker registry.
  */
 export function isValidFakerProvider(provider: string): boolean {
-  if (approvedProviderSet.has(provider)) {
+  if (APPROVED_PROVIDER_SET.has(provider)) {
     return true;
   }
   const registered = getProviderByValue(provider);

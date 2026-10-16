@@ -14,8 +14,8 @@ import {
   Layers,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import type { HttpMethod } from "@/db/schema";
 
-export type HttpMethod = "GET" | "POST" | "PUT" | "DELETE";
 export type ResponseTab = "json" | "curl" | "typescript";
 export type LatencyPreset = "instant" | "normal" | "slow" | "error";
 

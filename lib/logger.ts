@@ -13,9 +13,6 @@ export interface LogTransport {
   ): void;
 }
 
-/** Legacy alias to prevent breaking any callers */
-export type ILogTransport = LogTransport;
-
 /**
  * Consola transport adapter that writes structured logs to the console.
  * Caches tagged instances to avoid per-log allocation overhead.

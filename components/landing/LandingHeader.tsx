@@ -2,8 +2,9 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowUpRight, AlignJustify } from "lucide-react";
+import { AlignJustify } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { CollaborateButton } from "@/components/landing/CollaborateButton";
 import {
   Sheet,
   SheetContent,
@@ -38,34 +39,6 @@ const navigationData: NavigationSection[] = [
     href: "#pricing",
   },
 ];
-
-export type CollaborateButtonProps = {
-  className?: string;
-};
-
-/**
- * Interactive call-to-action button for collaboration and workspace navigation.
- */
-const CollaborateButton = ({
-  className = "",
-}: CollaborateButtonProps): React.JSX.Element => (
-  <a
-    href="https://github.com/Karelaking/fack-api"
-    target="_blank"
-    rel="noopener noreferrer"
-    className={cn(
-      "group bg-foreground text-background hover:bg-foreground/90 relative inline-flex h-10 w-fit cursor-pointer items-center justify-center overflow-hidden rounded-full border border-transparent p-1 ps-4 pe-12 text-xs font-semibold shadow-xs transition-all duration-500 select-none hover:ps-12 hover:pe-4",
-      className,
-    )}
-  >
-    <span className="relative z-10 whitespace-nowrap transition-all duration-500">
-      Let&apos;s Contribute
-    </span>
-    <div className="bg-background text-foreground absolute right-1 flex size-8 shrink-0 items-center justify-center rounded-full transition-all duration-500 group-hover:right-[calc(100%-36px)] group-hover:rotate-45">
-      <ArrowUpRight size={16} />
-    </div>
-  </a>
-);
 
 /**
  * Main Navbar component adhering to the block-based grid theme and border container structure.
@@ -152,7 +125,11 @@ export const LandingHeader = (): React.JSX.Element => {
           >
             Workspace
           </Link>
-          <CollaborateButton />
+          <CollaborateButton
+            href="https://github.com/Karelaking/fack-api"
+            label="Let's Contribute"
+            external
+          />
         </div>
 
         {/* Mobile Controls */}
@@ -200,7 +177,12 @@ export const LandingHeader = (): React.JSX.Element => {
                 >
                   Workspace
                 </Link>
-                <CollaborateButton className="h-11 w-full" />
+                <CollaborateButton
+                  href="https://github.com/Karelaking/fack-api"
+                  label="Let's Contribute"
+                  external
+                  className="h-11 w-full"
+                />
               </div>
             </SheetContent>
           </Sheet>

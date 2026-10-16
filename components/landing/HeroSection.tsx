@@ -2,11 +2,11 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowUpRight, Layers } from "lucide-react";
+import { Layers } from "lucide-react";
 import dynamic from "next/dynamic";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AnimatedCounter } from "@/components/landing/AnimatedCounter";
-import { cn } from "@/lib/utils";
+import { CollaborateButton } from "@/components/landing/CollaborateButton";
 
 const Hero3DModel = dynamic(
   () =>
@@ -22,32 +22,6 @@ const Hero3DModel = dynamic(
 );
 
 const ROTATING_WORDS = ["Synthesize", "Prototype", "Mock", "Deploy"] as const;
-
-export type CollaborateButtonProps = {
-  className?: string;
-};
-
-/**
- * Interactive call-to-action button for GitHub collaboration and workspace navigation.
- */
-export const CollaborateButton = ({
-  className = "",
-}: CollaborateButtonProps): React.JSX.Element => (
-  <Link
-    href="/dashboard"
-    className={cn(
-      "group bg-foreground text-background hover:bg-foreground/90 relative inline-flex h-10 w-fit cursor-pointer items-center justify-center overflow-hidden rounded-full border border-transparent p-1 ps-4 pe-12 text-xs font-semibold shadow-xs transition-all duration-500 select-none hover:ps-12 hover:pe-4",
-      className,
-    )}
-  >
-    <span className="relative z-10 whitespace-nowrap transition-all duration-500">
-      Try Now
-    </span>
-    <div className="bg-background text-foreground absolute right-1 flex size-8 shrink-0 items-center justify-center rounded-full transition-all duration-500 group-hover:right-[calc(100%-36px)] group-hover:rotate-45">
-      <ArrowUpRight size={16} />
-    </div>
-  </Link>
-);
 
 /**
  * Modern 2-column split hero section with bottom stats matrix & animated number counting.
@@ -115,7 +89,7 @@ export const HeroSection = (): React.JSX.Element => {
 
               {/* CTA Cluster */}
               <div className="gsap-animate flex flex-wrap items-center gap-3.5 pt-2">
-                <CollaborateButton />
+                <CollaborateButton href="/dashboard" label="Try Now" />
 
                 <Link
                   href="/dashboard"

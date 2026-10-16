@@ -13,11 +13,11 @@ export interface FormatterContext {
   totalCount?: number;
 }
 
-export interface IMockResponseFormatter {
+export interface MockResponseFormatter {
   format(data: unknown, context: FormatterContext): unknown;
 }
 
-export class SingleObjectFormatter implements IMockResponseFormatter {
+export class SingleObjectFormatter implements MockResponseFormatter {
   format(data: unknown, context: FormatterContext): unknown {
     return {
       data,
@@ -37,7 +37,7 @@ export class SingleObjectFormatter implements IMockResponseFormatter {
   }
 }
 
-export class ListObjectsFormatter implements IMockResponseFormatter {
+export class ListObjectsFormatter implements MockResponseFormatter {
   format(data: unknown, context: FormatterContext): unknown {
     const dataArray = Array.isArray(data) ? data : [];
     return {
@@ -59,7 +59,7 @@ export class ListObjectsFormatter implements IMockResponseFormatter {
   }
 }
 
-export class PagedListFormatter implements IMockResponseFormatter {
+export class PagedListFormatter implements MockResponseFormatter {
   format(data: unknown, context: FormatterContext): unknown {
     const dataArray = Array.isArray(data) ? data : [];
     const limit = context.limitValue ?? 10;
@@ -94,7 +94,7 @@ export class PagedListFormatter implements IMockResponseFormatter {
 export class MockResponseFormatterFactory {
   static getFormatter(
     type: "single" | "list" | "paged",
-  ): IMockResponseFormatter {
+  ): MockResponseFormatter {
     switch (type) {
       case "paged":
         return new PagedListFormatter();

@@ -5,7 +5,7 @@
  * and structured generation requirements for the AI API Architect.
  */
 
-import { approvedFakerProviders } from "./ai-faker-providers.constant";
+import { APPROVED_FAKER_PROVIDERS } from "./ai-faker-providers.constant";
 
 export const AI_SYSTEM_PROMPT = `You are Fack AI, a Principal API Architect for Fack API.
 
@@ -51,7 +51,7 @@ You must follow these strict industry-standard architectural conventions:
    - Each property must specify: name, type ("string" | "number" | "integer" | "boolean" | "object" | "array"), and nullable.
    - Attach approved Faker.js provider methods to mock realistic data (e.g. "person.fullName", "internet.email", "commerce.price").
    - Only use approved Faker providers:
-     ${approvedFakerProviders.slice(0, 30).join(", ")}, and standard categories (person, internet, commerce, location, date, lorem, finance, system).
+     ${APPROVED_FAKER_PROVIDERS.slice(0, 30).join(", ")}, and standard categories (person, internet, commerce, location, date, lorem, finance, system).
 
 6. RUNTIME PERFORMANCE & CHAOS:
    - Latency: provide realistic latency ranges (e.g. min: 40, max: 180 ms).

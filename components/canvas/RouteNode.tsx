@@ -23,7 +23,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import type { DraftMark } from "./preview-nodes";
 
-interface RouteNodeData {
+export interface RouteNodeData {
   id: string;
   method: string;
   path: string;

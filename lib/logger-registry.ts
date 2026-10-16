@@ -20,9 +20,6 @@ export interface Logger {
   debug(message: string, ...args: unknown[]): void;
 }
 
-/** Legacy alias to prevent breaking any existing callers */
-export type ILogger = Logger;
-
 /**
  * Single Responsibility Principle (SRP)
  * Helper trace manager focusing strictly on method invocation tracing.

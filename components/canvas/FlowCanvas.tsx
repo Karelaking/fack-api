@@ -23,7 +23,7 @@ import { updateRoute } from "@/lib/actions/routes";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQueryState, parseAsBoolean } from "nuqs";
-import { RouteNode } from "./RouteNode";
+import { RouteNode, type RouteNodeData } from "./RouteNode";
 import {
   buildDraftPlan,
   EMPTY_DRAFT_PLAN,
@@ -97,26 +97,6 @@ function refitViewport(instance: {
   }) => unknown;
 }): void {
   void instance.fitView({ ...FIT_VIEW_OPTIONS, duration: 200 });
-}
-
-interface RouteNodeData {
-  id: string;
-  method: string;
-  path: string;
-  statusCode: number;
-  isEnabled: boolean;
-  latencyMin: number;
-  latencyMax: number;
-  errorRate: number;
-  responseSchema: string;
-  customHeaders: string;
-  conditionalRules: string;
-  onToggleEnabled: (id: string, isEnabled: boolean) => void;
-  onSelectRoute: (id: string) => void;
-  onOpenEdit: (id: string) => void;
-  mockUrl: string;
-  /** Present when this node is part of an unapplied agent draft. */
-  draft?: DraftMark;
 }
 
 interface FlowCanvasInnerProps {
