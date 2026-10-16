@@ -3,6 +3,13 @@
 @import "shadcn/tailwind.css";
 @import "@clerk/ui/themes/shadcn.css";
 
+/* Agent and tooling artifacts are not application source. Keep them out of Tailwind's
+   automatic content detection, otherwise a class name quoted in notes under
+   `.opencode/` or `.impeccable/` is emitted into the stylesheet as if it were real
+   usage — which has already broken the build once. */
+@source not "../.opencode";
+@source not "../.impeccable";
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
