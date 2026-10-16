@@ -379,3 +379,23 @@
     inset: -13px -6px !important;
   }
 }
+
+/* Agent draft previews: fade the nodes the architect proposes in, in sequence. */
+@keyframes agent-draft-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.agent-draft-enter {
+  animation: agent-draft-enter 360ms ease-out backwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .agent-draft-enter {
+    animation: none;
+  }
+}

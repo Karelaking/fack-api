@@ -24,6 +24,13 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQueryState, parseAsBoolean } from "nuqs";
 import { RouteNode } from "./RouteNode";
+import {
+  buildDraftPlan,
+  EMPTY_DRAFT_PLAN,
+  type DraftMark,
+  type DraftPlan,
+} from "./preview-nodes";
+import { useAgentStore } from "@/stores/agent-store-provider";
 import { LoggerRegistry } from "@/lib/logger-registry";
 
 const canvasUiTrace = LoggerRegistry.getTrace("ui-flow-canvas");
@@ -108,6 +115,8 @@ interface RouteNodeData {
   onSelectRoute: (id: string) => void;
   onOpenEdit: (id: string) => void;
   mockUrl: string;
+  /** Present when this node is part of an unapplied agent draft. */
+  draft?: DraftMark;
 }
 
 interface FlowCanvasInnerProps {
@@ -143,6 +152,7 @@ function reconcileNodes(
   routes: Route[],
   projectSlug: string,
   callbacks: ReconcileCallbacks,
+  draftPlan: DraftPlan = EMPTY_DRAFT_PLAN,
 ): Node[] {
   const reconciled: Node[] = [];
   const savedById = new Map(savedNodes.map((node) => [node.id, node]));
@@ -153,9 +163,12 @@ function reconcileNodes(
   endpoints.forEach((ep, epIdx) => {
     const groupId = `group-${ep.id}`;
     const saved = savedById.get(groupId);
+    const draftRoutesInGroup = draftPlan.routes.filter(
+      (draftRoute) => draftRoute.parentId === groupId,
+    ).length;
     const size = {
       width: GROUP_WIDTH,
-      height: groupHeightFor(ep.routes.length),
+      height: groupHeightFor(ep.routes.length + draftRoutesInGroup),
     };
 
     reconciled.push({
@@ -199,6 +212,7 @@ function reconcileNodes(
       onSelectRoute: callbacks.onSelectRoute,
       onOpenEdit: callbacks.onOpenEdit,
       mockUrl: `${origin}/${projectSlug}${endpoint.basePath || ""}${route.path}`,
+      draft: draftPlan.marks[route.id],
     } satisfies RouteNodeData;
 
     reconciled.push({
@@ -215,6 +229,74 @@ function reconcileNodes(
       ariaLabel: `Route ${route.method} ${route.path}, status ${route.statusCode}, ${
         route.isEnabled ? "enabled" : "disabled"
       }`,
+    });
+  });
+
+  // 3. Draft endpoint groups that only exist in the pending change set.
+  draftPlan.groups.forEach((group) => {
+    const draftRoutesInGroup = draftPlan.routes.filter(
+      (draftRoute) => draftRoute.parentId === group.id,
+    ).length;
+
+    reconciled.push({
+      id: group.id,
+      type: "endpointGroup",
+      data: {
+        label: group.label,
+        basePath: group.basePath,
+        draft: { order: group.order },
+      },
+      position: {
+        x: 40 + (endpoints.length + group.order) * (GROUP_WIDTH + 40),
+        y: 40,
+      },
+      style: {
+        width: GROUP_WIDTH,
+        height: groupHeightFor(draftRoutesInGroup),
+      },
+      draggable: false,
+      selectable: false,
+      ariaLabel: `Draft endpoint group ${group.label}`,
+    });
+  });
+
+  // 4. Draft routes, placed after any real siblings already in the group.
+  draftPlan.routes.forEach((draftRoute) => {
+    const siblingCount = reconciled.filter(
+      (node) =>
+        node.parentId === draftRoute.parentId && node.type === "routeNode",
+    ).length;
+
+    reconciled.push({
+      id: draftRoute.id,
+      type: "routeNode",
+      parentId: draftRoute.parentId,
+      extent: "parent",
+      position: {
+        x: ROUTE_SIBLING_X,
+        y: GROUP_HEADER_OFFSET + siblingCount * ROUTE_NODE_SPACING,
+      },
+      data: {
+        id: draftRoute.id,
+        method: draftRoute.method,
+        path: draftRoute.path,
+        statusCode: draftRoute.statusCode,
+        isEnabled: true,
+        latencyMin: draftRoute.latencyMin,
+        latencyMax: draftRoute.latencyMax,
+        errorRate: draftRoute.errorRate,
+        responseSchema: "{}",
+        customHeaders: "{}",
+        conditionalRules: "[]",
+        onToggleEnabled: callbacks.onToggleEnabled,
+        onSelectRoute: callbacks.onSelectRoute,
+        onOpenEdit: callbacks.onOpenEdit,
+        mockUrl: "",
+        draft: draftRoute.mark,
+      } satisfies RouteNodeData,
+      draggable: false,
+      selectable: false,
+      ariaLabel: `Draft route ${draftRoute.method} ${draftRoute.path}`,
     });
   });
 
@@ -242,6 +324,16 @@ function FlowCanvasInner({
     parseAsBoolean.withDefault(false),
   );
   const [dialogOpen, setDialogOpen] = React.useState(false);
+
+  // Unapplied agent drafts are derived from the session so the canvas can show
+  // what the agent proposes without writing anything to the database.
+  const pendingChangeSet = useAgentStore(
+    (state) => state.result?.changeSet ?? null,
+  );
+  const draftPlan = React.useMemo(
+    () => buildDraftPlan(pendingChangeSet, endpoints),
+    [pendingChangeSet, endpoints],
+  );
 
   const isAddRouteOpen = dialogOpen || newRouteQuery;
 
@@ -305,11 +397,12 @@ function FlowCanvasInner({
       routes,
       projectSlug,
       nodeCallbacks,
+      draftPlan,
     );
     // `initialState` is intentionally excluded: it seeds the very first render
     // only, and later changes flow through the reconciliation effect below.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [endpoints, routes, projectSlug, nodeCallbacks]);
+  }, [endpoints, routes, projectSlug, nodeCallbacks, draftPlan]);
 
   const initialEdges: Edge[] = React.useMemo(() => {
     let savedEdges: Edge[] = [];
@@ -374,9 +467,28 @@ function FlowCanvasInner({
   // Reconcile node state when endpoints or routes change, preserving positions.
   React.useEffect(() => {
     setNodes((prevNodes) =>
-      reconcileNodes(prevNodes, endpoints, routes, projectSlug, nodeCallbacks),
+      reconcileNodes(
+        prevNodes,
+        endpoints,
+        routes,
+        projectSlug,
+        nodeCallbacks,
+        draftPlan,
+      ),
     );
-  }, [endpoints, routes, projectSlug, nodeCallbacks, setNodes]);
+  }, [endpoints, routes, projectSlug, nodeCallbacks, draftPlan, setNodes]);
+
+  // Bring freshly streamed drafts into view as soon as they land.
+  const draftCount = draftPlan.total;
+  React.useEffect(() => {
+    if (draftCount === 0) return;
+
+    const timer = window.setTimeout(
+      () => refitViewport(reactFlowInstance),
+      240,
+    );
+    return () => window.clearTimeout(timer);
+  }, [draftCount, reactFlowInstance]);
 
   const onConnect = React.useCallback(
     (params: Connection) => {
@@ -494,6 +606,11 @@ function FlowCanvasInner({
 
   const handleNodeClick = React.useCallback(
     (_event: React.MouseEvent, node: Node) => {
+      // Draft nodes are proposals, not persisted routes, so they must not open
+      // the route editor.
+      if ((node.data as { draft?: DraftMark }).draft) {
+        return;
+      }
       if (node.type === "routeNode") {
         onSelectRoute(node.id);
       }

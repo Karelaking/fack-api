@@ -11,7 +11,6 @@ import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { HeaderNewProjectButton } from "@/components/dashboard/HeaderNewProjectButton";
 import { MobileBottomNav } from "@/components/dashboard/MobileBottomNav";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { AiArchitectDialog } from "@/components/ai/AiArchitectDialog";
 import { ImportOpenApiDialog } from "@/components/ai/ImportOpenApiDialog";
 
 interface ProjectLayoutProps {
@@ -103,10 +102,6 @@ export default async function ProjectLayout({
           <div className="bg-background flex-1 overflow-auto pb-[calc(3.5rem_+_env(safe-area-inset-bottom))] md:pb-0">
             <ProjectProvider project={project}>
               {children}
-              <AiArchitectDialog
-                projectId={project.id}
-                projectSlug={project.slug}
-              />
               <ImportOpenApiDialog projectId={project.id} />
             </ProjectProvider>
           </div>

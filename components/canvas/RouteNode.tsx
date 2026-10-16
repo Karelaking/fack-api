@@ -21,6 +21,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import type { DraftMark } from "./preview-nodes";
 
 interface RouteNodeData {
   id: string;
@@ -38,6 +39,8 @@ interface RouteNodeData {
   onSelectRoute: (id: string) => void;
   onOpenEdit: (id: string) => void;
   mockUrl: string;
+  /** Present when this node is part of an unapplied agent draft. */
+  draft?: DraftMark;
 }
 
 interface RouteNodeProps {
@@ -179,14 +182,53 @@ export const RouteNode = ({
   return (
     <div
       className={cn(
-        "bg-card border-border flex w-70 cursor-pointer flex-col overflow-hidden rounded-xl border border-l-4 shadow-sm transition-all duration-200 select-none",
+        "bg-card border-border relative flex w-70 cursor-pointer flex-col overflow-hidden rounded-xl border border-l-4 shadow-sm transition-all duration-200 select-none",
         variants.wrapper,
         selected
           ? "border-primary ring-primary/20 shadow-primary/5 -translate-y-1 scale-[1.02] shadow-lg ring-4"
           : "hover:-translate-y-0.5 hover:shadow-md",
         !data.isEnabled && "opacity-60 grayscale-[0.5]",
+        data.draft?.changeType === "create" &&
+          "agent-draft-enter border-primary/50 ring-primary/15 ring-2",
+        data.draft?.changeType === "update" &&
+          "agent-draft-enter ring-info/20 ring-2",
+        data.draft?.changeType === "delete" &&
+          "agent-draft-enter border-destructive/40 opacity-70",
       )}
+      style={
+        data.draft
+          ? { animationDelay: `${data.draft.order * 70}ms` }
+          : undefined
+      }
     >
+      {data.draft ? (
+        <span
+          aria-hidden="true"
+          className={cn(
+            "absolute top-2 right-2 z-10 rounded-full border px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase",
+            data.draft.changeType === "delete"
+              ? "border-destructive/40 bg-destructive/10 text-destructive"
+              : data.draft.changeType === "update"
+                ? "border-info/40 bg-info/10 text-info"
+                : "border-primary/40 bg-primary/10 text-primary",
+          )}
+        >
+          {data.draft.changeType === "delete"
+            ? "Remove"
+            : data.draft.changeType === "update"
+              ? "Update"
+              : "New"}
+        </span>
+      ) : null}
+      {data.draft?.hasConflict ? (
+        <span
+          aria-hidden="true"
+          className="border-warning/40 bg-warning/10 text-warning absolute top-2 right-18 z-10 rounded-full border px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase"
+        >
+          Conflict
+        </span>
+      ) : null}
+
       {/* Node handles for connections */}
       <Handle
         type="target"

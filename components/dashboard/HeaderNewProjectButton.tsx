@@ -19,6 +19,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { OPEN_AGENT_COMPOSER_EVENT } from "@/lib/ai/agent-events";
 
 export function HeaderNewProjectButton(): React.JSX.Element | null {
   const pathname = usePathname();
@@ -48,7 +49,7 @@ export function HeaderNewProjectButton(): React.JSX.Element | null {
   };
 
   if (isCanvasPage) {
-    const openAiArchitect = () => triggerAction("open-ai-architect-dialog");
+    const openAiArchitect = () => triggerAction(OPEN_AGENT_COMPOSER_EVENT);
     const openImportOpenApi = () => triggerAction("open-import-openapi-dialog");
     const exportOpenApi = () => {
       if (segments[1]) {

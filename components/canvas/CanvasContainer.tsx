@@ -3,6 +3,8 @@
 import * as React from "react";
 import { FlowCanvas } from "./FlowCanvas";
 import { EditBar } from "@/components/edit-bar/EditBar";
+import { AgentComposer } from "@/components/ai/AgentComposer";
+import { AgentStoreProvider } from "@/stores/agent-store-provider";
 import type { Endpoint, Route } from "@/db/schema";
 
 interface CanvasContainerProps {
@@ -68,32 +70,37 @@ export function CanvasContainer({
   }, []);
 
   return (
-    <div className="relative flex h-full min-h-0 w-full min-w-0 gap-4">
-      <div className="relative min-h-0 min-w-0 flex-1">
-        <FlowCanvas
-          projectId={projectId}
-          projectSlug={projectSlug}
-          endpoints={endpoints}
-          routes={activeRoutes}
-          initialState={initialState}
-          onSelectRoute={handleSelectRoute}
-          onOpenEdit={handleOpenEdit}
-        />
-      </div>
+    <AgentStoreProvider projectId={projectId}>
+      <div className="relative flex h-full min-h-0 w-full min-w-0 gap-4">
+        <div className="relative min-h-0 min-w-0 flex-1">
+          <FlowCanvas
+            projectId={projectId}
+            projectSlug={projectSlug}
+            endpoints={endpoints}
+            routes={activeRoutes}
+            initialState={initialState}
+            onSelectRoute={handleSelectRoute}
+            onOpenEdit={handleOpenEdit}
+          />
 
-      {/* Slide-out Edit Bar Sheet drawer panel */}
-      {selectedRoute && (
-        <EditBar
-          route={selectedRoute}
-          projectSlug={projectSlug}
-          endpoints={endpoints}
-          open={isEditOpen}
-          onOpenChange={setIsEditOpen}
-          onRouteUpdated={handleRouteUpdated}
-          onRouteDeleted={handleRouteDeleted}
-        />
-      )}
-    </div>
+          {/* Agent composer docked over the canvas — no modal covers the board. */}
+          <AgentComposer />
+        </div>
+
+        {/* Slide-out Edit Bar Sheet drawer panel */}
+        {selectedRoute && (
+          <EditBar
+            route={selectedRoute}
+            projectSlug={projectSlug}
+            endpoints={endpoints}
+            open={isEditOpen}
+            onOpenChange={setIsEditOpen}
+            onRouteUpdated={handleRouteUpdated}
+            onRouteDeleted={handleRouteDeleted}
+          />
+        )}
+      </div>
+    </AgentStoreProvider>
   );
 }
 export default CanvasContainer;

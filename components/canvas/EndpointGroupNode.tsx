@@ -9,6 +9,8 @@ interface EndpointGroupNodeProps {
   data: {
     label: string;
     basePath: string;
+    /** Present when the group only exists in an unapplied agent draft. */
+    draft?: { order: number };
   };
   selected: boolean;
 }
@@ -29,8 +31,21 @@ export function EndpointGroupNode({
         selected
           ? "border-primary/60 bg-card/95 dark:bg-muted/10 shadow-primary/5 shadow-lg"
           : "border-border hover:border-muted-foreground/40",
+        data.draft &&
+          "agent-draft-enter border-primary/50 bg-primary/5 ring-primary/15 ring-2",
       )}
+      style={
+        data.draft
+          ? { animationDelay: `${data.draft.order * 70}ms` }
+          : undefined
+      }
     >
+      {data.draft ? (
+        <span className="border-primary/40 bg-primary/10 text-primary absolute top-3 right-3 z-10 rounded-full border px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase">
+          Draft
+        </span>
+      ) : null}
+
       {/* Dynamic Grid Background Pattern */}
       <div className="absolute inset-0 -z-10 bg-[linear-gradient(to_right,var(--muted-foreground)_1px,transparent_1px),linear-gradient(to_bottom,var(--muted-foreground)_1px,transparent_1px)] bg-size-[14px_24px] opacity-[0.04] dark:opacity-[0.05]" />
 
