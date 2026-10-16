@@ -40,6 +40,13 @@ export const AnimatedCounter = ({
         if (entry && entry.isIntersecting && !hasAnimatedRef.current) {
           hasAnimatedRef.current = true;
 
+          // Counting up is decoration on top of the number itself, so motion
+          // sensitive readers get the final value immediately.
+          if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+            setCount(targetValue);
+            return;
+          }
+
           timerId = setTimeout((): void => {
             const startTime = performance.now();
 

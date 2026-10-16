@@ -406,3 +406,158 @@
     animation: none;
   }
 }
+
+/* ═══════════════════════════════════════════════════
+   Landing hero — the synthesis pipeline, alive.
+
+   One authored sequence: a pulse of light enters the canvas stage, crosses
+   the rail through the synthesized schema, and settles in the runtime,
+   blooming each stage as it arrives. It travels through the page's own
+   multi-colour field (primary → info → chart-5).
+
+   Every animation is gated on [data-hero-motion="on"], which HeroMotion sets
+   only while the hero is on screen: the loops stop off-screen, and the markup
+   renders complete and static when scripts fail.
+   ═══════════════════════════════════════════════════ */
+
+@keyframes hero-field-drift {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(3.5rem, -1.75rem, 0) scale(1.18);
+  }
+}
+
+@keyframes hero-field-drift-reverse {
+  from {
+    transform: translate3d(0, 0, 0) scale(1.14);
+  }
+  to {
+    transform: translate3d(-4rem, 1.5rem, 0) scale(0.92);
+  }
+}
+
+/* The pulse rides the rail on a linear sweep — light does not ease. The
+   gradient image is off-container at rest, so nothing shows before it starts.
+   The glow is a blurred twin on the same animation, which is what makes the
+   light read as a comet instead of a travelling hairline. */
+.hero-pulse,
+.hero-pulse-glow {
+  background-image: linear-gradient(
+    90deg,
+    transparent,
+    var(--primary) 35%,
+    var(--info) 65%,
+    transparent
+  );
+  background-repeat: no-repeat;
+  background-size: 22% 100%;
+  background-position: -40% 50%;
+  opacity: 0;
+}
+
+@keyframes hero-pulse-travel {
+  0% {
+    background-position: -40% 50%;
+    opacity: 0;
+  }
+  6% {
+    opacity: 1;
+  }
+  68% {
+    background-position: 140% 50%;
+    opacity: 1;
+  }
+  /* Held, not interpolated. A property missing from the closing keyframes
+     animates toward the element's resting value, which would slide the light
+     back across the rail while it fades. */
+  78% {
+    background-position: 140% 50%;
+    opacity: 0;
+  }
+  100% {
+    background-position: 140% 50%;
+    opacity: 0;
+  }
+}
+
+/* Arrival bloom: bright on contact, cooling to an ember, gone before the next
+   pass, so what remains at rest is the stage's own static colour. */
+@keyframes hero-stage-arrive {
+  0% {
+    opacity: 0;
+  }
+  5% {
+    opacity: 1;
+  }
+  38% {
+    opacity: 0.34;
+  }
+  70% {
+    opacity: 0.12;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.hero-stage-light {
+  opacity: 0;
+}
+
+[data-hero-motion="on"] .hero-field-a {
+  animation: hero-field-drift 26s ease-in-out infinite alternate;
+}
+
+[data-hero-motion="on"] .hero-field-b {
+  animation: hero-field-drift-reverse 32s ease-in-out infinite alternate;
+}
+
+[data-hero-motion="on"] .hero-field-c {
+  animation: hero-field-drift 38s ease-in-out infinite alternate-reverse;
+}
+
+[data-hero-motion="on"] .hero-pulse,
+[data-hero-motion="on"] .hero-pulse-glow {
+  animation: hero-pulse-travel 11s linear infinite;
+}
+
+[data-hero-motion="on"] .hero-stage-light {
+  animation: hero-stage-arrive 11s ease-out infinite;
+}
+
+/* Staggered to the pulse: the light image's centre meets each stage in turn. */
+[data-hero-motion="on"] .hero-stage-light--canvas {
+  animation-delay: 2s;
+}
+
+[data-hero-motion="on"] .hero-stage-light--schema {
+  animation-delay: 3.8s;
+}
+
+[data-hero-motion="on"] .hero-stage-light--runtime {
+  animation-delay: 5.6s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-hero-motion="on"] .hero-field-a,
+  [data-hero-motion="on"] .hero-field-b,
+  [data-hero-motion="on"] .hero-field-c,
+  [data-hero-motion="on"] .hero-pulse,
+  [data-hero-motion="on"] .hero-pulse-glow,
+  [data-hero-motion="on"] .hero-stage-light {
+    animation: none;
+  }
+
+  /* Fewer and gentler, not none: the gradient and each stage's arrival light
+     stay as static colour and only the movement is dropped. */
+  .hero-pulse,
+  .hero-pulse-glow {
+    opacity: 0;
+  }
+
+  .hero-stage-light {
+    opacity: 0.4;
+  }
+}

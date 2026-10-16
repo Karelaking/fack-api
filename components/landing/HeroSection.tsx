@@ -1,216 +1,389 @@
-"use client";
-
-import React, { useEffect, useRef, useState } from "react";
-import Link from "next/link";
-import { Layers } from "lucide-react";
-import dynamic from "next/dynamic";
-import { Skeleton } from "@/components/ui/skeleton";
+import React from "react";
+import { ArrowRight, Braces, Layers, Terminal } from "lucide-react";
+import { RiGithubFill } from "@remixicon/react";
 import { AnimatedCounter } from "@/components/landing/AnimatedCounter";
 import { CollaborateButton } from "@/components/landing/CollaborateButton";
+import { HeroMotion } from "@/components/landing/HeroMotion";
+import { QuickStartBar } from "@/components/landing/QuickStartBar";
+import { cn } from "@/lib/utils";
 
-const Hero3DModel = dynamic(
-  () =>
-    import("@/components/landing/Hero3DModel").then((mod) => mod.Hero3DModel),
+/** Field → mock-data provider mapping as it is configured on the canvas. */
+const CANVAS_FIELDS: Array<{
+  field: string;
+  provider: string;
+  accent: string;
+}> = [
+  { field: "name", provider: "faker.person.fullName()", accent: "text-info" },
   {
-    ssr: false,
-    loading: (): React.JSX.Element => (
-      <div className="h-115 w-full overflow-hidden rounded-3xl">
-        <Skeleton className="h-full w-full" />
-      </div>
-    ),
+    field: "email",
+    provider: "faker.internet.email()",
+    accent: "text-success",
   },
-);
-
-const ROTATING_WORDS = ["Synthesize", "Prototype", "Mock", "Deploy"] as const;
+  {
+    field: "role",
+    provider: "faker.person.jobTitle()",
+    accent: "text-warning",
+  },
+];
 
 /**
- * Modern 2-column split hero section with bottom stats matrix & animated number counting.
+ * What the canvas synthesizes: standard JSON Schema carrying x-faker, shown as
+ * one fully expanded property. The card stays at eight lines so the band keeps
+ * its original height, and the longest line (34 chars) clears the narrowest
+ * panel at 360px — a wider two-property sample either clips behind the runtime's
+ * hidden scrollbars or stretches the band and leaves voids in its siblings.
+ */
+const SCHEMA_SNIPPET = `{
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "x-faker": "person.fullName"
+    }
+  }
+}`;
+
+/** What the deterministic runtime answers with, path parameters included. */
+const RESPONSE_SNIPPET = `{
+  "id": "usr_99a8b1",
+  "name": "Alexander Vance",
+  "email": "alex.vance@fackapi.dev",
+  "role": "Principal Systems Architect"
+}`;
+
+/** Verifiable facts only; the metrics matrix keeps its original content. */
+const HERO_FACTS: Array<{
+  value: number;
+  suffix: string;
+  delay: number;
+  label: string;
+  body: string;
+}> = [
+  {
+    value: 100,
+    suffix: "%",
+    delay: 0,
+    label: "LOCAL & PRIVATE",
+    body: "Self-hosted storage. Schema ASTs and provider keys stay on your own server, not in the browser.",
+  },
+  {
+    value: 5,
+    suffix: " Methods",
+    delay: 200,
+    label: "NATIVE MOCK ENGINES",
+    body: "Full syntax & type support for GET, POST, PUT, PATCH, and DELETE with custom JSON Schema and Faker.js logic.",
+  },
+  {
+    value: 10,
+    suffix: "x Faster",
+    delay: 400,
+    label: "VISUAL PROTOTYPING",
+    body: "Instant visual ERD creation with 1-click Drizzle ORM & TypeScript code export.",
+  },
+  {
+    value: 100,
+    suffix: "% Automated",
+    delay: 600,
+    label: "REAL-TIME AST VALIDATION",
+    body: "Automatic background checks scan for missing indexes, foreign key constraints, and relation issues.",
+  },
+];
+
+/**
+ * Cell borders for the facts matrix: the grid supplies no dividers of its own
+ * so the seams stay correct at one, two, and four columns.
+ */
+const HERO_FACT_BORDERS: string[] = [
+  "",
+  "border-t sm:border-t-0 sm:border-l",
+  "border-t lg:border-t-0 lg:border-l",
+  "border-t sm:border-l",
+];
+
+/** Chip that sits on a divider to read the three stages as one pipeline. */
+const FlowConnector = (): React.JSX.Element => (
+  <span
+    aria-hidden="true"
+    className="border-border/60 bg-background text-muted-foreground absolute top-1/2 -right-3 z-10 hidden size-6 -translate-y-1/2 items-center justify-center rounded-full border lg:flex"
+  >
+    <ArrowRight className="size-3" />
+  </span>
+);
+
+/**
+ * Centered hero: one column of copy, the command that starts a local instance,
+ * and the canvas → schema → runtime pipeline shown with real values.
+ *
+ * The stage markup stays a Server Component. `HeroMotion` is the only client
+ * island, and all it does is gate the ambient drift and the pipeline pulse once
+ * the hero is on screen. The three stages each carry one stop of the hero's
+ * gradient — canvas (primary) → schema (info) → runtime (chart-5) — so the band
+ * reads as one continuous ramp rather than three equal panels.
  */
 export const HeroSection = (): React.JSX.Element => {
-  const [rotatingIndex, setRotatingIndex] = useState<number>(0);
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const leftColRef = useRef<HTMLDivElement>(null);
-  const graphicBlockRef = useRef<HTMLDivElement>(null);
-  const statsContainerRef = useRef<HTMLDivElement>(null);
-
-  useEffect((): (() => void) => {
-    const intervalId = setInterval((): void => {
-      setRotatingIndex(
-        (prev: number): number => (prev + 1) % ROTATING_WORDS.length,
-      );
-    }, 2800);
-    return (): void => clearInterval(intervalId);
-  }, []);
-
   return (
-    <section
-      ref={sectionRef}
-      id="hero"
-      aria-label="Hero Introduction"
-      className="border-border/40 bg-background relative w-full overflow-hidden border-b"
-    >
-      {/* Main 2-Column Grid */}
-      <div className="border-border/40 mx-auto max-w-7xl border-x">
-        <div className="divide-border/40 grid grid-cols-1 divide-y lg:grid-cols-2 lg:divide-x lg:divide-y-0">
-          {/* Left Column — Content & Copy */}
-          <div
-            ref={leftColRef}
-            className="relative flex flex-col justify-between space-y-6 overflow-hidden"
-          >
-            {/* Background Ambient Radial Glow */}
-            <div className="pointer-events-none absolute -top-12 -left-12 size-96 rounded-full bg-linear-to-br from-blue-600/15 via-indigo-500/10 to-transparent blur-3xl" />
-            <div className="pointer-events-none absolute right-8 bottom-4 size-72 rounded-full bg-linear-to-tr from-cyan-400/10 via-sky-500/10 to-transparent blur-2xl" />
+    <HeroMotion>
+      <section
+        id="hero"
+        aria-label="Hero Introduction"
+        className="border-border/40 bg-background relative w-full overflow-hidden border-b"
+      >
+        {/* The page's own multi-colour gradient, as a field the hero sits in. */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 top-0 h-128"
+        >
+          <div className="hero-field-a from-primary/30 via-info/20 absolute -top-40 left-1/2 h-80 w-168 -translate-x-[70%] rounded-full bg-linear-to-br to-transparent blur-3xl" />
+          <div className="hero-field-b from-info/25 via-chart-5/20 absolute -top-28 left-1/2 h-72 w-152 -translate-x-[25%] rounded-full bg-linear-to-tr to-transparent blur-3xl" />
+          <div className="hero-field-c from-chart-5/20 via-primary/10 absolute top-6 left-1/2 h-64 w-136 -translate-x-1/2 rounded-full bg-linear-to-b to-transparent blur-3xl" />
+        </div>
 
-            <header className="relative z-10 space-y-6">
-              {/* Headline with Zero Layout Shift Rotating Words */}
-              <div className="gsap-animate">
-                <h1 className="text-foreground text-3xl leading-[1.15] font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
-                  <span className="my-0.5 block h-[1.2em] overflow-hidden bg-linear-to-r from-blue-600 via-indigo-500 to-cyan-400 bg-clip-text text-transparent dark:from-blue-400 dark:via-indigo-400 dark:to-cyan-300">
-                    <span
-                      key={rotatingIndex}
-                      className="animate-in slide-in-from-bottom-4 fade-in block duration-500"
-                    >
-                      {ROTATING_WORDS[rotatingIndex]}
-                    </span>
-                  </span>
-                  <span className="text-foreground block">
-                    Mock APIs at the Speed of Thought.
-                  </span>
-                </h1>
+        <div className="border-border/40 relative z-10 mx-auto max-w-7xl border-x">
+          {/* Centered Copy */}
+          <div className="px-4 pt-14 pb-10 text-center sm:px-6 md:pt-20 md:pb-12 lg:px-8">
+            <h1 className="text-foreground mx-auto max-w-4xl text-3xl leading-[1.12] font-extrabold tracking-tight text-balance sm:text-4xl lg:text-6xl">
+              Design the mock API on a canvas. Serve it from your own machine.
+            </h1>
+
+            <p className="text-muted-foreground mx-auto mt-6 max-w-2xl text-sm leading-relaxed text-pretty sm:text-base lg:text-lg">
+              Fack API synthesizes that canvas into standard JSON Schema — with
+              Faker.js providers, latency, and failure rules attached — and
+              serves it as a live mock backend. One container, one SQLite file,
+              no hosted service.
+            </p>
+
+            <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
+              <CollaborateButton
+                href="/dashboard"
+                label="Open the canvas"
+                size="lg"
+                className="w-full sm:w-auto"
+              />
+              <a
+                href="https://github.com/Karelaking/fack-api"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="border-border/40 text-foreground hover:bg-muted/60 inline-flex h-12 w-full items-center justify-center gap-2 rounded-full border px-6 text-sm font-semibold transition-colors sm:w-auto"
+              >
+                <RiGithubFill className="size-4" aria-hidden="true" />
+                <span>View the source</span>
+              </a>
+            </div>
+          </div>
+
+          {/* Quick start command */}
+          <div className="px-4 pb-12 sm:px-6 md:pb-16 lg:px-8">
+            <QuickStartBar className="mx-auto max-w-3xl" />
+          </div>
+
+          {/*
+            Mechanism: canvas → schema → runtime, in the product's own language.
+            The rail carries the gradient; the pulse crosses it and blooms each
+            stage on arrival — the one authored moment of this surface. On mobile
+            the pipeline stacks, so the pulse is desktop-only and the staggered
+            stage blooms carry the sequence on their own.
+          */}
+          <div className="border-border/40 divide-border/40 relative grid grid-cols-1 divide-y border-t lg:grid-cols-3 lg:divide-x lg:divide-y-0">
+            <div
+              aria-hidden="true"
+              className="from-primary/50 via-info/50 to-chart-5/50 pointer-events-none absolute inset-x-0 -top-px h-px bg-linear-to-r"
+            />
+            <div
+              aria-hidden="true"
+              className="hero-pulse pointer-events-none absolute inset-x-0 -top-px hidden h-px lg:block"
+            />
+            <div
+              aria-hidden="true"
+              className="hero-pulse-glow pointer-events-none absolute inset-x-0 -top-1 hidden h-2 blur-sm lg:block"
+            />
+
+            <article
+              aria-labelledby="hero-stage-canvas"
+              className="relative flex flex-col gap-4 p-5 sm:p-6 lg:p-7"
+            >
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 overflow-hidden"
+              >
+                <div className="hero-stage-light hero-stage-light--canvas from-primary/35 via-info/15 absolute -top-24 left-1/2 size-64 -translate-x-1/2 rounded-full bg-linear-to-b to-transparent blur-3xl" />
               </div>
 
-              {/* Subheadline Body */}
-              <p className="gsap-animate text-muted-foreground max-w-xl text-sm leading-relaxed sm:text-base lg:text-lg">
-                Transform complex backend ideas into interactive visual node
-                flows. Auto-generate type-safe Faker.js payload models, export
-                instant multi-format HTTP mock responses, and simulate edge
-                conditions seamlessly.
-              </p>
-
-              {/* CTA Cluster */}
-              <div className="gsap-animate flex flex-wrap items-center gap-3.5 pt-2">
-                <CollaborateButton href="/dashboard" label="Try Now" />
-
-                <Link
-                  href="/dashboard"
-                  aria-label="Launch interactive schema workspace"
-                  className="border-border/60 bg-background/80 hover:bg-muted/50 text-foreground hover:border-foreground/20 inline-flex cursor-pointer items-center justify-center gap-2 rounded-full border px-6 py-3.5 text-xs font-semibold backdrop-blur-xs transition-all hover:scale-[1.02] active:scale-[0.98] sm:text-sm"
-                >
+              <header className="relative z-10 flex items-center gap-2.5">
+                <span className="border-primary/40 bg-primary/15 flex size-7 shrink-0 items-center justify-center rounded-lg border">
                   <Layers
-                    className="text-muted-foreground size-4"
+                    className="text-primary size-3.5"
                     aria-hidden="true"
                   />
-                  <span>Launch Workspace</span>
-                </Link>
+                </span>
+                <h2
+                  id="hero-stage-canvas"
+                  className="text-foreground text-sm font-bold tracking-tight"
+                >
+                  Canvas
+                </h2>
+              </header>
+
+              <div className="border-border/60 bg-muted/20 relative z-10 overflow-hidden rounded-xl border">
+                <div className="border-border/40 flex items-center gap-2 border-b px-3 py-2">
+                  <span className="border-method-get/30 bg-method-get/15 text-method-get text-caption shrink-0 rounded border px-1.5 py-0.5 font-mono font-bold">
+                    GET
+                  </span>
+                  <code className="text-foreground truncate font-mono text-xs font-semibold">
+                    /:projectSlug/users
+                  </code>
+                </div>
+                <ul className="divide-border/40 divide-y">
+                  {CANVAS_FIELDS.map(
+                    (canvasField: {
+                      field: string;
+                      provider: string;
+                      accent: string;
+                    }) => (
+                      <li
+                        key={canvasField.field}
+                        className="flex items-center justify-between gap-3 px-3 py-1.5"
+                      >
+                        <span className="text-foreground font-mono text-xs">
+                          {canvasField.field}
+                        </span>
+                        <span
+                          className={cn(
+                            "truncate font-mono text-xs",
+                            canvasField.accent,
+                          )}
+                        >
+                          {canvasField.provider}
+                        </span>
+                      </li>
+                    ),
+                  )}
+                </ul>
               </div>
-            </header>
-          </div>
 
-          {/* Right Column — Interactive 3D Schema & Drizzle Model */}
-          <div className="bg-muted/5 relative flex min-h-85 items-center justify-center overflow-hidden p-2 sm:min-h-95 sm:p-8 lg:min-h-130 lg:p-12">
-            {/* Background Grid Pattern */}
-            <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-size-[24px_24px]" />
+              <p className="text-muted-foreground relative z-10 mt-auto text-xs leading-relaxed">
+                Objects, arrays, and nullable fields are nested spatially. No
+                JSON Schema is written by hand.
+              </p>
 
-            {/* Interactive 3D Model Component */}
-            <div
-              ref={graphicBlockRef}
-              className="flex h-full w-full items-center justify-center"
+              <FlowConnector />
+            </article>
+
+            <article
+              aria-labelledby="hero-stage-schema"
+              className="relative flex flex-col gap-4 p-5 sm:p-6 lg:p-7"
             >
-              <Hero3DModel />
-            </div>
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 overflow-hidden"
+              >
+                <div className="hero-stage-light hero-stage-light--schema from-info/35 via-chart-5/15 absolute -top-24 left-1/2 size-64 -translate-x-1/2 rounded-full bg-linear-to-b to-transparent blur-3xl" />
+              </div>
+
+              <header className="relative z-10 flex items-center gap-2.5">
+                <span className="border-info/40 bg-info/15 flex size-7 shrink-0 items-center justify-center rounded-lg border">
+                  <Braces className="text-info size-3.5" aria-hidden="true" />
+                </span>
+                <h2
+                  id="hero-stage-schema"
+                  className="text-foreground text-sm font-bold tracking-tight"
+                >
+                  Synthesized schema
+                </h2>
+              </header>
+
+              <div className="border-border/60 bg-muted/20 scrollbar-subtle relative z-10 overflow-x-auto rounded-xl border px-3 py-2.5">
+                <pre className="text-foreground font-mono text-xs leading-relaxed">
+                  {SCHEMA_SNIPPET}
+                </pre>
+              </div>
+
+              <p className="text-muted-foreground relative z-10 mt-auto text-xs leading-relaxed">
+                Synthesized into standard JSON Schema carrying{" "}
+                <span className="text-info font-mono">x-faker</span> extensions
+                — nothing proprietary to unlearn.
+              </p>
+
+              <FlowConnector />
+            </article>
+
+            <article
+              aria-labelledby="hero-stage-runtime"
+              className="relative flex flex-col gap-4 p-5 sm:p-6 lg:p-7"
+            >
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 overflow-hidden"
+              >
+                <div className="hero-stage-light hero-stage-light--runtime from-chart-5/35 via-primary/15 absolute -top-24 left-1/2 size-64 -translate-x-1/2 rounded-full bg-linear-to-b to-transparent blur-3xl" />
+              </div>
+
+              <header className="relative z-10 flex items-center gap-2.5">
+                <span className="border-chart-5/40 bg-chart-5/15 flex size-7 shrink-0 items-center justify-center rounded-lg border">
+                  <Terminal
+                    className="text-chart-5 size-3.5"
+                    aria-hidden="true"
+                  />
+                </span>
+                <h2
+                  id="hero-stage-runtime"
+                  className="text-foreground text-sm font-bold tracking-tight"
+                >
+                  Runtime
+                </h2>
+              </header>
+
+              <div className="border-border/60 bg-muted/20 relative z-10 overflow-hidden rounded-xl border">
+                <div className="border-border/40 flex items-center justify-between gap-2 border-b px-3 py-2">
+                  <code className="text-foreground truncate font-mono text-xs font-semibold">
+                    /acme/users
+                  </code>
+                  <span className="border-success/30 bg-success/10 text-success text-caption shrink-0 rounded border px-1.5 py-0.5 font-mono font-bold">
+                    200 OK · 41 ms
+                  </span>
+                </div>
+                <pre className="text-muted-foreground scrollbar-subtle overflow-x-auto px-3 py-2 font-mono text-xs leading-relaxed">
+                  {RESPONSE_SNIPPET}
+                </pre>
+              </div>
+
+              <p className="text-muted-foreground relative z-10 mt-auto text-xs leading-relaxed">
+                Matched by path and served by the deterministic runtime. No
+                model-generated code ever runs in the request path.
+              </p>
+            </article>
+          </div>
+
+          {/* Facts matrix */}
+          <div className="border-border/40 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+            {HERO_FACTS.map((fact, index: number) => (
+              <article
+                key={fact.label}
+                className={cn(
+                  "border-border/40 flex flex-col justify-between space-y-1.5 p-6 sm:p-7",
+                  HERO_FACT_BORDERS[index] ?? "",
+                )}
+              >
+                <div>
+                  <div className="text-foreground font-mono text-2xl font-extrabold tracking-tight sm:text-3xl">
+                    <AnimatedCounter
+                      targetValue={fact.value}
+                      suffix={fact.suffix}
+                      duration={1600}
+                      delay={fact.delay}
+                    />
+                  </div>
+                  <h2 className="text-foreground text-caption mt-1 font-bold tracking-wider uppercase">
+                    {fact.label}
+                  </h2>
+                </div>
+                <p className="text-muted-foreground pt-1 text-xs leading-relaxed">
+                  {fact.body}
+                </p>
+              </article>
+            ))}
           </div>
         </div>
-
-        {/* Bottom Feature & Metrics Matrix Bar */}
-        <div
-          ref={statsContainerRef}
-          className="border-border/40 divide-border/40 grid grid-cols-1 divide-y border-t sm:grid-cols-2 sm:divide-x sm:divide-y-0 lg:grid-cols-4"
-        >
-          {/* Metric 1 */}
-          <article className="flex flex-col justify-between space-y-1.5 p-6 sm:p-7">
-            <div>
-              <div className="text-foreground font-mono text-2xl font-extrabold tracking-tight sm:text-3xl">
-                <AnimatedCounter
-                  targetValue={100}
-                  suffix="%"
-                  duration={1600}
-                  delay={0}
-                />
-              </div>
-              <h2 className="text-foreground mt-1 text-[11px] font-bold tracking-wider uppercase">
-                LOCAL & PRIVATE
-              </h2>
-            </div>
-            <p className="text-muted-foreground pt-1 text-xs leading-relaxed">
-              Self-hosted storage. Schema ASTs and provider keys stay on your
-              own server, not in the browser.
-            </p>
-          </article>
-
-          {/* Metric 2 */}
-          <article className="flex flex-col justify-between space-y-1.5 p-6 sm:p-7">
-            <div>
-              <div className="text-foreground font-mono text-2xl font-extrabold tracking-tight sm:text-3xl">
-                <AnimatedCounter
-                  targetValue={5}
-                  suffix=" Methods"
-                  duration={1600}
-                  delay={200}
-                />
-              </div>
-              <h2 className="text-foreground mt-1 text-[11px] font-bold tracking-wider uppercase">
-                NATIVE MOCK ENGINES
-              </h2>
-            </div>
-            <p className="text-muted-foreground pt-1 text-xs leading-relaxed">
-              Full syntax & type support for GET, POST, PUT, PATCH, and DELETE
-              with custom JSON Schema and Faker.js logic.
-            </p>
-          </article>
-
-          {/* Metric 3 */}
-          <article className="flex flex-col justify-between space-y-1.5 p-6 sm:p-7">
-            <div>
-              <div className="text-foreground font-mono text-2xl font-extrabold tracking-tight sm:text-3xl">
-                <AnimatedCounter
-                  targetValue={10}
-                  suffix="x Faster"
-                  duration={1600}
-                  delay={400}
-                />
-              </div>
-              <h2 className="text-foreground mt-1 text-[11px] font-bold tracking-wider uppercase">
-                VISUAL PROTOTYPING
-              </h2>
-            </div>
-            <p className="text-muted-foreground pt-1 text-xs leading-relaxed">
-              Instant visual ERD creation with 1-click Drizzle ORM & TypeScript
-              code export.
-            </p>
-          </article>
-
-          {/* Metric 4 */}
-          <article className="flex flex-col justify-between space-y-1.5 p-6 sm:p-7">
-            <div>
-              <div className="text-foreground font-mono text-2xl font-extrabold tracking-tight sm:text-3xl">
-                <AnimatedCounter
-                  targetValue={100}
-                  suffix="% Automated"
-                  duration={1600}
-                  delay={600}
-                />
-              </div>
-              <h2 className="text-foreground mt-1 text-[11px] font-bold tracking-wider uppercase">
-                REAL-TIME AST VALIDATION
-              </h2>
-            </div>
-            <p className="text-muted-foreground pt-1 text-xs leading-relaxed">
-              Automatic background checks scan for missing indexes, foreign key
-              constraints, and relation issues.
-            </p>
-          </article>
-        </div>
-      </div>
-    </section>
+      </section>
+    </HeroMotion>
   );
 };
