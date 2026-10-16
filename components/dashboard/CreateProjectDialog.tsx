@@ -8,7 +8,7 @@ import { RiLoader2Line } from "@remixicon/react";
 import { createProject } from "@/lib/actions/projects";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { slugifyInput } from "@/lib/utils";
+import { slugifyPath } from "@/lib/utils";
 import {
   Dialog,
   DialogContent,
@@ -117,7 +117,7 @@ export function CreateProjectDialog(): React.JSX.Element {
               <Input
                 id="global-proj-slug"
                 value={slug}
-                onChange={(e) => setSlug(slugifyInput(e.target.value))}
+                onChange={(e) => setSlug(slugifyPath(e.target.value))}
                 placeholder="e.g., billing-service"
                 maxLength={100}
                 disabled={loading}

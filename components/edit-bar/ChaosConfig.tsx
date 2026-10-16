@@ -35,7 +35,7 @@ export function ChaosConfig({
   onErrorRateChange,
 }: ChaosConfigProps): React.JSX.Element {
   // Sync local states
-  const handleMinSlider = (value: number | readonly number[]) => {
+  const handleLatencyMinChange = (value: number | readonly number[]) => {
     const nextLatency = Array.isArray(value) ? value[0] : value;
     onLatencyMinChange(nextLatency);
     if (latencyMax < nextLatency) {
@@ -43,7 +43,7 @@ export function ChaosConfig({
     }
   };
 
-  const handleMaxSlider = (value: number | readonly number[]): void => {
+  const handleLatencyMaxChange = (value: number | readonly number[]): void => {
     const nextLatency = Array.isArray(value) ? value[0] : value;
     onLatencyMaxChange(nextLatency);
     if (latencyMin > nextLatency) {
@@ -51,7 +51,9 @@ export function ChaosConfig({
     }
   };
 
-  const handleErrorRate = (e: React.ChangeEvent<HTMLInputElement>): void => {
+  const handleErrorRateChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ): void => {
     const parsed = parseFloat(e.target.value);
     if (!isNaN(parsed)) {
       onErrorRateChange(Math.max(0, Math.min(100, parsed)));
@@ -134,7 +136,7 @@ export function ChaosConfig({
             <Slider
               aria-label="Minimum Delay"
               value={[latencyMin]}
-              onValueChange={handleMinSlider}
+              onValueChange={handleLatencyMinChange}
               min={0}
               max={10000}
               step={50}
@@ -150,7 +152,7 @@ export function ChaosConfig({
             <Slider
               aria-label="Maximum Delay"
               value={[latencyMax]}
-              onValueChange={handleMaxSlider}
+              onValueChange={handleLatencyMaxChange}
               min={0}
               max={10000}
               step={50}
@@ -186,7 +188,7 @@ export function ChaosConfig({
               max={100}
               step={1}
               value={errorRate || ""}
-              onChange={handleErrorRate}
+              onChange={handleErrorRateChange}
               className="w-20"
               placeholder="0"
             />

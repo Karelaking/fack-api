@@ -18,7 +18,7 @@ import type { Project } from "@/db/schema";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { cn, slugifyInput } from "@/lib/utils";
+import { cn, slugifyPath } from "@/lib/utils";
 import {
   Sidebar,
   SidebarContent,
@@ -400,7 +400,7 @@ export const DashboardSidebar = ({
                 <Input
                   id="sidebar-proj-slug"
                   value={slug}
-                  onChange={(e) => setSlug(slugifyInput(e.target.value))}
+                  onChange={(e) => setSlug(slugifyPath(e.target.value))}
                   placeholder="e.g., billing-service"
                   maxLength={100}
                   disabled={loading}

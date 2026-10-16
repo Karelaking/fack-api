@@ -64,7 +64,7 @@ export function slugify(text: string): string {
  * @param input - The raw text input
  * @returns Sanitized namespace path slug
  */
-export function slugifyInput(input: string): string {
+export function slugifyPath(input: string): string {
   return input
     .toLowerCase()
     .replace(/\s+/g, "-")

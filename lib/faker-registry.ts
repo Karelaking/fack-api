@@ -95,6 +95,8 @@ export function getAllProviders(): FakerProvider[] {
   return fakerRegistryService.getAllProviders();
 }
 
-export function getProviderByValue(value: string): FakerProvider | undefined {
-  return fakerRegistryService.getProviderByValue(value);
+export function getProviderByValue(
+  providerValue: string,
+): FakerProvider | undefined {
+  return fakerRegistryService.getProviderByValue(providerValue);
 }

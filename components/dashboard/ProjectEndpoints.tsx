@@ -102,7 +102,7 @@ export const ProjectEndpoints = ({
     }
   };
 
-  const handleEditInit = (ep: EndpointWithRoutes) => {
+  const handleOpenEditDialog = (ep: EndpointWithRoutes) => {
     setSelectedId(ep.id);
     setName(ep.name);
     setBasePath(ep.basePath);
@@ -148,7 +148,7 @@ export const ProjectEndpoints = ({
     }
   };
 
-  const handleDeleteInit = (ep: EndpointWithRoutes) => {
+  const handleOpenDeleteDialog = (ep: EndpointWithRoutes) => {
     setSelectedId(ep.id);
     setName(ep.name);
     setDeleteOpen(true);
@@ -345,7 +345,7 @@ export const ProjectEndpoints = ({
                       variant="ghost"
                       title="Edit Endpoint Group"
                       aria-label="Edit Endpoint Group"
-                      onClick={() => handleEditInit(ep)}
+                      onClick={() => handleOpenEditDialog(ep)}
                     >
                       <RiEdit2Line className="text-muted-foreground hover:text-foreground h-4 w-4" />
                     </Button>
@@ -354,7 +354,7 @@ export const ProjectEndpoints = ({
                       variant="destructive"
                       title="Delete Endpoint Group"
                       aria-label="Delete Endpoint Group"
-                      onClick={() => handleDeleteInit(ep)}
+                      onClick={() => handleOpenDeleteDialog(ep)}
                     >
                       <RiDeleteBin6Line className="h-4 w-4" />
                     </Button>

@@ -17,7 +17,7 @@ import {
   RiAlertLine,
 } from "@remixicon/react";
 import { updateProject, deleteProject } from "@/lib/actions/projects";
-import { cn, slugifyInput } from "@/lib/utils";
+import { cn, slugifyPath } from "@/lib/utils";
 import type { Project } from "@/db/schema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -188,7 +188,7 @@ export function ProjectSettings({
                   id="slug"
                   {...register("slug", {
                     onChange: (e) =>
-                      setValue("slug", slugifyInput(e.target.value)),
+                      setValue("slug", slugifyPath(e.target.value)),
                   })}
                   placeholder="billing-microservice"
                   maxLength={100}

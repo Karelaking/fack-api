@@ -859,8 +859,8 @@ export function toProfessionalEndpointName(resourceName: string): string {
 /**
  * Converts a PascalCase or space-delimited string to kebab-case.
  */
-export function toKebabCase(str: string): string {
-  return str
+export function toKebabCase(input: string): string {
+  return input
     .replace(/([a-z0-9])([A-Z])/g, "$1-$2")
     .replace(/[\s_]+/g, "-")
     .toLowerCase();

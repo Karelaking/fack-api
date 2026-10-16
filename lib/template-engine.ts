@@ -3,8 +3,8 @@
 /* oxlint-disable @typescript-eslint/no-unsafe-function-type */
 import { faker } from "@faker-js/faker";
 
-function get(obj: any, path: string): any {
-  return path.split(".").reduce((acc, part) => acc && acc[part], obj);
+function getPathValue(source: any, path: string): any {
+  return path.split(".").reduce((acc, part) => acc && acc[part], source);
 }
 
 /**
@@ -30,7 +30,7 @@ export function renderTemplate(
     if (path.startsWith("faker.")) {
       try {
         const fakerPath = path.replace("faker.", "");
-        const fakerFn = get(faker, fakerPath) as Function;
+        const fakerFn = getPathValue(faker, fakerPath) as Function;
         if (typeof fakerFn === "function") {
           return fakerFn().toString();
         }
@@ -40,7 +40,7 @@ export function renderTemplate(
     }
 
     if (path.startsWith("request.")) {
-      const resolvedValue = get(context, path);
+      const resolvedValue = getPathValue(context, path);
       return resolvedValue !== undefined ? String(resolvedValue) : match;
     }
 

@@ -6,7 +6,7 @@ import {
   beforeEach,
   afterEach,
 } from "vite-plus/test";
-import { cn, slugify, slugifyInput, formatRelativeTime } from "../lib/utils";
+import { cn, slugify, slugifyPath, formatRelativeTime } from "../lib/utils";
 
 describe("cn Utility", () => {
   it("merges tailwind classes", () => {
@@ -55,22 +55,22 @@ describe("slugify Utility", () => {
   });
 });
 
-describe("slugifyInput Utility", () => {
+describe("slugifyPath Utility", () => {
   it("preserves slashes for nested paths", () => {
-    expect(slugifyInput("api/v1/auth")).toBe("api/v1/auth");
+    expect(slugifyPath("api/v1/auth")).toBe("api/v1/auth");
   });
 
   it("lowercases input", () => {
-    expect(slugifyInput("My Path")).toBe("my-path");
+    expect(slugifyPath("My Path")).toBe("my-path");
   });
 
   it("removes special characters except slashes and hyphens", () => {
-    expect(slugifyInput("api/v1! @test")).toBe("api/v1-test");
+    expect(slugifyPath("api/v1! @test")).toBe("api/v1-test");
   });
 
   it("handles leading, trailing, and duplicate slashes correctly", () => {
-    expect(slugifyInput("/api//v1/users/")).toBe("/api/v1/users/");
-    expect(slugifyInput("///api///")).toBe("/api/");
+    expect(slugifyPath("/api//v1/users/")).toBe("/api/v1/users/");
+    expect(slugifyPath("///api///")).toBe("/api/");
   });
 });
 
