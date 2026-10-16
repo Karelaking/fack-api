@@ -15,7 +15,7 @@ export const PROJECT_SUBPAGES = [
 
 export type ProjectSubpage = (typeof PROJECT_SUBPAGES)[number];
 
-const subpageSet = new Set<string>(PROJECT_SUBPAGES);
+const SUBPAGE_SET = new Set<string>(PROJECT_SUBPAGES);
 
 export interface ParsedProjectPath {
   /** The reconstructed project slug (e.g. "api/v1") */
@@ -39,7 +39,7 @@ export function parseProjectPath(slugSegments: string[]): ParsedProjectPath {
 
   const lastSegment = slugSegments[slugSegments.length - 1];
 
-  if (subpageSet.has(lastSegment)) {
+  if (SUBPAGE_SET.has(lastSegment)) {
     return {
       projectSlug: slugSegments.slice(0, -1).join("/"),
       subpage: lastSegment as ProjectSubpage,
