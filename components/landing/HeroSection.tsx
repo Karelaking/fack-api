@@ -139,20 +139,84 @@ export const HeroSection = (): React.JSX.Element => {
         </div>
 
         <div className="border-border/40 relative z-10 mx-auto max-w-7xl border-x">
-          {/* Centered Copy */}
-          <div className="px-4 pt-14 pb-10 text-center sm:px-6 md:pt-20 md:pb-12 lg:px-8">
-            <h1 className="text-foreground mx-auto max-w-4xl text-3xl leading-[1.12] font-extrabold tracking-tight text-balance sm:text-4xl lg:text-6xl">
-              Design the mock API on a canvas. Serve it from your own machine.
+          {/*
+            Copy: four steps of one hierarchy — what you design, why it exists,
+            how it works, and what it costs to run — closing on the actions.
+            They enter in a single waterfall (the hero copy sequence in
+            globals.css), and each phrase that names a pipeline stage carries
+            that stage's colour as its underline, so the copy reads against the
+            stages below it.
+          */}
+          <div className="px-4 pt-14 pb-9 text-center sm:px-6 md:pt-16 md:pb-10 lg:px-8">
+            {/*
+              One sentence per line: at 60px neither sentence fits beside the
+              other, so a single unsplit headline breaks mid-sentence into three
+              ragged lines. Each line is its own box, revealed on its own.
+            */}
+            <h1 className="text-foreground mx-auto max-w-5xl text-3xl leading-[1.12] font-extrabold tracking-tight sm:text-4xl lg:text-5xl xl:text-6xl">
+              <span className="hero-line block text-balance">
+                Design the mock API on a canvas.
+              </span>
+              <span className="hero-line hero-line--2 block text-balance">
+                Serve it from{" "}
+                <span className="hero-mark group/mark relative inline-block">
+                  your own machine
+                  <span
+                    aria-hidden="true"
+                    className="hero-mark-rule from-primary via-info to-chart-5 absolute inset-x-0 -bottom-[0.1em] h-0.5 rounded-full bg-linear-to-r opacity-65 transition-[opacity,height] duration-300 ease-out group-hover/mark:h-[3px] group-hover/mark:opacity-100"
+                  />
+                </span>
+                .
+              </span>
             </h1>
 
-            <p className="text-muted-foreground mx-auto mt-6 max-w-2xl text-sm leading-relaxed text-pretty sm:text-base lg:text-lg">
-              Fack API synthesizes that canvas into standard JSON Schema — with
-              Faker.js providers, latency, and failure rules attached — and
-              serves it as a live mock backend. One container, one SQLite file,
-              no hosted service.
+            {/* Why it exists, in the product's own words. */}
+            <p className="hero-tier hero-tier--lead text-foreground mx-auto mt-6 max-w-2xl text-base leading-snug font-medium text-balance sm:text-lg">
+              Build and test independently of a backend that is not ready.
             </p>
 
-            <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
+            {/* How it works. Each stage of the pipeline is named in its own
+                hue; hovering lifts the phrase to full foreground and thickens
+                that underline. */}
+            <p className="hero-tier hero-tier--detail text-muted-foreground mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-pretty sm:text-base">
+              Fack API synthesizes{" "}
+              <span className="decoration-primary hover:text-foreground underline decoration-2 underline-offset-4 transition-colors duration-300 hover:decoration-[3px]">
+                that canvas
+              </span>{" "}
+              into{" "}
+              <span className="decoration-info hover:text-foreground underline decoration-2 underline-offset-4 transition-colors duration-300 hover:decoration-[3px]">
+                standard JSON Schema
+              </span>{" "}
+              — with Faker.js providers, latency, and failure rules attached —
+              and serves it as{" "}
+              <span className="decoration-chart-5 hover:text-foreground underline decoration-2 underline-offset-4 transition-colors duration-300 hover:decoration-[3px]">
+                a live mock backend
+              </span>
+              .
+            </p>
+
+            {/* What it costs to run: the last step, set as one line of facts. */}
+            <p className="hero-tier hero-tier--spec text-muted-foreground mx-auto mt-4 flex max-w-2xl flex-wrap items-center justify-center gap-x-2.5 gap-y-1 text-xs sm:text-sm">
+              <span className="hover:text-foreground transition-colors duration-300">
+                One container
+              </span>
+              <span
+                aria-hidden="true"
+                className="bg-border size-1 rounded-full"
+              />
+              <span className="hover:text-foreground transition-colors duration-300">
+                One SQLite file
+              </span>
+              <span
+                aria-hidden="true"
+                className="bg-border size-1 rounded-full"
+              />
+              <span className="hover:text-foreground transition-colors duration-300">
+                No hosted service
+              </span>
+            </p>
+
+            <div className="hero-tier hero-tier--actions mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
               <CollaborateButton
                 href="/dashboard"
                 label="Open the canvas"
@@ -172,7 +236,7 @@ export const HeroSection = (): React.JSX.Element => {
           </div>
 
           {/* Quick start command */}
-          <div className="px-4 pb-12 sm:px-6 md:pb-16 lg:px-8">
+          <div className="px-4 pb-10 sm:px-6 md:pb-12 lg:px-8">
             <QuickStartBar className="mx-auto max-w-3xl" />
           </div>
 
