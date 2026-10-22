@@ -47,6 +47,8 @@
   --color-warning-foreground: var(--warning-foreground);
   --color-info: var(--info);
   --color-info-foreground: var(--info-foreground);
+  --color-danger: var(--danger);
+  --color-danger-foreground: var(--danger-foreground);
 
   /* ── HTTP Method Colors ────────────────────────── */
   --color-method-get: var(--method-get);
@@ -80,6 +82,7 @@
   --font-sans: var(--font-sans);
   --font-mono: var(--font-geist-mono);
   --font-heading: var(--font-sans);
+  --font-display: var(--font-bricolage);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -155,7 +158,7 @@
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.49 0 0);
+  --muted-foreground: oklch(0.45 0 0);
   --accent: oklch(0.97 0 0);
   --accent-foreground: oklch(0.205 0 0);
   --destructive: oklch(0.525 0.245 27.325);
@@ -176,20 +179,22 @@
   --sidebar-accent-foreground: var(--accent-foreground);
   --sidebar-border: var(--border);
   --sidebar-ring: var(--ring);
-  /* Semantic + method hues are tuned so tinted chip text (10% tints) clears
-     WCAG AA (4.5:1) against the card in both themes. Re-run
-     `contrast.mjs` if you change them. */
-  --success: oklch(0.502 0.17 152);
+  /* Semantic + method hues are tuned so tinted chip text (10% / 15% tints)
+     clears WCAG AA (4.5:1) against the page in both themes. Verify with
+     `node scripts/contrast.mjs` after changing any of them. */
+  --success: oklch(0.448 0.17 152);
   --success-foreground: oklch(0.985 0 0);
-  --warning: oklch(0.531 0.18 85);
+  --warning: oklch(0.482 0.18 85);
   --warning-foreground: oklch(0.985 0 0);
-  --info: oklch(0.523 0.15 245);
+  --info: oklch(0.47 0.15 245);
   --info-foreground: oklch(0.985 0 0);
-  --method-get: oklch(0.502 0.17 152);
-  --method-post: oklch(0.523 0.15 245);
-  --method-put: oklch(0.531 0.18 85);
-  --method-patch: oklch(0.541 0.18 55);
-  --method-delete: oklch(0.525 0.245 27.325);
+  --danger: oklch(0.442 0.245 25);
+  --danger-foreground: oklch(0.985 0 0);
+  --method-get: oklch(0.448 0.17 152);
+  --method-post: oklch(0.47 0.15 245);
+  --method-put: oklch(0.482 0.18 85);
+  --method-patch: oklch(0.488 0.18 55);
+  --method-delete: oklch(0.442 0.245 27.325);
 }
 
 .dark {
@@ -224,17 +229,19 @@
   --sidebar-accent-foreground: var(--accent-foreground);
   --sidebar-border: var(--border);
   --sidebar-ring: var(--ring);
-  --success: oklch(0.62 0.17 152);
-  --success-foreground: oklch(0.985 0 0);
-  --warning: oklch(0.75 0.15 85);
+  --success: oklch(0.676 0.17 152);
+  --success-foreground: oklch(0.145 0 0);
+  --warning: oklch(0.752 0.15 85);
   --warning-foreground: oklch(0.205 0 0);
-  --info: oklch(0.63 0.15 245);
-  --info-foreground: oklch(0.985 0 0);
-  --method-get: oklch(0.62 0.17 152);
-  --method-post: oklch(0.63 0.15 245);
-  --method-put: oklch(0.75 0.15 85);
-  --method-patch: oklch(0.72 0.16 55);
-  --method-delete: oklch(0.704 0.191 22.216);
+  --info: oklch(0.694 0.15 245);
+  --info-foreground: oklch(0.145 0 0);
+  --danger: oklch(0.732 0.191 22.216);
+  --danger-foreground: oklch(0.145 0 0);
+  --method-get: oklch(0.676 0.17 152);
+  --method-post: oklch(0.694 0.15 245);
+  --method-put: oklch(0.752 0.15 85);
+  --method-patch: oklch(0.722 0.16 55);
+  --method-delete: oklch(0.732 0.191 22.216);
 }
 
 @layer base {
@@ -408,37 +415,32 @@
 }
 
 /* ═══════════════════════════════════════════════════
-   Landing hero — the synthesis pipeline, alive.
+   Landing hero — a quiet specimen sheet.
 
-   One authored sequence: a pulse of light enters the canvas stage, crosses
-   the rail through the synthesized schema, and settles in the runtime,
-   blooming each stage as it arrives. It travels through the page's own
-   multi-colour field (primary → info → chart-5).
+   The first viewport is almost entirely type and air. The only drawing is a
+   faint blueprint grid and a three-node graph that respond to the pointer:
+   the grid is revealed through a mask that follows the cursor, the graph
+   drifts a few pixels against it. Nothing loops, so there is no ambient
+   animation to stop when the hero leaves the viewport.
 
-   Every animation is gated on [data-hero-motion="on"], which HeroMotion sets
-   only while the hero is on screen: the loops stop off-screen, and the markup
-   renders complete and static when scripts fail.
+   The entrance is the one authored moment: each display line rises out of
+   its line box, the supporting tiers follow, and the graph strokes draw in.
+   The pointer layer is written by HeroMotion as --hero-x / --hero-y (px from
+   the hero's centre) and --hero-mx / --hero-my (percent inside the hero).
    ═══════════════════════════════════════════════════ */
 
-/* ── The copy block's own sequence ───────────────────────────────────────
-   One entrance, not four effects: the two display lines rise out of their own
-   line boxes, the supporting tiers follow the same waterfall down to the
-   actions, and the rule under the closing phrase draws in last. Deliberately
-   NOT gated on [data-hero-motion="on"] — that flag tracks visibility, and a
-   one-shot entrance behind it would replay on every scroll-back and would
-   blink once hydration flipped it on after the first paint. */
 @keyframes hero-line-enter {
   from {
     opacity: 0;
-    transform: translate3d(0, 0.4em, 0);
+    transform: translate3d(0, 0.38em, 0);
     /* The inset opens past the line box: a tight leading lets ascenders and
        descenders overflow it, and a flush clip would shave them at rest. */
-    clip-path: inset(-0.35em 0 100% 0);
+    clip-path: inset(-0.4em 0 100% 0);
   }
   to {
     opacity: 1;
     transform: none;
-    clip-path: inset(-0.35em 0 -0.35em 0);
+    clip-path: inset(-0.4em 0 -0.4em 0);
   }
 }
 
@@ -453,194 +455,148 @@
   }
 }
 
-@keyframes hero-mark-draw {
+@keyframes hero-stroke-draw {
   from {
-    transform: scaleX(0);
+    stroke-dashoffset: 1;
   }
   to {
-    transform: scaleX(1);
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes hero-node-settle {
+  from {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
   }
 }
 
 .hero-line {
-  animation: hero-line-enter 700ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  animation: hero-line-enter 820ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
 }
 
 .hero-tier {
-  animation: hero-tier-enter 560ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  animation: hero-tier-enter 640ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
 }
 
 .hero-line--2 {
-  animation-delay: 100ms;
+  animation-delay: 90ms;
+}
+
+.hero-line--3 {
+  animation-delay: 190ms;
+}
+
+.hero-line--4 {
+  animation-delay: 260ms;
 }
 
 .hero-tier--lead {
-  animation-delay: 200ms;
-}
-
-.hero-tier--detail {
-  animation-delay: 290ms;
-}
-
-.hero-tier--spec {
-  animation-delay: 370ms;
+  animation-delay: 220ms;
 }
 
 .hero-tier--actions {
-  animation-delay: 450ms;
+  animation-delay: 340ms;
 }
 
-.hero-mark-rule {
-  animation: hero-mark-draw 600ms cubic-bezier(0.16, 1, 0.3, 1) 700ms backwards;
-  transform-origin: left center;
+.hero-tier--meta {
+  animation-delay: 460ms;
+}
+
+/* The cursor layer. Percent values place the mask/spotlight; the unitless
+   -1..1 values scale the graph's drift against the pointer. Both rest at a
+   composed position so the static hero (no JS, reduced motion) still has a
+   focal point. The defaults must stay unitless: `calc(0px * 16px)` is
+   invalid and would drop the transform entirely. */
+.hero-atmosphere {
+  --hero-mx: 68%;
+  --hero-my: 34%;
+  --hero-x: 0;
+  --hero-y: 0;
+}
+
+.hero-grid {
+  background-image:
+    linear-gradient(
+      to right,
+      color-mix(in oklab, var(--foreground) 16%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in oklab, var(--foreground) 16%, transparent) 1px,
+      transparent 1px
+    );
+  background-size: 68px 68px;
+  opacity: 0.5;
+  -webkit-mask-image: radial-gradient(
+    300px circle at var(--hero-mx) var(--hero-my),
+    #000 0%,
+    transparent 72%
+  );
+  mask-image: radial-gradient(
+    300px circle at var(--hero-mx) var(--hero-my),
+    #000 0%,
+    transparent 72%
+  );
+}
+
+.hero-spotlight {
+  background: radial-gradient(
+    320px circle at var(--hero-mx) var(--hero-my),
+    color-mix(in oklab, var(--primary) 12%, transparent),
+    transparent 70%
+  );
+}
+
+.hero-graph {
+  transform: translate3d(
+    calc(var(--hero-x) * 16px),
+    calc(var(--hero-y) * 12px),
+    0
+  );
+  transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hero-graph-edge {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+  animation: hero-stroke-draw 1600ms cubic-bezier(0.16, 1, 0.3, 1) 300ms
+    backwards;
+}
+
+.hero-graph-node {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: hero-node-settle 700ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+.hero-graph-node--1 {
+  animation-delay: 500ms;
+}
+
+.hero-graph-node--2 {
+  animation-delay: 640ms;
+}
+
+.hero-graph-node--3 {
+  animation-delay: 780ms;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .hero-line,
   .hero-tier,
-  .hero-mark-rule {
-    animation: none;
-  }
-}
-
-@keyframes hero-field-drift {
-  from {
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-  to {
-    transform: translate3d(3.5rem, -1.75rem, 0) scale(1.18);
-  }
-}
-
-@keyframes hero-field-drift-reverse {
-  from {
-    transform: translate3d(0, 0, 0) scale(1.14);
-  }
-  to {
-    transform: translate3d(-4rem, 1.5rem, 0) scale(0.92);
-  }
-}
-
-/* The pulse rides the rail on a linear sweep — light does not ease. The
-   gradient image is off-container at rest, so nothing shows before it starts.
-   The glow is a blurred twin on the same animation, which is what makes the
-   light read as a comet instead of a travelling hairline. */
-.hero-pulse,
-.hero-pulse-glow {
-  background-image: linear-gradient(
-    90deg,
-    transparent,
-    var(--primary) 35%,
-    var(--info) 65%,
-    transparent
-  );
-  background-repeat: no-repeat;
-  background-size: 22% 100%;
-  background-position: -40% 50%;
-  opacity: 0;
-}
-
-@keyframes hero-pulse-travel {
-  0% {
-    background-position: -40% 50%;
-    opacity: 0;
-  }
-  6% {
-    opacity: 1;
-  }
-  68% {
-    background-position: 140% 50%;
-    opacity: 1;
-  }
-  /* Held, not interpolated. A property missing from the closing keyframes
-     animates toward the element's resting value, which would slide the light
-     back across the rail while it fades. */
-  78% {
-    background-position: 140% 50%;
-    opacity: 0;
-  }
-  100% {
-    background-position: 140% 50%;
-    opacity: 0;
-  }
-}
-
-/* Arrival bloom: bright on contact, cooling to an ember, gone before the next
-   pass, so what remains at rest is the stage's own static colour. */
-@keyframes hero-stage-arrive {
-  0% {
-    opacity: 0;
-  }
-  5% {
-    opacity: 1;
-  }
-  38% {
-    opacity: 0.34;
-  }
-  70% {
-    opacity: 0.12;
-  }
-  100% {
-    opacity: 0;
-  }
-}
-
-.hero-stage-light {
-  opacity: 0;
-}
-
-[data-hero-motion="on"] .hero-field-a {
-  animation: hero-field-drift 26s ease-in-out infinite alternate;
-}
-
-[data-hero-motion="on"] .hero-field-b {
-  animation: hero-field-drift-reverse 32s ease-in-out infinite alternate;
-}
-
-[data-hero-motion="on"] .hero-field-c {
-  animation: hero-field-drift 38s ease-in-out infinite alternate-reverse;
-}
-
-[data-hero-motion="on"] .hero-pulse,
-[data-hero-motion="on"] .hero-pulse-glow {
-  animation: hero-pulse-travel 11s linear infinite;
-}
-
-[data-hero-motion="on"] .hero-stage-light {
-  animation: hero-stage-arrive 11s ease-out infinite;
-}
-
-/* Staggered to the pulse: the light image's centre meets each stage in turn. */
-[data-hero-motion="on"] .hero-stage-light--canvas {
-  animation-delay: 2s;
-}
-
-[data-hero-motion="on"] .hero-stage-light--schema {
-  animation-delay: 3.8s;
-}
-
-[data-hero-motion="on"] .hero-stage-light--runtime {
-  animation-delay: 5.6s;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  [data-hero-motion="on"] .hero-field-a,
-  [data-hero-motion="on"] .hero-field-b,
-  [data-hero-motion="on"] .hero-field-c,
-  [data-hero-motion="on"] .hero-pulse,
-  [data-hero-motion="on"] .hero-pulse-glow,
-  [data-hero-motion="on"] .hero-stage-light {
+  .hero-graph-edge,
+  .hero-graph-node {
     animation: none;
   }
 
-  /* Fewer and gentler, not none: the gradient and each stage's arrival light
-     stay as static colour and only the movement is dropped. */
-  .hero-pulse,
-  .hero-pulse-glow {
-    opacity: 0;
-  }
-
-  .hero-stage-light {
-    opacity: 0.4;
+  .hero-graph {
+    transform: none;
+    transition: none;
   }
 }
