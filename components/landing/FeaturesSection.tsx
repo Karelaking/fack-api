@@ -52,8 +52,8 @@ export const FeaturesSection = (): React.JSX.Element => {
       title: "Visual Flow Canvas",
       description:
         "Construct API schema nodes, define route parameters, and draw relation edges using a responsive React Flow interactive canvas.",
-      iconColor: "text-sky-400",
-      iconBg: "bg-sky-500/15 border-sky-500/30",
+      iconColor: "text-info",
+      iconBg: "bg-info/15 border-info/30",
     },
     {
       icon: Sparkles,
@@ -70,8 +70,8 @@ export const FeaturesSection = (): React.JSX.Element => {
       title: "Chaos & Latency Injector",
       description:
         "Simulate real-world network edge cases: status code errors (404, 500), response delays (100ms - 5000ms), and custom HTTP headers.",
-      iconColor: "text-amber-400",
-      iconBg: "bg-amber-500/15 border-amber-500/30",
+      iconColor: "text-warning",
+      iconBg: "bg-warning/15 border-warning/30",
     },
     {
       icon: ShieldCheck,
@@ -79,8 +79,8 @@ export const FeaturesSection = (): React.JSX.Element => {
       title: "Client-Side SQLite Engine",
       description:
         "100% offline & private. All schema definitions, route configs, and execution logs remain strictly within local SQLite storage.",
-      iconColor: "text-emerald-400",
-      iconBg: "bg-emerald-500/15 border-emerald-500/30",
+      iconColor: "text-success",
+      iconBg: "bg-success/15 border-success/30",
     },
     {
       icon: Code2,
@@ -97,8 +97,8 @@ export const FeaturesSection = (): React.JSX.Element => {
       title: "Zero-Latency Mocks",
       description:
         "Lightning-fast mock response generation with built-in memory caching and dynamic route path pattern matching.",
-      iconColor: "text-rose-400",
-      iconBg: "bg-rose-500/15 border-rose-500/30",
+      iconColor: "text-danger",
+      iconBg: "bg-danger/15 border-danger/30",
     },
   ];
 
@@ -174,9 +174,11 @@ export const FeaturesSection = (): React.JSX.Element => {
                   <Link
                     href="/dashboard"
                     className="bg-muted/40 group-hover:bg-foreground group-hover:text-background border-border/60 group-hover:border-foreground flex w-full cursor-pointer items-center justify-between rounded-lg border px-3.5 py-2 text-xs font-bold shadow-xs transition-all duration-300"
-                    aria-label={`Explore ${feat.title}`}
                   >
-                    <span>Explore Feature</span>
+                    <span>
+                      Explore Feature
+                      <span className="sr-only">: {feat.title}</span>
+                    </span>
                     <div className="bg-background group-hover:bg-background/20 border-border/60 group-hover:border-background/30 flex size-5 shrink-0 items-center justify-center rounded border transition-colors">
                       <ArrowRight
                         className="text-foreground group-hover:text-background size-3 transition-all duration-300 group-hover:translate-x-0.5"

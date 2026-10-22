@@ -236,7 +236,7 @@ export type ApiResponse = {
       <div className="border-border/40 relative z-10 mx-auto max-w-7xl border-x">
         {/* Section Header */}
         <div className="mx-auto max-w-3xl space-y-4 px-4 pt-16 pb-14 text-center md:pt-24">
-          <div className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 font-mono text-[11px] font-bold tracking-wider text-emerald-400 uppercase">
+          <div className="border-success/30 bg-success/10 text-success inline-flex items-center gap-1.5 rounded-full border px-3 py-1 font-mono text-[11px] font-bold tracking-wider uppercase">
             <Plus className="size-3" />
             <span>Interactive Dashboard Preview</span>
           </div>
@@ -260,11 +260,11 @@ export type ApiResponse = {
             {/* Top Window Bar */}
             <div className="border-border/40 flex items-center justify-between border-b pb-4">
               <div className="flex items-center gap-2">
-                <div className="size-3 rounded-full bg-rose-500/80" />
-                <div className="size-3 rounded-full bg-amber-500/80" />
-                <div className="size-3 rounded-full bg-emerald-500/80" />
+                <div className="bg-danger/80 size-3 rounded-full" />
+                <div className="bg-warning/80 size-3 rounded-full" />
+                <div className="bg-success/80 size-3 rounded-full" />
                 <span className="text-foreground ml-2 flex items-center gap-1.5 font-mono text-xs font-bold">
-                  <Layers className="size-3.5 text-sky-400" />
+                  <Layers className="text-info size-3.5" />
                   <span>Dashboard: Endpoint Builder</span>
                 </span>
               </div>
@@ -295,12 +295,12 @@ export type ApiResponse = {
                           "cursor-pointer rounded-lg px-2.5 py-1 font-mono text-xs font-bold transition-all",
                           method === m
                             ? m === "GET"
-                              ? "bg-emerald-500 text-white shadow-xs"
+                              ? "bg-emerald-700 text-white shadow-xs"
                               : m === "POST"
-                                ? "bg-blue-500 text-white shadow-xs"
+                                ? "bg-blue-700 text-white shadow-xs"
                                 : m === "PUT"
-                                  ? "bg-amber-500 text-white shadow-xs"
-                                  : "bg-rose-500 text-white shadow-xs"
+                                  ? "bg-amber-700 text-white shadow-xs"
+                                  : "bg-rose-700 text-white shadow-xs"
                             : "text-muted-foreground hover:text-foreground",
                         )}
                       >
@@ -330,7 +330,7 @@ export type ApiResponse = {
             <div className="space-y-2">
               <span className="text-foreground flex items-center justify-between text-xs font-bold">
                 <span>2. Assign Faker.js Schema Generators</span>
-                <span className="font-mono text-[10px] text-emerald-400">
+                <span className="text-success font-mono text-[10px]">
                   Click to Toggle
                 </span>
               </span>
@@ -345,19 +345,19 @@ export type ApiResponse = {
                       "flex cursor-pointer items-center justify-between rounded-xl border p-2 text-left font-mono text-xs transition-all select-none",
                       f.enabled
                         ? "bg-background border-border text-foreground shadow-xs"
-                        : "bg-muted/20 border-border/40 text-muted-foreground/50 line-through opacity-60 hover:opacity-80",
+                        : "bg-muted/20 border-border/40 text-muted-foreground line-through",
                     )}
                   >
                     <div className="flex items-center gap-1.5 truncate">
                       <span
                         className={cn(
                           "size-2 rounded-full",
-                          f.enabled ? "bg-emerald-400" : "bg-neutral-500",
+                          f.enabled ? "bg-success" : "bg-neutral-500",
                         )}
                       />
                       <span className="truncate font-bold">{f.key}</span>
                     </div>
-                    <span className="max-w-30 truncate text-[9.5px] font-normal text-sky-400">
+                    <span className="text-info max-w-30 truncate text-[9.5px] font-normal">
                       {f.fakerProvider.replace("faker.", "")}
                     </span>
                   </button>
@@ -369,10 +369,10 @@ export type ApiResponse = {
             <div className="space-y-2">
               <label className="text-foreground flex items-center justify-between text-xs font-bold">
                 <span className="flex items-center gap-1">
-                  <Activity className="size-3.5 text-amber-400" />
+                  <Activity className="text-warning size-3.5" />
                   <span>3. Network Latency &amp; Chaos Simulation</span>
                 </span>
-                <span className="font-mono text-[10px] text-amber-400">
+                <span className="text-warning font-mono text-[10px]">
                   {latencyMs}ms delay
                 </span>
               </label>
@@ -384,7 +384,7 @@ export type ApiResponse = {
                   className={cn(
                     "cursor-pointer rounded-lg border p-2 text-center transition-all",
                     latencyPreset === "instant"
-                      ? "border-emerald-500/50 bg-emerald-500/10 font-bold text-emerald-400"
+                      ? "border-success/50 bg-success/10 font-bold text-success"
                       : "border-border/60 bg-muted/30 text-muted-foreground hover:bg-muted",
                   )}
                 >
@@ -396,7 +396,7 @@ export type ApiResponse = {
                   className={cn(
                     "cursor-pointer rounded-lg border p-2 text-center transition-all",
                     latencyPreset === "normal"
-                      ? "border-sky-500/50 bg-sky-500/10 font-bold text-sky-400"
+                      ? "border-info/50 bg-info/10 font-bold text-info"
                       : "border-border/60 bg-muted/30 text-muted-foreground hover:bg-muted",
                   )}
                 >
@@ -408,7 +408,7 @@ export type ApiResponse = {
                   className={cn(
                     "cursor-pointer rounded-lg border p-2 text-center transition-all",
                     latencyPreset === "slow"
-                      ? "border-amber-500/50 bg-amber-500/10 font-bold text-amber-400"
+                      ? "border-warning/50 bg-warning/10 font-bold text-warning"
                       : "border-border/60 bg-muted/30 text-muted-foreground hover:bg-muted",
                   )}
                 >
@@ -420,7 +420,7 @@ export type ApiResponse = {
                   className={cn(
                     "cursor-pointer rounded-lg border p-2 text-center transition-all",
                     latencyPreset === "error"
-                      ? "border-rose-500/50 bg-rose-500/10 font-bold text-rose-400"
+                      ? "border-danger/50 bg-danger/10 font-bold text-danger"
                       : "border-border/60 bg-muted/30 text-muted-foreground hover:bg-muted",
                   )}
                 >
@@ -495,7 +495,7 @@ export type ApiResponse = {
                   <RefreshCw
                     className={cn(
                       "size-3.5",
-                      refreshing && "animate-spin text-sky-400",
+                      refreshing && "animate-spin text-info",
                     )}
                   />
                 </button>
@@ -507,10 +507,8 @@ export type ApiResponse = {
                 >
                   {copied ? (
                     <>
-                      <Check className="size-3.5 text-emerald-400" />
-                      <span className="font-bold text-emerald-400">
-                        Copied!
-                      </span>
+                      <Check className="text-success size-3.5" />
+                      <span className="text-success font-bold">Copied!</span>
                     </>
                   ) : (
                     <>
@@ -529,12 +527,12 @@ export type ApiResponse = {
                   className={cn(
                     "rounded px-1.5 py-0.5 text-[9px] font-bold",
                     method === "GET"
-                      ? "bg-emerald-500/20 text-emerald-400"
+                      ? "bg-success/20 text-success"
                       : method === "POST"
-                        ? "bg-blue-500/20 text-blue-400"
+                        ? "bg-info/20 text-info"
                         : method === "PUT"
-                          ? "bg-amber-500/20 text-amber-400"
-                          : "bg-rose-500/20 text-rose-400",
+                          ? "bg-warning/20 text-warning"
+                          : "bg-danger/20 text-danger",
                   )}
                 >
                   {method}
@@ -548,8 +546,8 @@ export type ApiResponse = {
                 className={cn(
                   "inline-flex shrink-0 items-center justify-center rounded border px-2 py-0.5 font-mono text-[9px]",
                   statusCode === 200 || statusCode === 201
-                    ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
-                    : "border-rose-500/30 bg-rose-500/10 text-rose-400",
+                    ? "border-success/30 bg-success/10 text-success"
+                    : "border-danger/30 bg-danger/10 text-danger",
                 )}
               >
                 {statusCode}{" "}
@@ -572,16 +570,16 @@ export type ApiResponse = {
             {/* Footer Badges */}
             <div className="text-muted-foreground flex items-center justify-between pt-1 text-xs">
               <div className="flex items-center gap-3">
-                <span className="flex items-center gap-1 font-mono text-[11px] text-emerald-400">
+                <span className="text-success flex items-center gap-1 font-mono text-[11px]">
                   <Sparkles className="size-3" />
                   <span>Instant Dynamic Synthesis</span>
                 </span>
-                <span className="flex items-center gap-1 font-mono text-[11px] text-sky-400">
+                <span className="text-info flex items-center gap-1 font-mono text-[11px]">
                   <Terminal className="size-3" />
                   <span>Ready for curl &amp; frontend fetch</span>
                 </span>
               </div>
-              <span className="text-muted-foreground/80 font-mono text-[11px]">
+              <span className="text-muted-foreground font-mono text-[11px]">
                 Step 3: Ready to use
               </span>
             </div>

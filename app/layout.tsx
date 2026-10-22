@@ -1,4 +1,4 @@
-import { Inter } from "next/font/google";
+import { Bricolage_Grotesque, Inter } from "next/font/google";
 import { GeistMono } from "geist/font/mono";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -7,9 +7,6 @@ import { Toaster } from "@/components/ui/sonner";
 import type { Viewport } from "next";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
-import { ClerkProvider } from "@clerk/nextjs";
-import { shadcn } from "@clerk/ui/themes";
-import { CommandMenu } from "@/components/command-menu";
 
 /**
  * `viewportFit: "cover"` is what makes `env(safe-area-inset-*)` report real
@@ -23,6 +20,17 @@ export const viewport: Viewport = {
 
 const inter = Inter({
   variable: "--font-sans",
+  subsets: ["latin"],
+});
+
+/**
+ * The landing hero's display voice. Bricolage Grotesque carries a soft,
+ * slightly irregular grotesque skeleton with ink traps that stay visible at
+ * poster sizes — a specimen-sheet character the interface otherwise never
+ * uses, kept to the hero so the working dashboard keeps its neutral sans.
+ */
+const bricolage = Bricolage_Grotesque({
+  variable: "--font-bricolage",
   subsets: ["latin"],
 });
 
@@ -61,43 +69,37 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider
-      appearance={{ theme: shadcn }}
-      signInUrl="/sign-in"
-      signUpUrl="/sign-up"
-      signInFallbackRedirectUrl="/dashboard"
-      signUpFallbackRedirectUrl="/dashboard"
+    <html
+      lang="en"
+      className={`${inter.variable} ${bricolage.variable} ${GeistMono.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
-      <html
-        lang="en"
-        className={`${inter.variable} ${GeistMono.variable} h-full antialiased`}
-        suppressHydrationWarning
-      >
-        <head>
-          {/*
-            Blocking inline script: sets the theme class before the browser
-            paints, avoiding a flash of the default (light) theme.
-          */}
-          <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
-        </head>
-        <body className="bg-background text-foreground flex min-h-full flex-col">
-          <NuqsAdapter>
-            <ThemeProvider
-              attribute="class"
-              defaultTheme="system"
-              enableSystem
-              disableTransitionOnChange
-            >
-              <TooltipProvider>
-                <Analytics />
-                {children}
-                <CommandMenu />
-                <Toaster position="top-right" richColors />
-              </TooltipProvider>
-            </ThemeProvider>
-          </NuqsAdapter>
-        </body>
-      </html>
-    </ClerkProvider>
+      <head>
+        {/*
+          Blocking inline script: sets the theme class before the browser
+          paints, avoiding a flash of the default (light) theme.
+        */}
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+      </head>
+      <body className="bg-background text-foreground flex min-h-full flex-col">
+        <NuqsAdapter>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <TooltipProvider>
+              {/* Only Vercel serves the analytics script; rendering it
+                  elsewhere makes the client request /_vercel/insights/script.js
+                  and log a 404 in the console. */}
+              {process.env.VERCEL ? <Analytics /> : null}
+              {children}
+              <Toaster position="top-right" richColors />
+            </TooltipProvider>
+          </ThemeProvider>
+        </NuqsAdapter>
+      </body>
+    </html>
   );
 }

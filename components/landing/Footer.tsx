@@ -37,7 +37,7 @@ export const Footer = (): React.JSX.Element => {
           <div className="max-w-xl space-y-6 lg:col-span-7">
             <h2 className="text-foreground flex items-center gap-3 text-3xl font-extrabold tracking-tight sm:text-4xl lg:text-5xl">
               <span>Unlock what&apos;s hidden</span>
-              <Sparkles className="inline size-7 shrink-0 text-amber-400" />
+              <Sparkles className="text-warning inline size-7 shrink-0" />
             </h2>
             <p className="text-muted-foreground text-base leading-relaxed">
               Get updates on mock schema templates, Faker.js generators, and new
@@ -71,7 +71,7 @@ export const Footer = (): React.JSX.Element => {
               >
                 {subscribed ? (
                   <>
-                    <CheckCircle2 size={18} className="text-emerald-400" />
+                    <CheckCircle2 size={18} className="text-success" />
                     <span>Subscribed!</span>
                   </>
                 ) : (

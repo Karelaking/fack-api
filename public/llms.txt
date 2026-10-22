@@ -1,0 +1,23 @@
+# Fack API Studio
+
+> Fack API Studio is an open-source, self-hosted mock API platform. Design a
+> backend schema on a visual node canvas, synthesize realistic responses with
+> Faker.js, inject latency and failures, and serve the result from a local mock
+> backend — no hosted service required.
+
+## Core capabilities
+
+- Visual flow canvas that compiles to standard JSON Schema
+- Faker.js payload synthesis across 20+ generators
+- Chaos and latency injection (status codes, delays, custom headers)
+- Client-side SQLite storage: schemas, routes, and logs stay local
+- One-click export to TypeScript DTOs, Drizzle ORM schemas, and OpenAPI 3.0
+
+## Key pages
+
+- [Home](https://fackapi.studio/): product overview and interactive canvas demo
+- [Dashboard](https://fackapi.studio/dashboard): create and manage mock projects
+
+## Source
+
+- [GitHub repository](https://github.com/Karelaking/fack-api): MIT-licensed source
