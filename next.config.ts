@@ -28,7 +28,7 @@ const nextConfig: NextConfig = {
     optimizePackageImports: ["@remixicon/react"],
   },
   typedRoutes: true,
-  allowedDevOrigins: ["192.168.29.142", "192.168.0.196"],
+  allowedDevOrigins: ["192.168.29.142", "192.168.0.196", "0.0.0.0"],
 };
 
 export default nextConfig;

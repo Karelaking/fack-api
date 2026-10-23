@@ -43,6 +43,7 @@ export const projectsRelations = relations(projects, ({ many, one }) => ({
   generationTasks: many(generationTasks),
   generationProposals: many(generationProposals),
   revisions: many(projectRevisions),
+  notes: many(notes),
 }));
 
 // ─── Endpoints ───────────────────────────────────────────────────────────────
@@ -334,6 +335,37 @@ export const webhooksRelations = relations(webhooks, ({ one }) => ({
   }),
 }));
 
+// ─── Notes (Project Scratchpad) ───────────────────────────────────────────────
+// Notes live in the same database as everything else, so they are stored
+// privately on the local disk by default and sync to the remote database
+// as soon as database API keys are configured.
+export const notes = sqliteTable(
+  "notes",
+  {
+    id: text("id").primaryKey(),
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    title: text("title").notNull().default(""),
+    content: text("content").notNull().default(""),
+    pinned: integer("pinned", { mode: "boolean" }).notNull().default(false),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .$defaultFn(() => new Date()),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .notNull()
+      .$defaultFn(() => new Date()),
+  },
+  (table) => [index("notes_project_id_idx").on(table.projectId)],
+);
+
+export const notesRelations = relations(notes, ({ one }) => ({
+  project: one(projects, {
+    fields: [notes.projectId],
+    references: [projects.id],
+  }),
+}));
+
 // ─── Type Exports ────────────────────────────────────────────────────────────
 export type Project = typeof projects.$inferSelect;
 export type NewProject = typeof projects.$inferInsert;
@@ -355,6 +387,8 @@ export type Scenario = typeof scenarios.$inferSelect;
 export type NewScenario = typeof scenarios.$inferInsert;
 export type Webhook = typeof webhooks.$inferSelect;
 export type NewWebhook = typeof webhooks.$inferInsert;
+export type Note = typeof notes.$inferSelect;
+export type NewNote = typeof notes.$inferInsert;
 
 export interface RequestLog {
   id: string;

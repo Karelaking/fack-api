@@ -144,6 +144,57 @@ graph TD
 
 5. Open [http://localhost:3000](http://localhost:3000) for the landing page or [http://localhost:3000/dashboard](http://localhost:3000/dashboard) to manage your projects.
 
+### Zero-Config Local Mode (no API keys required)
+
+You do **not** need any database API keys to run Fack. When `DATABASE_URL`
+and `DATABASE_AUTH_TOKEN` are left empty, the app runs in **local mode**:
+
+- All project data — projects, endpoints, canvas state, notes, and settings —
+  is stored in a private SQLite file on your disk:
+  - Windows: `%APPDATA%\fack-api\fack.db`
+  - macOS: `~/Library/Application Support/fack-api/fack.db`
+  - Linux: `~/.local/share/fack-api/fack.db`
+- Nothing leaves your machine. A legacy `.\data\fack.db` from older versions
+  is migrated to the new location automatically on first boot.
+- Override the location with `FACK_DATA_DIR="D:/some/path"` if you prefer.
+
+The startup log confirms the active mode:
+
+```
+Storage mode: LOCAL — all project data stays on this machine (C:\Users\…\fack-api\fack.db)
+```
+
+### Storage: Local ↔ Cloud
+
+Adding database API keys switches storage to the cloud — the same code, data,
+and UI work in both modes:
+
+1. Create a Turso database and copy your credentials into `.env`:
+
+   ```bash
+   DATABASE_URL="libsql://your-db.turso.io"
+   DATABASE_AUTH_TOKEN="eyJ..."
+   ```
+
+2. Restart the app. It now runs in **cloud mode** and your data is reachable
+   from any device you sign in on.
+
+3. Copy existing local data over: open **Settings → Storage & Data** and use
+   **Import backup** after downloading the backup from the local install, or
+   copy everything from the terminal:
+
+   ```bash
+   pnpm db:copy --from local --to libsql://your-db.turso.io
+   ```
+
+Removing the keys and restarting returns you to private local storage.
+Backups are plain JSON / SQLite files on your disk:
+
+```bash
+pnpm db:backup            # copy the local DB file to <data-dir>/backups/
+pnpm db:backup -- --remote # dump a remote database to JSON
+```
+
 ### Additional Scripts
 
 - **Run tests**:
@@ -158,6 +209,41 @@ graph TD
   ```bash
   pnpm build
   ```
+- **Copy data between databases** (local ⇄ cloud):
+  ```bash
+  pnpm db:copy --from local --to libsql://your-db.turso.io --dry-run
+  ```
+- **Create a disk backup**:
+  ```bash
+  pnpm db:backup
+  ```
+
+---
+
+## 🧪 Running Tests
+
+Every storage mode and the notes/backup features are covered by the Vitest
+suite:
+
+```bash
+pnpm test
+```
+
+Notable coverage (`test/`):
+
+| File                   | What it locks down                                                     |
+| :--------------------- | :--------------------------------------------------------------------- |
+| `storage-mode.test.ts` | Local-by-default resolution, cloud detection, token masking, fallbacks |
+| `config-store.test.ts` | Atomic JSON config writes in the local data directory                  |
+| `notes.test.ts`        | Notes CRUD, pin ordering, validator limits                             |
+| `backup.test.ts`       | Export/restore round-trips, date revival, per-user ownership filtering |
+| `db-copy.test.ts`      | `db:copy` table ordering, upserts, dry runs                            |
+
+Test databases are written to `data/test-fack-<pid>.db`; clean them up with:
+
+```bash
+pnpm db:clean
+```
 
 ---
 

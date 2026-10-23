@@ -5,15 +5,24 @@ import fs from "node:fs";
 import * as schema from "./schema";
 
 import { dbLogger } from "@/lib/logger";
+import { resolveStorageConnection } from "@/lib/storage/mode";
 
-// Standardize database URL. If it's a local path, prefix it with "file:" for @libsql/client
-let url = process.env.DATABASE_URL ?? "file:./data/fack.db";
-if (!url.includes("://") && !url.startsWith("file:")) {
-  url = `file:${url}`;
+// Resolve where project data lives: a private local file when no database
+// API keys are configured, or a remote libSQL/Turso database when they are.
+const connection = resolveStorageConnection();
+
+if (connection.warning) {
+  dbLogger.warn(connection.warning);
 }
 
-const DATABASE_URL = url;
-const DATABASE_AUTH_TOKEN = process.env.DATABASE_AUTH_TOKEN;
+dbLogger.info(
+  connection.mode === "local"
+    ? `Storage mode: LOCAL — all project data stays on this machine (${connection.display})`
+    : `Storage mode: CLOUD — project data is stored remotely (${connection.display})`,
+);
+
+const DATABASE_URL = connection.url;
+const DATABASE_AUTH_TOKEN = connection.authToken;
 
 function createDatabase() {
   // Ensure the local data directory exists if using a local file URL
@@ -77,3 +86,6 @@ export const db = globalForDb.__fackApiDb ?? createDatabase();
 if (process.env.NODE_ENV !== "production") {
   globalForDb.__fackApiDb = db;
 }
+
+/** Active storage connection (mode, masked target) for status/settings UI. */
+export const storageConnection = connection;

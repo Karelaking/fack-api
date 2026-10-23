@@ -19,9 +19,24 @@ The following table documents all supported environment variables:
   type={{
     DATABASE_URL: {
       type: "string",
-      default: '"file:./data/fack.db"',
+      default: '"file:<OS data dir>/fack.db"',
       description:
-        "SQLite database path or libSQL URL for core workspace and route storage.",
+        "SQLite database path or libSQL URL. Leave empty for private local storage.",
+    },
+    DATABASE_AUTH_TOKEN: {
+      type: "string",
+      description:
+        "Auth token for remote libSQL/Turso databases. Required whenever DATABASE_URL points at a libsql:// or https:// URL.",
+    },
+    FACK_DATA_DIR: {
+      type: "string",
+      description:
+        "Override where local data (database, config, backups) is stored. Defaults to %APPDATA%\\fack-api on Windows, ~/Library/Application Support/fack-api on macOS, ~/.local/share/fack-api on Linux.",
+    },
+    STORAGE_MODE: {
+      type: "string",
+      description:
+        'Force "local" to keep all data on this machine even when cloud credentials exist, or "cloud" to require a remote database.',
     },
     LOGS_POSTGRES_URL: {
       type: "string",
@@ -62,9 +77,19 @@ The following table documents all supported environment variables:
 To configure environment variables locally, create a `.env.local` file in the repository root:
 
 ```bash title=".env.local"
-# ─── Database Configuration ──────────────────────────────────────────────────
-# Default: file:./data/fack.db
-DATABASE_URL="file:./data/fack.db"
+# ─── Storage: Local (Private) vs Cloud ───────────────────────────────────────
+# Leave DATABASE_URL empty for LOCAL mode: everything is stored in a private
+# SQLite file on this machine and nothing leaves your device.
+# DATABASE_URL="file:D:/private/fack.db"
+
+# Cloud mode: point DATABASE_URL at a remote libSQL/Turso database and set a
+# token. The same data and UI work in both modes.
+# DATABASE_URL="libsql://your-db.turso.io"
+# DATABASE_AUTH_TOKEN="eyJ..."
+
+# Optional: force a mode, or move the local data directory
+# STORAGE_MODE="local"
+# FACK_DATA_DIR="D:/my-fack-data"
 
 # Optional: Remote PostgreSQL for high-volume request logging
 # LOGS_POSTGRES_URL="postgres://user:password@ep-cool-db.us-east-2.aws.neon.tech/neondb?sslmode=require"
@@ -88,11 +113,45 @@ OPENAI_API_KEY="sk-proj-..."
 
 ### Database Storage (`DATABASE_URL`)
 
-Fack API uses `@libsql/client` and Drizzle ORM to interface with your database. You can supply:
+Fack API uses `@libsql/client` and Drizzle ORM to interface with your database. Storage works in two interchangeable modes:
 
-- A local file path: `file:./data/fack.db` (default)
-- A Turso or libSQL remote URL: `libsql://your-db.turso.io` (requires `DATABASE_AUTH_TOKEN`)
-- An absolute container path for Docker: `file:/data/fack.db`
+**Local mode (no API keys).** With `DATABASE_URL` empty, all data is written to a private SQLite file on your disk:
+
+- Windows: `%APPDATA%\fack-api\fack.db`
+- macOS: `~/Library/Application Support/fack-api/fack.db`
+- Linux: `~/.local/share/fack-api/fack.db`
+
+Nothing is uploaded anywhere, and a legacy `data/fack.db` next to the project is migrated automatically on first startup. Override the location with `FACK_DATA_DIR`.
+
+**Cloud mode (database API keys).** Set both keys to store data remotely so it is reachable from any device:
+
+```bash
+DATABASE_URL="libsql://your-db.turso.io"
+DATABASE_AUTH_TOKEN="eyJ..."
+```
+
+If a remote URL is set without a token, Fack logs a warning and falls back to local storage rather than losing data.
+
+Other accepted values:
+
+- An explicit file path or URL: `file:./custom/data.db` or `file:/data/fack.db` (Docker)
+- `http://127.0.0.1:8080` for unauthenticated local libSQL dev servers
+
+#### Notes
+
+Project notes are stored in the same database as everything else, so they are private on disk in local mode and available on every signed-in device in cloud mode — there is no separate storage switch. Notes are also included in project ZIP exports (`notes.json`) and in database backups.
+
+#### Moving between modes
+
+Data moves both ways without exporting by hand:
+
+| From → To     | How                                                                                                |
+| :------------ | :------------------------------------------------------------------------------------------------- |
+| Local → Cloud | `pnpm db:copy --from local --to libsql://your-db.turso.io`                                         |
+| Cloud → Local | `pnpm db:copy --from libsql://your-db.turso.io --to local`                                         |
+| Either        | **Settings → Storage & Data → Download backup / Import backup**, or `pnpm db:backup [-- --remote]` |
+
+Backups are plain JSON (or a copied SQLite file in local mode) written to `<data-dir>/backups/`, so they stay on your own disk. Temporary databases created by the test suite can be cleared with `pnpm db:clean`.
 
 ### Remote Request Logging (`LOGS_POSTGRES_URL`)
 

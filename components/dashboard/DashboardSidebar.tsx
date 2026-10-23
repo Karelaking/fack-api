@@ -11,6 +11,7 @@ import {
   RiFileHistoryLine,
   RiSettings2Line,
   RiFileCopyLine,
+  RiStickyNoteLine,
 } from "@remixicon/react";
 import { toast } from "sonner";
 import { createProject } from "@/lib/actions/projects";
@@ -190,6 +191,11 @@ export const DashboardSidebar = ({
                         name: "Logs",
                         path: "logs",
                         icon: RiFileHistoryLine,
+                      },
+                      {
+                        name: "Notes",
+                        path: "notes",
+                        icon: RiStickyNoteLine,
                       },
                       {
                         name: "Settings",

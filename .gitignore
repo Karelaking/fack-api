@@ -32,6 +32,8 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env.local
+# keep the env template trackable — it documents zero-key local mode
+!.env.example
 
 # vercel
 .vercel

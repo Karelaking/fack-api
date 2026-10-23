@@ -8,6 +8,7 @@ import {
   RiPulseLine,
   RiSettings2Line,
   RiFileHistoryLine,
+  RiStickyNoteLine,
 } from "@remixicon/react";
 import type { Route } from "next";
 import { cn } from "@/lib/utils";
@@ -18,7 +19,13 @@ export function MobileBottomNav(): React.JSX.Element | null {
   if (segments[0] !== "projects" || segments.length < 2) return null;
 
   const lastSegment = segments[segments.length - 1];
-  const subpages = new Set(["canvas", "endpoints", "logs", "settings"]);
+  const subpages = new Set([
+    "canvas",
+    "endpoints",
+    "logs",
+    "notes",
+    "settings",
+  ]);
 
   let activeTab = "canvas";
   let projectSlugSegments = segments.slice(1);
@@ -45,6 +52,11 @@ export function MobileBottomNav(): React.JSX.Element | null {
       name: "Logs",
       href: `/projects/${projectSlug}/logs` as Route,
       icon: RiFileHistoryLine,
+    },
+    {
+      name: "Notes",
+      href: `/projects/${projectSlug}/notes` as Route,
+      icon: RiStickyNoteLine,
     },
     {
       name: "Settings",

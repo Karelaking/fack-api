@@ -1,11 +1,19 @@
 import React from "react";
 
+import { readWorkspaceConfig } from "@/lib/storage/config-store";
+import { getStorageStatus } from "@/lib/storage/status";
+import { StorageSection } from "@/components/settings/StorageSection";
+import { WorkspaceNameForm } from "@/components/settings/WorkspaceNameForm";
+
 export const metadata = {
   title: "Settings | Fack API",
   description: "Manage your workspace settings.",
 };
 
-export default function SettingsPage(): React.JSX.Element {
+export default async function SettingsPage(): Promise<React.JSX.Element> {
+  const status = await getStorageStatus();
+  const config = readWorkspaceConfig();
+
   return (
     <div className="flex max-w-4xl flex-col gap-6 p-6">
       <div>
@@ -13,9 +21,11 @@ export default function SettingsPage(): React.JSX.Element {
           Workspace Settings
         </h1>
         <p className="text-muted-foreground mt-1 text-sm">
-          Manage your workspace preferences, members, and billing details.
+          Manage where your data lives and how your workspace is identified.
         </p>
       </div>
+
+      <StorageSection initialStatus={status} />
 
       <div className="border-border/50 bg-card rounded-xl border shadow-sm">
         <div className="border-border/50 border-b p-6">
@@ -23,23 +33,9 @@ export default function SettingsPage(): React.JSX.Element {
           <p className="text-muted-foreground mt-1 text-sm">
             This is your workspace&apos;s visible name within Fack API.
           </p>
-          <div className="mt-4 flex max-w-sm items-center gap-2">
-            <label htmlFor="workspace-name" className="sr-only">
-              Workspace name
-            </label>
-            <input
-              id="workspace-name"
-              type="text"
-              defaultValue="Mradul Kumar's Workspace"
-              className="border-border/50 bg-background text-foreground focus:ring-primary h-9 w-full rounded-md border px-3 py-1 text-sm shadow-sm focus:ring-1 focus:outline-none"
-            />
-            <button
-              type="button"
-              className="bg-primary text-primary-foreground hover:bg-primary/90 h-9 rounded-md px-4 text-sm font-medium shadow transition-colors"
-            >
-              Save
-            </button>
-          </div>
+          <WorkspaceNameForm
+            initialName={config.workspaceName ?? "My Workspace"}
+          />
         </div>
 
         <div className="border-border/50 border-b p-6">
@@ -50,7 +46,7 @@ export default function SettingsPage(): React.JSX.Element {
           <div className="mt-4">
             <button
               type="button"
-              className="border-destructive/30 text-destructive hover:bg-destructive/10 inline-flex items-center justify-center rounded-md border bg-transparent px-4 py-2 text-sm font-medium transition-colors"
+              className="border-destructive/30 text-destructive hover:bg-destructive/10 inline-flex items-center justify-center rounded-md border bg-transparent px-4 py-2 text-sm font-medium shadow transition-colors"
             >
               Delete Workspace
             </button>
