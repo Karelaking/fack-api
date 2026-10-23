@@ -1,3 +1,19 @@
+# [1.15.0](https://github.com/Karelaking/fack-api/compare/v1.14.1...v1.15.0) (2026-10-23)
+
+### Bug Fixes
+
+- **build:** exclude tooling dirs from tailwind source detection ([32436cc](https://github.com/Karelaking/fack-api/commit/32436cce7e04c4d29e89604aab28138af39d2589))
+- **lighthouse:** clear the accessibility, best-practices and agentic audits ([15a4e5c](https://github.com/Karelaking/fack-api/commit/15a4e5c50c52ecd04da54605a560509a36246708))
+
+### Features
+
+- add project notes and storage management ([c2fd626](https://github.com/Karelaking/fack-api/commit/c2fd62636e01021507f2d5ae61001c0515d7e921))
+- **ai:** add the agent streaming client and session store ([8287b4f](https://github.com/Karelaking/fack-api/commit/8287b4f24992fe5dbefefd9743ec0ce28ea86587))
+- **canvas:** preview agent drafts directly on the canvas ([dcca1ec](https://github.com/Karelaking/fack-api/commit/dcca1ec2a86d177d5f8e606213dae6946ee5a5a3))
+- **landing:** give the hero copy a hierarchy and one entrance ([c67e9ed](https://github.com/Karelaking/fack-api/commit/c67e9ed1857d01a0ef087d1d5144e4c14eeaf3be))
+- **landing:** rebuild hero around the live synthesis pipeline ([c3fca91](https://github.com/Karelaking/fack-api/commit/c3fca9138f51714cb2a0cd15e3867ae0a7301f36))
+- **landing:** redesign hero and quick-start sections ([05cf06e](https://github.com/Karelaking/fack-api/commit/05cf06ed8d14e0c2a3f4519cc63ef5eec0dfebb8))
+
 ## [1.14.1](https://github.com/Karelaking/fack-api/compare/v1.14.0...v1.14.1) (2026-10-16)
 
 ### Bug Fixes
