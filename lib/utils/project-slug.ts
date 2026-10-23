@@ -10,6 +10,7 @@ export const PROJECT_SUBPAGES = [
   "canvas",
   "endpoints",
   "logs",
+  "notes",
   "settings",
 ] as const;
 

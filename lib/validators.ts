@@ -110,6 +110,33 @@ export const saveCanvasStateSchema = z.object({
   viewport: z.string(),
 });
 
+// ─── Note ─────────────────────────────────────────────────────────────────────
+export const createNoteSchema = z.object({
+  projectId: z.string().min(1),
+  title: z
+    .string()
+    .max(200, "Title must be 200 characters or fewer")
+    .optional(),
+  content: z
+    .string()
+    .max(100_000, "Note content must be 100,000 characters or fewer")
+    .optional(),
+  pinned: z.boolean().optional(),
+});
+
+export const updateNoteSchema = z.object({
+  id: z.string().min(1),
+  title: z
+    .string()
+    .max(200, "Title must be 200 characters or fewer")
+    .optional(),
+  content: z
+    .string()
+    .max(100_000, "Note content must be 100,000 characters or fewer")
+    .optional(),
+  pinned: z.boolean().optional(),
+});
+
 // ─── Type Exports ────────────────────────────────────────────────────────────
 export type CreateProjectInput = z.infer<typeof createProjectSchema>;
 export type UpdateProjectInput = z.infer<typeof updateProjectSchema>;
@@ -118,3 +145,5 @@ export type UpdateEndpointInput = z.infer<typeof updateEndpointSchema>;
 export type CreateRouteInput = z.infer<typeof createRouteSchema>;
 export type UpdateRouteInput = z.infer<typeof updateRouteSchema>;
 export type SaveCanvasStateInput = z.infer<typeof saveCanvasStateSchema>;
+export type CreateNoteInput = z.infer<typeof createNoteSchema>;
+export type UpdateNoteInput = z.infer<typeof updateNoteSchema>;

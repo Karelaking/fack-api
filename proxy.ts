@@ -6,7 +6,11 @@
  * exported function must be named `proxy`.
  */
 
-import { NextResponse, type NextRequest } from "next/server";
+import {
+  NextResponse,
+  type NextFetchEvent,
+  type NextRequest,
+} from "next/server";
 import { LoggerRegistry } from "@/lib/logger-registry";
 
 const proxyTrace = LoggerRegistry.getTrace("proxy");
@@ -93,18 +97,14 @@ import {
 // const _dummySecretKey = process.env.CLERK_SECRET_KEY;
 
 /**
- * Next.js Proxy function — runs before every matched request.
+ * The request logic, independent of Clerk.
  *
- * Wrapped with clerkMiddleware so Clerk populates the auth context for the
- * request. Auth is NOT enforced here: path matching in middleware can diverge
- * from how Next.js resolves routes (see Clerk's createRouteMatcher
- * deprecation). Protected pages instead call `auth.protect()` in the layout
- * that wraps them, and API routes call the guards in `lib/auth.ts`.
+ * Auth is NOT enforced here: path matching in middleware can diverge from how
+ * Next.js resolves routes (see Clerk's createRouteMatcher deprecation).
+ * Protected pages instead call `auth.protect()` in the layout that wraps them,
+ * and API routes call the guards in `lib/auth.ts`.
  */
-const clerkProxyHandler = async (
-  _auth: ClerkMiddlewareAuth,
-  request: NextRequest,
-) => {
+const handleRequest = async (request: NextRequest): Promise<NextResponse> => {
   const { pathname } = request.nextUrl;
   const host = request.headers.get("host") || "";
   proxyTrace.traceCall("proxy", request.method, pathname, host);
@@ -123,6 +123,7 @@ const clerkProxyHandler = async (
     "/api/ai",
     "/api/import",
     "/api/projects",
+    "/api/settings",
     "/_next",
     "/opengraph-image",
     "/sign-in",
@@ -198,6 +199,23 @@ const clerkProxyHandler = async (
 };
 
 /**
+ * Public marketing paths that must never run `clerkMiddleware`.
+ *
+ * The landing page is static and links to `/dashboard` instead of reading
+ * session state, but running the Clerk middleware on it mounts the auth SDK and
+ * — against a Clerk development instance — issues a cross-origin handshake
+ * redirect on every cold profile. Skipping it here keeps the public page free
+ * of auth JS and redirects, which is exactly what the audits measure.
+ */
+const PUBLIC_PATHS = new Set([
+  "/",
+  "/llms.txt",
+  "/robots.txt",
+  "/sitemap.xml",
+  "/opengraph-image",
+]);
+
+/**
  * Next.js Proxy entrypoint.
  *
  * The Clerk options below point server-side redirects at the app's own auth
@@ -208,10 +226,25 @@ const clerkProxyHandler = async (
  * keeps unauthenticated redirects inside the app instead of bouncing to the
  * prebuilt Account Portal pages.
  */
-export const proxy = clerkMiddleware(clerkProxyHandler, {
-  signInUrl: "/sign-in",
-  signUpUrl: "/sign-up",
-});
+const withClerk = clerkMiddleware(
+  async (_auth: ClerkMiddlewareAuth, request: NextRequest) =>
+    handleRequest(request),
+  {
+    signInUrl: "/sign-in",
+    signUpUrl: "/sign-up",
+  },
+);
+
+export const proxy = (
+  request: NextRequest,
+  event: NextFetchEvent,
+): ReturnType<typeof withClerk> => {
+  if (PUBLIC_PATHS.has(request.nextUrl.pathname)) {
+    return handleRequest(request);
+  }
+
+  return withClerk(request, event);
+};
 
 /**
  * Proxy matcher configuration.

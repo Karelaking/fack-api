@@ -85,6 +85,13 @@
       "when": 1791920792610,
       "tag": "0011_add_fk_indexes",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "6",
+      "when": 1792542359498,
+      "tag": "0012_brief_thunderball",
+      "breakpoints": true
     }
   ]
 }

@@ -47,7 +47,7 @@ export const LogoCloudSection = (): React.JSX.Element => {
       id: "sqlite",
       content: (
         <div className="text-foreground flex items-center gap-3 text-base font-extrabold tracking-tight transition-opacity hover:opacity-100 sm:text-lg md:text-xl">
-          <div className="flex size-8 shrink-0 items-center justify-center rounded-xl border border-sky-500/30 bg-sky-500/15 text-sky-400 sm:size-9">
+          <div className="border-info/30 bg-info/15 text-info flex size-8 shrink-0 items-center justify-center rounded-xl border sm:size-9">
             <Layers className="size-5 sm:size-6" />
           </div>
           <span className="text-foreground font-mono font-black tracking-tight">
@@ -60,7 +60,7 @@ export const LogoCloudSection = (): React.JSX.Element => {
       id: "typescript",
       content: (
         <div className="text-foreground flex items-center gap-3 text-base font-extrabold tracking-tight transition-opacity hover:opacity-100 sm:text-lg md:text-xl">
-          <div className="flex size-8 shrink-0 items-center justify-center rounded-xl border border-blue-500/30 bg-blue-500/15 text-blue-400 sm:size-9">
+          <div className="border-info/30 bg-info/15 text-info flex size-8 shrink-0 items-center justify-center rounded-xl border sm:size-9">
             <Code2 className="size-5 sm:size-6" />
           </div>
           <span className="text-foreground font-sans font-black tracking-tight">
@@ -73,7 +73,7 @@ export const LogoCloudSection = (): React.JSX.Element => {
       id: "drizzle",
       content: (
         <div className="text-foreground flex items-center gap-3 text-base font-extrabold tracking-tight transition-opacity hover:opacity-100 sm:text-lg md:text-xl">
-          <div className="flex size-8 shrink-0 items-center justify-center rounded-xl border border-amber-500/30 bg-amber-500/15 text-amber-500 sm:size-9">
+          <div className="border-warning/30 bg-warning/15 text-warning flex size-8 shrink-0 items-center justify-center rounded-xl border sm:size-9">
             <Zap className="size-5 sm:size-6" />
           </div>
           <span className="text-foreground font-mono font-black tracking-tighter">
@@ -99,7 +99,7 @@ export const LogoCloudSection = (): React.JSX.Element => {
       id: "zustand",
       content: (
         <div className="text-foreground flex items-center gap-3 text-base font-extrabold tracking-tight transition-opacity hover:opacity-100 sm:text-lg md:text-xl">
-          <div className="flex size-8 shrink-0 items-center justify-center rounded-xl border border-emerald-500/30 bg-emerald-500/15 text-emerald-400 sm:size-9">
+          <div className="border-success/30 bg-success/15 text-success flex size-8 shrink-0 items-center justify-center rounded-xl border sm:size-9">
             <Cpu className="size-5 sm:size-6" />
           </div>
           <span className="text-foreground font-sans font-black tracking-tight">

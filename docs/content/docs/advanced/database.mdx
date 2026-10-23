@@ -13,6 +13,7 @@ The data model organizes resources hierarchically around projects. A single proj
 erDiagram
     projects ||--o{ endpoints : "has many"
     projects ||--o| canvas_states : "has one"
+    projects ||--o{ notes : "has many"
     endpoints ||--o{ routes : "has many"
     projects ||--o{ request_logs : "has many"
 
@@ -57,6 +58,15 @@ erDiagram
         text nodes
         text edges
         text viewport
+    }
+    notes {
+        text id PK
+        text project_id FK
+        text title
+        text content
+        integer pinned
+        integer created_at
+        integer updated_at
     }
     request_logs {
         text id PK
@@ -259,6 +269,44 @@ Persists the React Flow visual canvas nodes, edge connections, and viewport coor
   }}
 />
 
+### `notes`
+
+Project scratchpad entries. Notes inherit the active storage mode: they stay in the private local database when no API keys are configured, and sync to the remote database when they are.
+
+<TypeTable
+  type={{
+    id: {
+      description: "Primary key identifier.",
+      type: "text (PK)",
+    },
+    projectId: {
+      description: "Foreign key referencing projects.id with cascading delete.",
+      type: "text (FK)",
+    },
+    title: {
+      description: "Short note title shown in the notes list.",
+      type: "text",
+    },
+    content: {
+      description: "Free-form Markdown body of the note.",
+      type: "text",
+    },
+    pinned: {
+      description:
+        "Boolean flag keeping the note at the top of the list (default: false).",
+      type: "integer (boolean)",
+    },
+    createdAt: {
+      description: "Timestamp when the note was created.",
+      type: "integer (timestamp)",
+    },
+    updatedAt: {
+      description: "Timestamp when the note was last edited.",
+      type: "integer (timestamp)",
+    },
+  }}
+/>
+
 ### `request_logs`
 
 Captures telemetry for requests processed by the mock engine.
@@ -320,6 +368,7 @@ Foreign keys in Fack API are defined with `onDelete: "cascade"`. When a project 
 - All child **endpoints** are automatically deleted.
 - All child **routes** attached to those endpoints are deleted.
 - The project's **canvas state** is pruned.
+- All of the project's **notes** are removed.
 - All associated **request logs** are permanently purged from the database.
 
 This guarantees zero orphan rows and maintains strict referential integrity without manual cleanup scripts.
@@ -337,9 +386,18 @@ pnpm db:push
 
 # Launch Drizzle Studio web GUI to browse and edit database tables
 pnpm db:studio
+
+# Copy every table between two databases (local ⇄ cloud)
+pnpm db:copy --from local --to libsql://your-db.turso.io
+
+# Back up the active database to <data-dir>/backups/
+pnpm db:backup
+
+# Remove temporary test databases left behind by the test suite
+pnpm db:clean
 ```
 
 <Callout type="info">
   When connecting to Turso in production, `pnpm db:push` will apply changes
-  remotely using your `DATABASE_URL` and `TURSO_AUTH_TOKEN`.
+  remotely using your `DATABASE_URL` and `DATABASE_AUTH_TOKEN`.
 </Callout>

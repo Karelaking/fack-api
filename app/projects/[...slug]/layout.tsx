@@ -2,6 +2,8 @@ import * as React from "react";
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
+import { AuthProvider } from "@/components/auth/AuthProvider";
+import { CommandMenu } from "@/components/command-menu";
 import { getProjectBySlug, getProjects } from "@/lib/actions/projects";
 import { parseProjectPath } from "@/lib/utils/project-slug";
 import { ProjectProvider } from "@/components/project/ProjectContext";
@@ -84,30 +86,33 @@ export default async function ProjectLayout({
   }
 
   return (
-    <SidebarProvider>
-      <div className="bg-background flex h-dvh w-full max-w-full overflow-hidden">
-        {/* Sidebar component */}
-        <DashboardSidebar initialProjects={projects} />
+    <AuthProvider>
+      <SidebarProvider>
+        <div className="bg-background flex h-dvh w-full max-w-full overflow-hidden">
+          {/* Sidebar component */}
+          <DashboardSidebar initialProjects={projects} />
 
-        {/* Main Content Area */}
-        <main className="relative flex min-w-0 flex-1 flex-col overflow-hidden">
-          <header className="border-border bg-card flex h-14 shrink-0 items-center justify-between gap-2 border-b px-4">
-            <div className="flex min-w-0 items-center gap-2">
-              <SidebarTrigger className="h-9 w-9 shrink-0" />
-              <Separator orientation="vertical" className="h-4 shrink-0" />
-              <DashboardBreadcrumbs projects={projects} />
+          {/* Main Content Area */}
+          <main className="relative flex min-w-0 flex-1 flex-col overflow-hidden">
+            <header className="border-border bg-card flex h-14 shrink-0 items-center justify-between gap-2 border-b px-4">
+              <div className="flex min-w-0 items-center gap-2">
+                <SidebarTrigger className="h-9 w-9 shrink-0" />
+                <Separator orientation="vertical" className="h-4 shrink-0" />
+                <DashboardBreadcrumbs projects={projects} />
+              </div>
+              <HeaderNewProjectButton />
+            </header>
+            <div className="bg-background flex-1 overflow-auto pb-[calc(3.5rem_+_env(safe-area-inset-bottom))] md:pb-0">
+              <ProjectProvider project={project}>
+                {children}
+                <ImportOpenApiDialog projectId={project.id} />
+              </ProjectProvider>
             </div>
-            <HeaderNewProjectButton />
-          </header>
-          <div className="bg-background flex-1 overflow-auto pb-[calc(3.5rem_+_env(safe-area-inset-bottom))] md:pb-0">
-            <ProjectProvider project={project}>
-              {children}
-              <ImportOpenApiDialog projectId={project.id} />
-            </ProjectProvider>
-          </div>
-          <MobileBottomNav />
-        </main>
-      </div>
-    </SidebarProvider>
+            <MobileBottomNav />
+          </main>
+        </div>
+        <CommandMenu />
+      </SidebarProvider>
+    </AuthProvider>
   );
 }

@@ -23,15 +23,15 @@ export type NavigationSection = {
 
 const navigationData: NavigationSection[] = [
   {
-    title: "Features",
-    href: "#features",
+    title: "How to start",
+    href: "#how-to-start",
   },
   {
     title: "Interactive Flow",
     href: "#showcase",
   },
   {
-    title: "Faker Engine",
+    title: "Features",
     href: "#features",
   },
   {
@@ -61,7 +61,9 @@ export const LandingHeader = (): React.JSX.Element => {
     };
 
     const onResize = (): void => {
-      if (window.innerWidth >= 768) {
+      // The sheet is retired at the same breakpoint the full header replaces
+      // it (lg), so resizing across it never leaves the navigation hidden.
+      if (window.innerWidth >= 1024) {
         setIsOpen(false);
       }
     };
@@ -98,9 +100,15 @@ export const LandingHeader = (): React.JSX.Element => {
           </span>
         </Link>
 
-        {/* Desktop Navigation Links */}
+        {/*
+          Desktop Navigation Links. The header runs as three columns, and the
+          pill of four links plus the actions column needs the whole content
+          box: at md they measure ~900px inside 720px and push the page 71px
+          past the viewport. Below lg the sheet below carries these same links
+          and actions, so nothing is lost.
+        */}
         <nav
-          className="hidden items-center md:flex"
+          className="hidden items-center lg:flex"
           aria-label="Main Navigation"
         >
           <div className="bg-muted/50 border-border/40 flex gap-1 rounded-full border p-1 shadow-2xs">
@@ -117,7 +125,7 @@ export const LandingHeader = (): React.JSX.Element => {
         </nav>
 
         {/* Right Actions */}
-        <div className="hidden items-center gap-3 md:flex">
+        <div className="hidden items-center gap-3 lg:flex">
           <ThemeToggle />
           <Link
             href="/dashboard"
@@ -133,7 +141,7 @@ export const LandingHeader = (): React.JSX.Element => {
         </div>
 
         {/* Mobile Controls */}
-        <div className="flex items-center gap-2 md:hidden">
+        <div className="flex items-center gap-2 lg:hidden">
           <ThemeToggle />
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
-import { projects, endpoints } from "@/db/schema";
+import { projects, endpoints, notes } from "@/db/schema";
 import { eq, desc } from "drizzle-orm";
 import JSZip from "jszip";
 import { generateExpressProject } from "@/lib/codegen/express-generator";
@@ -33,19 +33,28 @@ export async function GET(
 
     assertProjectOwnedBy(project, userId);
 
-    const projectEndpoints = await db.query.endpoints.findMany({
-      where: eq(endpoints.projectId, project.id),
-      orderBy: [desc(endpoints.createdAt)],
-      with: {
-        routes: {
-          with: {
-            webhooks: true,
+    const [projectEndpoints, projectNotes] = await Promise.all([
+      db.query.endpoints.findMany({
+        where: eq(endpoints.projectId, project.id),
+        orderBy: [desc(endpoints.createdAt)],
+        with: {
+          routes: {
+            with: {
+              webhooks: true,
+            },
           },
         },
-      },
-    });
+      }),
+      db.query.notes.findMany({
+        where: eq(notes.projectId, project.id),
+        orderBy: [desc(notes.pinned), desc(notes.updatedAt)],
+      }),
+    ]);
 
     const zip = new JSZip();
+
+    // Keep the scratchpad with the export so local backups are self-contained.
+    zip.file("notes.json", JSON.stringify(projectNotes, null, 2));
 
     // Map to CodeGenContext
     const codegenContext = {

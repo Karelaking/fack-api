@@ -80,7 +80,13 @@ export function DashboardBreadcrumbs({
   if (segments[0] === "projects" && segments.length >= 2) {
     isProjectPage = true;
     const lastSegment = segments[segments.length - 1];
-    const subpages = new Set(["canvas", "endpoints", "logs", "settings"]);
+    const subpages = new Set([
+      "canvas",
+      "endpoints",
+      "logs",
+      "notes",
+      "settings",
+    ]);
     let projectSlugSegments = segments.slice(1);
 
     if (subpages.has(lastSegment)) {
@@ -110,7 +116,13 @@ export function DashboardBreadcrumbs({
   let activeTab: string | undefined = undefined;
   if (segments.length > 2) {
     const lastSegment = segments[segments.length - 1];
-    const subpages = new Set(["canvas", "endpoints", "logs", "settings"]);
+    const subpages = new Set([
+      "canvas",
+      "endpoints",
+      "logs",
+      "notes",
+      "settings",
+    ]);
     if (subpages.has(lastSegment)) {
       activeTab = lastSegment;
     }

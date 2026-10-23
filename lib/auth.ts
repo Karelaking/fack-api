@@ -14,7 +14,7 @@ import { NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 
 import { db } from "@/db";
-import { endpoints, projects, routes, webhooks } from "@/db/schema";
+import { endpoints, notes, projects, routes, webhooks } from "@/db/schema";
 
 /** Thrown when a request has no authenticated Clerk user. */
 export class UnauthorizedError extends Error {
@@ -180,6 +180,28 @@ export async function requireWebhookAccess(webhookId: string): Promise<string> {
   }
 
   await assertProjectIdAccess(webhook.route.endpoint.projectId, userId);
+  return userId;
+}
+
+/**
+ * Resolves the project owning a note and verifies access.
+ *
+ * @returns the authenticated user id.
+ * @throws {UnauthorizedError|ForbiddenError}
+ */
+export async function requireNoteAccess(noteId: string): Promise<string> {
+  const userId = await requireUserId();
+
+  const note = await db.query.notes.findFirst({
+    where: eq(notes.id, noteId),
+    columns: { projectId: true },
+  });
+
+  if (!note) {
+    throw new ForbiddenError("Note not found");
+  }
+
+  await assertProjectIdAccess(note.projectId, userId);
   return userId;
 }
 

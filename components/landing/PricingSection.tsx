@@ -41,10 +41,7 @@ export const PricingSection = (): React.JSX.Element => {
             <div>
               <div className="mb-4 flex items-center justify-between">
                 <h3 className="text-foreground flex items-center gap-2 text-xl font-extrabold">
-                  <HardDrive
-                    className="size-5 text-sky-400"
-                    aria-hidden="true"
-                  />
+                  <HardDrive className="text-info size-5" aria-hidden="true" />
                   Local-First Self-Hosted
                 </h3>
                 <span className="text-muted-foreground bg-muted/60 border-border/60 rounded-full border px-2.5 py-0.5 font-mono text-[10px] font-bold tracking-wider uppercase">
@@ -69,28 +66,28 @@ export const PricingSection = (): React.JSX.Element => {
               <ul className="text-foreground mt-8 space-y-3 text-xs font-medium">
                 <li className="flex items-center gap-2">
                   <Check
-                    className="size-4 shrink-0 text-emerald-500"
+                    className="text-success size-4 shrink-0"
                     aria-hidden="true"
                   />
                   <span>SQLite persistence on your own machine</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check
-                    className="size-4 shrink-0 text-emerald-500"
+                    className="text-success size-4 shrink-0"
                     aria-hidden="true"
                   />
                   <span>Instant local auto-save & workspace sync</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check
-                    className="size-4 shrink-0 text-emerald-500"
+                    className="text-success size-4 shrink-0"
                     aria-hidden="true"
                   />
                   <span>Portable single-file OpenAPI & JSON schema export</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check
-                    className="size-4 shrink-0 text-emerald-500"
+                    className="text-success size-4 shrink-0"
                     aria-hidden="true"
                   />
                   <span>No paywalls, no usage limits, no vendor lock-in</span>
@@ -137,7 +134,7 @@ export const PricingSection = (): React.JSX.Element => {
               <ul className="text-foreground mt-8 space-y-3 text-xs font-medium">
                 <li className="flex items-center gap-2">
                   <Check
-                    className="size-4 shrink-0 text-emerald-500"
+                    className="text-success size-4 shrink-0"
                     aria-hidden="true"
                   />
                   <span>
@@ -146,7 +143,7 @@ export const PricingSection = (): React.JSX.Element => {
                 </li>
                 <li className="flex items-center gap-2">
                   <Check
-                    className="size-4 shrink-0 text-emerald-500"
+                    className="text-success size-4 shrink-0"
                     aria-hidden="true"
                   />
                   <span>
@@ -155,14 +152,14 @@ export const PricingSection = (): React.JSX.Element => {
                 </li>
                 <li className="flex items-center gap-2">
                   <Check
-                    className="size-4 shrink-0 text-emerald-500"
+                    className="text-success size-4 shrink-0"
                     aria-hidden="true"
                   />
                   <span>Docker container & docker-compose ready to run</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check
-                    className="size-4 shrink-0 text-emerald-500"
+                    className="text-success size-4 shrink-0"
                     aria-hidden="true"
                   />
                   <span>100% Free for commercial & open-source projects</span>

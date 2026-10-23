@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import dynamic from "next/dynamic";
 import { LandingHeader } from "@/components/landing/LandingHeader";
 import { HeroSection } from "@/components/landing/HeroSection";
+import { HowToStartSection } from "@/components/landing/HowToStartSection";
 import { PricingSection } from "@/components/landing/PricingSection";
 import { Footer } from "@/components/landing/Footer";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -95,7 +96,8 @@ const jsonLd = [
 
 /**
  * Root Landing Page for Fack API's.
- * Composed from modular landing sections (header, hero, features, pricing, footer).
+ * Composed from modular landing sections (header, hero, quick start,
+ * features, pricing, footer).
  */
 export default function HomePage(): React.JSX.Element {
   return (
@@ -107,6 +109,7 @@ export default function HomePage(): React.JSX.Element {
       <LandingHeader />
       <main className="w-full flex-1" id="main-content">
         <HeroSection />
+        <HowToStartSection />
         <LogoCloudSection />
         <InteractiveCanvasDemo />
         <FeaturesSection />

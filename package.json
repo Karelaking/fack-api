@@ -3,7 +3,7 @@
   "version": "1.14.1",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "devshare dev -- next dev",
     "mcp:devtools": "pnpm dlx next-devtools-mcp@latest",
     "build": "next build",
     "start": "next start",
@@ -11,6 +11,9 @@
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
+    "db:copy": "node scripts/db-copy.mjs",
+    "db:backup": "node scripts/db-backup.mjs",
+    "db:clean": "node scripts/clean-test-dbs.mjs",
     "test": "vp test run",
     "test:watch": "vp test",
     "test:coverage": "vp test run --coverage",
@@ -94,5 +97,13 @@
     "*.{json,md,yml,yaml,css}": [
       "vp fmt"
     ]
+  },
+  "devshare": {
+    "version": 1,
+    "originalDevScript": "next dev",
+    "installedDevScript": "devshare dev -- next dev",
+    "installedBy": "1.0.0",
+    "setupAt": "2026-10-23T02:52:45.935Z",
+    "packageManager": "pnpm"
   }
 }

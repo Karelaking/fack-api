@@ -8,9 +8,11 @@ import { getProjectBySlug } from "@/lib/actions/projects";
 import { getEndpoints } from "@/lib/actions/endpoints";
 import { getCanvasState } from "@/lib/actions/canvas";
 import { getRequestLogs } from "@/lib/actions/logs";
+import { getNotes } from "@/lib/actions/notes";
 import { CanvasContainer } from "@/components/canvas/CanvasContainer";
 import { ProjectEndpoints } from "@/components/dashboard/ProjectEndpoints";
 import { ProjectLogs } from "@/components/dashboard/ProjectLogs";
+import { ProjectNotes } from "@/components/dashboard/ProjectNotes";
 import { ProjectSettings } from "@/components/dashboard/ProjectSettings";
 import { SubpageLoading } from "./_components/SubpageLoading";
 import type { Project } from "@/db/schema";
@@ -107,6 +109,17 @@ async function SubpageContent({
     case "logs": {
       const logs = await getRequestLogs(project.id);
       return <ProjectLogs projectId={project.id} initialLogs={logs} />;
+    }
+
+    case "notes": {
+      const projectNotes = await getNotes(project.id);
+      return (
+        <ProjectNotes
+          projectId={project.id}
+          projectSlug={project.slug}
+          initialNotes={projectNotes}
+        />
+      );
     }
 
     case "settings": {
