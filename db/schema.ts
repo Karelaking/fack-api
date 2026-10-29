@@ -31,7 +31,10 @@ export const projects = sqliteTable(
     version: integer("version").notNull().default(1),
     activeScenarioId: text("active_scenario_id"),
   },
-  (table) => [index("projects_user_id_idx").on(table.userId)],
+  (table) => [
+    index("projects_user_id_idx").on(table.userId),
+    index("projects_slug_idx").on(table.slug),
+  ],
 );
 
 export const projectsRelations = relations(projects, ({ many, one }) => ({
@@ -108,7 +111,14 @@ export const routes = sqliteTable(
       .notNull()
       .$defaultFn(() => new Date()),
   },
-  (table) => [index("routes_endpoint_id_idx").on(table.endpointId)],
+  (table) => [
+    index("routes_endpoint_id_idx").on(table.endpointId),
+    index("routes_endpoint_method_path_idx").on(
+      table.endpointId,
+      table.method,
+      table.path,
+    ),
+  ],
 );
 
 export const routesRelations = relations(routes, ({ one, many }) => ({
@@ -153,7 +163,13 @@ export const projectRevisions = sqliteTable(
       .notNull()
       .$defaultFn(() => new Date()),
   },
-  (table) => [index("project_revisions_project_id_idx").on(table.projectId)],
+  (table) => [
+    index("project_revisions_project_id_idx").on(table.projectId),
+    index("project_revisions_project_version_idx").on(
+      table.projectId,
+      table.version,
+    ),
+  ],
 );
 
 export const projectRevisionsRelations = relations(
@@ -189,7 +205,13 @@ export const generationTasks = sqliteTable(
       .notNull()
       .$defaultFn(() => new Date()),
   },
-  (table) => [index("generation_tasks_project_id_idx").on(table.projectId)],
+  (table) => [
+    index("generation_tasks_project_id_idx").on(table.projectId),
+    index("generation_tasks_project_status_idx").on(
+      table.projectId,
+      table.status,
+    ),
+  ],
 );
 
 export const generationTasksRelations = relations(
@@ -356,7 +378,14 @@ export const notes = sqliteTable(
       .notNull()
       .$defaultFn(() => new Date()),
   },
-  (table) => [index("notes_project_id_idx").on(table.projectId)],
+  (table) => [
+    index("notes_project_id_idx").on(table.projectId),
+    index("notes_project_pinned_updated_idx").on(
+      table.projectId,
+      table.pinned,
+      table.updatedAt,
+    ),
+  ],
 );
 
 export const notesRelations = relations(notes, ({ one }) => ({
