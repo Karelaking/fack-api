@@ -1,6 +1,6 @@
 {
   "name": "fack-api",
-  "version": "1.16.0",
+  "version": "1.16.1",
   "private": true,
   "scripts": {
     "dev:host": "devshare dev -- next dev",

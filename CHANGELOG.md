@@ -1,3 +1,9 @@
+## [1.16.1](https://github.com/Karelaking/fack-api/compare/v1.16.0...v1.16.1) (2026-10-29)
+
+### Bug Fixes
+
+- **dashboard:** limit project grid to 2 columns on larger screens ([fe1b371](https://github.com/Karelaking/fack-api/commit/fe1b3715bb4ac2b0b802a6bb01a8b89848ed9f79))
+
 # [1.16.0](https://github.com/Karelaking/fack-api/compare/v1.15.0...v1.16.0) (2026-10-29)
 
 ### Features
