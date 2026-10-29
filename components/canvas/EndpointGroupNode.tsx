@@ -46,8 +46,18 @@ export function EndpointGroupNode({
         </span>
       ) : null}
 
-      {/* Dynamic Grid Background Pattern */}
-      <div className="absolute inset-0 -z-10 bg-[linear-gradient(to_right,var(--muted-foreground)_1px,transparent_1px),linear-gradient(to_bottom,var(--muted-foreground)_1px,transparent_1px)] bg-size-[14px_24px] opacity-[0.04] dark:opacity-[0.05]" />
+      {/* Consistent dot pattern matching React Flow background */}
+      <div className="absolute inset-0 -z-10 opacity-20 dark:opacity-10">
+        <div
+          className="h-full w-full rounded-lg"
+          style={{
+            backgroundImage: `
+            radial-gradient(circle, var(--muted-foreground) 1px, transparent 1px)
+          `,
+            backgroundSize: "20px 20px",
+          }}
+        />
+      </div>
 
       {/* NodeResizer for scaling bounding containers */}
       <NodeResizer

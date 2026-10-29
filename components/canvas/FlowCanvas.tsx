@@ -604,7 +604,7 @@ function FlowCanvasInner({
   return (
     <div
       ref={canvasRef}
-      className="bg-muted/30 dark:bg-card relative h-full w-full overflow-hidden"
+      className="bg-background relative h-full w-full overflow-hidden"
     >
       <ReactFlow
         nodes={nodes}

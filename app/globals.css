@@ -335,19 +335,127 @@
   --xy-minimap-mask-stroke-color: var(--border);
 }
 
+/* HTTP Method-specific border and shadow utilities for canvas nodes */
+.border-l-method-get {
+  border-left-color: var(--color-method-get);
+}
+.border-l-method-post {
+  border-left-color: var(--color-method-post);
+}
+.border-l-method-put {
+  border-left-color: var(--color-method-put);
+}
+.border-l-method-patch {
+  border-left-color: var(--color-method-patch);
+}
+.border-l-method-delete {
+  border-left-color: var(--color-method-delete);
+}
+
+.shadow-method-get\/10 {
+  box-shadow: 0 0 10px var(--color-method-get);
+}
+.shadow-method-post\/10 {
+  box-shadow: 0 0 10px var(--color-method-post);
+}
+.shadow-method-put\/10 {
+  box-shadow: 0 0 10px var(--color-method-put);
+}
+.shadow-method-patch\/10 {
+  box-shadow: 0 0 10px var(--color-method-patch);
+}
+.shadow-method-delete\/10 {
+  box-shadow: 0 0 10px var(--color-method-delete);
+}
+
+.hover\:shadow-method-get\/10:hover {
+  box-shadow: 0 0 10px var(--color-method-get);
+}
+.hover\:shadow-method-post\/10:hover {
+  box-shadow: 0 0 10px var(--color-method-post);
+}
+.hover\:shadow-method-put\/10:hover {
+  box-shadow: 0 0 10px var(--color-method-put);
+}
+.hover\:shadow-method-patch\/10:hover {
+  box-shadow: 0 0 10px var(--color-method-patch);
+}
+.hover\:shadow-method-delete\/10:hover {
+  box-shadow: 0 0 10px var(--color-method-delete);
+}
+
+.hover\:border-method-get\/40:hover {
+  border-left-color: color-mix(
+    in oklch,
+    var(--color-method-get) 40%,
+    transparent
+  );
+}
+.hover\:border-method-post\/40:hover {
+  border-left-color: color-mix(
+    in oklch,
+    var(--color-method-post) 40%,
+    transparent
+  );
+}
+.hover\:border-method-put\/40:hover {
+  border-left-color: color-mix(
+    in oklch,
+    var(--color-method-put) 40%,
+    transparent
+  );
+}
+.hover\:border-method-patch\/40:hover {
+  border-left-color: color-mix(
+    in oklch,
+    var(--color-method-patch) 40%,
+    transparent
+  );
+}
+.hover\:border-method-delete\/40:hover {
+  border-left-color: color-mix(
+    in oklch,
+    var(--color-method-delete) 40%,
+    transparent
+  );
+}
+
+/* React Flow controls - shadcn/ui inspired styling with minimalist aesthetic */
+.react-flow__controls {
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--shadow-xs) !important;
+  overflow: hidden !important;
+}
+
 .react-flow__controls button {
   background-color: var(--card) !important;
-  border-bottom: 1px solid var(--border) !important;
+  border: none !important;
   color: var(--foreground) !important;
   fill: var(--foreground) !important;
+  border-radius: 0 !important;
+  transition:
+    background-color var(--transition-duration-fast) var(--ease-default),
+    color var(--transition-duration-fast) var(--ease-default),
+    transform var(--transition-duration-fast) var(--ease-default) !important;
 }
 
 .react-flow__controls button:hover {
   background-color: var(--accent) !important;
+  color: var(--foreground) !important;
+  transform: scale(1.05) !important;
+}
+
+.react-flow__controls button:active {
+  transform: scale(0.95) !important;
 }
 
 .react-flow__controls button svg {
   fill: currentColor !important;
+  transition: transform var(--transition-duration-fast) var(--ease-default) !important;
+}
+
+.react-flow__controls button:hover svg {
+  transform: scale(1.1) !important;
 }
 
 /* Keyboard focus for canvas nodes: the focusable element is React Flow's
