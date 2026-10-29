@@ -1,3 +1,13 @@
+# [1.16.0](https://github.com/Karelaking/fack-api/compare/v1.15.0...v1.16.0) (2026-10-29)
+
+### Features
+
+- **ui:** improve dashboard UX and accessibility ([166633e](https://github.com/Karelaking/fack-api/commit/166633e0251b9abffd6b48e488e429603ec6d7ae))
+
+### Performance Improvements
+
+- **db:** add composite indexes for query optimization ([71b0fab](https://github.com/Karelaking/fack-api/commit/71b0fabad5da686e01418d8e49a3968d35bc24e7)), closes [hi#impact](https://github.com/hi/issues/impact)
+
 # [1.15.0](https://github.com/Karelaking/fack-api/compare/v1.14.1...v1.15.0) (2026-10-23)
 
 ### Bug Fixes
