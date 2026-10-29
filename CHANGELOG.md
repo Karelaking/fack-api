@@ -1,3 +1,9 @@
+## [1.16.2](https://github.com/Karelaking/fack-api/compare/v1.16.1...v1.16.2) (2026-10-29)
+
+### Bug Fixes
+
+- **canvas:** align canvas theme with website design system ([99473c9](https://github.com/Karelaking/fack-api/commit/99473c9b2f4047b0628440b8ec5f9abf03485ba5))
+
 ## [1.16.1](https://github.com/Karelaking/fack-api/compare/v1.16.0...v1.16.1) (2026-10-29)
 
 ### Bug Fixes
