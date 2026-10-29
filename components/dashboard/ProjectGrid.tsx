@@ -11,19 +11,30 @@ import {
   RiDeleteBin6Line,
   RiSettings3Line,
   RiAddLine,
-  RiCheckLine,
-  RiGitBranchLine,
-  RiGithubFill,
+  RiCloseLine,
   RiLayoutGridLine,
   RiListUnordered,
-  RiFilter3Line,
+  RiArrowUpDownLine,
+  RiArrowRightSLine,
+  RiPulseLine,
+  RiRouteLine,
+  RiTimeLine,
+  RiFileList3Line,
+  RiCommandLine,
 } from "@remixicon/react";
 import { toast } from "sonner";
 import { deleteProject, updateProject } from "@/lib/actions/projects";
-import { formatRelativeTime } from "@/lib/utils";
+import { cn, formatRelativeTime } from "@/lib/utils";
 import type { Project, Endpoint, Route } from "@/db/schema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Dialog,
   DialogContent,
@@ -32,7 +43,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Clock11Icon } from "lucide-react";
 
 type ProjectWithRelations = Project & {
   endpoints?: (Endpoint & {
@@ -40,13 +50,26 @@ type ProjectWithRelations = Project & {
   })[];
 };
 
+type SortOption = "updated" | "name";
+
+const METHOD_ORDER: Route["method"][] = [
+  "GET",
+  "POST",
+  "PUT",
+  "PATCH",
+  "DELETE",
+];
+
 interface ProjectGridProps {
   initialProjects: ProjectWithRelations[];
 }
 
 /**
- * Premium dashboard component listing workspaces in a beautiful, grid-based card layout.
- * Features workspace stats, search filters, and active mock details.
+ * The dashboard's workspace browser.
+ *
+ * Overview widgets are derived from the same project list the grid renders, so
+ * every number on this page can be traced to the database — there are no
+ * placeholder quotas, alerts, or previews here.
  */
 export function ProjectGrid({
   initialProjects,
@@ -58,12 +81,12 @@ export function ProjectGrid({
     "search",
     parseAsString.withDefault(""),
   );
-  const [sortBy] = useQueryState(
+  const [sortBy, setSortBy] = useQueryState(
     "sort",
-    parseAsStringEnum<"updated" | "name">(["updated", "name"]).withDefault(
-      "updated",
-    ),
+    parseAsStringEnum<SortOption>(["updated", "name"]).withDefault("updated"),
   );
+
+  const searchRef = React.useRef<HTMLInputElement>(null);
 
   // Deletion states
   const [projectToDelete, setProjectToDelete] =
@@ -96,21 +119,100 @@ export function ProjectGrid({
     }
   }, [projectToEdit]);
 
+  // The hint in the search field is a real shortcut: `/` focuses the field
+  // from anywhere on the page unless the user is already typing somewhere.
+  React.useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "/" || event.metaKey || event.ctrlKey || event.altKey) {
+        return;
+      }
+
+      const target = event.target as HTMLElement | null;
+      const tagName = target?.tagName;
+      if (
+        tagName === "INPUT" ||
+        tagName === "TEXTAREA" ||
+        tagName === "SELECT" ||
+        target?.isContentEditable
+      ) {
+        return;
+      }
+
+      event.preventDefault();
+      searchRef.current?.focus();
+      searchRef.current?.select();
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  const stats = React.useMemo(() => {
+    const methodCounts: Record<Route["method"], number> = {
+      GET: 0,
+      POST: 0,
+      PUT: 0,
+      PATCH: 0,
+      DELETE: 0,
+    };
+    let endpointCount = 0;
+    let routeCount = 0;
+
+    for (const project of projects) {
+      const endpoints = project.endpoints ?? [];
+      endpointCount += endpoints.length;
+      for (const endpoint of endpoints) {
+        const routes = endpoint.routes ?? [];
+        routeCount += routes.length;
+        for (const route of routes) {
+          methodCounts[route.method] += 1;
+        }
+      }
+    }
+
+    return { endpointCount, routeCount, methodCounts };
+  }, [projects]);
+
+  const recentProjects = React.useMemo(
+    () =>
+      [...projects]
+        .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime())
+        .slice(0, 4),
+    [projects],
+  );
+
   const filteredProjects = React.useMemo(() => {
-    const filtered = projects.filter(
-      (p) =>
-        p.name.toLowerCase().includes(search.toLowerCase()) ||
-        p.description?.toLowerCase().includes(search.toLowerCase()) ||
-        p.slug.toLowerCase().includes(search.toLowerCase()),
-    );
+    const term = search.trim().toLowerCase();
+    const filtered = term
+      ? projects.filter(
+          (p) =>
+            p.name.toLowerCase().includes(term) ||
+            p.description?.toLowerCase().includes(term) ||
+            p.slug.toLowerCase().includes(term),
+        )
+      : projects;
 
     if (sortBy === "name") {
       return [...filtered].sort((a, b) => a.name.localeCompare(b.name));
     }
-    return filtered; // already ordered by updatedAt desc from query
+    return [...filtered].sort(
+      (a, b) => b.updatedAt.getTime() - a.updatedAt.getTime(),
+    );
   }, [projects, search, sortBy]);
 
   const [isPending, startTransition] = React.useTransition();
+
+  const handleSearchKeyDown = (
+    event: React.KeyboardEvent<HTMLInputElement>,
+  ): void => {
+    if (event.key === "Escape") {
+      if (search) {
+        void setSearch(null);
+      } else {
+        event.currentTarget.blur();
+      }
+    }
+  };
 
   const handleEditSubmit = (e: React.FormEvent): void => {
     e.preventDefault();
@@ -176,288 +278,492 @@ export function ProjectGrid({
     });
   };
 
-  const triggerCreateProject = () => {
+  const triggerCreateProject = (): void => {
     window.dispatchEvent(new CustomEvent("open-new-project-dialog"));
   };
 
+  const openCommandMenu = (): void => {
+    window.dispatchEvent(new CustomEvent("open-command-menu"));
+  };
+
+  const hasProjects = projects.length > 0;
+
   return (
-    <div className="mx-auto max-w-350 space-y-8 p-8">
-      {/* Search Bar Row */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-        <div className="relative flex-1">
-          <RiSearchLine className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
-          <input
+    <div className="mx-auto w-full max-w-[1760px] space-y-6 px-4 py-6 sm:px-6 sm:py-8 lg:px-8 xl:px-12 2xl:px-16 2xl:py-10">
+      <header className="space-y-1">
+        <h1 className="text-foreground text-2xl font-semibold tracking-tight">
+          Workspaces
+        </h1>
+        <p className="text-muted-foreground max-w-2xl text-sm leading-relaxed">
+          Every workspace is an isolated namespace with its own mock endpoints,
+          routes, and request logs.
+        </p>
+      </header>
+
+      {/* Search and view controls */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="relative w-full sm:max-w-sm">
+          <RiSearchLine
+            aria-hidden="true"
+            className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2"
+          />
+          <Input
+            ref={searchRef}
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search Projects..."
+            onChange={(e) => void setSearch(e.target.value)}
+            onKeyDown={handleSearchKeyDown}
+            placeholder="Search workspaces..."
             aria-label="Search workspaces"
-            className="border-border/40 bg-card/30 focus-visible:ring-primary/20 h-10 w-full rounded-md border pr-12 pl-9 transition-colors outline-none"
+            aria-keyshortcuts="/"
+            className="bg-card/30 border-border/60 h-10 pr-11 pl-9 text-base sm:text-sm"
           />
           <div className="absolute top-1/2 right-2 flex -translate-y-1/2 items-center">
-            <kbd className="bg-muted text-muted-foreground hidden h-5 items-center justify-center rounded-lg border px-1.5 font-mono text-[10px] font-medium sm:flex">
-              /
-            </kbd>
+            {search ? (
+              <button
+                type="button"
+                aria-label="Clear search"
+                onClick={() => {
+                  void setSearch(null);
+                  searchRef.current?.focus();
+                }}
+                className="text-muted-foreground hover:text-foreground hover:bg-muted focus-visible:ring-ring focus-visible:ring-offset-background inline-flex h-7 w-7 items-center justify-center rounded-md transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+              >
+                <RiCloseLine aria-hidden="true" className="h-4 w-4" />
+              </button>
+            ) : (
+              <kbd
+                aria-hidden="true"
+                className="bg-muted text-muted-foreground border-border/60 text-mini hidden h-5 min-w-5 items-center justify-center rounded-sm border px-1.5 font-mono font-medium sm:flex"
+              >
+                /
+              </kbd>
+            )}
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            aria-label="Filter workspaces"
-            className="border-border/40 bg-card/30 hover:bg-muted flex h-10 w-10 items-center justify-center rounded-md border transition-colors"
-          >
-            <RiFilter3Line className="text-muted-foreground h-4 w-4" />
-          </button>
-          <div className="border-border/40 bg-card/30 flex h-10 items-center rounded-md border p-1">
+
+        <div className="flex items-center gap-2 sm:ml-auto">
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              render={
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  aria-label={`Sort workspaces by ${
+                    sortBy === "name" ? "name" : "last updated"
+                  }`}
+                />
+              }
+            >
+              <RiArrowUpDownLine aria-hidden="true" className="h-4 w-4" />
+              <span className="hidden sm:inline">
+                {sortBy === "name" ? "Name" : "Last updated"}
+              </span>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-44">
+              <DropdownMenuRadioGroup
+                value={sortBy}
+                onValueChange={(value) => {
+                  void setSortBy(value as SortOption);
+                }}
+              >
+                <DropdownMenuRadioItem value="updated">
+                  Last updated
+                </DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="name">
+                  Name (A–Z)
+                </DropdownMenuRadioItem>
+              </DropdownMenuRadioGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <fieldset className="border-border/60 bg-card/30 flex h-10 min-w-0 items-center rounded-lg border p-1">
+            <legend className="sr-only">Workspace layout</legend>
             <button
               type="button"
               aria-label="Grid view"
+              aria-pressed={viewMode === "grid"}
               onClick={() => setViewMode("grid")}
-              className={`flex h-7 w-7 items-center justify-center rounded-sm transition-colors ${
-                viewMode === "grid" ? "bg-muted shadow-sm" : "hover:bg-muted"
-              }`}
+              className={cn(
+                "focus-visible:ring-ring focus-visible:ring-offset-background flex h-8 w-8 items-center justify-center rounded-md transition-colors focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:outline-none",
+                viewMode === "grid"
+                  ? "bg-muted text-foreground shadow-sm"
+                  : "text-muted-foreground hover:bg-muted/60 hover:text-foreground",
+              )}
             >
-              <RiLayoutGridLine
-                className={`h-4 w-4 ${viewMode === "grid" ? "text-foreground" : "text-muted-foreground"}`}
-              />
+              <RiLayoutGridLine aria-hidden="true" className="h-4 w-4" />
             </button>
             <button
               type="button"
               aria-label="List view"
+              aria-pressed={viewMode === "list"}
               onClick={() => setViewMode("list")}
-              className={`flex h-7 w-7 items-center justify-center rounded-sm transition-colors ${
-                viewMode === "list" ? "bg-muted shadow-sm" : "hover:bg-muted"
-              }`}
-            >
-              <RiListUnordered
-                className={`h-4 w-4 ${viewMode === "list" ? "text-foreground" : "text-muted-foreground"}`}
-              />
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Grid Layout */}
-      <div className="flex flex-col gap-8 lg:flex-row lg:gap-6">
-        {/* Left Sidebar (Widgets) */}
-        <div className="flex w-full shrink-0 flex-col gap-8 lg:w-[320px]">
-          {/* Usage */}
-          <div className="space-y-4">
-            <h3 className="text-foreground text-sm font-semibold tracking-tight">
-              Usage
-            </h3>
-            <div className="bg-card/30 border-border/40 rounded-xl border p-0">
-              <div className="border-border/40 flex items-center justify-between border-b px-4 py-3">
-                <span className="text-foreground text-sm font-medium">
-                  Last 30 days
-                </span>
-                <button
-                  type="button"
-                  className="border-border text-foreground hover:bg-muted rounded-md border px-3 py-1 text-xs font-medium shadow-sm transition-colors"
-                >
-                  Upgrade
-                </button>
-              </div>
-              <div className="flex flex-col space-y-3 px-4 py-4 text-xs">
-                <div className="flex items-center justify-between">
-                  <div className="text-muted-foreground flex items-center gap-2">
-                    <div className="h-3 w-3 rounded-full border-[3px] border-blue-500/80" />
-                    <span>Functions Storage</span>
-                  </div>
-                  <span className="text-muted-foreground">
-                    <span className="text-foreground font-medium">3.9 GB</span>{" "}
-                    / 10 GB
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="text-muted-foreground flex items-center gap-2">
-                    <div className="h-3 w-3 rounded-full border-[3px] border-zinc-500/50" />
-                    <span>Deployment Storage</span>
-                  </div>
-                  <span className="text-muted-foreground">
-                    <span className="text-foreground font-medium">1.09 GB</span>{" "}
-                    / 10 GB
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="text-muted-foreground flex items-center gap-2">
-                    <div className="h-3 w-3 rounded-full border-[3px] border-blue-500/30" />
-                    <span>Fluid Active CPU</span>
-                  </div>
-                  <span className="text-muted-foreground">
-                    <span className="text-foreground font-medium">17m 58s</span>{" "}
-                    / 4h
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Alerts */}
-          <div className="space-y-4">
-            <h3 className="text-foreground text-sm font-semibold tracking-tight">
-              Alerts
-            </h3>
-            <div className="bg-card/30 border-border/40 flex flex-col items-center justify-center space-y-3 rounded-xl border px-4 py-8 text-center">
-              <h4 className="text-foreground text-sm font-medium">
-                Get alerted for anomalies
-              </h4>
-              <p className="text-muted-foreground max-w-50 text-xs leading-relaxed">
-                Automatically monitor your projects for anomalies and get
-                notified.
-              </p>
-              <button
-                type="button"
-                className="border-border text-foreground hover:bg-muted mt-2 rounded-md border px-3 py-1.5 text-xs font-medium shadow-sm transition-colors"
-              >
-                Upgrade to Pro
-              </button>
-            </div>
-          </div>
-
-          {/* Recent Previews */}
-          <div className="space-y-4">
-            <h3 className="text-foreground text-sm font-semibold tracking-tight">
-              Recent Previews
-            </h3>
-            <div className="flex flex-col gap-3">
-              {[1, 2].map((i) => (
-                <div
-                  key={i}
-                  className="bg-card/30 border-border/40 flex flex-col gap-2 rounded-xl border p-4"
-                >
-                  <div className="flex items-start gap-2">
-                    <div className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-indigo-500/20 text-indigo-500">
-                      <RiGitBranchLine className="h-2.5 w-2.5" />
-                    </div>
-                    <span className="text-foreground line-clamp-2 text-sm leading-tight font-medium">
-                      chore(deps-dev): bump the dev-dependencies...
-                    </span>
-                  </div>
-                  <div className="mt-2 flex items-center gap-2 text-xs">
-                    <div className="bg-muted/50 text-muted-foreground flex items-center gap-1 rounded px-1.5 py-0.5">
-                      <RiCheckLine className="h-3 w-3 text-emerald-500" />
-                      <span>Preview</span>
-                    </div>
-                    <div className="bg-muted/50 text-muted-foreground flex items-center gap-1 rounded px-1.5 py-0.5">
-                      <RiGithubFill className="h-3 w-3" />
-                      <span>#{50 + i}</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Right Content (Projects Grid) */}
-        <div className="min-w-0 flex-1 space-y-4">
-          <h3 className="text-foreground text-sm font-semibold tracking-tight">
-            Projects
-          </h3>
-
-          {filteredProjects.length === 0 ? (
-            <div className="bg-card/30 border-border/40 flex flex-col items-center justify-center rounded-xl border border-dashed p-12 text-center">
-              <RiTerminalBoxLine className="text-muted-foreground/50 mb-4 h-12 w-12" />
-              <h4 className="text-foreground text-lg font-medium">
-                No workspaces found
-              </h4>
-              <p className="text-muted-foreground mt-2 max-w-sm text-sm">
-                {search
-                  ? "No workspaces match your search keyword. Try adjusting your query."
-                  : "Get started by creating your first workspace."}
-              </p>
-              {!search && (
-                <Button onClick={triggerCreateProject} className="mt-6">
-                  <RiAddLine className="mr-2 h-4 w-4" />
-                  Create Workspace
-                </Button>
+              className={cn(
+                "focus-visible:ring-ring focus-visible:ring-offset-background flex h-8 w-8 items-center justify-center rounded-md transition-colors focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:outline-none",
+                viewMode === "list"
+                  ? "bg-muted text-foreground shadow-sm"
+                  : "text-muted-foreground hover:bg-muted/60 hover:text-foreground",
               )}
-            </div>
-          ) : (
-            <div
-              className={
-                viewMode === "grid"
-                  ? "grid grid-cols-1 gap-4 xl:grid-cols-2"
-                  : "flex flex-col gap-4"
-              }
             >
-              {filteredProjects.map((proj) => (
-                <div
-                  key={proj.id}
-                  className="bg-card/30 border-border/40 hover:border-border group relative flex flex-col justify-between overflow-hidden rounded-xl border p-6 transition-colors"
-                >
-                  <Link
-                    href={`/projects/${proj.slug}/canvas`}
-                    className="absolute inset-0 z-10"
-                  >
-                    <span className="sr-only">Enter Workspace {proj.name}</span>
-                  </Link>
-
-                  <div className="flex items-start justify-between">
-                    <div className="flex min-w-0 items-center gap-3">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-linear-to-b from-zinc-700 to-zinc-900 text-white shadow-sm ring-1 ring-white/10 dark:from-zinc-800 dark:to-zinc-950">
-                        <RiTerminalBoxLine className="h-5 w-5" />
-                      </div>
-                      <div className="flex min-w-0 flex-col">
-                        <span className="text-foreground group-hover:text-primary truncate font-bold transition-colors">
-                          {proj.name}
-                        </span>
-                        <span className="text-muted-foreground truncate text-xs">
-                          {proj.slug}.fackapi.com
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Quick Actions */}
-                    <div className="relative z-20 flex shrink-0 items-center gap-1">
-                      <button
-                        type="button"
-                        className="border-border text-muted-foreground hover:text-foreground hover:bg-muted bg-card flex h-7 w-7 items-center justify-center rounded-md border shadow-sm transition-colors"
-                        title="Workspace Settings"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          setProjectToEdit(proj);
-                        }}
-                      >
-                        <RiSettings3Line className="h-3.5 w-3.5" />
-                      </button>
-                      <button
-                        type="button"
-                        className="border-border text-muted-foreground hover:text-destructive hover:bg-muted bg-card flex h-7 w-7 items-center justify-center rounded-md border shadow-sm transition-colors"
-                        title="Delete Workspace"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          setProjectToDelete(proj);
-                        }}
-                      >
-                        <RiDeleteBin6Line className="h-3.5 w-3.5" />
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="text-muted-foreground mt-6 flex min-w-0 flex-col gap-2 text-xs">
-                    <div className="flex min-w-0 items-start gap-1.5">
-                      <span className="line-clamp-2 min-h-8">
-                        {proj.description || "Update routes for " + proj.name}
-                      </span>
-                    </div>
-                    <div className="flex min-w-0 items-end gap-1.5">
-                      <Clock11Icon className="text-muted-foreground h-3.5 w-3.5 shrink-0" />
-                      <span className="truncate">
-                        {formatRelativeTime(proj.updatedAt)}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+              <RiListUnordered aria-hidden="true" className="h-4 w-4" />
+            </button>
+          </fieldset>
         </div>
       </div>
-      {/* Edit Settings Dialog */}
 
+      {hasProjects ? (
+        <div className="flex flex-col gap-6 md:flex-row md:gap-6 lg:gap-8">
+          {/* Overview rail — real counts only */}
+          <aside
+            aria-label="Workspace overview"
+            className="order-2 flex w-full shrink-0 flex-col gap-5 md:order-1 md:w-[280px] lg:w-[320px] xl:w-[340px] 2xl:w-[360px]"
+          >
+            <section aria-labelledby="overview-heading" className="space-y-3">
+              <h2
+                id="overview-heading"
+                className="text-foreground text-base font-semibold tracking-tight"
+              >
+                Overview
+              </h2>
+              <div className="bg-card/30 border-border/50 rounded-xl border p-4 shadow-sm">
+                <dl className="divide-border/50 divide-y">
+                  <div className="flex items-center justify-between py-2.5 first:pt-0 last:pb-0">
+                    <dt className="text-muted-foreground text-sm">Projects</dt>
+                    <dd className="text-foreground text-sm font-semibold tabular-nums">
+                      {projects.length}
+                    </dd>
+                  </div>
+                  <div className="flex items-center justify-between py-2.5 first:pt-0 last:pb-0">
+                    <dt className="text-muted-foreground text-sm">Endpoints</dt>
+                    <dd className="text-foreground text-sm font-semibold tabular-nums">
+                      {stats.endpointCount}
+                    </dd>
+                  </div>
+                  <div className="flex items-center justify-between py-2.5 first:pt-0 last:pb-0">
+                    <dt className="text-muted-foreground text-sm">Routes</dt>
+                    <dd className="text-foreground text-sm font-semibold tabular-nums">
+                      {stats.routeCount}
+                    </dd>
+                  </div>
+                </dl>
+              </div>
+            </section>
+
+            <section aria-labelledby="methods-heading" className="space-y-3">
+              <h2
+                id="methods-heading"
+                className="text-foreground text-base font-semibold tracking-tight"
+              >
+                Routes by method
+              </h2>
+              <div className="bg-card/30 border-border/50 space-y-3 rounded-xl border p-4 shadow-sm">
+                {stats.routeCount === 0 ? (
+                  <p className="text-muted-foreground text-xs leading-relaxed">
+                    No routes yet. Add your first route from a project canvas.
+                  </p>
+                ) : (
+                  METHOD_ORDER.map((method) => {
+                    const count = stats.methodCounts[method];
+                    const percent = Math.round(
+                      (count / stats.routeCount) * 100,
+                    );
+                    return (
+                      <div key={method} className="space-y-1.5">
+                        <div className="flex items-center justify-between text-xs">
+                          <span
+                            className="font-mono font-semibold"
+                            style={{
+                              color: `var(--method-${method.toLowerCase()})`,
+                            }}
+                          >
+                            {method}
+                          </span>
+                          <span className="text-muted-foreground tabular-nums">
+                            {count}
+                          </span>
+                        </div>
+                        <div
+                          aria-hidden="true"
+                          className="bg-muted h-1.5 overflow-hidden rounded-full"
+                        >
+                          <div
+                            className="h-full rounded-full transition-[width] duration-300"
+                            style={{
+                              width: `${percent}%`,
+                              backgroundColor: `var(--method-${method.toLowerCase()})`,
+                            }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            </section>
+
+            <section aria-labelledby="recent-heading" className="space-y-3">
+              <h2
+                id="recent-heading"
+                className="text-foreground text-base font-semibold tracking-tight"
+              >
+                Recently updated
+              </h2>
+              <div className="bg-card/30 border-border/50 rounded-xl border p-2 shadow-sm">
+                <ul className="divide-border/50 divide-y">
+                  {recentProjects.map((project) => (
+                    <li key={project.id}>
+                      <Link
+                        href={`/projects/${project.slug}/canvas`}
+                        className="group hover:bg-muted/50 focus-visible:ring-ring focus-visible:ring-offset-background flex items-center justify-between gap-3 rounded-lg px-2 py-2.5 transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+                      >
+                        <span className="min-w-0">
+                          <span className="text-foreground group-hover:text-primary block truncate text-sm font-medium transition-colors">
+                            {project.name}
+                          </span>
+                          <span className="text-muted-foreground block truncate text-xs">
+                            {formatRelativeTime(project.updatedAt)}
+                          </span>
+                        </span>
+                        <RiArrowRightSLine
+                          aria-hidden="true"
+                          className="text-muted-foreground group-hover:text-foreground h-4 w-4 shrink-0 transition-transform group-hover:translate-x-0.5"
+                        />
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </section>
+
+            <section aria-labelledby="actions-heading" className="space-y-3">
+              <h2
+                id="actions-heading"
+                className="text-foreground text-base font-semibold tracking-tight"
+              >
+                Quick actions
+              </h2>
+              <div className="flex flex-col gap-2">
+                <Button
+                  type="button"
+                  onClick={triggerCreateProject}
+                  className="w-full justify-start"
+                >
+                  <RiAddLine aria-hidden="true" className="h-4 w-4" />
+                  New workspace
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={openCommandMenu}
+                  className="w-full justify-start"
+                >
+                  <RiCommandLine aria-hidden="true" className="h-4 w-4" />
+                  Search everything
+                </Button>
+                <Button
+                  variant="outline"
+                  nativeButton={false}
+                  className="w-full justify-start"
+                  render={<Link href="/activity" />}
+                >
+                  <RiFileList3Line aria-hidden="true" className="h-4 w-4" />
+                  Activity logs
+                </Button>
+              </div>
+            </section>
+          </aside>
+
+          {/* Project list */}
+          <div className="order-1 min-w-0 flex-1 space-y-4 md:order-2 md:space-y-5">
+            <div className="flex items-baseline justify-between gap-3">
+              <h2 className="text-foreground text-base font-semibold tracking-tight">
+                {search ? "Results" : "Projects"}
+              </h2>
+              <p
+                aria-live="polite"
+                className="text-muted-foreground text-xs tabular-nums"
+              >
+                {filteredProjects.length}{" "}
+                {filteredProjects.length === 1 ? "workspace" : "workspaces"}
+              </p>
+            </div>
+
+            {filteredProjects.length === 0 ? (
+              <div className="bg-card/30 border-border/50 flex flex-col items-center justify-center rounded-xl border border-dashed px-6 py-12 text-center shadow-sm sm:py-16">
+                <div className="bg-primary/10 text-primary mb-4 flex h-14 w-14 items-center justify-center rounded-full">
+                  <RiTerminalBoxLine aria-hidden="true" className="h-7 w-7" />
+                </div>
+                <h3 className="text-foreground text-lg font-semibold">
+                  No matching workspaces
+                </h3>
+                <p className="text-muted-foreground mt-2 max-w-sm text-sm leading-relaxed">
+                  Nothing matches “{search}”. Try a different name, slug, or
+                  description.
+                </p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="mt-6"
+                  onClick={() => {
+                    void setSearch(null);
+                    searchRef.current?.focus();
+                  }}
+                >
+                  Clear search
+                </Button>
+              </div>
+            ) : (
+              <div
+                className={cn(
+                  viewMode === "grid"
+                    ? "grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"
+                    : "flex flex-col gap-3",
+                )}
+              >
+                {filteredProjects.map((project) => {
+                  const endpoints = project.endpoints ?? [];
+                  const routeCount = endpoints.reduce(
+                    (total, endpoint) => total + (endpoint.routes?.length ?? 0),
+                    0,
+                  );
+
+                  return (
+                    <article
+                      key={project.id}
+                      className={cn(
+                        "group bg-card/30 border-border/50 hover:border-border hover:shadow-md relative flex flex-col gap-4 overflow-hidden rounded-xl border p-5 transition-all duration-200 ease-out",
+                        "has-[a:focus-visible]:ring-ring has-[a:focus-visible]:ring-offset-background has-[a:focus-visible]:ring-2 has-[a:focus-visible]:ring-offset-2",
+                        viewMode === "list" && "sm:p-4",
+                      )}
+                    >
+                      {/* Whole-card navigation target; actions sit above it. */}
+                      <Link
+                        href={`/projects/${project.slug}/canvas`}
+                        className="absolute inset-0 z-10 rounded-xl focus-visible:outline-none"
+                      >
+                        <span className="sr-only">
+                          Open workspace {project.name}
+                        </span>
+                      </Link>
+
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex min-w-0 items-center gap-3">
+                          <div className="from-primary/20 to-primary/5 text-primary ring-primary/20 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-linear-to-b ring-1">
+                            <RiTerminalBoxLine
+                              aria-hidden="true"
+                              className="h-5 w-5"
+                            />
+                          </div>
+                          <div className="flex min-w-0 flex-col">
+                            <h3 className="text-foreground group-hover:text-primary truncate text-base font-semibold tracking-tight transition-colors">
+                              {project.name}
+                            </h3>
+                            <span className="text-muted-foreground truncate font-mono text-xs">
+                              /{project.slug}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="relative z-20 flex shrink-0 items-center gap-1.5">
+                          <button
+                            type="button"
+                            aria-label={`Workspace settings for ${project.name}`}
+                            title="Workspace settings"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              setProjectToEdit(project);
+                            }}
+                            className="border-border bg-card text-muted-foreground hover:text-foreground hover:bg-muted focus-visible:ring-ring focus-visible:ring-offset-background inline-flex h-11 w-11 items-center justify-center rounded-lg border shadow-sm transition-all duration-200 ease-out focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none active:scale-95 sm:h-8 sm:w-8"
+                          >
+                            <RiSettings3Line
+                              aria-hidden="true"
+                              className="h-4 w-4"
+                            />
+                          </button>
+                          <button
+                            type="button"
+                            aria-label={`Delete workspace ${project.name}`}
+                            title="Delete workspace"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              setProjectToDelete(project);
+                            }}
+                            className="border-border bg-card text-muted-foreground hover:text-destructive hover:bg-muted focus-visible:ring-ring focus-visible:ring-offset-background inline-flex h-11 w-11 items-center justify-center rounded-lg border shadow-sm transition-all duration-200 ease-out focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none active:scale-95 sm:h-8 sm:w-8"
+                          >
+                            <RiDeleteBin6Line
+                              aria-hidden="true"
+                              className="h-4 w-4"
+                            />
+                          </button>
+                        </div>
+                      </div>
+
+                      <p
+                        className={cn(
+                          "text-muted-foreground text-sm leading-relaxed",
+                          viewMode === "list" ? "line-clamp-1" : "line-clamp-2",
+                        )}
+                      >
+                        {project.description ||
+                          "No description yet. Open the workspace to document what it mocks."}
+                      </p>
+
+                      <div className="text-muted-foreground border-border/50 mt-auto flex flex-wrap items-center gap-x-4 gap-y-2 border-t pt-3 text-xs">
+                        <span className="inline-flex items-center gap-1.5">
+                          <RiPulseLine
+                            aria-hidden="true"
+                            className="h-3.5 w-3.5"
+                          />
+                          <span className="tabular-nums">
+                            {endpoints.length}
+                          </span>
+                          {endpoints.length === 1 ? "endpoint" : "endpoints"}
+                        </span>
+                        <span className="inline-flex items-center gap-1.5">
+                          <RiRouteLine
+                            aria-hidden="true"
+                            className="h-3.5 w-3.5"
+                          />
+                          <span className="tabular-nums">{routeCount}</span>
+                          {routeCount === 1 ? "route" : "routes"}
+                        </span>
+                        <span className="ml-auto inline-flex items-center gap-1.5">
+                          <RiTimeLine
+                            aria-hidden="true"
+                            className="h-3.5 w-3.5"
+                          />
+                          {formatRelativeTime(project.updatedAt)}
+                        </span>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+      ) : (
+        <div className="bg-card/30 border-border/50 flex flex-col items-center justify-center rounded-xl border border-dashed px-6 py-16 text-center shadow-sm">
+          <div className="bg-primary/10 text-primary mb-5 flex h-16 w-16 items-center justify-center rounded-full">
+            <RiTerminalBoxLine aria-hidden="true" className="h-8 w-8" />
+          </div>
+          <h2 className="text-foreground text-xl font-semibold tracking-tight">
+            Create your first workspace
+          </h2>
+          <p className="text-muted-foreground mt-2 max-w-md text-sm leading-relaxed">
+            A workspace groups related mock endpoints. Create one, then draw
+            routes on the canvas or add them by hand.
+          </p>
+          <Button type="button" onClick={triggerCreateProject} className="mt-6">
+            <RiAddLine aria-hidden="true" className="h-4 w-4" />
+            New workspace
+          </Button>
+        </div>
+      )}
+
+      {/* Edit Settings Dialog */}
       <Dialog
         open={!!projectToEdit}
         onOpenChange={(open) => {
@@ -469,7 +775,7 @@ export function ProjectGrid({
           }
         }}
       >
-        <DialogContent className="sm:max-w-106.25">
+        <DialogContent className="sm:max-w-lg">
           <form onSubmit={handleEditSubmit}>
             <DialogHeader>
               <DialogTitle>Workspace Settings</DialogTitle>
@@ -503,9 +809,12 @@ export function ProjectGrid({
                   maxLength={100}
                   disabled={editLoading || isPending}
                 />
-                <span className="text-muted-foreground text-[10px]">
-                  Determines mock base URL: `/{editSlug}`. Must be lowercase
-                  alphanumeric with hyphens.
+                <span className="text-muted-foreground text-xs">
+                  Mock base URL:{" "}
+                  <code className="bg-muted text-caption rounded-sm px-1 py-0.5 font-mono">
+                    /{editSlug || "slug"}
+                  </code>
+                  . Lowercase alphanumeric with hyphens.
                 </span>
               </div>
               <div className="flex flex-col gap-2">
@@ -542,7 +851,7 @@ export function ProjectGrid({
                 {editLoading || isPending ? (
                   <>
                     <RiLoader2Line
-                      className="h-4 w-4 animate-spin"
+                      className="h-4 w-4 animate-spin motion-reduce:animate-none"
                       aria-hidden="true"
                     />
                     <span>Saving...</span>
@@ -566,19 +875,22 @@ export function ProjectGrid({
           }
         }}
       >
-        <DialogContent>
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle variant="destructive">Delete Workspace</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete **{projectToDelete?.name}**? All
-              endpoints, routes, schemas, and historical logs will be
+              Are you sure you want to delete{" "}
+              <strong className="text-foreground font-semibold">
+                {projectToDelete?.name}
+              </strong>
+              ? All endpoints, routes, schemas, and historical logs will be
               permanently wiped.
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-3 py-2">
             <p className="text-muted-foreground text-xs">
-              To verify deletion, type the project name{" "}
+              To verify deletion, type the workspace name{" "}
               <strong className="text-foreground select-all">
                 {projectToDelete?.name}
               </strong>{" "}
@@ -587,7 +899,7 @@ export function ProjectGrid({
             <Input
               size="sm"
               variant="mono"
-              aria-label="Project name confirmation"
+              aria-label="Workspace name confirmation"
               value={deleteConfirmText}
               onChange={(e) => setDeleteConfirmText(e.target.value)}
               placeholder={projectToDelete?.name}
@@ -606,8 +918,6 @@ export function ProjectGrid({
             <Button
               type="button"
               variant="destructive"
-              title="Permanently Delete Workspace"
-              aria-label="Permanently Delete Workspace"
               onClick={handleDeleteProject}
               disabled={
                 deleteLoading ||
@@ -617,7 +927,10 @@ export function ProjectGrid({
               aria-disabled={deleteLoading || isPending}
             >
               {(deleteLoading || isPending) && (
-                <RiLoader2Line className="h-4 w-4 animate-spin" />
+                <RiLoader2Line
+                  className="h-4 w-4 animate-spin motion-reduce:animate-none"
+                  aria-hidden="true"
+                />
               )}
               <span>Permanently Delete</span>
             </Button>

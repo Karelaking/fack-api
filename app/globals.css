@@ -108,6 +108,7 @@
   --color-secondary: var(--secondary);
   --color-primary-foreground: var(--primary-foreground);
   --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
   --color-popover-foreground: var(--popover-foreground);
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
@@ -153,7 +154,12 @@
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.55 0.2 260);
+  /* Primary is used both as a button fill (with `primary-foreground`) and as
+     text on `primary/10`–`primary/20` tints, so it is tuned to clear 4.5:1 in
+     both roles. `primary-hover` is a separate solid color because compositing
+     a lighter `primary/80` behind white text drops below AA. */
+  --primary: oklch(0.5 0.2 260);
+  --primary-hover: oklch(0.45 0.2 260);
   --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
@@ -164,8 +170,8 @@
   --destructive: oklch(0.525 0.245 27.325);
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
-  --ring: oklch(0.55 0.2 260);
-  --chart-1: oklch(0.55 0.2 260);
+  --ring: oklch(0.5 0.2 260);
+  --chart-1: oklch(0.5 0.2 260);
   --chart-2: oklch(0.52 0.17 152);
   --chart-3: oklch(0.65 0.2 45);
   --chart-4: oklch(0.55 0.2 320);
@@ -204,8 +210,11 @@
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.205 0 0);
   --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.65 0.2 260);
-  --primary-foreground: oklch(0.985 0 0);
+  /* Light fill + dark ink keeps AA in dark mode without shrinking the hue's
+     presence as text on `primary/10` tints. Hover brightens instead of dimming. */
+  --primary: oklch(0.7 0.2 260);
+  --primary-hover: oklch(0.74 0.2 260);
+  --primary-foreground: oklch(0.145 0 0);
   --secondary: oklch(0.269 0 0);
   --secondary-foreground: oklch(0.985 0 0);
   --muted: oklch(0.269 0 0);
@@ -253,6 +262,16 @@
   }
   html {
     @apply font-sans;
+  }
+
+  /* Horizontal containment belongs on the root, not on every element: a
+     global `* { overflow-x: hidden }` silently turns descendants into scroll
+     containers, which breaks `position: sticky`, clips focus rings, and hides
+     genuine overflow bugs from view. Individual controls carry their own
+     focus indicators, so there is no global focus ring to fight with them. */
+  html,
+  body {
+    overflow-x: clip;
   }
 }
 

@@ -48,6 +48,9 @@ export const metadata = {
   title: "Fack API's — Mock API Platform",
   description:
     "High-performance, open-source mock API platform with visual React Flow editor and dynamic payload synthesis.",
+  alternates: {
+    canonical: "/",
+  },
   openGraph: {
     title: "Fack API's — Mock API Platform",
     description:

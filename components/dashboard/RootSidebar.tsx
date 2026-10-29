@@ -86,7 +86,7 @@ export function RootSidebar(): React.JSX.Element {
                   <span className="text-sm font-bold">W</span>
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
-                  <span className="truncate font-semibold">
+                  <span className="truncate text-sm font-semibold sm:text-base">
                     Mradul Kumar&apos;s Workspace
                   </span>
                   <span className="text-muted-foreground truncate text-xs">
@@ -101,7 +101,9 @@ export function RootSidebar(): React.JSX.Element {
           <div
             role="button"
             tabIndex={0}
-            className="relative cursor-pointer px-2 group-data-[collapsible=icon]:hidden"
+            aria-label="Open command menu"
+            aria-keyshortcuts="Control+K Meta+K"
+            className="focus-visible:ring-ring focus-visible:ring-offset-background group relative cursor-pointer rounded-md px-2 group-data-[collapsible=icon]:hidden focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
             onClick={() =>
               window.dispatchEvent(new CustomEvent("open-command-menu"))
             }
@@ -112,16 +114,20 @@ export function RootSidebar(): React.JSX.Element {
               }
             }}
           >
-            <RiSearchLine className="text-muted-foreground pointer-events-none absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2" />
+            <RiSearchLine
+              aria-hidden="true"
+              className="text-muted-foreground pointer-events-none absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2"
+            />
             <input
               type="text"
-              aria-label="Find"
+              tabIndex={-1}
+              aria-hidden="true"
               readOnly
               placeholder="Find"
-              className="border-border/40 bg-background text-foreground placeholder:text-muted-foreground focus:ring-primary pointer-events-none h-9 w-full cursor-pointer rounded-md border py-1 pr-8 pl-9 text-sm focus:ring-1 focus:outline-none"
+              className="border-border/50 bg-background text-foreground placeholder:text-muted-foreground group-hover:border-border pointer-events-none h-9 w-full cursor-pointer rounded-md border py-1 pr-10 pl-9 text-sm transition-colors"
             />
-            <div className="border-border bg-muted/50 text-muted-foreground pointer-events-none absolute top-1/2 right-3.5 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-lg border text-[10px] font-medium uppercase">
-              F
+            <div className="border-border bg-muted/50 text-muted-foreground pointer-events-none absolute top-1/2 right-3 flex h-5 items-center justify-center rounded-sm border px-1.5 font-mono text-[10px] font-medium">
+              ⌘K
             </div>
           </div>
         </div>
@@ -143,6 +149,7 @@ export function RootSidebar(): React.JSX.Element {
                         render={
                           <Link href={item.href} aria-label={item.title} />
                         }
+                        className="data-[active=true]:bg-primary/10 data-[active=true]:text-primary hover:bg-muted/50 transition-colors duration-200 data-[active=true]:font-medium"
                       >
                         <item.icon className="h-4 w-4" />
                         <span>{item.title}</span>
@@ -171,6 +178,7 @@ export function RootSidebar(): React.JSX.Element {
                         render={
                           <Link href={item.href} aria-label={item.title} />
                         }
+                        className="data-[active=true]:bg-primary/10 data-[active=true]:text-primary hover:bg-muted/50 transition-colors duration-200 data-[active=true]:font-medium"
                       >
                         <item.icon className="h-4 w-4" />
                         <span>{item.title}</span>
@@ -187,7 +195,7 @@ export function RootSidebar(): React.JSX.Element {
       <SidebarFooter>
         <div className="border-border/40 flex w-full min-w-0 items-center justify-between border-t p-4 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-2">
           <ProfileDialog>
-            <button className="hover:bg-muted focus-visible:ring-primary -ml-1 flex min-w-0 flex-1 cursor-pointer items-center gap-2 rounded-md p-1 text-left transition-colors outline-none group-data-[collapsible=icon]:ml-0 focus-visible:ring-2">
+            <button className="hover:bg-muted focus-visible:ring-ring focus-visible:ring-offset-background -ml-1 flex min-w-0 flex-1 cursor-pointer items-center gap-2 rounded-md p-1 text-left transition-colors group-data-[collapsible=icon]:ml-0 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none">
               {user?.imageUrl ? (
                 <Image
                   src={user.imageUrl}
@@ -210,19 +218,22 @@ export function RootSidebar(): React.JSX.Element {
             <button
               type="button"
               aria-label="More profile actions"
-              className="hover:bg-muted hover:text-foreground flex h-7 w-7 items-center justify-center rounded-md transition-colors"
+              className="hover:bg-muted hover:text-foreground focus-visible:ring-ring focus-visible:ring-offset-background flex h-8 w-8 items-center justify-center rounded-md transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
             >
-              <RiMoreFill className="h-4 w-4" />
+              <RiMoreFill aria-hidden="true" className="h-4 w-4" />
             </button>
             <button
               type="button"
               aria-label="Notifications"
-              className="hover:bg-muted hover:text-foreground relative flex h-7 w-7 items-center justify-center rounded-md transition-colors"
+              className="hover:bg-muted hover:text-foreground focus-visible:ring-ring focus-visible:ring-offset-background relative flex h-8 w-8 items-center justify-center rounded-md transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
             >
-              <RiNotification3Line className="h-4 w-4" />
-              <span className="absolute top-1.5 right-1.5 flex h-1.5 w-1.5">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-blue-400 opacity-75"></span>
-                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-blue-500"></span>
+              <RiNotification3Line aria-hidden="true" className="h-4 w-4" />
+              <span
+                aria-hidden="true"
+                className="absolute top-1.5 right-1.5 flex h-1.5 w-1.5"
+              >
+                <span className="bg-primary/60 absolute inline-flex h-full w-full animate-ping rounded-full opacity-75 motion-reduce:animate-none"></span>
+                <span className="bg-primary relative inline-flex h-1.5 w-1.5 rounded-full"></span>
               </span>
             </button>
           </div>

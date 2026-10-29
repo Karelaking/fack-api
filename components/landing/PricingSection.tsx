@@ -22,12 +22,11 @@ export const PricingSection = (): React.JSX.Element => {
 
       <div className="border-border/40 relative z-10 mx-auto max-w-7xl border-x">
         {/* Section Header */}
-        <header className="mx-auto max-w-3xl space-y-4 px-4 pt-16 pb-14 text-center md:pt-24">
-          <h2 className="text-foreground text-3xl leading-tight font-extrabold tracking-tight sm:text-4xl lg:text-5xl">
-            100% Free & Open Source. <br className="hidden sm:inline" />
-            Zero Vendor Lock-in.
+        <header className="mx-auto max-w-full space-y-4 px-4 pt-16 pb-14 text-center md:pt-24">
+          <h2 className="text-foreground mx-auto w-full px-2 text-3xl leading-[1.02] font-extrabold tracking-tight text-balance sm:text-5xl lg:text-6xl xl:text-7xl 2xl:text-[8rem]">
+            100% Free & Open Source. Zero Vendor Lock-in.
           </h2>
-          <p className="text-muted-foreground mx-auto max-w-2xl text-sm leading-relaxed sm:text-base">
+          <p className="text-muted-foreground mx-auto max-w-3xl text-sm leading-relaxed sm:text-base md:text-lg">
             Run Fack API on your own machine or infrastructure and store mock
             routes in your own database. You retain 100% ownership of your mock
             schema data.

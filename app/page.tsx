@@ -109,9 +109,9 @@ export default function HomePage(): React.JSX.Element {
       <LandingHeader />
       <main className="w-full flex-1" id="main-content">
         <HeroSection />
+        <InteractiveCanvasDemo />
         <HowToStartSection />
         <LogoCloudSection />
-        <InteractiveCanvasDemo />
         <FeaturesSection />
         <PricingSection />
         <Footer />

@@ -116,11 +116,11 @@ export const FeaturesSection = (): React.JSX.Element => {
 
       <div className="border-border/40 relative z-10 mx-auto max-w-7xl border-x">
         {/* Section Header */}
-        <header className="mx-auto max-w-3xl space-y-4 px-4 pt-16 pb-14 text-center md:pt-24">
-          <h2 className="text-foreground text-3xl leading-tight font-extrabold tracking-tight sm:text-4xl lg:text-5xl">
-            Everything You Need for Modern Mock APIs & Schema Architecture
+        <header className="mx-auto max-w-full space-y-4 px-4 pt-16 pb-14 text-center md:pt-24">
+          <h2 className="text-foreground mx-auto w-full px-2 text-3xl leading-[1.02] font-extrabold tracking-tight text-balance sm:text-5xl lg:text-6xl xl:text-7xl 2xl:text-[8rem]">
+            Everything You Need for Modern Mock APIs
           </h2>
-          <p className="text-muted-foreground mx-auto max-w-2xl text-sm leading-relaxed sm:text-base">
+          <p className="text-muted-foreground mx-auto max-w-3xl text-sm leading-relaxed sm:text-base md:text-lg">
             Built from the ground up to empower developers, QA engineers, and
             frontend teams with visual, type-safe API simulation tools.
           </p>

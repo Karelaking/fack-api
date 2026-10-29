@@ -143,10 +143,10 @@ export const HeroSection = (): React.JSX.Element => {
 
         <div className="border-border/40 relative z-10 mx-auto flex min-h-[calc(100svh-5rem)] w-full max-w-7xl flex-col border-x px-4 sm:px-6 lg:px-8">
           <div className="flex flex-1 flex-col justify-center py-10 sm:py-16 lg:py-20">
-            <h1 className="font-display text-foreground text-[clamp(2.25rem,10.5vw,5.75rem)] leading-[0.94] font-medium tracking-[-0.04em] text-balance">
+            <h1 className="font-display text-foreground max-w-[22ch] text-[clamp(2rem,9vw,5rem)] leading-[0.92] font-medium tracking-[-0.045em]">
               <span className="hero-line block">Design the mock API</span>
               <span className="hero-line hero-line--2 block">on a canvas.</span>
-              <span className="hero-line hero-line--3 text-muted-foreground hover:text-foreground mt-[0.16em] block transition-colors duration-500">
+              <span className="hero-line hero-line--3 text-muted-foreground hover:text-foreground mt-[0.14em] block transition-colors duration-500">
                 Serve it from your
               </span>
               <span className="hero-line hero-line--4 text-muted-foreground hover:text-foreground block transition-colors duration-500">

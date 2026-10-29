@@ -1,4 +1,5 @@
 import * as React from "react";
+import type { Metadata } from "next";
 import { auth } from "@clerk/nextjs/server";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import { CommandMenu } from "@/components/command-menu";
@@ -9,6 +10,14 @@ import { CreateProjectDialog } from "@/components/dashboard/CreateProjectDialog"
 import { HeaderNewProjectButton } from "@/components/dashboard/HeaderNewProjectButton";
 
 export const dynamic = "force-dynamic";
+
+/** Authenticated surfaces are never useful as search results. */
+export const metadata: Metadata = {
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -34,7 +43,7 @@ export default async function DashboardLayout({
 
           {/* Main Content Area */}
           <main className="relative flex min-w-0 flex-1 flex-col overflow-hidden">
-            <header className="border-border/10 bg-background/60 absolute inset-x-0 top-0 z-10 flex h-14 items-center border-b px-6 backdrop-blur-md">
+            <header className="border-border/10 bg-background/60 absolute inset-x-0 top-0 z-10 flex h-14 items-center border-b px-4 backdrop-blur-md sm:px-6 lg:px-8 xl:px-12 2xl:px-16">
               <div className="flex flex-1 items-center justify-start">
                 <SidebarTrigger className="-ml-1 h-8 w-8" />
               </div>

@@ -3,7 +3,8 @@
   "version": "1.15.0",
   "private": true,
   "scripts": {
-    "dev": "devshare dev -- next dev",
+    "dev:host": "devshare dev -- next dev",
+    "dev": "next dev",
     "mcp:devtools": "pnpm dlx next-devtools-mcp@latest",
     "build": "next build",
     "start": "next start",

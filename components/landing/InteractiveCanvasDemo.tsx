@@ -10,7 +10,6 @@ import {
   ArrowRight,
   Terminal,
   RefreshCw,
-  Plus,
   Layers,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -235,18 +234,13 @@ export type ApiResponse = {
 
       <div className="border-border/40 relative z-10 mx-auto max-w-7xl border-x">
         {/* Section Header */}
-        <div className="mx-auto max-w-3xl space-y-4 px-4 pt-16 pb-14 text-center md:pt-24">
-          <div className="border-success/30 bg-success/10 text-success inline-flex items-center gap-1.5 rounded-full border px-3 py-1 font-mono text-[11px] font-bold tracking-wider uppercase">
-            <Plus className="size-3" />
-            <span>Interactive Dashboard Preview</span>
-          </div>
-
-          <h2 className="text-foreground text-3xl leading-tight font-extrabold tracking-tight sm:text-4xl lg:text-5xl">
+        <div className="mx-auto max-w-360 space-y-4 px-4 pt-12 pb-10 text-center md:pt-16 md:pb-12 lg:pt-20 lg:pb-14">
+          <h2 className="text-foreground mx-auto w-full text-3xl leading-[1.1] font-extrabold tracking-tight text-balance sm:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl">
             Create Mock Endpoints in Seconds.{" "}
             <br className="hidden sm:inline" />
             Deploy Without Writing a Server.
           </h2>
-          <p className="text-muted-foreground mx-auto max-w-2xl text-sm leading-relaxed sm:text-base">
+          <p className="text-muted-foreground mx-auto max-w-4xl text-sm leading-relaxed sm:text-base md:text-lg">
             Experience how easy it is to create mock routes in the Fack API
             dashboard. Configure methods, assign Faker.js generators, inject
             simulated chaos, and see instant live outputs below.
@@ -256,7 +250,7 @@ export type ApiResponse = {
         {/* 2-Column Framed Grid Showcase */}
         <div className="divide-border/40 border-border/40 grid grid-cols-1 divide-y border-t lg:grid-cols-12 lg:divide-x lg:divide-y-0">
           {/* Left Column: Interactive Dashboard Route Creator */}
-          <div className="bg-card/30 flex flex-col justify-between space-y-6 p-6 sm:p-8 lg:col-span-6">
+          <div className="bg-card/30 flex flex-col justify-between space-y-5 p-5 sm:p-6 lg:col-span-6 lg:p-7">
             {/* Top Window Bar */}
             <div className="border-border/40 flex items-center justify-between border-b pb-4">
               <div className="flex items-center gap-2">
